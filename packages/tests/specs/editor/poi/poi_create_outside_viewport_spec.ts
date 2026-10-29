@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_create_outside_viewport_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('create a poi outside viewport, it connects to a link nearby', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('create a poi outside viewport, it connects to a link nearby', function
     let preparedData;
     let link;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 78.68822870649961, latitude: 17.065070322770552},
@@ -45,7 +46,7 @@ describe('create a poi outside viewport, it connects to a link nearby', function
         link = preparedData.getFeature('linkLayer', -189171);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

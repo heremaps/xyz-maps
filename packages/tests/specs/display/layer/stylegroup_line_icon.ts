@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('StyleGroup Image and Line geometry', () => {
     const redImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mP8z8AARLgB48hQAAAdEw/5itjcFgAAAABJRU5ErkJggg==';
@@ -41,7 +42,7 @@ describe('StyleGroup Image and Line geometry', () => {
     let geo1;
     let geo2;
 
-    before(async () => {
+    beforeAll(async () => {
         layer = new TileLayer({
             min: 2,
             max: 20,
@@ -96,7 +97,7 @@ describe('StyleGroup Image and Line geometry', () => {
         mapContainer = display.getContainer();
     });
 
-    after(async () => {
+    afterAll(async () => {
         display.destroy();
     });
 

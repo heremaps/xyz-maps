@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './zoom_in_20_plus.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('zoom in 20+', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('zoom in 20+', function() {
 
     const MAX_ZOOM = 28;
 
-    before(async () => {
+    beforeAll(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -55,7 +56,7 @@ describe('zoom in 20+', function() {
         localLayer = preparedData.getLayers('localLayer');
     });
 
-    after(async () => display.destroy());
+    afterAll(async () => display.destroy());
 
     it('validate inital zoom', async () => {
         expect(display.getZoomlevel()).to.equal(22.7);

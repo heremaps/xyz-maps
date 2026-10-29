@@ -18,6 +18,7 @@
  */
 
 import {Task, TaskManager, TaskSequence} from '@here/xyz-maps-common';
+import {beforeAll, describe, it} from 'vitest';
 
 describe('task sequence', function() {
     const expect = chai.expect;
@@ -27,7 +28,7 @@ describe('task sequence', function() {
     let tasks = [];
 
 
-    before(() => {
+    beforeAll(() => {
         tasks = [
             taskManager.create({
                 init(input) {

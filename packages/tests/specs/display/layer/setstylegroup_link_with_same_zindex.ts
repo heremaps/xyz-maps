@@ -22,6 +22,7 @@ import {getCanvasPixelColor, Listener, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_link_with_same_zindex.json';
 import {click} from 'triggerEvents';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('setStyleGroup link with same zIndex', () => {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('setStyleGroup link with same zIndex', () => {
     let feature;
     let building;
 
-    before(async () => {
+    beforeAll(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -55,7 +56,7 @@ describe('setStyleGroup link with same zIndex', () => {
         building = preparedData.getFeature('buildingLayer', '123');
     });
 
-    after(async () => {
+    afterAll(async () => {
         display.destroy();
     });
 

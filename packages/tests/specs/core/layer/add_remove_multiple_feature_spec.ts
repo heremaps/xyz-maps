@@ -19,13 +19,14 @@
 
 import {prepare} from 'utils';
 import dataset from './add_remove_multiple_feature_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
 describe('add and remove multiple features in layer', function() {
     const expect = chai.expect;
 
     var layer;
 
-    before(async () => {
+    beforeAll(async () => {
         let preparedData = await prepare(dataset);
         layer = preparedData.getLayers('addressLayer');
     });

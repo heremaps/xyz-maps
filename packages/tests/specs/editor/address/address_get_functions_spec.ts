@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {vi} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it} from 'vitest';
 import {mousemove} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
@@ -35,7 +35,7 @@ describe('Address get functions', function() {
     var address;
     var mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -53,7 +53,7 @@ describe('Address get functions', function() {
         address = preparedData.getFeature('paLayer', -47935);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
 

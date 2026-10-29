@@ -21,13 +21,14 @@ import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './get_containers_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('validate map container', function() {
     const expect = chai.expect;
 
     let display;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -36,7 +37,7 @@ describe('validate map container', function() {
         });
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

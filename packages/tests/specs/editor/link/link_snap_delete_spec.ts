@@ -22,6 +22,7 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_snap_delete_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link shape point snapping to delete link', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('link shape point snapping to delete link', function() {
     let link;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 79.85780289018322, latitude: 11.961515259320095},
@@ -57,7 +58,7 @@ describe('link shape point snapping to delete link', function() {
         }, linkLayer);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

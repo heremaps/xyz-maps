@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './address_create_nolink_in_viewport_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('create an address where no link exists within 1000 meters', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('create an address where no link exists within 1000 meters', function()
     var editor;
     var display;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -45,7 +46,7 @@ describe('create an address where no link exists within 1000 meters', function()
         addrLayer = preparedData.getLayers('paLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
 

@@ -22,6 +22,7 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_click_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link click events', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('link click events', function() {
 
     let link;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.79443, latitude: 12.94086},
@@ -49,7 +50,7 @@ describe('link click events', function() {
         link = preparedData.getFeature('linkLayer', -189058);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

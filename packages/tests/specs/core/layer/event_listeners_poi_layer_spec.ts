@@ -19,6 +19,7 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_poi_layer_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('event listeners in poi layer', function() {
     const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('event listeners in poi layer', function() {
     var place1;
     var place2;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         placeLayer = preparedData.getLayers('placeLayer');
         placeProvider = placeLayer.getProvider();
@@ -38,7 +39,7 @@ describe('event listeners in poi layer', function() {
         place2 = preparedData.getFeature('placeLayer', -9119);
     });
 
-    after(async function() {
+    afterAll(async function() {
         await preparedData.clear();
     });
 

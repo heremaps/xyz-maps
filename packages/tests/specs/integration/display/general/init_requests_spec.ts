@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {MonitorXHR, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './init_requests_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('initial requests of display', function() {
     const expect = chai.expect;
@@ -29,11 +30,11 @@ describe('initial requests of display', function() {
     let display;
     let requests;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
     });
 
-    after(async function() {
+    afterAll(async function() {
         display && display.destroy();
     });
 

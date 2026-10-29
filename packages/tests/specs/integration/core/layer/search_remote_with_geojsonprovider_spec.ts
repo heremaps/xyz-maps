@@ -19,6 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './search_remote_with_geojsonprovider_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
 // GeoJSonProvider actually does not support remote search......
 // search locally instead
@@ -28,7 +29,7 @@ describe('search in geojson providers remotely', function() {
     var poiLayer;
     var results;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         poiLayer = preparedData.getLayers('placeGeoJsonLayer');
     });

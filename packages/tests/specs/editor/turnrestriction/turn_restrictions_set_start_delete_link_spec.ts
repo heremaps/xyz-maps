@@ -22,6 +22,7 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_set_start_delete_link_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('edit turn restriction set turn restriction and delete link', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('edit turn restriction set turn restriction and delete link', function(
     let link1;
     let link2;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.03466354414104, latitude: 13.037041278065471},
@@ -53,7 +54,7 @@ describe('edit turn restriction set turn restriction and delete link', function(
         expect(objs).to.have.lengthOf(2);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

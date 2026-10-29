@@ -18,12 +18,13 @@
  */
 
 import {TaskManager} from '@here/xyz-maps-common';
+import {afterAll, describe, it} from 'vitest';
 
 describe('task manager: interrupts', function() {
     const taskmanager = TaskManager.getInstance();
     const taskMangerDefaultTime = taskmanager.time;
 
-    after(() => {
+    afterAll(() => {
         taskmanager.time = taskMangerDefaultTime;
     });
 

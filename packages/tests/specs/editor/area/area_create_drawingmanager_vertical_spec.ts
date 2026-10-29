@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, Area} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_vertical_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Area drawing manager points with same longitude', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('Area drawing manager points with same longitude', function() {
     let preparedData;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -49,7 +50,7 @@ describe('Area drawing manager points with same longitude', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

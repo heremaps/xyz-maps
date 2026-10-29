@@ -19,6 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './get_functions_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('get functions', function() {
     const expect = chai.expect;
@@ -27,7 +28,7 @@ describe('get functions', function() {
     var addrLayer;
     var results;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         addrLayer = preparedData.getLayers('addressLayer');
 
@@ -44,7 +45,7 @@ describe('get functions', function() {
         });
     });
 
-    after(async function() {
+    afterAll(async function() {
         await preparedData.clear();
     });
 

@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './add_remove_layer_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('get add and remove map layer', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('get add and remove map layer', function() {
     let display;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -48,7 +49,7 @@ describe('get add and remove map layer', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

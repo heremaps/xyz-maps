@@ -22,6 +22,7 @@ import {Listener, prepare, waitForPointerEvent} from 'utils';
 import {mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_enter_leave_listener_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('pointer enter and leave feature listener', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('pointer enter and leave feature listener', function() {
     let display;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.02278439898076, latitude: 20.273712610318146},
@@ -44,7 +45,7 @@ describe('pointer enter and leave feature listener', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
         await preparedData.clear();
     });

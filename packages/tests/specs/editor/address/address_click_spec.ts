@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './address_click_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('click on address to validate the coordinate', function() {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('click on address to validate the coordinate', function() {
     let display;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
 
@@ -56,7 +57,7 @@ describe('click on address to validate the coordinate', function() {
         address = preparedData.getFeature('paLayer', -49140);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
 

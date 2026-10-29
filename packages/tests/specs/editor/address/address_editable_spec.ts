@@ -23,6 +23,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './address_editable_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('address editable', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('address editable', function() {
     let mapContainer;
     let address;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -50,7 +51,7 @@ describe('address editable', function() {
         address = preparedData.getFeature('paLayer', -47934);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
 

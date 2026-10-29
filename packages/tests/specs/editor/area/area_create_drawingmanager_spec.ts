@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Area} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Area drawing manager without panning the map', () => {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('Area drawing manager without panning the map', () => {
     let preparedData;
     let mapContainer;
 
-    before(async () => {
+    beforeAll(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -49,7 +50,7 @@ describe('Area drawing manager without panning the map', () => {
         mapContainer = display.getContainer();
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
     });

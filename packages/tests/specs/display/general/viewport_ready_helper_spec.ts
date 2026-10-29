@@ -1,6 +1,6 @@
 import {Map} from '@here/xyz-maps-display';
 import {waitForViewportReady} from 'displayUtils';
-import {vi} from 'vitest';
+import {vi, describe, beforeEach, afterEach, it} from 'vitest';
 
 describe('viewport readiness helper', () => {
     let display: Map;

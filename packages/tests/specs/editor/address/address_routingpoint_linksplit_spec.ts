@@ -21,6 +21,7 @@ import {editorClick, waitForEditorReady} from 'editorUtils';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_routingpoint_linksplit_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Address routing point updates by link split', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('Address routing point updates by link split', function() {
     var link;
     var address;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 79.61337180560229, latitude: 11.875416530928291},
@@ -47,7 +48,7 @@ describe('Address routing point updates by link split', function() {
         address = preparedData.getFeature('paLayer', -47936);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
 

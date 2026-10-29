@@ -22,6 +22,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_modify_then_undo_clear_provider_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link modify two time and undo then clear provider', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('link modify two time and undo then clear provider', function() {
     let linkProvider;
     let link;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.13201659362801, latitude: 13.660441367361372},
@@ -51,7 +52,7 @@ describe('link modify two time and undo then clear provider', function() {
         link = preparedData.getFeature('linkLayer', -189076);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

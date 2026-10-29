@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_setcoordinates_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('set link coordinates', () => {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('set link coordinates', () => {
     let mapContainer;
     let link;
 
-    before(async () => {
+    beforeAll(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -51,7 +52,7 @@ describe('set link coordinates', () => {
         link = preparedData.getFeature('linkLayer', -189080);
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

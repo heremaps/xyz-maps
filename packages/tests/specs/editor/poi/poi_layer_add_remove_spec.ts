@@ -22,6 +22,7 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_layer_add_remove_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('POI layer add and remove', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('POI layer add and remove', function() {
     let mapContainer;
     let poiLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.54966, latitude: 14.02363},
@@ -52,7 +53,7 @@ describe('POI layer add and remove', function() {
         expect(objects).to.have.lengthOf(3);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

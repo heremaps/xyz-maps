@@ -22,6 +22,7 @@ import {prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './disable_zoomcontrol_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('disable zoomcontrol component', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('disable zoomcontrol component', function() {
     let display;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -40,7 +41,7 @@ describe('disable zoomcontrol component', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

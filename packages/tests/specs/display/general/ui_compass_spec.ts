@@ -22,6 +22,7 @@ import {prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './disable_zoomcontrol_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('ui component compass', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('ui component compass', function() {
     let display;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         mapContainer = document.getElementById('map');
         display = new Map(mapContainer, {
@@ -46,7 +47,7 @@ describe('ui component compass', function() {
         });
     });
 
-    after(async function() {
+    afterAll(async function() {
         if (display.destroy) {
             display.destroy();
         }

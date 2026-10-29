@@ -19,6 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './set_style_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('set features style and restore', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('set features style and restore', function() {
     var addrLayer;
     var addrProvider;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
 
         buildingLayer = preparedData.getLayers('buildingLayer');
@@ -40,7 +41,7 @@ describe('set features style and restore', function() {
         addrProvider = addrLayer.getProvider();
     });
 
-    after(async function() {
+    afterAll(async function() {
         await preparedData.clear();
     });
 

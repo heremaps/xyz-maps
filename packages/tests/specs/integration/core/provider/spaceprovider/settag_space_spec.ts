@@ -19,6 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './settag_space_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('settag in spaceprovider', function() {
     const expect = chai.expect;
@@ -27,13 +28,13 @@ describe('settag in spaceprovider', function() {
     var spaceProvider;
     var results;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         let spaceLayer = preparedData.getLayers('spaceLayer');
         spaceProvider = spaceLayer.getProvider();
     });
 
-    after(async function() {
+    afterAll(async function() {
         await preparedData.clear();
     });
 

@@ -21,8 +21,9 @@ import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_delete_new_connected_link_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
-xdescribe('New poi connect to a new link and then remove the link', function() {
+describe.skip('New poi connect to a new link and then remove the link', function() {
     const expect = chai.expect;
 
     let editor;
@@ -34,7 +35,7 @@ xdescribe('New poi connect to a new link and then remove the link', function() {
     let placeLayer;
     let idMaps = [];
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -56,7 +57,7 @@ xdescribe('New poi connect to a new link and then remove the link', function() {
         });
     });
 
-    after(async function() {
+    afterAll(async function() {
         await clean(editor, idMaps);
         editor.destroy();
         display.destroy();

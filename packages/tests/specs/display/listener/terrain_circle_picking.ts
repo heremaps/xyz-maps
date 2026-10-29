@@ -21,6 +21,7 @@ import {Map} from '@here/xyz-maps-display';
 import {CircleStyle, Feature, LocalProvider, TileLayer} from '@here/xyz-maps-core';
 import {waitForViewportReady} from 'displayUtils';
 import {createPickingTerrain, terrainScreenshot} from '../../../src/utils/terrainPicking';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe.skip('Terrain Circle picking', () => {
     const expect = chai.expect;
@@ -28,7 +29,7 @@ describe.skip('Terrain Circle picking', () => {
     let layer: TileLayer;
     let circle: Feature;
 
-    before(async () => {
+    beforeAll(async () => {
         const terrain = createPickingTerrain();
         layer = new TileLayer({min: 2, max: 20, provider: new LocalProvider()});
         circle = layer.addFeature({
@@ -46,7 +47,7 @@ describe.skip('Terrain Circle picking', () => {
         await waitForViewportReady(map);
     });
 
-    after(() => map.destroy());
+    afterAll(() => map.destroy());
 
     const altitudes: CircleStyle['altitude'][] = [true, 'terrain'];
     const alignments: CircleStyle['alignment'][] = ['viewport', 'map'];

@@ -22,6 +22,7 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './transform_split_link_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('splitting link deactivates transformer of objects', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('splitting link deactivates transformer of objects', function() {
     let preparedData;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.551603, latitude: 13.848644},
@@ -50,7 +51,7 @@ describe('splitting link deactivates transformer of objects', function() {
         expect(objs).to.have.lengthOf(2);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
@@ -71,7 +72,7 @@ describe('splitting link deactivates transformer of objects', function() {
     });
 
 
-    xit('validate not able to transform', async function() {
+    it.skip('validate not able to transform', async function() {
         // transformer does not work correctly, it is not disabled and transforms splitted link
         let obj;
         await waitForEditorReady(editor, async ()=>{

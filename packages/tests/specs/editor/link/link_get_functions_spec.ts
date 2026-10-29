@@ -22,6 +22,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_get_functions_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Link getters return correct value', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('Link getters return correct value', function() {
     let preparedData;
     let link;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -47,7 +48,7 @@ describe('Link getters return correct value', function() {
         link = preparedData.getFeature('linkLayer', -189073);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

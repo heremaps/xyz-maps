@@ -22,6 +22,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './poi_create_remove_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('add POI object and then remove', function() {
     const expect = chai.expect;
@@ -37,7 +38,7 @@ describe('add POI object and then remove', function() {
     let linkLayer;
     let placeLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -53,7 +54,7 @@ describe('add POI object and then remove', function() {
         placeLayer = preparedData.getLayers('placeLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         await clean(editor, idMaps);
         editor.destroy();
         display.destroy();

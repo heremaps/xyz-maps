@@ -21,6 +21,7 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Area} from '@here/xyz-maps-editor';
 import dataset from './area_display_zoomlevel_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Area object display and hide', function() {
     const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('Area object display and hide', function() {
     var display;
     let preparedData;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -95.341612, latitude: 40.330651},
@@ -44,7 +45,7 @@ describe('Area object display and hide', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
 

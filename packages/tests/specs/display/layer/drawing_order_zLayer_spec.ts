@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './drawing_order_zLayer_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('feature drawing order', () => {
     const expect = chai.expect;
@@ -34,7 +35,7 @@ describe('feature drawing order', () => {
     let mapContainer;
 
 
-    before(async () => {
+    beforeAll(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -59,7 +60,7 @@ describe('feature drawing order', () => {
         feature3 = preparedData.getFeature('layer2', 'layer2-f1');
     });
 
-    after(async () => {
+    afterAll(async () => {
         display.destroy();
     });
 

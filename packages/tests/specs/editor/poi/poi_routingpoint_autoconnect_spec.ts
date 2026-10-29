@@ -22,6 +22,7 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_routingpoint_autoconnect_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('POI routing point auto reconnect', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('POI routing point auto reconnect', function() {
     let mapContainer;
     let objs;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 78.35537822414972, latitude: 17.31379770143876},
@@ -47,7 +48,7 @@ describe('POI routing point auto reconnect', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

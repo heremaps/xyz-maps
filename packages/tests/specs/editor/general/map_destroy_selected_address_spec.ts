@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_destroy_selected_address_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('destroy editor when point address is selected', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('destroy editor when point address is selected', function() {
     let preparedData;
     let address;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.134776956, latitude: 18.038907646},
@@ -46,7 +47,7 @@ describe('destroy editor when point address is selected', function() {
         address = preparedData.getFeature('paLayer', -47998);
     });
 
-    after(async function() {
+    afterAll(async function() {
         if (editor.destroy) {
             editor.destroy();
         }
@@ -55,7 +56,7 @@ describe('destroy editor when point address is selected', function() {
         await preparedData.clear();
     });
 
-    xit('validate destroy editor is working', async function() {
+    it.skip('validate destroy editor is working', async function() {
         // exception is thrown
         address.select();
 

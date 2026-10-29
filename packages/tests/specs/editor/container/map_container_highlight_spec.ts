@@ -22,6 +22,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './map_container_highlight_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map container highlight', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('map container highlight', function() {
     let place1;
     let place2;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -58,7 +59,7 @@ describe('map container highlight', function() {
         container.push(place1, place2);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

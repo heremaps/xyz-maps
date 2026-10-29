@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Line} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './line_basics_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('basic line tests', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('basic line tests', function() {
     let mapContainer;
     let line;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -50,7 +51,7 @@ describe('basic line tests', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

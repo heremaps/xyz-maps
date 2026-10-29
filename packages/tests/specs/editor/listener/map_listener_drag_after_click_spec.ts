@@ -22,6 +22,7 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_drag_after_click_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map events, click objects after dragging', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('map events, click objects after dragging', function() {
     let preparedData;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.50973515846258, latitude: 11.965889086900376},
@@ -45,7 +46,7 @@ describe('map events, click objects after dragging', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

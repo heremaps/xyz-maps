@@ -22,6 +22,7 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_link_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('turn restriction test split a link', function() {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('turn restriction test split a link', function() {
     let linkLayer;
     let idMaps = [];
 
-    before(async ()=>{
+    beforeAll(async ()=>{
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.29973, latitude: 12.98805},
@@ -57,7 +58,7 @@ describe('turn restriction test split a link', function() {
         expect(objs).to.have.lengthOf(3);
     });
 
-    after(async function() {
+    afterAll(async function() {
         await clean(editor, idMaps);
         editor.destroy();
         display.destroy();

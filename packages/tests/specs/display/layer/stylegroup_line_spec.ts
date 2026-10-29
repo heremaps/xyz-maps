@@ -22,6 +22,7 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './stylegroup_line_spec.json';
 import {TileLayer} from '@here/xyz-maps-core';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('setStyleGroup Line', () => {
     const {expect} = chai;
@@ -32,7 +33,7 @@ describe('setStyleGroup Line', () => {
     let mapContainer;
     let feature;
 
-    before(async () => {
+    beforeAll(async () => {
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -51,7 +52,7 @@ describe('setStyleGroup Line', () => {
         feature = preparedData.getFeature('linkLayer', '123');
     });
 
-    after(async () => display.destroy());
+    afterAll(async () => display.destroy());
 
     it('style feature, validate its new style', async () => {
         // validate link style

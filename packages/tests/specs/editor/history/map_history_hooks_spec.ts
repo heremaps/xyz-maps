@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import dataset from './map_history_hooks.json';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map history hooks', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('map history hooks', function() {
     var preparedData;
     let addressLayer;
 
-    before(async () => {
+    beforeAll(async () => {
         preparedData = await prepare(dataset);
 
         addressLayer = preparedData.getLayers('paLayer');
@@ -47,7 +48,7 @@ describe('map history hooks', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

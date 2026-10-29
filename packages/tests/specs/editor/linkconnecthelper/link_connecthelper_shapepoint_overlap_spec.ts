@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_shapepoint_overlap_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link connect helper which has overlapped shape point', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('link connect helper which has overlapped shape point', function() {
 
     let link1;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.69297278785734, latitude: 16.799272986590253},
@@ -46,7 +47,7 @@ describe('link connect helper which has overlapped shape point', function() {
         link1 = preparedData.getFeature('linkLayer', -189152);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

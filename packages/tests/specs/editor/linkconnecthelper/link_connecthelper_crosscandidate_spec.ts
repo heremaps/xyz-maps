@@ -23,6 +23,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_crosscandidate_spec.json';
 import {Crossing} from '@here/xyz-maps-editor';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link connect helper crosscandidate', function() {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('link connect helper crosscandidate', function() {
     let crossings;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost(1e-1));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -55,7 +56,7 @@ describe('link connect helper crosscandidate', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

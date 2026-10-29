@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('stylegroup Point alignment', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('stylegroup Point alignment', function() {
     let feature;
     let layer;
 
-    before(async () => {
+    beforeAll(async () => {
         const center = {longitude: 73.075272, latitude: 19.931463};
 
         layer = new TileLayer({provider: new LocalProvider()});
@@ -61,7 +62,7 @@ describe('stylegroup Point alignment', function() {
         await waitForViewportReady(display);
     });
 
-    after(async () => {
+    afterAll(async () => {
         display.destroy();
     });
 

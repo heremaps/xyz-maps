@@ -19,13 +19,14 @@
 import {prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './map_destroy_with_space_and_copyright_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('destroy display with space layer and copyright', function() {
     const expect = chai.expect;
 
     let display;
 
-    before(async function() {
+    beforeAll(async function() {
         // prepare map display which has Space with copyright and destroy the display in test
         // the destroy function should not throw exception
         let preparedData = await prepare(dataset);
@@ -36,7 +37,7 @@ describe('destroy display with space layer and copyright', function() {
         });
     });
 
-    after(function() {
+    afterAll(function() {
         if (display.destroy) display.destroy();
     });
 

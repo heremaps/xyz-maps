@@ -21,6 +21,7 @@ import {waitForEditorReady, clean, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_and_link_create_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('poi and link create', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('poi and link create', function() {
     let preparedData;
     let idMaps = [];
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.1973, latitude: 20.82666},
@@ -43,7 +44,7 @@ describe('poi and link create', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         await clean(editor, idMaps);
         editor.destroy();
         display.destroy();

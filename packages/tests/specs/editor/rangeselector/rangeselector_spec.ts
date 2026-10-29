@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './rangeselector_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 const expect = chai.expect;
 
@@ -37,7 +38,7 @@ describe('range selector drag', () => {
     let link2;
     let link3;
 
-    before(async () => {
+    beforeAll(async () => {
         chai.use(chaiAlmost(1e-8));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -57,7 +58,7 @@ describe('range selector drag', () => {
         link3 = preparedData.getFeature('linkLayer', '-189233');
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

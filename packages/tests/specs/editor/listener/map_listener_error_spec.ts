@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_error_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map error listener', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('map error listener', function() {
     var linkLayer;
     var listener;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -49,13 +50,13 @@ describe('map error listener', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
     });
 
-    xit('submit a link with invalid token', function() {
+    it.skip('submit a link with invalid token', function() {
         return new Promise<void>((done) => {
             const _open = XMLHttpRequest.prototype.open;
 

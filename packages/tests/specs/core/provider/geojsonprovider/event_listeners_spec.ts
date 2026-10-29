@@ -19,12 +19,13 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
 describe('event listeners in provider layer', function() {
     const expect = chai.expect;
     var poiProvider;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         let poiLayer = preparedData.getLayers('placeGeoJsonLayer');
         poiProvider = poiLayer.getProvider();

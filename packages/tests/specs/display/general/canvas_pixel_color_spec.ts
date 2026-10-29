@@ -1,4 +1,4 @@
-import {vi} from 'vitest';
+import {vi, describe, it} from 'vitest';
 import {getCanvasPixelColor} from 'utils';
 
 describe('canvas pixel color sampling', () => {

@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_getobjects_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map getobjects', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('map getobjects', function() {
     var placeLayer;
     var addressLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.435113, latitude: 15.653134},
@@ -51,7 +52,7 @@ describe('map getobjects', function() {
         addressLayer = preparedData.getLayers('paLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

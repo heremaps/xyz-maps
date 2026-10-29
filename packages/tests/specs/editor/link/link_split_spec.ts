@@ -24,6 +24,7 @@ import chaiAlmost from 'chai-almost';
 import dataset from './link_split_spec.json';
 import {Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import {drag} from 'triggerEvents';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link splitting and set its properties correctly', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('link splitting and set its properties correctly', function() {
     let preparedData;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -49,7 +50,7 @@ describe('link splitting and set its properties correctly', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

@@ -22,6 +22,7 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_split_then_undo_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('drag a link shape point to the other one to split itself and then undo', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('drag a link shape point to the other one to split itself and then undo
 
     let link;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.256321, latitude: 15.31888},
@@ -48,7 +49,7 @@ describe('drag a link shape point to the other one to split itself and then undo
         link = preparedData.getFeature('linkLayer', -189057);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

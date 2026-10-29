@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './rangeselector_snap_overlap_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('range selector: snapping and overlapping', () => {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('range selector: snapping and overlapping', () => {
     let link;
 
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost(1e-7));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -51,7 +52,7 @@ describe('range selector: snapping and overlapping', () => {
         link = preparedData.getFeature('linkLayer', '1');
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

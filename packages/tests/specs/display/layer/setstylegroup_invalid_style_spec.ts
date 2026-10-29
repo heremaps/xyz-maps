@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_invalid_style_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 
 describe('setStyleGroup with invalid style', function() {
@@ -33,7 +34,7 @@ describe('setStyleGroup with invalid style', function() {
     let link;
     let address;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -54,7 +55,7 @@ describe('setStyleGroup with invalid style', function() {
         address = preparedData.getFeature('paLayer', '123');
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

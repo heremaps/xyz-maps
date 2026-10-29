@@ -22,6 +22,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_get_functions_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Area getters return value', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('Area getters return value', function() {
     var preparedData;
     var area;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -48,7 +49,7 @@ describe('Area getters return value', function() {
         area = preparedData.getFeature('buildingLayer', -9075);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
 

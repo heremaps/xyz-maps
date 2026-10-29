@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './transform_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('transform objects', () => {
     const expect = chai.expect;
@@ -34,7 +35,7 @@ describe('transform objects', () => {
     let link;
     let address;
 
-    before(async () => {
+    beforeAll(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -61,7 +62,7 @@ describe('transform objects', () => {
         container.transform();
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

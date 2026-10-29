@@ -23,6 +23,7 @@ import chaiAlmost from 'chai-almost';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import {NavlinkShape} from '@here/xyz-maps-editor';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 
 describe('validate attributes after splitting a link', function() {
@@ -32,7 +33,7 @@ describe('validate attributes after splitting a link', function() {
     let display;
     let preparedData;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.59799375789913, latitude: 16.650199051996044},
@@ -45,7 +46,7 @@ describe('validate attributes after splitting a link', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

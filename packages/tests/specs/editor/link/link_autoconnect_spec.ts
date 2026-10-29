@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_autoconnect_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link auto connect', function() {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('link auto connect', function() {
     let link2;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -55,7 +56,7 @@ describe('link auto connect', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

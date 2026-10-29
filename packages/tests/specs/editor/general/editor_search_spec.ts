@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './editor_search_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('editor search function', function() {
     const expect = chai.expect;
@@ -37,7 +38,7 @@ describe('editor search function', function() {
     var placeLayer;
     var buildingLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.904889, latitude: 16.410735},
@@ -60,7 +61,7 @@ describe('editor search function', function() {
     });
 
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
 

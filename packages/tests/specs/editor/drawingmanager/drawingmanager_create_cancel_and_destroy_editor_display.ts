@@ -22,6 +22,7 @@ import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_create_cancel_and_destroy_editor_display.json';
+import {describe, it} from 'vitest';
 
 describe('Drawing manager create or cancel drawing and then destroy editor and display', function() {
     const expect = chai.expect;

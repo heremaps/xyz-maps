@@ -21,6 +21,7 @@ import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './get_objects_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('get objects', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('get objects', function() {
 
     let testLayer;
 
-    before(async () => {
+    beforeAll(async () => {
         preparedData = await prepare(dataset);
 
 
@@ -47,7 +48,7 @@ describe('get objects', function() {
         link = preparedData.getFeature('linkLayer', 1003913693);
     });
 
-    after(async () => {
+    afterAll(async () => {
         display.destroy();
         await preparedData.clear();
     });

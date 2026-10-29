@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_changes_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 
 describe('map changes test', function() {
@@ -31,7 +32,7 @@ describe('map changes test', function() {
     var preparedData;
 
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.089289, latitude: 13.010477},
@@ -45,7 +46,7 @@ describe('map changes test', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

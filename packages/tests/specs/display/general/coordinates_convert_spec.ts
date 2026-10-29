@@ -22,13 +22,14 @@ import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './coordinates_convert_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('converts coordinates between pixel and geo', function() {
     const expect = chai.expect;
 
     let display;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost(1e-4));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -40,7 +41,7 @@ describe('converts coordinates between pixel and geo', function() {
         await waitForViewportReady(display);
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

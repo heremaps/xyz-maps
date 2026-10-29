@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_polygon_spec.json';
 import chaiAlmost from 'chai-almost';
 import {TileLayer} from '@here/xyz-maps-core';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 const IMG_SRC_RED = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mP8z8AARLgB48hQAAAdEw/5itjcFgAAAABJRU5ErkJggg==';
 const IMG_SRC_BLUE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mNkYPj/nwEPYBwZCgANIw/5um5PVwAAAABJRU5ErkJggg==';
@@ -38,7 +39,7 @@ describe('setStyleGroup Polygon', () => {
     let mapContainer;
     let feature;
 
-    before(async () => {
+    beforeAll(async () => {
         chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -59,7 +60,7 @@ describe('setStyleGroup Polygon', () => {
         feature = preparedData.getFeature('buildingLayer', '123');
     });
 
-    after(async () => {
+    afterAll(async () => {
         display.destroy();
     });
 

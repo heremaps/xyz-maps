@@ -22,6 +22,7 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_disconnect_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('edit turn restriction disconnect link, link is marked as disconnected', function() {
     const expect = chai.expect;
@@ -37,7 +38,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
     let link4;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.942132, latitude: 13.329791},
@@ -58,7 +59,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         link4 = preparedData.getFeature('linkLayer', -189192);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

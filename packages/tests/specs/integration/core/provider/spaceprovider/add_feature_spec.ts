@@ -19,6 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './add_feature_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('add feature to spaceprovider', function() {
     const expect = chai.expect;
@@ -26,13 +27,13 @@ describe('add feature to spaceprovider', function() {
     var spaceLayer;
     var spaceProvider;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         spaceLayer = preparedData.getLayers('spaceLayer');
         spaceProvider = spaceLayer.getProvider();
     });
 
-    after(async function() {
+    afterAll(async function() {
         await preparedData.clear();
     });
 
@@ -67,7 +68,7 @@ describe('add feature to spaceprovider', function() {
     });
 
 
-    xit('set tag and validate objects in an area where new feature is added', async function() {
+    it.skip('set tag and validate objects in an area where new feature is added', async function() {
         // expect search function to return 2 features
         spaceProvider.clear();
         var objs; var robjs;

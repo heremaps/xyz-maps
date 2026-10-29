@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_text.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 let FONT = 'bold 48px Arial,Helvetica,sans-serif';
 
@@ -34,7 +35,7 @@ describe('setStyleGroup Point with text', function() {
     let mapContainer;
     let feature;
 
-    before(async () => {
+    beforeAll(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -54,7 +55,7 @@ describe('setStyleGroup Point with text', function() {
         feature = preparedData.getFeature('paLayer', '123');
     });
 
-    after(async () => {
+    afterAll(async () => {
         display.destroy();
     });
 

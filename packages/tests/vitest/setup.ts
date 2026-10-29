@@ -1,4 +1,4 @@
-import {afterAll, beforeAll, chai, describe, it} from 'vitest';
+import {afterAll, chai} from 'vitest';
 import chaiAlmost from 'chai-almost';
 // @ts-ignore: provided by vitest/plugins.mts
 import libs from 'virtual:xyz-libs';
@@ -41,12 +41,6 @@ for (const lib of libs) {
         throw new Error(`xyz-maps bundle "${lib.name}" did not initialize the expected "${lib.component}" API`);
     }
 }
-
-// Mocha names that the specs use and vitest does not define.
-g.xit = it.skip;
-g.xdescribe = describe.skip;
-g.before = beforeAll;
-g.after = afterAll;
 
 // Preserve the global chai API of karma-chai using the chai bundled with vitest.
 g.chai = chai;

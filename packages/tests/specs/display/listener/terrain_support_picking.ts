@@ -23,6 +23,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {Listener} from 'utils';
 import {click} from 'triggerEvents';
 import {createPickingTerrain, terrainFixtureUrl, terrainScreenshot} from '../../../src/utils/terrainPicking';
+import {describe, beforeAll, afterAll, beforeEach, it} from 'vitest';
 
 describe.skip('Terrain support picking', () => {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe.skip('Terrain support picking', () => {
     let draped: Feature;
     let pixels: {x: number, y: number}[];
 
-    before(async () => {
+    beforeAll(async () => {
         terrain = createPickingTerrain();
         overlay = new TileLayer({
             min: 2, max: 20, provider: new LocalProvider(),
@@ -62,7 +63,7 @@ describe.skip('Terrain support picking', () => {
         expect(pixels.length, 'rendered draped polygon on the slope').to.be.greaterThan(20);
     });
 
-    after(() => map.destroy());
+    afterAll(() => map.destroy());
 
     beforeEach(async () => {
         terrain.pointerEvents(false);

@@ -22,6 +22,7 @@ import {Listener, prepare} from 'utils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './parent_map_listener_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('display event listener', function() {
     const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('display event listener', function() {
     let display;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.00368500489765, latitude: 20.27239042522672},
@@ -41,7 +42,7 @@ describe('display event listener', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

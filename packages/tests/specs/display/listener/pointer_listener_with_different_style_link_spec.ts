@@ -22,6 +22,7 @@ import {Listener, getCanvasPixelColor, prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_listener_with_different_style_link_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('pointer listener with different style link', ()=>{
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('pointer listener with different style link', ()=>{
     let styles;
     let display;
 
-    before(async ()=>{
+    beforeAll(async ()=>{
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -52,7 +53,7 @@ describe('pointer listener with different style link', ()=>{
         styles = linkLayer.getStyle();
     });
 
-    after(async ()=>{
+    afterAll(async ()=>{
         display.destroy();
         await preparedData.clear();
     });

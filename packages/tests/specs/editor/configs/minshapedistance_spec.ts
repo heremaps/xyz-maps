@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './minshapedistance_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('set snapTolerance', function() {
     const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('set snapTolerance', function() {
     let display;
     let preparedData;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.84172527566523, latitude: 17.450976000022266},
@@ -43,7 +44,7 @@ describe('set snapTolerance', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

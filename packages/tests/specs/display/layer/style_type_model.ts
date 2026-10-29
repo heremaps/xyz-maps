@@ -22,6 +22,7 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './style_type_model.json';
 import {ModelStyle} from '@here/xyz-maps-core';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 
 describe('3d Model Styles', function() {
@@ -41,7 +42,7 @@ describe('3d Model Styles', function() {
         shininess: 0
     };
 
-    before(async () => {
+    beforeAll(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -59,7 +60,7 @@ describe('3d Model Styles', function() {
         feature = preparedData.getFeature('modelLayer', 'model1');
     });
 
-    after(() => {
+    afterAll(() => {
         display.destroy();
     });
 

@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_edit_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('modify area geometry', () => {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('modify area geometry', () => {
     let area;
     let areashp;
 
-    before(async () => {
+    beforeAll(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -55,7 +56,7 @@ describe('modify area geometry', () => {
         areaLayer = preparedData.getLayers('buildingLayer');
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

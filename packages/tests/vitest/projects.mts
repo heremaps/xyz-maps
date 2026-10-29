@@ -90,7 +90,6 @@ export function project(component: Component, mode: string) {
         test: {
             name: component,
             include,
-            globals: true,
             setupFiles: [path.join(root, 'vitest/setup.ts')],
             // the timeout of the mocha settings in the former build.js
             testTimeout: 20000,

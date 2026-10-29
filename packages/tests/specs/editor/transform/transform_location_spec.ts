@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './transform_location_spec.json';
 import chaiAlmost from 'chai-almost';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('transform for poi and point address', () => {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('transform for poi and point address', () => {
     let address;
     let container;
 
-    before(async () => {
+    beforeAll(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -61,7 +62,7 @@ describe('transform for poi and point address', () => {
         expect(address.coord()).to.deep.almost([76.035072188, 13.709170873, 0]);
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
@@ -156,7 +157,7 @@ describe('transform for poi and point address', () => {
         expect(address.coord()).to.deep.almost([76.035085462, 13.709278304, 0]);
     });
 
-    xit('pan map inside container', async () => {
+    it.skip('pan map inside container', async () => {
         // expect transformer not to transform when dragging inside transformer
         container.transform();
 

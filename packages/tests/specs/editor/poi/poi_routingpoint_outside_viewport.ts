@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_routingpoint_outside_viewport.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('poi connects to a link which is outside of viewport', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('poi connects to a link which is outside of viewport', function() {
     let poi2;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 78.35537822414972, latitude: 17.31379770143876},
@@ -50,7 +51,7 @@ describe('poi connects to a link which is outside of viewport', function() {
         poi1 = preparedData.getFeature('placeLayer', -29534);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

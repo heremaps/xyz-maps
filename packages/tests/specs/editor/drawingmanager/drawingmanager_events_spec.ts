@@ -22,6 +22,7 @@ import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_events_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('mouse events when drawingmanager is active', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('mouse events when drawingmanager is active', function() {
     let preparedData;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.26345, latitude: 13.04889},
@@ -45,7 +46,7 @@ describe('mouse events when drawingmanager is active', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

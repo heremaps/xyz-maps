@@ -24,6 +24,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './rangeselector_show_hide_spec.json';
 import chaiAlmost from 'chai-almost';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('range selector util', function() {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('range selector util', function() {
     let link2;
     let link4;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost(0.001));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -55,7 +56,7 @@ describe('range selector util', function() {
         display.addEventListener('pointermove', (e)=>console.log(e.mapX, e.mapY));
     });
 
-    after(async ()=>{
+    afterAll(async ()=>{
         editor.destroy();
         display.destroy();
         await preparedData.clear();

@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_shapepoint_multiple_self_overlaps_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link connect helper which has multiple overlapped shape points and crossing from one link', () => {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('link connect helper which has multiple overlapped shape points and cro
     let preparedData;
     let link1;
 
-    before(async () => {
+    beforeAll(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.69297278785734, latitude: 16.799272986590253},
@@ -45,7 +46,7 @@ describe('link connect helper which has multiple overlapped shape points and cro
         link1 = preparedData.getFeature('linkLayer', -189150);
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

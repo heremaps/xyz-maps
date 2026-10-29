@@ -19,6 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './search_locally_geojsonprovider_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
 describe('search features in geojson provider by single parameter', function() {
     const expect = chai.expect;
@@ -26,7 +27,7 @@ describe('search features in geojson provider by single parameter', function() {
     var preparedData;
     var poiLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
 
         poiLayer = preparedData.getLayers('placeGeoJsonLayer');

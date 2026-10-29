@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './poi_routingpoint_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('set POI routing point', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('set POI routing point', function() {
     let poi;
     let link;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost(1e-4));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -50,7 +51,7 @@ describe('set POI routing point', function() {
         poi = preparedData.getFeature('placeLayer', -29535);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

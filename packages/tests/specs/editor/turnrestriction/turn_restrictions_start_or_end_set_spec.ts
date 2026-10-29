@@ -22,6 +22,7 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_start_or_end_set_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('turn restriction either start or end is set', function() {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('turn restriction either start or end is set', function() {
     let link3;
     let link4;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.15267063201952, latitude: 13.550232964474148},
@@ -58,7 +59,7 @@ describe('turn restriction either start or end is set', function() {
         expect(objs).to.have.lengthOf(4);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

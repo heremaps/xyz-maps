@@ -20,6 +20,7 @@
 import {prepare} from 'utils';
 import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_then_cancel_at_high_level_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
 describe('get and cancel requesting with high level', function() {
     const expect = chai.expect;
@@ -42,7 +43,7 @@ describe('get and cancel requesting with high level', function() {
     var qk52;
 
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         placeProvider = preparedData.getLayers('placeLayer').getProvider();
 

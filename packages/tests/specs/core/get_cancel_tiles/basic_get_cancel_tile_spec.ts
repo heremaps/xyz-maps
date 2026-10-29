@@ -20,6 +20,7 @@
 import {prepare} from 'utils';
 import {getTileOnProvider} from 'coreUtils';
 import dataset from './basic_get_cancel_tile_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
 describe('basic get and cancel tiles', function() {
     const expect = chai.expect;
@@ -51,7 +52,7 @@ describe('basic get and cancel tiles', function() {
     var qk83;
 
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         placeProvider = preparedData.getLayers('placeLayer').getProvider();
 

@@ -20,6 +20,7 @@
 import {prepare} from 'utils';
 import dataset from './clusterTileLayer.json';
 import {ClusterTileLayer} from '@here/xyz-maps-core';
+import {describe, beforeAll, it} from 'vitest';
 
 describe('ClusterTileLayer', function() {
     const expect = chai.expect;
@@ -28,7 +29,7 @@ describe('ClusterTileLayer', function() {
     let clusterLayer;
     let clusterMaxZoom = 13;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         dataLayer = preparedData.getLayers('dataLayer');
 

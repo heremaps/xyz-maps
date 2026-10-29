@@ -20,7 +20,7 @@
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {drag} from 'triggerEvents';
-import {vi} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it} from 'vitest';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './map_destroy_spec.json';
 
@@ -29,7 +29,7 @@ describe('destroy display', function() {
 
     let display;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.852437, latitude: 13.542848},
@@ -38,7 +38,7 @@ describe('destroy display', function() {
         });
     });
 
-    after(async function() {
+    afterAll(async function() {
         if (display.destroy) display.destroy();
     });
 

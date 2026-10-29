@@ -21,6 +21,7 @@ import {waitForEditorReady, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_create_objects_undo_submit_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map history create objects and undo last changes, should create just one object', function() {
     const expect = chai.expect;
@@ -28,7 +29,7 @@ describe('map history create objects and undo last changes, should create just o
     var editor;
     var display;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.437315, latitude: 18.811783},
@@ -42,7 +43,7 @@ describe('map history create objects and undo last changes, should create just o
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

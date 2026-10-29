@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('StyleGroup Line geometry', () => {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('StyleGroup Line geometry', () => {
     let line1;
     let layer;
 
-    before(async () => {
+    beforeAll(async () => {
         layer = new TileLayer({
             min: 2,
             max: 20,
@@ -68,7 +69,7 @@ describe('StyleGroup Line geometry', () => {
         mapContainer = display.getContainer();
     });
 
-    after(async () => display.destroy());
+    afterAll(async () => display.destroy());
 
     it('validate default line style', async () => {
         const colors = await getCanvasPixelColor(mapContainer, [segment05to1, segment0to05], {

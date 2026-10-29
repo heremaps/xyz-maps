@@ -22,6 +22,7 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_close_shapepoints_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map history for undo, redo changes to shapepoints which are close to each other', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('map history for undo, redo changes to shapepoints which are close to e
 
     var link2;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 18.865855, longitude: 73.07682},
@@ -48,7 +49,7 @@ describe('map history for undo, redo changes to shapepoints which are close to e
         link2 = preparedData.getFeature('linkLayer', -189000);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

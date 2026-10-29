@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Line, LineShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './multiline_basics_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('basic multiline tests', () => {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('basic multiline tests', () => {
     let mapContainer;
     let multiLine;
 
-    before(async () => {
+    beforeAll(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -52,7 +53,7 @@ describe('basic multiline tests', () => {
         multiLine = preparedData.getFeature('lineLayer', 'LINE');
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
     });

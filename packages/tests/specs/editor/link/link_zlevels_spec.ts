@@ -24,6 +24,7 @@ import {Map} from '@here/xyz-maps-display';
 import dataset from './link_zlevels_spec.json';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import {TileLayer} from '@here/xyz-maps-core';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('navlink zlevels', () => {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('navlink zlevels', () => {
     let link: Navlink;
     let linkLayer: TileLayer;
 
-    before(async () => {
+    beforeAll(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.19774634658813, latitude: 13.103736533151803},
@@ -52,7 +53,7 @@ describe('navlink zlevels', () => {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

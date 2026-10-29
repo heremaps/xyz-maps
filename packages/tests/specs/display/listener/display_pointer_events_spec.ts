@@ -22,6 +22,7 @@ import {Listener, prepare, waitForPointerEvent} from 'utils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_pointer_events_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('validate pointer events', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('validate pointer events', function() {
     let mapContainer;
     let pa;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.01133868832176, latitude: 20.284701029331405},
@@ -45,7 +46,7 @@ describe('validate pointer events', function() {
         pa = preparedData.getFeature('paLayer', -10791);
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
 
         await preparedData.clear();

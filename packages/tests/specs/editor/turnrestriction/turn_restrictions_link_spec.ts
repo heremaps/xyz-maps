@@ -22,6 +22,7 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_link_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('edit turn restrictions by function on link', function() {
     const expect = chai.expect;
@@ -34,7 +35,7 @@ describe('edit turn restrictions by function on link', function() {
     let link1;
     let link2;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.878971, latitude: 13.042632},
@@ -52,7 +53,7 @@ describe('edit turn restrictions by function on link', function() {
         link2 = preparedData.getFeature('linkLayer', -189194);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

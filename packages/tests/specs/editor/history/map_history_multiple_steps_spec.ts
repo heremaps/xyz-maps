@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_multiple_steps_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map history for multiple steps redo and undo', function() {
     const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('map history for multiple steps redo and undo', function() {
     var display;
     var preparedData;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 18.865855, longitude: 73.07682},
@@ -42,7 +43,7 @@ describe('map history for multiple steps redo and undo', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

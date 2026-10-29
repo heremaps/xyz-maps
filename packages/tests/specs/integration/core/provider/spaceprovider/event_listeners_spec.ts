@@ -19,6 +19,7 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('event listeners in spaceprovider', function() {
     const expect = chai.expect;
@@ -26,13 +27,13 @@ describe('event listeners in spaceprovider', function() {
     var spaceLayer;
     var spaceProvider;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         spaceLayer = preparedData.getLayers('spaceLayer');
         spaceProvider = spaceLayer.getProvider();
     });
 
-    after(async function() {
+    afterAll(async function() {
         await preparedData.clear();
     });
 

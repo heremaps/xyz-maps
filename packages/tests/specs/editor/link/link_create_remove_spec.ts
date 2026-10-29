@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_create_remove_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Create new Link then remove', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('Create new Link then remove', function() {
     let link1;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.59506, latitude: 12.88776},
@@ -45,7 +46,7 @@ describe('Create new Link then remove', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

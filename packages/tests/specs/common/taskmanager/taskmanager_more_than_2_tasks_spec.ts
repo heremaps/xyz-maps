@@ -17,6 +17,7 @@
  * License-Filename: LICENSE
  */
 import {TaskManager} from '@here/xyz-maps-common';
+import {describe, it} from 'vitest';
 
 describe('task manager run more than 2 tasks', function() {
     const expect = chai.expect;

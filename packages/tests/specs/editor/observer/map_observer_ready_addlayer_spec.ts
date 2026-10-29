@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_ready_addlayer_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map ready observer for addlayer', function() {
     const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('map ready observer for addlayer', function() {
     let display;
     let preparedData;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.02831, latitude: 12.9356},
@@ -46,7 +47,7 @@ describe('map ready observer for addlayer', function() {
         expect(results['ready']).to.deep.equal([true]);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

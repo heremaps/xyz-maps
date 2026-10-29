@@ -22,6 +22,7 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Crossing, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link connect helper with undo', () => {
     const expect = chai.expect;
@@ -34,7 +35,7 @@ describe('link connect helper with undo', () => {
     let link2;
     let link4;
 
-    before(async () => {
+    beforeAll(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.56502522286314, latitude: 16.527722476232878},
@@ -52,7 +53,7 @@ describe('link connect helper with undo', () => {
         link4 = preparedData.getFeature('linkLayer', -189159);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

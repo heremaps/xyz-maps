@@ -22,8 +22,9 @@ import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_submit_removed_link.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
-xdescribe('ready event is triggered once after submitting removed links', function() {
+describe.skip('ready event is triggered once after submitting removed links', function() {
     const expect = chai.expect;
 
     let editor;
@@ -35,7 +36,7 @@ xdescribe('ready event is triggered once after submitting removed links', functi
     let placeLayer;
     let idMaps = [];
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -52,7 +53,7 @@ xdescribe('ready event is triggered once after submitting removed links', functi
         placeLayer = preparedData.getLayers('placeLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         await clean(editor, idMaps);
         editor.destroy();
         display.destroy();

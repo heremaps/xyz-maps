@@ -22,6 +22,7 @@ import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_validate_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('turn restriction validate', function() {
     const expect = chai.expect;
@@ -34,7 +35,7 @@ describe('turn restriction validate', function() {
     let link3;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -105.426506, latitude: 35.290071},
@@ -56,7 +57,7 @@ describe('turn restriction validate', function() {
         expect(objs).to.have.lengthOf(3);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

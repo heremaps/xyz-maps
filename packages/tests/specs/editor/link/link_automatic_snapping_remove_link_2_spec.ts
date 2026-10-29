@@ -22,6 +22,7 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_snapping_remove_link_2_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('drag a link shape point to the other and removes the link automatically', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('drag a link shape point to the other and removes the link automaticall
     let preparedData;
     let link1;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.629901, latitude: 15.197356},
@@ -47,7 +48,7 @@ describe('drag a link shape point to the other and removes the link automaticall
         link1 = preparedData.getFeature('linkLayer', -189018);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

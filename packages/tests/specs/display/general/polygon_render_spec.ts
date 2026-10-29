@@ -20,6 +20,7 @@
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './polygon_render_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('validate polygon rendering', function() {
     const expect = chai.expect;
@@ -28,7 +29,7 @@ describe('validate polygon rendering', function() {
     let layer;
     let display;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -81,7 +82,7 @@ describe('validate polygon rendering', function() {
         layer.addFeature(f2, [{'zIndex': 0, 'type': 'Polygon', 'opacity': 1, 'fill': '#00ffff', 'stroke': '#ff0000', 'strokeWidth': 5}]);
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

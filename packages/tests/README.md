@@ -1,8 +1,9 @@
 ## XYZ Maps JS: Tests
 
 The tests run in a real browser with [Vitest browser mode](https://vitest.dev/guide/browser/) and Playwright.
-The specs are written with Mocha-style globals (`describe`, `it`, `before`, `after`, `xit`) and Chai.
-`vitest/setup.ts` provides them.
+Specs explicitly import test APIs from `vitest` (`describe`, `it`, `beforeAll`, `afterAll`, etc.).
+Use `it.skip` or `describe.skip` for skipped tests. Test API globals are disabled.
+Assertions still use Chai, including `chai-almost`, provided by `vitest/setup.ts`.
 
 ### Build XYZ Maps JS
 

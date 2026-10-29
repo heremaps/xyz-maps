@@ -22,6 +22,7 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_shapepoint_overlap_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('verify Link overlapped shape point style', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('verify Link overlapped shape point style', function() {
 
     let link1; let link2;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -54,7 +55,7 @@ describe('verify Link overlapped shape point style', function() {
         link2 = preparedData.getFeature('linkLayer', -189082);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

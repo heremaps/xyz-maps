@@ -23,6 +23,7 @@ import {drag, mousewheel} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './set_get_behavior_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('set and get behavior', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('set and get behavior', function() {
     let display;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -41,7 +42,7 @@ describe('set and get behavior', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

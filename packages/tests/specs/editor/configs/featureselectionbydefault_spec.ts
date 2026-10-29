@@ -22,6 +22,7 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './featureselectionbydefault_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('set featureSelectionByDefault', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('set featureSelectionByDefault', function() {
     let preparedData;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.84172527566523, latitude: 17.450976000022266},
@@ -47,7 +48,7 @@ describe('set featureSelectionByDefault', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_create_when_link_inactive_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('add Address object when link is deactivated', function() {
     const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('add Address object when link is deactivated', function() {
     var editor;
     var display;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -42,7 +43,7 @@ describe('add Address object when link is deactivated', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

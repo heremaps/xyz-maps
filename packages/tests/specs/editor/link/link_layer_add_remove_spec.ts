@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_layer_add_remove_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Link layer add and remove', function() {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('Link layer add and remove', function() {
     let poi;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -56,7 +57,7 @@ describe('Link layer add and remove', function() {
         poi = preparedData.getFeature('placeLayer', -29521);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

@@ -20,8 +20,9 @@
 import {prepare} from 'utils';
 import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_gettile_then_cancel_with_all_requests_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
-xdescribe('layer get and cancel requesting all other related requests', function() {
+describe.skip('layer get and cancel requesting all other related requests', function() {
     // cancel request without callback will cancel all requests with the same qk
     const expect = chai.expect;
 
@@ -39,7 +40,7 @@ xdescribe('layer get and cancel requesting all other related requests', function
     var qk41;
     var qk42;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         placeLayer = preparedData.getLayers('placeLayer'); // placeLayer.level.length == 16
 
@@ -57,7 +58,7 @@ xdescribe('layer get and cancel requesting all other related requests', function
     });
 
     // Sydney, AUS
-    xit('get tile at level 16 and another at 17, cancel request at 16', function() {
+    it.skip('get tile at level 16 and another at 17, cancel request at 16', function() {
         return new Promise<void>((done) => {
             // expect 1 request, 1 callback, 0 cancel
             // qk11    = '3112301320131010' // length 16
@@ -89,7 +90,7 @@ xdescribe('layer get and cancel requesting all other related requests', function
         });
     });
 
-    xit('get tile at level 15 and another at 16, cancel request at 15', function() {
+    it.skip('get tile at level 15 and another at 16, cancel request at 15', function() {
         return new Promise<void>((done) => {
             // expect 4 requests, 1 callback, 3 cancels
             // qk21    = '311230132013100' // length 15
@@ -123,7 +124,7 @@ xdescribe('layer get and cancel requesting all other related requests', function
     });
 
 
-    xit('get tile at level 16 and another at 17, cancel request at 17', function() {
+    it.skip('get tile at level 16 and another at 17, cancel request at 17', function() {
         return new Promise<void>((done) => {
             // expect 1 request, 1 callback, 0 cancel
             // qk31    = '3112301320131020' // length 16
@@ -157,7 +158,7 @@ xdescribe('layer get and cancel requesting all other related requests', function
     });
 
 
-    xit('get tile at level 15 and another at 16, cancel request at 16', function() {
+    it.skip('get tile at level 15 and another at 16, cancel request at 16', function() {
         return new Promise<void>((done) => {
             // expect 4 requests, 1 callback, 0 cancel
             // qk41    = '311230132013103' // length 15

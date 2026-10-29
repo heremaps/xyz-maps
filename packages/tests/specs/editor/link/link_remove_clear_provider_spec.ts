@@ -22,6 +22,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_remove_clear_provider_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link remove and clear provider', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('link remove and clear provider', function() {
     let preparedData;
     let linkProvider;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.59443, latitude: 12.94086},
@@ -46,7 +47,7 @@ describe('link remove and clear provider', function() {
         linkProvider = preparedData.getLayers('linkLayer').getProvider();
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

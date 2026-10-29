@@ -20,6 +20,7 @@
 import {prepare} from 'utils';
 import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_multiple_times_cancel_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
 describe('get one tile multiple times and cancel', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('get one tile multiple times and cancel', function() {
     var qk3;
     var qk4;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         placeProvider = preparedData.getLayers('placeLayer').getProvider();
         qk1 = '3112301330012230'; // length 16

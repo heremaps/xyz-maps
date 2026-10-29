@@ -22,6 +22,7 @@ import {drag, click} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_routingpoint_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('routing point of address objects should always exists', function() {
     const expect = chai.expect;
@@ -34,7 +35,7 @@ describe('routing point of address objects should always exists', function() {
     let link2;
     let address;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {
@@ -53,7 +54,7 @@ describe('routing point of address objects should always exists', function() {
         address = preparedData.getFeature('paLayer', -47937);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
 

@@ -19,6 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './search_in_provider_and_layer_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
 describe('search features in poi layer and provider', function() {
     const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('search features in poi layer and provider', function() {
 
     var results;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
 
         poiLayer = preparedData.getLayers('placeGeoJsonLayer');

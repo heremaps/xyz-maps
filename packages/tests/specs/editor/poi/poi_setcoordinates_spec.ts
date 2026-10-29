@@ -22,6 +22,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './poi_setcoordinates_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('set POI coordinates', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('set POI coordinates', function() {
     let poi;
     let poiLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -50,7 +51,7 @@ describe('set POI coordinates', function() {
         poi = preparedData.getFeature('placeLayer', -29537);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

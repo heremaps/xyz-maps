@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 const FULL_BLOCK_CHAR = '\u2588';
 let FONT = 'bold 30px Arial,Helvetica,sans-serif';
@@ -39,7 +40,7 @@ describe('StyleGroup Text and Line geometry', () => {
     let geo1;
     let geo2;
 
-    before(async () => {
+    beforeAll(async () => {
         layer = new TileLayer({
             min: 2,
             max: 20,
@@ -94,7 +95,7 @@ describe('StyleGroup Text and Line geometry', () => {
         mapContainer = display.getContainer();
     });
 
-    after(async () => {
+    afterAll(async () => {
         display.destroy();
     });
 

@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './transform_move_undo_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('undo the link transforming, link should connect to its connected links', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('undo the link transforming, link should connect to its connected links
     let link1;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -49,7 +50,7 @@ describe('undo the link transforming, link should connect to its connected links
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_link_undo_redo_spec.json';
 import {NavlinkShape} from '@here/xyz-maps-editor';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('edit turn restriction split link then undo and redo the change', function() {
     const expect = chai.expect;
@@ -36,7 +37,7 @@ describe('edit turn restriction split link then undo and redo the change', funct
     let linkLayer;
     let splitLinks;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.189374, latitude: 13.813399},
@@ -58,7 +59,7 @@ describe('edit turn restriction split link then undo and redo the change', funct
         expect(objs).to.have.lengthOf(2);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

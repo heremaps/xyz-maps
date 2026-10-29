@@ -20,6 +20,7 @@
 import {prepare} from 'utils';
 import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_gettile_multiple_times_cancel_with_same_callback_requestagain_after_finish_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
 describe('layer get one tile multiple times and cancel with same callback', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('layer get one tile multiple times and cancel with same callback', func
     var qk3;
     var qk4;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         placeLayer = preparedData.getLayers('placeLayer'); // placeLayer.level.length == 16
 

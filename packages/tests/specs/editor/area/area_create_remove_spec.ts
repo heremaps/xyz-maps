@@ -21,6 +21,7 @@ import {waitForEditorReady, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './area_create_remove_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('add Area object and then remove', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('add Area object and then remove', function() {
     let areaLayer;
     let idMap;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.02831, latitude: 12.9356},
@@ -53,7 +54,7 @@ describe('add Area object and then remove', function() {
         expect(objs).to.have.lengthOf(0);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

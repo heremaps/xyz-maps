@@ -19,13 +19,14 @@
 
 import {prepare} from 'utils';
 import dataset from './add_remove_feature_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
 describe('add and remove features in provider', function() {
     const expect = chai.expect;
 
     var poiProvider;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
 
         let poiLayer = preparedData.getLayers('placeGeoJsonLayer');

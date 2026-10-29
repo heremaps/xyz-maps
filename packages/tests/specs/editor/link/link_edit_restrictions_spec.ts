@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, EditOperation} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_edit_restrictions_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link edit restrictions', function() {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('link edit restrictions', function() {
     let preparedData;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -54,7 +55,7 @@ describe('link edit restrictions', function() {
         link2 = preparedData.getFeature('linkLayer', -189069);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

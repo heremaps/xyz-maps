@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_connected_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('modify connected areas', () => {
     const expect = chai.expect;
@@ -35,7 +36,7 @@ describe('modify connected areas', () => {
     let area1;
     let area2;
 
-    before(async () => {
+    beforeAll(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -56,7 +57,7 @@ describe('modify connected areas', () => {
         areaLayer = preparedData.getLayers('buildingLayer');
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
 

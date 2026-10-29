@@ -22,7 +22,7 @@ import {Listener, prepare} from 'utils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_mapview_listener_spec.json';
-import {vi} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('mapview change listener', function() {
     const expect = chai.expect;
@@ -30,7 +30,7 @@ describe('mapview change listener', function() {
     let display;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.00368500489765, latitude: 20.27239042522672},
@@ -42,7 +42,7 @@ describe('mapview change listener', function() {
         await waitForViewportReady(display);
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

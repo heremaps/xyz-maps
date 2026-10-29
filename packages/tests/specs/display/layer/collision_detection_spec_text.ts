@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './collision_detection_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('collision detection - Text', function() {
     const expect = chai.expect;
@@ -40,7 +41,7 @@ describe('collision detection - Text', function() {
     let feature1;
     let feature2;
 
-    before(async function() {
+    beforeAll(async function() {
         let data = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -63,7 +64,7 @@ describe('collision detection - Text', function() {
         geo2 = display.pixelToGeo(x2, y2);
     });
 
-    after(async () => {
+    afterAll(async () => {
         display.destroy();
     });
 

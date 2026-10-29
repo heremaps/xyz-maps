@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_create_outside_viewport_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('create an address outside viewport, it connects to a link nearby', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('create an address outside viewport, it connects to a link nearby', fun
     let editor;
     let display;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.55616842610328, latitude: 14.022611963396827},
@@ -43,7 +44,7 @@ describe('create an address outside viewport, it connects to a link nearby', fun
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
 

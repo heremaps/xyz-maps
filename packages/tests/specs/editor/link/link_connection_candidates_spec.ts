@@ -24,6 +24,7 @@ import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 
 describe('link connection candidates', function() {
@@ -37,7 +38,7 @@ describe('link connection candidates', function() {
     let link3; // horizontal link at y=200 (overlapping with link1)
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
 
         linkLayer = new TileLayer({
@@ -105,7 +106,7 @@ describe('link connection candidates', function() {
         }, linkLayer);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

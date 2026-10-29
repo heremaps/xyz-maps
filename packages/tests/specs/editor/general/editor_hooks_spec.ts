@@ -22,6 +22,7 @@ import {Map} from '@here/xyz-maps-display';
 import {TileLayer} from '@here/xyz-maps-core';
 import {Editor, LineShape, NavlinkShape} from '@here/xyz-maps-editor';
 import {TestLocalProvider} from '../../../src/TestProvider';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('editor hooks test', function() {
     const expect = chai.expect;
@@ -34,7 +35,7 @@ describe('editor hooks test', function() {
     let place;
     let address;
 
-    before(async () => {
+    beforeAll(async () => {
         localLayer = new TileLayer({
             min: 2, max: 28,
             provider: new TestLocalProvider({
@@ -63,7 +64,7 @@ describe('editor hooks test', function() {
         await waitForEditorReady(editor);
     });
 
-    after(() => {
+    afterAll(() => {
         editor.destroy();
         display.destroy();
     });

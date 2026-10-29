@@ -19,21 +19,22 @@
 
 import {prepare} from 'utils';
 import dataset from './commit_add_remove_feature_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
-xdescribe('commit add and remove feature to spaceprovider', function() {
+describe.skip('commit add and remove feature to spaceprovider', function() {
     const expect = chai.expect;
 
     var preparedData;
     var spaceProvider;
     var spaceLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         spaceLayer = preparedData.getLayers('spaceLayer');
         spaceProvider = spaceLayer.getProvider();
     });
 
-    after(async function() {
+    afterAll(async function() {
         await preparedData.clear();
     });
 

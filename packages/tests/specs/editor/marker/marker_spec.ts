@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {vi} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it} from 'vitest';
 import {mousemove} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
@@ -34,7 +34,7 @@ describe('Basic Marker tests', () => {
     let marker;
     let mapContainer;
 
-    before(async () => {
+    beforeAll(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -51,7 +51,7 @@ describe('Basic Marker tests', () => {
         marker = preparedData.getFeature('markerLayer', 'MyMarker');
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
 

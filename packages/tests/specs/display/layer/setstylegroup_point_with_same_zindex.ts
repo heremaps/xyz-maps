@@ -22,6 +22,7 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_with_same_zindex.json';
 import {TileLayer} from '@here/xyz-maps-core';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('setStyleGroup point with same zIndex', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('setStyleGroup point with same zIndex', function() {
     let feature;
     let building;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -55,7 +56,7 @@ describe('setStyleGroup point with same zIndex', function() {
         building = preparedData.getFeature('buildingLayer', '123');
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

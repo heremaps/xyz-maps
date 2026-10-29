@@ -22,13 +22,14 @@ import {Observer, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './display_observer_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map observer', function() {
     const expect = chai.expect;
 
     let display;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -38,7 +39,7 @@ describe('map observer', function() {
         });
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_container_remove_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map container remove', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('map container remove', function() {
     var preparedData;
     var container;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.5779562023863, latitude: 16.517482660695578},
@@ -55,7 +56,7 @@ describe('map container remove', function() {
         container.push(poi1, poi2, link1, link2);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

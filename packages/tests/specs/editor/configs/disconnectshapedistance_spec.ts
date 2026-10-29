@@ -22,6 +22,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './disconnectshapedistance_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('set disconnectShapeDistance', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('set disconnectShapeDistance', function() {
     let display;
     let preparedData;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -45,7 +46,7 @@ describe('set disconnectShapeDistance', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

@@ -22,6 +22,7 @@ import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_vertical_coordinates_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Create new Links whose start and end shape points have same longitude', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('Create new Links whose start and end shape points have same longitude'
     let mapContainer;
     let link;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.9860738750076, latitude: 12.891802202549211},
@@ -46,13 +47,13 @@ describe('Create new Links whose start and end shape points have same longitude'
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });
 
 
-    xit('start drawingmanager', async function() {
+    it.skip('start drawingmanager', async function() {
         editor.getDrawingBoard().start();
 
         expect(editor.getDrawingBoard().isActive()).to.be.true;
@@ -78,7 +79,7 @@ describe('Create new Links whose start and end shape points have same longitude'
     });
 
 
-    xit('revert changes and start again, draw link with start and end shape point with same longitude', async function() {
+    it.skip('revert changes and start again, draw link with start and end shape point with same longitude', async function() {
         // link should have 4 shape points but not a vertical link with 2 shape points
         await waitForEditorReady(editor, ()=>{
             editor.revert();

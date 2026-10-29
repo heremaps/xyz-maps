@@ -22,6 +22,7 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_spec.json';
 import {TileLayer} from '@here/xyz-maps-core';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('setStyleGroup Point', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('setStyleGroup Point', function() {
     let feature1;
     let feature2;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -54,7 +55,7 @@ describe('setStyleGroup Point', function() {
         feature2 = preparedData.getFeature('paLayer', '124');
     });
 
-    after(async function() {
+    afterAll(async function() {
         display.destroy();
     });
 

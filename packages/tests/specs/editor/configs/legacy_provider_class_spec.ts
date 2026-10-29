@@ -21,6 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './legacy_provider_class_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 // Legacy coverage. The linkLayer provider in legacy_provider_class_spec.json sets "class": "NAVLINK".
 // The editor still reads this key (IEditor.getLayerForClass, IEditor.getLayerForFeature), but the key
@@ -33,7 +34,7 @@ describe('legacy provider class in layer config', function() {
     let display;
     let preparedData;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 18.865855, longitude: 73.07682},
@@ -46,7 +47,7 @@ describe('legacy provider class in layer config', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

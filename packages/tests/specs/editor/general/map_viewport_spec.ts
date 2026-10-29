@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './map_viewport_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map viewport lock', function() {
     const expect = chai.expect;
@@ -32,7 +33,7 @@ describe('map viewport lock', function() {
     let preparedData;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -47,7 +48,7 @@ describe('map viewport lock', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

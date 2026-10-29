@@ -22,6 +22,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {providers, layers} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
+import {describe, afterAll, it} from 'vitest';
 
 describe('editor triggers ready without adding layer to it', function() {
     const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('editor triggers ready without adding layer to it', function() {
     let editor;
     let display;
 
-    after(async function() {
+    afterAll(async function() {
         editor && editor.destroy();
         display && display.destroy();
     });

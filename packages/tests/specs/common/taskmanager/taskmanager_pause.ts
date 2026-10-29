@@ -18,6 +18,7 @@
  */
 
 import {TaskManager} from '@here/xyz-maps-common';
+import {describe, it} from 'vitest';
 
 describe('task manager pause&resume', function() {
     const expect = chai.expect;

@@ -21,6 +21,7 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './link_remove_shapepoint_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('remove link shapepoints', function() {
     const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('remove link shapepoints', function() {
     let preparedData;
     let link;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 12.263805526394263, longitude: 79.92293529639585},
@@ -43,7 +44,7 @@ describe('remove link shapepoints', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

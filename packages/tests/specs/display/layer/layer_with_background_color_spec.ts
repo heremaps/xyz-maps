@@ -21,6 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './layer_with_background_color_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('layer with background color', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('layer with background color', function() {
 
     let globalBackgroundcolor = '#ff0000';
 
-    before(async () => {
+    beforeAll(async () => {
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
             renderOptions: {
@@ -46,7 +47,7 @@ describe('layer with background color', function() {
         await waitForViewportReady(display);
     });
 
-    after(async () => {
+    afterAll(async () => {
         display.destroy();
     });
 

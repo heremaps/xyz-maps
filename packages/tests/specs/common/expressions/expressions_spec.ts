@@ -18,6 +18,7 @@
  */
 
 import {Def, ExpressionMode, ExpressionParser} from '@here/xyz-maps-common';
+import {describe, it} from 'vitest';
 
 describe('Expressions', function() {
     const {expect} = chai;

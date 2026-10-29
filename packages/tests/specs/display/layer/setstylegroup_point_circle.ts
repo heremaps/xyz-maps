@@ -22,6 +22,7 @@ import {getCanvasPixelColor, Listener, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_circle.json';
 import {click} from 'triggerEvents';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('setStyleGroup Point with circle', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('setStyleGroup Point with circle', function() {
     let mapContainer;
     let feature;
 
-    before(async () => {
+    beforeAll(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -51,7 +52,7 @@ describe('setStyleGroup Point with circle', function() {
         feature = preparedData.getFeature('paLayer', '123');
     });
 
-    after(() => {
+    afterAll(() => {
         display.destroy();
     });
 

@@ -23,6 +23,7 @@ import {drag} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_create_modify_remove_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Validate submit of creating new link, modifying and removing link', function() {
     const expect = chai.expect;
@@ -34,7 +35,7 @@ describe('Validate submit of creating new link, modifying and removing link', fu
     let link;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -50,7 +51,7 @@ describe('Validate submit of creating new link, modifying and removing link', fu
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

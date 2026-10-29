@@ -22,6 +22,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_functions_spec.json';
 import chaiAlmost from 'chai-almost';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 chai.use(chaiAlmost(1e-5));
 
@@ -32,7 +33,7 @@ describe('convert pixel and geo coordinates', () => {
     var display;
     var preparedData;
 
-    before(async () => {
+    beforeAll(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -46,7 +47,7 @@ describe('convert pixel and geo coordinates', () => {
         await waitForEditorReady(editor);
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
     });

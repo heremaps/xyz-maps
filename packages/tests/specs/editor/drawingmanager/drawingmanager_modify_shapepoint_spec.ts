@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_modify_shapepoint_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Create new Link by drawing manager and remove some shape points', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('Create new Link by drawing manager and remove some shape points', func
     let display;
     let preparedData;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -45,7 +46,7 @@ describe('Create new Link by drawing manager and remove some shape points', func
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

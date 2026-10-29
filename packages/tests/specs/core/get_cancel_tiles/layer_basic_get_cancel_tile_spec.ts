@@ -20,6 +20,7 @@
 import {prepare} from 'utils';
 import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_basic_get_cancel_tile_spec.json';
+import {describe, beforeAll, it} from 'vitest';
 
 describe('layer basic get and cancel tiles', function() {
     const expect = chai.expect;
@@ -52,7 +53,7 @@ describe('layer basic get and cancel tiles', function() {
     var qk82;
     var qk83;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
         placeLayer = preparedData.getLayers('placeLayer'); // placeLayer.level.length == 16
 

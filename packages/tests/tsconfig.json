@@ -6,7 +6,7 @@
     "lib": ["es5", "ES2017", "dom"],
     "sourceMap": true,
     "allowJs": true,
-    "types" : ["mocha", "chai"],
+    "types" : ["chai"],
     "baseUrl": ".",
     "paths": {
       "*": ["src/utils/*"],

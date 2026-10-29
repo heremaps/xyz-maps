@@ -23,6 +23,7 @@ import {TileLayer} from '@here/xyz-maps-core';
 import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 
 const initTest = async (autoConnect?: boolean) => {
@@ -90,7 +91,7 @@ describe('global autoConnect EditorOption', function() {
         let link1;
         let link2;
 
-        before(async function() {
+        beforeAll(async function() {
             const test = await initTest(true);
             editor = test.editor;
             display = test.display;
@@ -98,7 +99,7 @@ describe('global autoConnect EditorOption', function() {
             link2 = test.link2;
         });
 
-        after(function() {
+        afterAll(function() {
             editor.destroy();
             display.destroy();
         });
@@ -126,7 +127,7 @@ describe('global autoConnect EditorOption', function() {
         let link1;
         let link2;
 
-        before(async function() {
+        beforeAll(async function() {
             const test = await initTest();
             editor = test.editor;
             display = test.display;
@@ -134,7 +135,7 @@ describe('global autoConnect EditorOption', function() {
             link2 = test.link2;
         });
 
-        after(function() {
+        afterAll(function() {
             editor.destroy();
             display.destroy();
         });
@@ -189,7 +190,7 @@ describe('global autoConnect EditorOption', function() {
         let link1;
         let link2;
 
-        before(async function() {
+        beforeAll(async function() {
             const test = await initTest(true);
             editor = test.editor;
             display = test.display;
@@ -197,7 +198,7 @@ describe('global autoConnect EditorOption', function() {
             link2 = test.link2;
         });
 
-        after(function() {
+        afterAll(function() {
             editor.destroy();
             display.destroy();
         });

@@ -22,6 +22,7 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_outofview_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('turn restriction test move link outside of viewport', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('turn restriction test move link outside of viewport', function() {
     let link1;
     let link2;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.73514, latitude: 12.89769},
@@ -50,7 +51,7 @@ describe('turn restriction test move link outside of viewport', function() {
         link2 = preparedData.getFeature('linkLayer', -189214);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

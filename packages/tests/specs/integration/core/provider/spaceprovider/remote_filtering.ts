@@ -20,6 +20,7 @@
 import {prepare} from 'utils';
 import dataset from './remote_filtering.json';
 import {Feature} from '@here/xyz-maps-core';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('remote filtering in spaceprovider', () => {
     const expect = chai.expect;
@@ -27,13 +28,13 @@ describe('remote filtering in spaceprovider', () => {
     var spaceLayer;
     var spaceProvider;
 
-    before(async () => {
+    beforeAll(async () => {
         preparedData = await prepare(dataset);
         spaceLayer = preparedData.getLayers('spaceLayer');
         spaceProvider = spaceLayer.getProvider();
     });
 
-    after(async () => {
+    afterAll(async () => {
         await preparedData.clear();
     });
 

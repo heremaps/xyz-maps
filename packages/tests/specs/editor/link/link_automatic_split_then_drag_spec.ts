@@ -24,6 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_split_then_drag_spec.json';
 import {Navlink} from '@here/xyz-maps-editor';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('drag a link shape point to the other one to split itself and then drag it crossing', () => {
     const expect = chai.expect;
@@ -34,7 +35,7 @@ describe('drag a link shape point to the other one to split itself and then drag
     let mapContainer;
     let link2;
 
-    before(async () => {
+    beforeAll(async () => {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -52,7 +53,7 @@ describe('drag a link shape point to the other one to split itself and then drag
         link2 = preparedData.getFeature('linkLayer', -189040);
     });
 
-    after(async () => {
+    afterAll(async () => {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

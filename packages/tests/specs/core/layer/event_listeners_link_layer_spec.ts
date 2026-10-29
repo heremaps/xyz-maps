@@ -19,6 +19,7 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_link_layer_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('event listeners in link layer', function() {
     const expect = chai.expect;
@@ -29,7 +30,7 @@ describe('event listeners in link layer', function() {
     var link1;
     var link2;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         linkLayer = preparedData.getLayers('linkLayer');
         linkProvider = linkLayer.getProvider();
@@ -44,7 +45,7 @@ describe('event listeners in link layer', function() {
         link2 = preparedData.getFeature('linkLayer', -9124);
     });
 
-    after(async function() {
+    afterAll(async function() {
         await preparedData.clear();
     });
 

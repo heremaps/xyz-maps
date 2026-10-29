@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_snapping_remove_link_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link auto remove link', function() {
     const expect = chai.expect;
@@ -37,7 +38,7 @@ describe('link auto remove link', function() {
     let link4;
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -59,7 +60,7 @@ describe('link auto remove link', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

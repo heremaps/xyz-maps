@@ -22,6 +22,7 @@ import {getCanvasPixelColor, Listener} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {click} from 'triggerEvents';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('Pointerevents Line 3d', () => {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('Pointerevents Line 3d', () => {
     let line1;
     let layer;
 
-    before(async () => {
+    beforeAll(async () => {
         layer = new TileLayer({
             min: 2,
             max: 20,
@@ -82,7 +83,7 @@ describe('Pointerevents Line 3d', () => {
         mapContainer = display.getContainer();
     });
 
-    after(async () => display.destroy());
+    afterAll(async () => display.destroy());
 
     it('pointerup: line3d edge inside', async () => {
         const listener = new Listener(display, ['pointerup']);

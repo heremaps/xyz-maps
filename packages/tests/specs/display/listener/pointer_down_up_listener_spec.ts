@@ -22,6 +22,7 @@ import {Listener, prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_down_up_listener_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('pointer down and pointer up listener', () => {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('pointer down and pointer up listener', () => {
     let mapContainer;
 
 
-    before(async () => {
+    beforeAll(async () => {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.02278439898076, latitude: 20.273712610318146},
@@ -43,7 +44,7 @@ describe('pointer down and pointer up listener', () => {
         mapContainer = display.getContainer();
     });
 
-    after(async () => {
+    afterAll(async () => {
         display.destroy();
         await preparedData.clear();
     });

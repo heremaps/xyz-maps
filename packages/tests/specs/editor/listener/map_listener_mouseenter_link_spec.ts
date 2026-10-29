@@ -23,6 +23,7 @@ import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_mouseenter_link_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map mouseenter link when link layer is removed', function() {
     const expect = chai.expect;
@@ -34,7 +35,7 @@ describe('map mouseenter link when link layer is removed', function() {
 
     let linkLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.38670452269983, latitude: 11.927986024207911},
@@ -51,7 +52,7 @@ describe('map mouseenter link when link layer is removed', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

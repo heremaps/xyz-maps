@@ -22,6 +22,7 @@ import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_high_zoomlevel_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('drawing board work at high zoomlevel', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('drawing board work at high zoomlevel', function() {
     let preparedData;
     let mapContainer;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.37269535085787, latitude: 11.87506940456375},
@@ -45,7 +46,7 @@ describe('drawing board work at high zoomlevel', function() {
         mapContainer = display.getContainer();
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

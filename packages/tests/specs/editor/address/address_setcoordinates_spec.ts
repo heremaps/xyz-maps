@@ -23,6 +23,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './address_setcoordinates_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('add Address layer set coordinates', function() {
     const expect = chai.expect;
@@ -33,7 +34,7 @@ describe('add Address layer set coordinates', function() {
     let address;
     let addrLayer;
 
-    before(async function() {
+    beforeAll(async function() {
         chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
@@ -51,7 +52,7 @@ describe('add Address layer set coordinates', function() {
         addrLayer = preparedData.getLayers('paLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();

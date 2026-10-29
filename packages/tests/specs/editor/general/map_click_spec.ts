@@ -22,6 +22,7 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_click_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('map click on ground and link', function() {
     const expect = chai.expect;
@@ -30,7 +31,7 @@ describe('map click on ground and link', function() {
     var display;
     var preparedData;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.0572959685897, latitude: 13.08281747103834},
@@ -44,7 +45,7 @@ describe('map click on ground and link', function() {
         await waitForEditorReady(editor);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
     });

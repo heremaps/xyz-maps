@@ -22,6 +22,7 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_snapping_remove_link_commit_spec.json';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('link auto remove and commit', function() {
     const expect = chai.expect;
@@ -31,7 +32,7 @@ describe('link auto remove and commit', function() {
     let preparedData;
     let link;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.8207847, latitude: 14.3669},
@@ -47,7 +48,7 @@ describe('link auto remove and commit', function() {
         link = preparedData.getFeature('linkLayer', -189019);
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
