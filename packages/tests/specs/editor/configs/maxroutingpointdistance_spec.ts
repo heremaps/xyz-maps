@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './maxroutingpointdistance_spec.json';
 
 describe('set maxRoutingPointDistance', function() {
@@ -64,9 +62,30 @@ describe('set maxRoutingPointDistance', function() {
         });
 
 
-        let l1 = new features.Navlink([{x: 100, y: 300}, {x: 400, y: 300}], {featureClass: 'NAVLINK'});
-        let addr1 = new features.Address({x: 300, y: 250}, {featureClass: 'ADDRESS'});
-        let addr2 = new features.Address({x: 300, y: 270}, {featureClass: 'ADDRESS'});
+        let l1 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 400, y: 300}])
+            }
+        };
+        let addr1 = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
+            }
+        };
+        let addr2 = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 300, y: 270})
+            }
+        };
 
         editor.addFeature(l1);
         let pa = editor.addFeature(addr1);
@@ -92,9 +111,30 @@ describe('set maxRoutingPointDistance', function() {
         });
 
 
-        let l1 = new features.Navlink([{x: 100, y: 300}, {x: 400, y: 300}], {featureClass: 'NAVLINK'});
-        let addr1 = new features.Address({x: 300, y: 250}, {featureClass: 'ADDRESS'});
-        let addr2 = new features.Address({x: 300, y: 270}, {featureClass: 'ADDRESS'});
+        let l1 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 400, y: 300}])
+            }
+        };
+        let addr1 = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
+            }
+        };
+        let addr2 = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 300, y: 270})
+            }
+        };
 
         editor.addFeature(l1);
         editor.addFeature(addr1);

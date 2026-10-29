@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_double_connect_check_spec.json';
 
@@ -79,7 +77,14 @@ describe('link connect helper connect crossing and then add new link and connect
     });
 
     it('add a new link and check crossing and connect', async function() {
-        let l3 = new features.Navlink([{x: 250, y: 100}, {x: 250, y: 300}], {featureClass: 'NAVLINK'});
+        let l3 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 250, y: 100}, {x: 250, y: 300}])
+            }
+        };
         let link3 = editor.addFeature(l3);
         let crossings = link3.checkCrossings();
 

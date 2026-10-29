@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './link_remove_shapepoint_spec.json';
 
 describe('remove link shapepoints', function() {
@@ -52,10 +50,17 @@ describe('remove link shapepoints', function() {
     });
 
     it('validate the link is added', function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {
-            x: 200,
-            y: 200
-        }], {featureClass: 'NAVLINK'});
+        let lnk = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 200}, {
+                    x: 200,
+                    y: 200
+                }])
+            }
+        };
         link = editor.addFeature(lnk);
 
         expect(editor.get('changes.length')).to.equal(1);

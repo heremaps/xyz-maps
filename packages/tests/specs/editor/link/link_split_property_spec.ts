@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_split_property_spec.json';
 
@@ -58,7 +56,14 @@ describe('link splitting basic', function() {
     });
 
     it('add a link object and split, validate type property', async function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 110}, {x: 100, y: 300}], {'featureClass': 'NAVLINK', 'type': 'highway'});
+        let lnk = {
+            type: 'Feature',
+            properties: {'featureClass': 'NAVLINK', 'type': 'highway'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 110}, {x: 100, y: 300}])
+            }
+        };
         link = editor.addFeature(lnk);
 
         link.select();
@@ -72,7 +77,14 @@ describe('link splitting basic', function() {
 
     // link1
     it('add a link object and split at different position, validate name property', async function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 120}, {x: 100, y: 300}], {'featureClass': 'NAVLINK', 'type': 'highway', 'name': 'A1'});
+        let lnk = {
+            type: 'Feature',
+            properties: {'featureClass': 'NAVLINK', 'type': 'highway', 'name': 'A1'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 120}, {x: 100, y: 300}])
+            }
+        };
         link1 = editor.addFeature(lnk);
         link1.select();
 
@@ -86,7 +98,14 @@ describe('link splitting basic', function() {
 
     // link2
     it('add a link object and split at different position, validate turn restriction property', async function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 140}, {x: 100, y: 300}], {'featureClass': 'NAVLINK', 'type': 'highway', 'turnRestrition': {'start': ['abc'], 'end': [123]}});
+        let lnk = {
+            type: 'Feature',
+            properties: {'featureClass': 'NAVLINK', 'type': 'highway', 'turnRestrition': {'start': ['abc'], 'end': [123]}},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 140}, {x: 100, y: 300}])
+            }
+        };
         link2 = editor.addFeature(lnk);
         link2.select();
 
@@ -100,7 +119,14 @@ describe('link splitting basic', function() {
 
     // link3
     it('add a link object and split at different position, validate direction property', async function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 160}, {x: 100, y: 300}], {'featureClass': 'NAVLINK', 'type': 'highway', 'direction': 'BOTH'});
+        let lnk = {
+            type: 'Feature',
+            properties: {'featureClass': 'NAVLINK', 'type': 'highway', 'direction': 'BOTH'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 160}, {x: 100, y: 300}])
+            }
+        };
         link2 = editor.addFeature(lnk);
         link2.select();
 
@@ -113,7 +139,14 @@ describe('link splitting basic', function() {
 
     // link4
     it('add a link object and split at different position, validate pedestrianOnly property', async function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {x: 100, y: 300}], {'featureClass': 'NAVLINK', 'type': 'path', 'pedestrianOnly': true});
+        let lnk = {
+            type: 'Feature',
+            properties: {'featureClass': 'NAVLINK', 'type': 'path', 'pedestrianOnly': true},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 200}, {x: 100, y: 300}])
+            }
+        };
         link2 = editor.addFeature(lnk);
         link2.select();
 
@@ -127,7 +160,14 @@ describe('link splitting basic', function() {
 
     // link5
     it('add a link object and split at different position, validate coordinates', async function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 240}, {x: 100, y: 300}], {'featureClass': 'NAVLINK', 'type': 'path'});
+        let lnk = {
+            type: 'Feature',
+            properties: {'featureClass': 'NAVLINK', 'type': 'path'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 240}, {x: 100, y: 300}])
+            }
+        };
         link2 = editor.addFeature(lnk);
         link2.select();
 

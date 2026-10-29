@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_split_spec.json';
 import {Navlink, NavlinkShape} from '@here/xyz-maps-editor';
@@ -58,10 +56,17 @@ describe('link splitting and set its properties correctly', function() {
     });
 
     it('add link object and split it, validate address property', async function() {
-        let lnk1 = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {
-            x: 200,
-            y: 200
-        }], {'featureClass': 'NAVLINK', 'type': 'residential', 'name': 'test street'});
+        let lnk1 = {
+            type: 'Feature',
+            properties: {'featureClass': 'NAVLINK', 'type': 'residential', 'name': 'test street'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 200}, {
+                    x: 200,
+                    y: 200
+                }])
+            }
+        };
         let link1 = editor.addFeature(lnk1, linkLayer);
 
         link1.select();
@@ -87,11 +92,18 @@ describe('link splitting and set its properties correctly', function() {
 
     // split turnRestrition
     it('split link object and validate speedlimit properties', async function() {
-        let lnk2 = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}], {
-            'featureClass': 'NAVLINK',
-            'type': 'primary',
-            'turnRestrition': {start: ['abc'], end: 'efg'}
-        });
+        let lnk2 = {
+            type: 'Feature',
+            properties: {
+                'featureClass': 'NAVLINK',
+                'type': 'primary',
+                'turnRestrition': {start: ['abc'], end: 'efg'}
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}])
+            }
+        };
 
         let link2 = editor.addFeature(lnk2, linkLayer);
 
@@ -114,10 +126,17 @@ describe('link splitting and set its properties correctly', function() {
 
     // origin link
     it('get link to split and validate origin link properties', async function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}], {
-            featureClass: 'NAVLINK',
-            originLink: 'testOrigin'
-        });
+        let lnk = {
+            type: 'Feature',
+            properties: {
+                featureClass: 'NAVLINK',
+                originLink: 'testOrigin'
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}])
+            }
+        };
         let link = editor.addFeature(lnk, linkLayer);
 
         let idMap;
@@ -143,10 +162,17 @@ describe('link splitting and set its properties correctly', function() {
 
     // parent link
     it('add link to split and set its attribute: originLink, validate parent link properties', async function() {
-        let lnk3 = new features.Navlink([{x: 100, y: 100}, {x: 300, y: 200}, {
-            x: 400,
-            y: 200
-        }], {featureClass: 'NAVLINK'});
+        let lnk3: any = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 300, y: 200}, {
+                    x: 400,
+                    y: 200
+                }])
+            }
+        };
 
         let link3 = editor.addFeature(lnk3, linkLayer);
         link3.prop({originLink: -8092793});
@@ -173,11 +199,18 @@ describe('link splitting and set its properties correctly', function() {
 
     // origin and parent link
     it('get link to split and validate origin link properties', async function() {
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}], {
-            featureClass: 'NAVLINK',
-            originLink: 'testOrigin',
-            parentLink: 'testParent'
-        });
+        let lnk = {
+            type: 'Feature',
+            properties: {
+                featureClass: 'NAVLINK',
+                originLink: 'testOrigin',
+                parentLink: 'testParent'
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 200}, {x: 200, y: 200}])
+            }
+        };
         let link = editor.addFeature(lnk, linkLayer);
 
         let idMap;
@@ -202,13 +235,27 @@ describe('link splitting and set its properties correctly', function() {
 
 
     it('split 3d Navlink geometries in forced 2d mode and validate intersection altitude', async ()=> {
-        let link = editor.addFeature(new features.Navlink([{x: 100, y: 100, z: 100}, {x: 100, y: 200, z: 200}, {x: 200, y: 200, z: 300}], {
-            featureClass: 'NAVLINK'
-        }), linkLayer);
+        let link = editor.addFeature({
+            type: 'Feature',
+            properties: {
+                featureClass: 'NAVLINK'
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100, z: 100}, {x: 100, y: 200, z: 200}, {x: 200, y: 200, z: 300}])
+            }
+        }, linkLayer);
 
-        let link2 = editor.addFeature(new features.Navlink([{x: 300, y: 300, z: 400}, {x: 500, y: 500, z: 500}], {
-            featureClass: 'NAVLINK'
-        }), linkLayer);
+        let link2 = editor.addFeature({
+            type: 'Feature',
+            properties: {
+                featureClass: 'NAVLINK'
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 300, y: 300, z: 400}, {x: 500, y: 500, z: 500}])
+            }
+        }, linkLayer);
 
         link.select();
 

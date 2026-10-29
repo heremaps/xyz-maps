@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {TileLayer} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import {TestLocalProvider} from '../../../src/TestProvider';
 import dataset from '../address/address_setcoordinates_spec.json';
 
@@ -74,7 +72,14 @@ describe('coordinatePrecision configuration', function() {
 
     it('rounds Place geometry coordinates to the configured precision', function() {
         const place = editor.addFeature(
-            new features.Place({x: 300, y: 250}, {featureClass: 'PLACE'}),
+            {
+                type: 'Feature',
+                properties: {featureClass: 'PLACE'},
+                geometry: {
+                    type: 'Point',
+                    coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
+                }
+            },
             placeLayer
         );
         place.coord([75.573481516, 12.950542341, 0]);
@@ -94,10 +99,17 @@ describe('coordinatePrecision configuration', function() {
 
     it('rounds Area geometry coordinates to the configured precision', function() {
         const area = editor.addFeature(
-            new features.Area([[
-                [{x: 200, y: 300}, {x: 200, y: 500},
-                    {x: 400, y: 300}, {x: 200, y: 300}]
-            ]], {featureClass: 'AREA'}),
+            {
+                type: 'Feature',
+                properties: {featureClass: 'AREA'},
+                geometry: {
+                    type: 'MultiPolygon',
+                    coordinates: editor.toGeoJSONCoordinates([[
+                        [{x: 200, y: 300}, {x: 200, y: 500},
+                            {x: 400, y: 300}, {x: 200, y: 300}]
+                    ]])
+                }
+            },
             areaLayer
         );
 

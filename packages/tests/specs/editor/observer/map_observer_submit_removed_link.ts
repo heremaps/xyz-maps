@@ -21,8 +21,6 @@ import {drag} from 'triggerEvents';
 import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './map_observer_submit_removed_link.json';
 
 xdescribe('ready event is triggered once after submitting removed links', function() {
@@ -62,8 +60,22 @@ xdescribe('ready event is triggered once after submitting removed links', functi
     });
 
     it('create one place and one link, remove the link and submit', async function() {
-        let p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'} );
-        let lnk = new features.Navlink([{x: 250, y: 100}, {x: 250, y: 400}], {featureClass: 'NAVLINK'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 400, y: 300})
+            }
+        };
+        let lnk = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 250, y: 100}, {x: 250, y: 400}])
+            }
+        };
 
         link = editor.addFeature(lnk, linkLayer);
         poi = editor.addFeature(p, placeLayer);

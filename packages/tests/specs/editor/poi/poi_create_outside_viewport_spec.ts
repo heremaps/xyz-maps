@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './poi_create_outside_viewport_spec.json';
 
 describe('create a poi outside viewport, it connects to a link nearby', function() {
@@ -58,7 +56,14 @@ describe('create a poi outside viewport, it connects to a link nearby', function
             display.setCenter({longitude: 78.69697807230585, latitude: 17.06284978426463});
         });
 
-        let p = new features.Place({longitude: 78.68822870649961, latitude: 17.065070322770552}, {featureClass: 'PLACE'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({longitude: 78.68822870649961, latitude: 17.065070322770552})
+            }
+        };
         let poi = editor.addFeature(p);
 
         poi.createRoutingPoint();

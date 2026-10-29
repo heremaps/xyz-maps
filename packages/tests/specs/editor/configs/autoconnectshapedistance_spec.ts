@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './autoconnectshapedistance_spec.json';
 
 describe('set snapTolerance', function() {
@@ -67,8 +65,22 @@ describe('set snapTolerance', function() {
             display.setZoomlevel(19);
         });
 
-        let l1 = new features.Navlink([{x: 100, y: 300}, {x: 400, y: 300}], {featureClass: 'NAVLINK'});
-        let l2 = new features.Navlink([{x: 100, y: 300}, {x: 100, y: 100}], {featureClass: 'NAVLINK'});
+        let l1 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 400, y: 300}])
+            }
+        };
+        let l2 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 100, y: 100}])
+            }
+        };
         let links = editor.addFeature([l1, l2]);
 
         links[1].select();
@@ -92,8 +104,22 @@ describe('set snapTolerance', function() {
             display.setZoomlevel(19);
         });
 
-        let l1 = new features.Navlink([{x: 100, y: 300}, {x: 400, y: 300}], {featureClass: 'NAVLINK'});
-        let l2 = new features.Navlink([{x: 100, y: 300}, {x: 100, y: 100}], {featureClass: 'NAVLINK'});
+        let l1 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 400, y: 300}])
+            }
+        };
+        let l2 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 100, y: 100}])
+            }
+        };
         let links = editor.addFeature([l1, l2]);
 
         links[1].select();

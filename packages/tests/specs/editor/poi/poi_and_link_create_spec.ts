@@ -20,8 +20,6 @@ import {Listener, prepare} from 'utils';
 import {waitForEditorReady, clean, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './poi_and_link_create_spec.json';
 
 describe('poi and link create', function() {
@@ -55,10 +53,24 @@ describe('poi and link create', function() {
     it('start listener, validate no error is triggered', async function() {
         let listener = new Listener(editor, 'error');
 
-        let p = new features.Place({x: 300, y: 250}, {featureClass: 'PLACE'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
+            }
+        };
         editor.addFeature(p);
 
-        let l = new features.Navlink([{x: 200, y: 100}, {x: 200, y: 200}], {featureClass: 'NAVLINK'});
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 200, y: 100}, {x: 200, y: 200}])
+            }
+        };
         editor.addFeature(l);
 
         let idMap;

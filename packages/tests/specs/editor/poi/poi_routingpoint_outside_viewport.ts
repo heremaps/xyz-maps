@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './poi_routingpoint_outside_viewport.json';
 
 describe('poi connects to a link which is outside of viewport', function() {
@@ -105,7 +103,14 @@ describe('poi connects to a link which is outside of viewport', function() {
     });
 
     it('add a POI and create its routingPoint, validate poi connects to a link', async function() {
-        let p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 400, y: 300})
+            }
+        };
         poi2 = editor.addFeature(p);
         poi2.createRoutingPoint();
 
@@ -125,7 +130,14 @@ describe('poi connects to a link which is outside of viewport', function() {
 
 
     it('add a POI and create its routingPoint, validate poi connects to a link', async function() {
-        let p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 400, y: 300})
+            }
+        };
         let poi3 = editor.addFeature(p);
         poi3.createRoutingPoint();
 

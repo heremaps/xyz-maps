@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './map_history_create_objects_undo_submit_spec.json';
 
 describe('map history create objects and undo last changes, should create just one object', function() {
@@ -50,7 +48,14 @@ describe('map history create objects and undo last changes, should create just o
     });
 
     it('add a link object', function() {
-        let l = new features.Navlink([{x: 300, y: 100}, {x: 300, y: 200}], {featureClass: 'NAVLINK'});
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 300, y: 100}, {x: 300, y: 200}])
+            }
+        };
         let link = editor.addFeature(l);
 
         expect(editor.info()).to.have.lengthOf(1);
@@ -64,8 +69,22 @@ describe('map history create objects and undo last changes, should create just o
             editor.revert();
         });
 
-        let l1 = new features.Navlink([{x: 200, y: 100}, {x: 100, y: 100}], {featureClass: 'NAVLINK'});
-        let l2 = new features.Navlink([{x: 300, y: 200}, {x: 200, y: 250}], {featureClass: 'NAVLINK'});
+        let l1 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 200, y: 100}, {x: 100, y: 100}])
+            }
+        };
+        let l2 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 300, y: 200}, {x: 200, y: 250}])
+            }
+        };
         editor.addFeature(l1);
         editor.addFeature(l2);
 

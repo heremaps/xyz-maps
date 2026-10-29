@@ -23,8 +23,6 @@ import {Map} from '@here/xyz-maps-display';
 // @ts-ignore @deprecated
 import dataset from './link_zlevels_spec.json';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import {TileLayer} from '@here/xyz-maps-core';
 
 describe('navlink zlevels', () => {
@@ -118,22 +116,36 @@ describe('navlink zlevels', () => {
     });
 
     it('add shape and split Navlink and validate zlevels are set correctly', async () => {
-        let link = editor.addFeature(new features.Navlink([{x: 300, y: 300}, {x: 400, y: 300}, {
-            x: 500,
-            y: 300
-        }], {
-            featureClass: 'NAVLINK'
-        }), linkLayer);
+        let link = editor.addFeature({
+            type: 'Feature',
+            properties: {
+                featureClass: 'NAVLINK'
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 300, y: 300}, {x: 400, y: 300}, {
+                    x: 500,
+                    y: 300
+                }])
+            }
+        }, linkLayer);
 
         link.setZLevels([1, 2, 3]);
 
 
-        let link2 = editor.addFeature(new features.Navlink([{x: 300, y: 100}, {x: 400, y: 100}, {
-            x: 500,
-            y: 100
-        }], {
-            featureClass: 'NAVLINK'
-        }), linkLayer);
+        let link2 = editor.addFeature({
+            type: 'Feature',
+            properties: {
+                featureClass: 'NAVLINK'
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 300, y: 100}, {x: 400, y: 100}, {
+                    x: 500,
+                    y: 100
+                }])
+            }
+        }, linkLayer);
         link2.setZLevels([10, 20, 30]);
 
         link2.select();
@@ -148,22 +160,36 @@ describe('navlink zlevels', () => {
     });
 
     it('split Navlink and validate zlevels are set correctly', async () => {
-        let link = editor.addFeature(new features.Navlink([{x: 600, y: 300}, {x: 700, y: 300}, {
-            x: 800,
-            y: 300
-        }], {
-            featureClass: 'NAVLINK'
-        }), linkLayer);
+        let link = editor.addFeature({
+            type: 'Feature',
+            properties: {
+                featureClass: 'NAVLINK'
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 600, y: 300}, {x: 700, y: 300}, {
+                    x: 800,
+                    y: 300
+                }])
+            }
+        }, linkLayer);
 
         link.setZLevels([1, 2, 3]);
 
 
-        let link2 = editor.addFeature(new features.Navlink([{x: 600, y: 100}, {x: 700, y: 100}, {
-            x: 800,
-            y: 100
-        }], {
-            featureClass: 'NAVLINK'
-        }), linkLayer);
+        let link2 = editor.addFeature({
+            type: 'Feature',
+            properties: {
+                featureClass: 'NAVLINK'
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 600, y: 100}, {x: 700, y: 100}, {
+                    x: 800,
+                    y: 100
+                }])
+            }
+        }, linkLayer);
         link2.setZLevels([4, 5, 6]);
 
         link2.select();

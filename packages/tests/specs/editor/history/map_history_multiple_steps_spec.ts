@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './map_history_multiple_steps_spec.json';
 
 describe('map history for multiple steps redo and undo', function() {
@@ -49,19 +47,54 @@ describe('map history for multiple steps redo and undo', function() {
     });
 
     it('add objects and validate', function() {
-        var lnk = new features.Navlink([{x: 100, y: 150}, {x: 300, y: 150}], {featureClass: 'NAVLINK'});
+        var lnk = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 150}, {x: 300, y: 150}])
+            }
+        };
 
 
-        var poi1 = new features.Place({x: 100, y: 200}, {featureClass: 'PLACE'});
+        var poi1 = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 100, y: 200})
+            }
+        };
 
 
-        var poi2 = new features.Place({x: 200, y: 200}, {featureClass: 'PLACE'});
+        var poi2 = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 200, y: 200})
+            }
+        };
 
 
-        var poi3 = new features.Place({x: 250, y: 200}, {featureClass: 'PLACE'});
+        var poi3 = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 250, y: 200})
+            }
+        };
 
 
-        var poi4 = new features.Place({x: 250, y: 250}, {featureClass: 'PLACE'});
+        var poi4 = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 250, y: 250})
+            }
+        };
 
         editor.addFeature(lnk);
         editor.addFeature(poi1);

@@ -20,8 +20,6 @@ import {MonitorXHR, prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {drag} from 'triggerEvents';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_create_modify_remove_spec.json';
@@ -59,7 +57,14 @@ describe('Validate submit of creating new link, modifying and removing link', fu
     });
 
     it('create a link and submit', async function() {
-        let l = new features.Navlink([{x: 100, y: 100}, {x: 350, y: 350}], {featureClass: 'NAVLINK'});
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 350, y: 350}])
+            }
+        };
         link = editor.addFeature(l);
 
         expect(link.coord()).to.deep.almost([

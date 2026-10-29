@@ -19,8 +19,6 @@
 import {prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './address_create_remove_spec.json';
@@ -61,8 +59,11 @@ describe('add Address object and then remove', function() {
 
     it('validate add an address object and submit', async function() {
         let idMap;
-        let addr = new features.Address({x: 200, y: 300}, {featureClass: 'ADDRESS'});
-        address = editor.addFeature(addr, paLayer);
+        address = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {type: 'Point', coordinates: editor.toGeoJSONCoordinates({x: 200, y: 300})}
+        }, paLayer);
 
         editor.undo();
         editor.redo();

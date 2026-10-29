@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './map_changes_spec.json';
 
 
@@ -54,7 +52,14 @@ describe('map changes test', function() {
 
 
     it('add a link object', function() {
-        let l = new features.Navlink([{x: 110, y: 110}, {x: 120, y: 210}], {featureClass: 'NAVLINK'});
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 110, y: 110}, {x: 120, y: 210}])
+            }
+        };
         let link = editor.addFeature(l);
 
         expect(editor.get('history.current')).to.equal(1);

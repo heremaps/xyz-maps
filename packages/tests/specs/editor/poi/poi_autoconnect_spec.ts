@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './poi_autoconnect_spec.json';
 
 describe('poi routing point connects to links automatically', function() {
@@ -61,7 +59,14 @@ describe('poi routing point connects to links automatically', function() {
     });
 
     it('create an poi object and connect to a link, validate pois routingPoint value', async function() {
-        let p = new features.Place({x: 300, y: 250}, {featureClass: 'PLACE'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
+            }
+        };
         poi = editor.addFeature(p, placeLayer);
 
         expect(poi.prop()).to.deep.include({

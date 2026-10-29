@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady, clean, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './poi_create_remove_spec.json';
 
@@ -63,8 +61,22 @@ describe('add POI object and then remove', function() {
     });
 
     it('add link and poi object and validate coord and attributes', function() {
-        let p = new features.Place({x: 100, y: 250}, {featureClass: 'PLACE', type: 'hotel'});
-        let l = new features.Navlink([{x: 100, y: 100}, {x: 200, y: 300}], {featureClass: 'NAVLINK'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE', type: 'hotel'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 100, y: 250})
+            }
+        };
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 200, y: 300}])
+            }
+        };
         link1 = editor.addFeature(l, linkLayer);
         poi1 = editor.addFeature(p, placeLayer);
 
@@ -76,8 +88,23 @@ describe('add POI object and then remove', function() {
     });
 
     it('add more link and poi object and validate again coord and attributes', function() {
-        let p = new features.Place({x: 200, y: 250}, {routingLink: 0, featureClass: 'PLACE', type: 'hospital'});
-        let l = new features.Navlink(0, [{x: 200, y: 100}, {x: 300, y: 300}], {featureClass: 'NAVLINK'});
+        let p = {
+            type: 'Feature',
+            properties: {routingLink: 0, featureClass: 'PLACE', type: 'hospital'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 200, y: 250})
+            }
+        };
+        let l = {
+            type: 'Feature',
+            id: 0,
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 200, y: 100}, {x: 300, y: 300}])
+            }
+        };
 
         let obj = editor.addFeature([l, p], linkLayer, {x: 50, y: 0});
         link2 = obj[0];
@@ -91,7 +118,14 @@ describe('add POI object and then remove', function() {
     });
 
     it('add a POI for restaurant, validate its type', function() {
-        let p = new features.Place({x: 300, y: 250}, {featureClass: 'PLACE', type: 'restaurant'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE', type: 'restaurant'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
+            }
+        };
         let poi = editor.addFeature(p);
 
         expect(poi.prop('type')).to.equal('restaurant');

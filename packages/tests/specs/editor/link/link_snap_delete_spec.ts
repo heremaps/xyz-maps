@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './link_snap_delete_spec.json';
 
 describe('link shape point snapping to delete link', function() {
@@ -49,7 +47,14 @@ describe('link shape point snapping to delete link', function() {
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
 
-        link = editor.addFeature(new features.Navlink([{x: 100, y: 100}, {x: 100, y: 200}], {featureClass: 'NAVLINK'}), linkLayer);
+        link = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 100, y: 200}])
+            }
+        }, linkLayer);
     });
 
     after(async function() {

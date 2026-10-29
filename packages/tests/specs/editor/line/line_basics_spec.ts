@@ -21,8 +21,6 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Line} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './line_basics_spec.json';
 
@@ -58,7 +56,7 @@ describe('basic line tests', function() {
     });
 
     it('create line by drawing manager', async function() {
-        editor.getDrawingBoard().start({mode: features.Line});
+        editor.getDrawingBoard().start({mode: 'Line'});
 
         await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
         await click(mapContainer, 100, 200);

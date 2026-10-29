@@ -21,8 +21,6 @@ import {waitForEditorReady, submit} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './map_observer_ready_spec.json';
 
 describe('map ready observer', function() {
@@ -64,7 +62,14 @@ describe('map ready observer', function() {
             await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
         });
 
-        let p = new features.Navlink([{x: 50, y: 50}, {x: 100, y: 50}], {featureClass: 'NAVLINK'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 50, y: 50}, {x: 100, y: 50}])
+            }
+        };
         editor.addFeature(p, linkLayer);
 
         editor.undo();
@@ -82,7 +87,14 @@ describe('map ready observer', function() {
     it('start observe again with submitting changes', async function() {
         let observer = new Observer(editor, 'ready');
 
-        let l = new features.Navlink([{x: 100, y: 50}, {x: 150, y: 50}], {featureClass: 'NAVLINK'});
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 50}, {x: 150, y: 50}])
+            }
+        };
         let link = editor.addFeature(l, linkLayer);
 
         let idMap;

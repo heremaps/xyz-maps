@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './minshapedistance_spec.json';
 
 describe('set snapTolerance', function() {
@@ -62,10 +60,22 @@ describe('set snapTolerance', function() {
             display.setZoomlevel(19);
         });
 
-        let l1 = new features.Navlink([{x: 100, y: 300}, {x: 400, y: 300}, {x: 410, y: 300}], {featureClass: 'NAVLINK'});
-        let l2 = new features.Navlink([{x: 100, y: 350}, {x: 400, y: 350}, {x: 418, y: 350}], {featureClass: 'NAVLINK'});
-        let link1 = editor.addFeature(l1);
-        let link2 = editor.addFeature(l2);
+        let link1 = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 400, y: 300}, {x: 410, y: 300}])
+            }
+        });
+        let link2 = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 350}, {x: 400, y: 350}, {x: 418, y: 350}])
+            }
+        });
 
         // validate link1 has 2 shape points, 1 shape point is eleminated because minimum distance of shapes is 5 meters
         expect(link1.coord()).to.have.lengthOf(2);
@@ -83,12 +93,30 @@ describe('set snapTolerance', function() {
             display.setZoomlevel(19);
         });
 
-        let l1 = new features.Navlink([{x: 100, y: 300}, {x: 400, y: 300}, {x: 410, y: 300}], {featureClass: 'NAVLINK'});
-        let l2 = new features.Navlink([{x: 100, y: 350}, {x: 400, y: 350}, {x: 418, y: 350}], {featureClass: 'NAVLINK'});
-        let l3 = new features.Navlink([{x: 100, y: 400}, {x: 400, y: 400}, {x: 405, y: 400}], {featureClass: 'NAVLINK'});
-        let link1 = editor.addFeature(l1);
-        let link2 = editor.addFeature(l2);
-        let link3 = editor.addFeature(l3);
+        let link1 = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 400, y: 300}, {x: 410, y: 300}])
+            }
+        });
+        let link2 = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 350}, {x: 400, y: 350}, {x: 418, y: 350}])
+            }
+        });
+        let link3 = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 400}, {x: 400, y: 400}, {x: 405, y: 400}])
+            }
+        });
 
         // validate link1 has 3 shape points
         // validate link3 has 2 shape points, 1 shape point is eleminated because default minimum distance of shapes is 2 meters

@@ -22,8 +22,7 @@ import {drag} from 'triggerEvents';
 import {TileLayer} from '@here/xyz-maps-core';
 import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
-// @ts-ignore @deprecated
-import {Editor, features, NavlinkShape} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 
 
 const initTest = async (autoConnect?: boolean) => {
@@ -50,16 +49,32 @@ const initTest = async (autoConnect?: boolean) => {
     await waitForEditorReady(editor);
 
     // horizontal link at y=300
-    const link1 = editor.addFeature(new features.Navlink('ac_link1', [
-        {x: 100, y: 300},
-        {x: 400, y: 300}
-    ], {featureClass: 'NAVLINK'}), linkLayer);
+    const link1 = editor.addFeature({
+        type: 'Feature',
+        id: 'ac_link1',
+        properties: {featureClass: 'NAVLINK'},
+        geometry: {
+            type: 'LineString',
+            coordinates: editor.toGeoJSONCoordinates([
+                {x: 100, y: 300},
+                {x: 400, y: 300}
+            ])
+        }
+    }, linkLayer);
 
     // vertical link ending at y=200 (above link1)
-    const link2 = editor.addFeature(new features.Navlink('ac_link2', [
-        {x: 250, y: 100},
-        {x: 250, y: 200}
-    ], {featureClass: 'NAVLINK'}), linkLayer);
+    const link2 = editor.addFeature({
+        type: 'Feature',
+        id: 'ac_link2',
+        properties: {featureClass: 'NAVLINK'},
+        geometry: {
+            type: 'LineString',
+            coordinates: editor.toGeoJSONCoordinates([
+                {x: 250, y: 100},
+                {x: 250, y: 200}
+            ])
+        }
+    }, linkLayer);
 
 
     return {display, editor, linkLayer, link1, link2};

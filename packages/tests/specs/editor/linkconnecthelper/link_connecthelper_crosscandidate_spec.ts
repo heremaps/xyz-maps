@@ -20,8 +20,6 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_crosscandidate_spec.json';
 import {Crossing} from '@here/xyz-maps-editor';
@@ -64,7 +62,14 @@ describe('link connect helper crosscandidate', function() {
     });
 
     it('check crossings and validate', function() {
-        let l = new features.Navlink([{x: 325, y: 250}, {x: 537, y: 241}], {featureClass: 'NAVLINK'});
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 325, y: 250}, {x: 537, y: 241}])
+            }
+        };
         let link = editor.addFeature(l, linkLayer);
 
         crossings = link.checkCrossings();
@@ -97,7 +102,14 @@ describe('link connect helper crosscandidate', function() {
     });
 
     it('add another link to map and check its crossing', async function() {
-        let l = new features.Navlink([{x: 325, y: 275}, {x: 525, y: 266}], {featureClass: 'NAVLINK'});
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 325, y: 275}, {x: 525, y: 266}])
+            }
+        };
         let link1 = editor.addFeature(l, linkLayer);
 
         crossings = link1.checkCrossings();

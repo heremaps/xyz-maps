@@ -21,8 +21,7 @@ import {waitForEditorReady, editorClick, submit} from 'editorUtils';
 import {TileLayer} from '@here/xyz-maps-core';
 import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
-// @ts-ignore @deprecated
-import {Editor, features, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
+import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 
 
@@ -60,19 +59,35 @@ const runIntersectionTests = (customProviderOptions = {}) => {
 
 
         await waitForEditorReady(editor);
-        link1 = editor.addFeature(new features.Navlink('Link1', [{x: 100, y: 100}, {x: 200, y: 200}], {
-            featureClass: 'NAVLINK',
-            intersection: {
-                endNode: {link: 'Link2', index: 0}
+        link1 = editor.addFeature({
+            type: 'Feature',
+            id: 'Link1',
+            properties: {
+                featureClass: 'NAVLINK',
+                intersection: {
+                    endNode: {link: 'Link2', index: 0}
+                }
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 200, y: 200}])
             }
-        }), linkLayer);
+        }, linkLayer);
 
-        link2 = editor.addFeature(new features.Navlink('Link2', [{x: 200, y: 200}, {x: 300, y: 100}], {
-            featureClass: 'NAVLINK',
-            intersection: {
-                startNode: {link: 'Link1', index: 1}
+        link2 = editor.addFeature({
+            type: 'Feature',
+            id: 'Link2',
+            properties: {
+                featureClass: 'NAVLINK',
+                intersection: {
+                    startNode: {link: 'Link1', index: 1}
+                }
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 200, y: 200}, {x: 300, y: 100}])
             }
-        }), linkLayer);
+        }, linkLayer);
     });
 
     it('link1: validate simple intersection', async function() {

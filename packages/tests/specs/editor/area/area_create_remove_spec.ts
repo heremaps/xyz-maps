@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './area_create_remove_spec.json';
 
 describe('add Area object and then remove', function() {
@@ -63,7 +61,14 @@ describe('add Area object and then remove', function() {
 
 
     it('add object to map and validate area objects in viewport', async function() {
-        let a = new features.Area([[[{x: 200, y: 300}, {x: 200, y: 500}, {x: 400, y: 300}, {x: 200, y: 300}]]], {featureClass: 'AREA'});
+        let a = {
+            type: 'Feature',
+            properties: {featureClass: 'AREA'},
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: editor.toGeoJSONCoordinates([[[{x: 200, y: 300}, {x: 200, y: 500}, {x: 400, y: 300}, {x: 200, y: 300}]]])
+            }
+        };
         area = editor.addFeature(a);
 
         // validate there is one area object in viewport

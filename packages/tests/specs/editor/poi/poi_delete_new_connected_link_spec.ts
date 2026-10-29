@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './poi_delete_new_connected_link_spec.json';
 
 xdescribe('New poi connect to a new link and then remove the link', function() {
@@ -66,8 +64,22 @@ xdescribe('New poi connect to a new link and then remove the link', function() {
     });
 
     it('validate routingPoint value of poi', async function() {
-        let p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'} );
-        let lnk = new features.Navlink([{x: 250, y: 100}, {x: 250, y: 400}], {featureClass: 'NAVLINK'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 400, y: 300})
+            }
+        };
+        let lnk = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 250, y: 100}, {x: 250, y: 400}])
+            }
+        };
 
         link = editor.addFeature(lnk, linkLayer);
         poi = editor.addFeature(p, placeLayer);

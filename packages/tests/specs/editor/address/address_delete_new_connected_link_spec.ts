@@ -19,8 +19,6 @@
 import {prepare} from 'utils';
 import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_delete_new_connected_link_spec.json';
 
@@ -62,8 +60,22 @@ xdescribe('New address connect to a new link and then remove the link', function
     });
 
     it('add link and address and validate its routing point', async function() {
-        let addr = new features.Address({x: 400, y: 300}, {featureClass: 'ADDRESS'});
-        let lnk = new features.Navlink([{x: 250, y: 100}, {x: 250, y: 400}], {featureClass: 'NAVLINK'});
+        let addr = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 400, y: 300})
+            }
+        };
+        let lnk = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 250, y: 100}, {x: 250, y: 400}])
+            }
+        };
 
         link = editor.addFeature(lnk, linkLayer);
         address = editor.addFeature(addr, addresssLayer);

@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './poi_hover_remove_routingpoint_spec.json';
 
 describe('POI hover then remove routing point then disable editing', function() {
@@ -60,8 +58,22 @@ describe('POI hover then remove routing point then disable editing', function() 
             display.setZoomlevel(19);
         });
 
-        const l = new features.Navlink([{x: 100, y: 100}, {x: 120, y: 400}], {featureClass: 'NAVLINK'});
-        const p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'});
+        const l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 120, y: 400}])
+            }
+        };
+        const p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 400, y: 300})
+            }
+        };
         objs = editor.addFeature([l, p]);
         const place = objs[1];
 

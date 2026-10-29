@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, EditOperation} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_edit_restrictions_spec.json';
 
@@ -105,11 +103,25 @@ describe('link edit restrictions', function() {
 
         await waitForEditorReady(editor);
 
-        let l1 = new features.Navlink([{x: 400, y: 200}, {x: 300, y: 200}, {x: 100, y: 200}, {
-            x: 100,
-            y: 100
-        }], {featureClass: 'NAVLINK', protected: 35});
-        let l2 = new features.Navlink([{x: 300, y: 100}, {x: 100, y: 100}], {featureClass: 'NAVLINK'});
+        let l1 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK', protected: 35},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 400, y: 200}, {x: 300, y: 200}, {x: 100, y: 200}, {
+                    x: 100,
+                    y: 100
+                }])
+            }
+        };
+        let l2 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 300, y: 100}, {x: 100, y: 100}])
+            }
+        };
 
         links = editor.addFeature([l1, l2]);
 
@@ -158,11 +170,25 @@ describe('link edit restrictions', function() {
             display.setZoomlevel(18);
         });
 
-        let l1 = new features.Navlink([{x: 400, y: 200}, {x: 300, y: 200}, {x: 100, y: 200}, {
-            x: 100,
-            y: 100
-        }], {featureClass: 'NAVLINK', protected: 35});
-        let l2 = new features.Navlink([{x: 300, y: 100}, {x: 100, y: 100}], {featureClass: 'NAVLINK'});
+        let l1 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK', protected: 35},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 400, y: 200}, {x: 300, y: 200}, {x: 100, y: 200}, {
+                    x: 100,
+                    y: 100
+                }])
+            }
+        };
+        let l2 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 300, y: 100}, {x: 100, y: 100}])
+            }
+        };
         links = editor.addFeature([l1, l2]);
 
         links[0].select();
@@ -205,12 +231,19 @@ describe('link edit restrictions', function() {
 
         await waitForEditorReady(editor);
 
-        const link = editor.addFeature(new features.Navlink([
-            {x: 400, y: 200},
-            {x: 300, y: 200},
-            {x: 100, y: 200},
-            {x: 100, y: 100}
-        ], {featureClass: 'NAVLINK'}));
+        const link = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([
+                    {x: 400, y: 200},
+                    {x: 300, y: 200},
+                    {x: 100, y: 200},
+                    {x: 100, y: 100}
+                ])
+            }
+        });
 
         link.select();
         const originalCoordinates = link.coord();

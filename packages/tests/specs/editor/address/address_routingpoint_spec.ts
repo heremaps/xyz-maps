@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_routingpoint_spec.json';
 
@@ -78,7 +76,14 @@ describe('routing point of address objects should always exists', function() {
     });
 
     it('create a link object and click on the address object, address object connects to the new link', async function() {
-        let l3 = new features.Navlink([{x: 200, y: 400}, {x: 100, y: 500}], {featureClass: 'NAVLINK'});
+        let l3 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 200, y: 400}, {x: 100, y: 500}])
+            }
+        };
         let link3 = editor.addFeature(l3);
 
         await click(mapContainer, 200, 100);

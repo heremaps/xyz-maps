@@ -22,8 +22,7 @@ import {drag} from 'triggerEvents';
 import {TileLayer} from '@here/xyz-maps-core';
 import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
-// @ts-ignore @deprecated
-import {Editor, features, NavlinkShape} from '@here/xyz-maps-editor';
+import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 
 
@@ -64,22 +63,46 @@ describe('link connection candidates', function() {
         mapContainer = display.getContainer();
 
         // link1: horizontal line at y=200 (from x=100 to x=300)
-        link1 = editor.addFeature(new features.Navlink('link1', [
-            {x: 100, y: 200},
-            {x: 300, y: 200}
-        ], {featureClass: 'NAVLINK'}), linkLayer);
+        link1 = editor.addFeature({
+            type: 'Feature',
+            id: 'link1',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([
+                    {x: 100, y: 200},
+                    {x: 300, y: 200}
+                ])
+            }
+        }, linkLayer);
 
         // link3: horizontal line also at y=200 (overlapping with link1)
-        link3 = editor.addFeature(new features.Navlink('link3', [
-            {x: 100, y: 200},
-            {x: 300, y: 200}
-        ], {featureClass: 'NAVLINK'}), linkLayer);
+        link3 = editor.addFeature({
+            type: 'Feature',
+            id: 'link3',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([
+                    {x: 100, y: 200},
+                    {x: 300, y: 200}
+                ])
+            }
+        }, linkLayer);
 
         // link2: vertical line from y=100 to y=150 (not touching link1/link3 yet)
-        link2 = editor.addFeature(new features.Navlink('link2', [
-            {x: 200, y: 100},
-            {x: 200, y: 150}
-        ], {featureClass: 'NAVLINK'}), linkLayer);
+        link2 = editor.addFeature({
+            type: 'Feature',
+            id: 'link2',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([
+                    {x: 200, y: 100},
+                    {x: 200, y: 150}
+                ])
+            }
+        }, linkLayer);
     });
 
     after(async function() {

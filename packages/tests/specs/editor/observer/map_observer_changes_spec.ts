@@ -21,8 +21,6 @@ import {waitForEditorReady, clean, submit} from 'editorUtils';
 import dataset from './map_observer_changes_spec.json';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 
 describe('map changes observers', function() {
     const expect = chai.expect;
@@ -55,8 +53,22 @@ describe('map changes observers', function() {
     it('observe changes history with undo, redo', async function() {
         let observer = new Observer(editor, 'history.current');
 
-        let addr1 = new features.Address({x: 200, y: 300}, {featureClass: 'ADDRESS'});
-        let lnk = new features.Navlink([{x: 100, y: 200}, {x: 200, y: 300}], {featureClass: 'NAVLINK'});
+        let addr1 = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 200, y: 300})
+            }
+        };
+        let lnk = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 200}, {x: 200, y: 300}])
+            }
+        };
 
         editor.addFeature(lnk);
         editor.addFeature(addr1);
@@ -75,7 +87,14 @@ describe('map changes observers', function() {
     it('observe changes history with undo, revert and submit', async function() {
         let observer = new Observer(editor, 'history.current');
 
-        let addr1 = new features.Address({x: 200, y: 300}, {featureClass: 'ADDRESS'});
+        let addr1 = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 200, y: 300})
+            }
+        };
         editor.addFeature(addr1);
 
         editor.undo();
@@ -84,7 +103,14 @@ describe('map changes observers', function() {
             editor.revert();
         });
 
-        let addr2 = new features.Address({x: 300, y: 300}, {featureClass: 'ADDRESS'});
+        let addr2 = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 300, y: 300})
+            }
+        };
         editor.addFeature(addr2);
         let idMap;
         await waitForEditorReady(editor, async ()=>{

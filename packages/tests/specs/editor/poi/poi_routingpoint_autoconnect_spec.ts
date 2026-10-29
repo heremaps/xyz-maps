@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './poi_routingpoint_autoconnect_spec.json';
 
 describe('POI routing point auto reconnect', function() {
@@ -60,8 +58,22 @@ describe('POI routing point auto reconnect', function() {
             display.setZoomlevel(19);
         });
 
-        let l = new features.Navlink([{x: 100, y: 100}, {x: 120, y: 400}], {featureClass: 'NAVLINK'});
-        let p = new features.Place({x: 400, y: 300}, {featureClass: 'PLACE'});
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 120, y: 400}])
+            }
+        };
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 400, y: 300})
+            }
+        };
         objs = editor.addFeature([l, p]);
 
         objs[1].createRoutingPoint();

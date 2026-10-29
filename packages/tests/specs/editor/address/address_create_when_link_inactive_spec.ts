@@ -19,8 +19,6 @@
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_create_when_link_inactive_spec.json';
 
@@ -65,7 +63,14 @@ describe('add Address object when link is deactivated', function() {
     });
 
     it('add an address and validate objs in viewport ', function() {
-        let addr = new features.Address({x: 200, y: 300}, {featureClass: 'ADDRESS'});
+        let addr = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 200, y: 300})
+            }
+        };
         let address = editor.addFeature(addr);
 
         let objs = editor.search({rect: display.getViewBounds()});

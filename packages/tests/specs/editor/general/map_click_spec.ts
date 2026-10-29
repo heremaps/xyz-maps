@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './map_click_spec.json';
 
 describe('map click on ground and link', function() {
@@ -74,7 +72,14 @@ describe('map click on ground and link', function() {
         });
 
 
-        let lnk = new features.Navlink([{x: 100, y: 100}, {x: 300, y: 100}], {featureClass: 'NAVLINK'});
+        let lnk = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 300, y: 100}])
+            }
+        };
         let link = editor.addFeature(lnk);
 
         // click on a link

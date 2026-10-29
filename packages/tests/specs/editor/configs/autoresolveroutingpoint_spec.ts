@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './maxroutingpointdistance_spec.json';
 
 describe('autoResolveRoutingPoint configuration', function() {
@@ -53,9 +51,30 @@ describe('autoResolveRoutingPoint configuration', function() {
             ...options
         });
 
-        const link = new features.Navlink([{x: 100, y: 300}, {x: 400, y: 300}], {featureClass: 'NAVLINK'});
-        const address = new features.Address({x: 200, y: 250}, {featureClass: 'ADDRESS'});
-        const place = new features.Place({x: 300, y: 250}, {featureClass: 'PLACE'});
+        const link = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 400, y: 300}])
+            }
+        };
+        const address = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 200, y: 250})
+            }
+        };
+        const place = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
+            }
+        };
         let added;
 
         return waitForEditorReady(editor, () => {

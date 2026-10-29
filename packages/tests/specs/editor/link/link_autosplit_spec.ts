@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_autosplit_spec.json';
 
@@ -58,7 +56,14 @@ describe('link auto split', function() {
     });
 
     it('add link object validate 1 link in viewport', async function() {
-        let lnk1 = new features.Navlink([{x: 400, y: 200}, {x: 100, y: 200}], {featureClass: 'NAVLINK'});
+        let lnk1 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 400, y: 200}, {x: 100, y: 200}])
+            }
+        };
         link1 = editor.addFeature(lnk1);
         link1.select();
 
@@ -70,7 +75,14 @@ describe('link auto split', function() {
     });
 
     it('add another link object and drag one shape point to another to remove one', async function() {
-        let lnk2 = new features.Navlink([{x: 100, y: 100}, {x: 150, y: 200}, {x: 200, y: 200}, {x: 500, y: 200}], {featureClass: 'NAVLINK'});
+        let lnk2 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 150, y: 200}, {x: 200, y: 200}, {x: 500, y: 200}])
+            }
+        };
 
         link2 = editor.addFeature(lnk2);
         link2.select();
@@ -88,7 +100,14 @@ describe('link auto split', function() {
     });
 
     it('add link object and drag shape point to automatically split the link', async function() {
-        let lnk3 = new features.Navlink([{x: 100, y: 150}, {x: 150, y: 100}, {x: 200, y: 150}, {x: 250, y: 160}], {featureClass: 'NAVLINK'});
+        let lnk3 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 150}, {x: 150, y: 100}, {x: 200, y: 150}, {x: 250, y: 160}])
+            }
+        };
         link3 = editor.addFeature(lnk3);
         link3.select();
 
@@ -113,8 +132,22 @@ describe('link auto split', function() {
     });
 
     it('add link object', async function() {
-        let lnk4 = new features.Navlink([{x: 200, y: 200}, {x: 250, y: 150}, {x: 300, y: 200}], {featureClass: 'NAVLINK'});
-        let lnk5 = new features.Navlink([{x: 200, y: 200}, {x: 250, y: 250}, {x: 300, y: 200}], {featureClass: 'NAVLINK'});
+        let lnk4 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 200, y: 200}, {x: 250, y: 150}, {x: 300, y: 200}])
+            }
+        };
+        let lnk5 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 200, y: 200}, {x: 250, y: 250}, {x: 300, y: 200}])
+            }
+        };
         link4 = editor.addFeature(lnk4);
         link5 = editor.addFeature(lnk5);
 
@@ -128,7 +161,14 @@ describe('link auto split', function() {
 
 
     it('add link object, drag a shape point to connect to the other one and validate new links', async function() {
-        let lnk6 = new features.Navlink([{x: 100, y: 100}, {x: 200, y: 100}, {x: 200, y: 200, z: 1}], {featureClass: 'NAVLINK', zLevels: [0, 0, 1]});
+        let lnk6 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK', zLevels: [0, 0, 1]},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates(<any[]>[{x: 100, y: 100}, {x: 200, y: 100}, {x: 200, y: 200, z: 1}])
+            }
+        };
         link6 = editor.addFeature(lnk6);
 
         expect(link6.getZLevels()).to.deep.equal([0, 0, 1]);
@@ -144,7 +184,14 @@ describe('link auto split', function() {
     });
 
     it('add link object, drag a shape point to connect to the other one, validate link is split automatically', async function() {
-        let lnk7 = new features.Navlink([{x: 100, y: 300, z: 1}, {x: 200, y: 300}, {x: 200, y: 400, z: 1}], {featureClass: 'NAVLINK', zLevels: [1, 0, 1]});
+        let lnk7 = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK', zLevels: [1, 0, 1]},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates(<any[]>[{x: 100, y: 300, z: 1}, {x: 200, y: 300}, {x: 200, y: 400, z: 1}])
+            }
+        };
         link7 = editor.addFeature(lnk7);
 
         expect(link7.getZLevels()).to.deep.equal([1, 0, 1]);

@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './address_click_spec.json';
 
@@ -93,7 +91,14 @@ describe('click on address to validate the coordinate', function() {
 
     it('add address object and validate its coord', async function() {
         // add address object
-        let a = new features.Address({x: 200, y: 200}, {featureClass: 'ADDRESS'});
+        let a = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 200, y: 200})
+            }
+        };
         let address = editor.addFeature(a);
 
         // click on an address

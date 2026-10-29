@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './map_history_modify_remove_layer_undo_spec.json';
 
 describe('modify object and remove its layer, then undo the change', function() {
@@ -57,7 +55,14 @@ describe('modify object and remove its layer, then undo the change', function() 
 
     it('click on POI object', async function() {
         let mapContainer = display.getContainer();
-        let p = new features.Place({x: 300, y: 250}, {featureClass: 'PLACE'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
+            }
+        };
         editor.addFeature(p);
 
         await click(mapContainer, 300, 250);

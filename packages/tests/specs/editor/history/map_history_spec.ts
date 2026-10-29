@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './map_history_spec.json';
 
 describe('map history', function() {
@@ -49,7 +47,14 @@ describe('map history', function() {
     });
 
     it('add a poi object and validate', function() {
-        var poi1 = new features.Place({x: 100, y: 200}, {featureClass: 'PLACE'});
+        var poi1 = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 100, y: 200})
+            }
+        };
 
         editor.addFeature(poi1);
 
@@ -59,7 +64,14 @@ describe('map history', function() {
     });
 
     it('add another poi object and validate', function() {
-        var poi2 = new features.Place({x: 200, y: 200}, {featureClass: 'PLACE'});
+        var poi2 = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 200, y: 200})
+            }
+        };
         editor.addFeature(poi2);
 
         expect(editor.get('history.current')).to.equal(2);
@@ -99,7 +111,14 @@ describe('map history', function() {
 
 
     it('add a poi object and validate', function() {
-        var poi3 = new features.Place({x: 250, y: 200}, {featureClass: 'PLACE'});
+        var poi3 = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 250, y: 200})
+            }
+        };
         editor.addFeature(poi3);
 
         expect(editor.get('history.current')).to.equal(1);
@@ -131,7 +150,14 @@ describe('map history', function() {
 
 
     it('add a poi object and validate', function() {
-        var poi4 = new features.Place({x: 250, y: 250}, {featureClass: 'PLACE'});
+        var poi4 = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 250, y: 250})
+            }
+        };
         editor.addFeature(poi4);
 
         expect(editor.get('history.current')).to.equal(1);

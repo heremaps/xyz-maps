@@ -22,8 +22,6 @@ import dataset from './split_link_attribute_spec.json';
 import chaiAlmost from 'chai-almost';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import {NavlinkShape} from '@here/xyz-maps-editor';
 
 
@@ -54,14 +52,21 @@ describe('validate attributes after splitting a link', function() {
     });
 
     it('split a link and validate its coord and type value', async function() {
-        let l = new features.Navlink([{x: 100, y: 50}, {x: 300, y: 50}, {x: 500, y: 100}], {
-            featureClass: 'NAVLINK',
-            type: 'highway',
-            name: 'A2',
-            turnRestriction: {start: [], end: ['abc']},
-            direction: 'START_TO_END',
-            pedestrianOnly: false
-        });
+        let l = {
+            type: 'Feature',
+            properties: {
+                featureClass: 'NAVLINK',
+                type: 'highway',
+                name: 'A2',
+                turnRestriction: {start: [], end: ['abc']},
+                direction: 'START_TO_END',
+                pedestrianOnly: false
+            },
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 50}, {x: 300, y: 50}, {x: 500, y: 100}])
+            }
+        };
         let link0 = editor.addFeature(l);
         link0.select();
 

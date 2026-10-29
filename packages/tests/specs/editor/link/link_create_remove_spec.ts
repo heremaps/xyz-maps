@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './link_create_remove_spec.json';
 
 describe('Create new Link then remove', function() {
@@ -54,7 +52,14 @@ describe('Create new Link then remove', function() {
     });
 
     it('validate new link attributes', function() {
-        let l = new features.Navlink([{x: 400, y: 200}, {x: 100, y: 200}], {featureClass: 'NAVLINK', type: 'residential'});
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK', type: 'residential'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 400, y: 200}, {x: 100, y: 200}])
+            }
+        };
         link1 = editor.addFeature(l, linkLayer);
 
         expect(link1.prop('type')).to.equal('residential');

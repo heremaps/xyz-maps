@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './address_create_nolink_in_viewport_spec.json';
 
 describe('create an address where no link exists within 1000 meters', function() {
@@ -56,12 +54,24 @@ describe('create an address where no link exists within 1000 meters', function()
 
     it('add two address and validate', async function() {
         // add one address which should fail as no link exists within 1000 meters
-        let addr1 = new features.Address({x: 200, y: 300}, {featureClass: 'ADDRESS'});
-        editor.addFeature(addr1);
+        let addr1 = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 200, y: 300})
+            }
+        });
 
         // add one more address
-        let addr2 = new features.Address({x: 50, y: 300}, {featureClass: 'ADDRESS'});
-        editor.addFeature(addr2);
+        let addr2 = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 50, y: 300})
+            }
+        });
 
         let objs = editor.search({rect: display.getViewBounds(), layers: [addrLayer]});
         expect(objs).to.have.lengthOf(1);

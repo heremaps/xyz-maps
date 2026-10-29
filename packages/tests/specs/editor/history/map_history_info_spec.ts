@@ -21,8 +21,6 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './map_history_info_spec.json';
 
 describe('map history info', function() {
@@ -57,7 +55,14 @@ describe('map history info', function() {
     });
 
     it('add a link object', function() {
-        let p = new features.Place({x: 100, y: 200}, {featureClass: 'PLACE'});
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 100, y: 200})
+            }
+        };
         let poi = editor.addFeature(p);
 
         expect(editor.get('history.current')).to.equal(1);

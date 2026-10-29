@@ -22,8 +22,6 @@ import {waitForViewportReady} from 'displayUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import dataset from './map_destroy_spec.json';
 
 describe('destroy editor', function() {
@@ -49,7 +47,14 @@ describe('destroy editor', function() {
 
         mapContainer = display.getContainer();
 
-        editor.addFeature(new features.Navlink([{x: 100, y: 100}, {x: 200, y: 100}, {x: 200, y: 50}], {featureClass: 'NAVLINK'}));
+        editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 200, y: 100}, {x: 200, y: 50}])
+            }
+        });
     });
 
     after(async function() {

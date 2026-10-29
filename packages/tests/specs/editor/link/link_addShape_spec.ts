@@ -20,8 +20,6 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_addShape_spec.json';
 
@@ -57,7 +55,14 @@ describe('link add shape point', function() {
     });
 
     it('create a link and validate', function() {
-        let l = new features.Navlink([{x: 400, y: 200}, {x: 100, y: 200}], {featureClass: 'NAVLINK'});
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 400, y: 200}, {x: 100, y: 200}])
+            }
+        };
         link = editor.addFeature(l, linkLayer);
 
         expect(link.coord()).to.deep.almost([

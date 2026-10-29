@@ -19,8 +19,6 @@
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
-// @ts-ignore @deprecated
-import {features} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_create_outside_viewport_spec.json';
 
@@ -54,8 +52,14 @@ describe('create an address outside viewport, it connects to a link nearby', fun
 
     it('create an address outside viewport and valiate', async function() {
         // add a link to map
-        let l = new features.Navlink([{x: 100, y: 300}, {x: 400, y: 300}], {featureClass: 'NAVLINK'});
-        link = editor.addFeature(l);
+        let link = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 400, y: 300}])
+            }
+        });
 
         await waitForEditorReady(editor, ()=>{
             // move map to a new area
@@ -63,8 +67,14 @@ describe('create an address outside viewport, it connects to a link nearby', fun
         });
 
         // add an address to map
-        let addr = new features.Address({longitude: 75.55616842610328, latitude: 14.022611963396827}, {featureClass: 'ADDRESS'});
-        address = editor.addFeature(addr);
+        let address = editor.addFeature({
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({longitude: 75.55616842610328, latitude: 14.022611963396827})
+            }
+        });
 
         // validate address connects to correct link
         expect(address.prop()).to.deep.include({
