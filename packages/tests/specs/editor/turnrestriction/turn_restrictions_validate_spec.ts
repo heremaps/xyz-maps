@@ -33,8 +33,20 @@ describe('turn restriction validate', function() {
     let link1;
     let link3;
     let linkLayer;
+    let lifecycle = 'setup';
+    const reportWindowError = (event: ErrorEvent) => {
+        console.error('Turn restriction runtime diagnostics', {
+            lifecycle,
+            message: event.message,
+            stack: event.error?.stack,
+            visibility: document.visibilityState,
+            mapConnected: mapContainer?.isConnected
+        });
+    };
 
     before(async function() {
+        // Keep listening until Vitest disposes this page to capture errors after map destruction.
+        window.addEventListener('error', reportWindowError);
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -105.426506, latitude: 35.290071},
@@ -57,12 +69,17 @@ describe('turn restriction validate', function() {
     });
 
     after(async function() {
+        lifecycle = 'destroying editor';
         editor.destroy();
+        lifecycle = 'destroying display';
         display.destroy();
+        lifecycle = 'clearing data';
         await preparedData.clear();
+        lifecycle = 'cleanup complete';
     });
 
     it('modify turn restriction and validate its value', async function() {
+        lifecycle = 'running test';
         await click(mapContainer, 100, 115);
 
         link3.editTurnRestrictions();

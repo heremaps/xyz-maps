@@ -67,6 +67,19 @@ describe('3d Model Styles', function() {
         modelLayer.setStyleGroup(feature, [baseModelStyle]);
 
         let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300});
+        if (color !== '#ff0000') {
+            const canvas = mapContainer.querySelector('canvas');
+            const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+            console.error('Model rendering diagnostics', {
+                color,
+                visibility: document.visibilityState,
+                canvasSize: [canvas.width, canvas.height],
+                contextLost: gl?.isContextLost(),
+                resources: performance.getEntriesByType('resource')
+                    .filter((entry) => /\.(obj|mtl|png)(?:[?#]|$)/i.test(entry.name))
+                    .map((entry) => entry.toJSON())
+            });
+        }
         expect(color).to.equal('#ff0000');
     });
 
