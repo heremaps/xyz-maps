@@ -8,7 +8,7 @@ on:
 
 jobs:
     test:
-        name: Model and turn restriction specs
+        name: Model, compass and turn restriction specs
         runs-on: ubuntu-24.04
 
         steps:
@@ -31,6 +31,7 @@ jobs:
                 run: >-
                     pnpm test --project display --project editor
                     specs/display/layer/style_type_model.ts
+                    specs/display/general/ui_compass_spec.ts
                     specs/editor/turnrestriction/turn_restrictions_validate_spec.ts
                     --silent=false
             -   name: Upload test report

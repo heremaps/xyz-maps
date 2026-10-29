@@ -30,8 +30,19 @@ describe('ui component compass', function() {
     let preparedData;
     let display;
     let mapContainer;
+    let destroyingDisplay = false;
 
     before(async function() {
+        // Keep listening for animation errors after the map has been destroyed.
+        window.addEventListener('error', (event: ErrorEvent) => {
+            console.error('Compass runtime diagnostics', {
+                message: event.message,
+                stack: event.error?.stack,
+                destroyingDisplay,
+                rotateType: typeof display?.rotate,
+                visibility: document.visibilityState
+            });
+        });
         preparedData = await prepare(dataset);
         mapContainer = document.getElementById('map');
         display = new Map(mapContainer, {
@@ -125,6 +136,7 @@ describe('ui component compass', function() {
 
     it('destroy display while animation is running', async () => {
         await click(mapContainer, 765, 490);
+        destroyingDisplay = true;
         display.destroy();
     });
 });
