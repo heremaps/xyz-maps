@@ -49,7 +49,7 @@ describe('map changes observers validate object numbers in viewport', function()
     });
 
     it('observe ready', function() {
-        let zl = editor.getZoomLevel();
+        let zl = display.getZoomlevel();
         expect(zl).to.equal(18);
     });
 });

@@ -78,7 +78,7 @@ describe('range selector util', function() {
             reversed: false
         });
 
-        expect(info[0].segments[0].navlink).to.deep.include({
+        expect(info[0].segments[0].feature).to.deep.include({
             id: link1.id
         });
     });
@@ -106,7 +106,7 @@ describe('range selector util', function() {
             reversed: false
         });
 
-        expect(range.segments[0].navlink).to.deep.include({
+        expect(range.segments[0].feature).to.deep.include({
             id: link2.id
         });
     });
@@ -135,7 +135,7 @@ describe('range selector util', function() {
             reversed: false
         });
 
-        expect(range.segments[0].navlink).to.deep.include({
+        expect(range.segments[0].feature).to.deep.include({
             id: link1.id
         });
     });

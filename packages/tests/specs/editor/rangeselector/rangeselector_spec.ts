@@ -34,7 +34,7 @@ export const validateSegment = (segment, expectedSegment, linkId?: string | numb
     }).to.deep.almost(expectedSegment, 1e-5);
 
     if (linkId !== undefined) {
-        expect(segment.navlink).to.deep.include({id: linkId});
+        expect(segment.feature).to.deep.include({id: linkId});
     }
 };
 
@@ -76,9 +76,9 @@ describe('range selector drag', () => {
     });
 
     it('add links to rangeselector, show and validate rangeselector info ', () => {
-        editor.getZoneSelector().add(link1, link2);
+        editor.getRangeSelector().add(link1, link2);
 
-        editor.getZoneSelector().show({
+        editor.getRangeSelector().show({
             from: 0.1,
             to: 0.4,
             side: 'B',
@@ -92,7 +92,7 @@ describe('range selector drag', () => {
             }
         });
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -133,7 +133,7 @@ describe('range selector drag', () => {
             reversed: false
         }, link2.id);
 
-        let info = editor.getZoneSelector().info();
+        let info = editor.getRangeSelector().info();
         expect(info[0]).to.deep.include({
             from: 0.1,
             to: 0.4,
@@ -176,12 +176,12 @@ describe('range selector drag', () => {
         //     reversed: false
         // }, 1e-5);
         //
-        // expect(info[1].segments[0].navlink).to.deep.include({id: link2.id});
+        // expect(info[1].segments[0].feature).to.deep.include({id: link2.id});
     });
 
 
     it('hide rangeselector, drag the map to validate the range selector is deactivated, validate map is dragged', async () => {
-        editor.getZoneSelector().hide();
+        editor.getRangeSelector().hide();
 
         await waitForEditorReady(editor, async () => {
             await drag(mapContainer, {x: 350, y: 185}, {x: 360, y: 250});
