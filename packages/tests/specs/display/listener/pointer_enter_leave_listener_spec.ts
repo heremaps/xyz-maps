@@ -18,7 +18,7 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {Listener, prepare} from 'utils';
+import {Listener, prepare, waitForPointerEvent} from 'utils';
 import {mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_enter_leave_listener_spec.json';
@@ -54,8 +54,10 @@ describe('pointer enter and leave feature listener', function() {
 
         let listener = new Listener(display, ['pointerenter', 'pointerleave']);
 
-        await mousemove(mapContainer, {x: 357, y: 274}, {x: 376, y: 246});
-        await mousemove(mapContainer, {x: 376, y: 246}, {x: 357, y: 274});
+        await waitForPointerEvent(display, 'pointerenter', () =>
+            mousemove(mapContainer, {x: 357, y: 274}, {x: 376, y: 246}));
+        await waitForPointerEvent(display, 'pointerleave', () =>
+            mousemove(mapContainer, {x: 376, y: 246}, {x: 357, y: 274}));
 
         let results = listener.stop();
 
@@ -78,8 +80,10 @@ describe('pointer enter and leave feature listener', function() {
     it('validate pointerenter and leave event for hoving link', async function() {
         let listener = new Listener(display, ['pointerenter', 'pointerleave']);
 
-        await mousemove(mapContainer, {x: 374, y: 358}, {x: 389, y: 390});
-        await mousemove(mapContainer, {x: 389, y: 390}, {x: 374, y: 358});
+        await waitForPointerEvent(display, 'pointerenter', () =>
+            mousemove(mapContainer, {x: 374, y: 358}, {x: 389, y: 390}));
+        await waitForPointerEvent(display, 'pointerleave', () =>
+            mousemove(mapContainer, {x: 389, y: 390}, {x: 374, y: 358}));
 
         let results = listener.stop();
 
@@ -118,8 +122,10 @@ describe('pointer enter and leave feature listener', function() {
 
         let listener = new Listener(display, ['pointerenter', 'pointerleave']);
 
-        await mousemove(mapContainer, {x: 338, y: 274}, {x: 323, y: 288});
-        await mousemove(mapContainer, {x: 323, y: 288}, {x: 338, y: 274});
+        await waitForPointerEvent(display, 'pointerenter', () =>
+            mousemove(mapContainer, {x: 338, y: 274}, {x: 323, y: 288}));
+        await waitForPointerEvent(display, 'pointerleave', () =>
+            mousemove(mapContainer, {x: 323, y: 288}, {x: 338, y: 274}));
 
         let results = listener.stop();
         expect(results.pointerenter).to.have.lengthOf(1);
