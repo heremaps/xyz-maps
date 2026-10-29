@@ -21,6 +21,14 @@ on:
                     - core
                     - display
                     - editor
+            workers:
+                description: Test workers (serial disables file parallelism)
+                type: choice
+                default: serial
+                options:
+                    - serial
+                    - '4'
+                    - '12'
 
 jobs:
     build:
@@ -52,9 +60,18 @@ jobs:
             -   name: Run tests
                 env:
                     TEST_COMPONENT: ${{ github.event_name == 'workflow_dispatch' && inputs.component || 'all' }}
+                    TEST_WORKERS: ${{ github.event_name == 'workflow_dispatch' && inputs.workers || 'serial' }}
+                shell: bash
                 run: |
+                    args=()
                     case "$TEST_COMPONENT" in
-                        all) pnpm test ;;
-                        common|core|display|editor) pnpm test --project "$TEST_COMPONENT" ;;
+                        all) ;;
+                        common|core|display|editor) args+=(--project "$TEST_COMPONENT") ;;
                         *) echo "Unknown test component: $TEST_COMPONENT" >&2; exit 1 ;;
                     esac
+                    case "$TEST_WORKERS" in
+                        serial) args+=(--no-fileParallelism --maxWorkers 1) ;;
+                        4|12) args+=(--fileParallelism --maxWorkers "$TEST_WORKERS") ;;
+                        *) echo "Unknown test workers: $TEST_WORKERS" >&2; exit 1 ;;
+                    esac
+                    pnpm test "${args[@]}"
