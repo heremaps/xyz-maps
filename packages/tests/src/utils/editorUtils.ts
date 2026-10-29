@@ -50,10 +50,11 @@ export async function waitForEditorPointerEvent(
 ): Promise<void> {
     let timer: ReturnType<typeof setTimeout>;
     let onEvent: (event: EditorEvent) => void;
+    const timeoutError = new Error(`Timed out waiting for editor ${type}`);
     const event = new Promise<void>((resolve, reject) => {
         onEvent = () => resolve();
         editor.addEventListener(type, onEvent);
-        timer = setTimeout(() => reject(new Error(`Timed out waiting for editor ${type}`)), 2000);
+        timer = setTimeout(() => reject(timeoutError), 2000);
     });
     try {
         await Promise.all([event, Promise.resolve().then(action)]);

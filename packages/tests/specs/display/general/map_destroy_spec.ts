@@ -89,23 +89,32 @@ describe('destroy display', function() {
         });
         const errors: string[] = [];
         const onError = (event: ErrorEvent) => errors.push(event.message);
+        const pan = vi.spyOn(map, 'pan');
         window.addEventListener('error', onError);
         try {
             await waitForViewportReady(map);
-            const pan = vi.spyOn(map, 'pan');
-            await drag(map.getContainer(), {x: 300, y: 300}, {x: 400, y: 300});
+            vi.useFakeTimers({
+                toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
+                    'requestAnimationFrame', 'cancelAnimationFrame']
+            });
+            const gesture = drag(map.getContainer(), {x: 300, y: 300}, {x: 400, y: 300});
+            await vi.advanceTimersByTimeAsync(61);
+            await gesture;
             const callsAfterRelease = pan.mock.calls.length;
-            await vi.waitFor(() => {
-                expect(pan.mock.calls.length).to.be.greaterThan(callsAfterRelease);
-            }, {timeout: 300, interval: 10});
+            await vi.advanceTimersToNextFrame();
+            expect(pan.mock.calls.length).to.be.greaterThan(callsAfterRelease);
             pan.mockRestore();
             map.destroy();
 
-            await new Promise<void>((resolve) => setTimeout(resolve, 200));
+            await vi.advanceTimersByTimeAsync(600);
             expect(errors).to.deep.equal([]);
         } finally {
             window.removeEventListener('error', onError);
-            if (map.destroy) map.destroy();
+            if (map.destroy) {
+                pan.mockRestore();
+                map.destroy();
+            }
+            vi.useRealTimers();
         }
     });
 });

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import {Listener, prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {waitForEditorPointerEvent, waitForEditorReady} from 'editorUtils';
 import {waitForViewportReady} from 'displayUtils';
 import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
@@ -71,16 +71,22 @@ describe('map mouseenter link when link layer is removed', function() {
         await click(mapContainer, 350, 132);
 
         // mouse over a link
-        await mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
+        await waitForEditorPointerEvent(editor, 'pointerenter', async () => {
+            await mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
+        });
 
         // mouse out of a link
         await mousemove(mapContainer, {x: 330, y: 167}, {x: 360, y: 132});
 
         // mouse over a POI
-        await mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146});
+        await waitForEditorPointerEvent(editor, 'pointerenter', async () => {
+            await mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146});
+        });
 
         // mouse out of a poi
-        await mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130});
+        await waitForEditorPointerEvent(editor, 'pointerleave', async () => {
+            await mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130});
+        });
 
         let results = listener.stop();
 

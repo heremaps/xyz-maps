@@ -300,7 +300,9 @@ describe('StyleGroup Image and Line geometry', () => {
             priority: 1
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4]);
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4], {
+            expect: ['#ffffff', '#ff0000', '#ff0000', '#ff0000', '#ff0000']
+        });
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal('#ff0000');

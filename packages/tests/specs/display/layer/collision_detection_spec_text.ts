@@ -85,7 +85,8 @@ describe('collision detection - Text', function() {
         }]);
 
         let color = await getCanvasPixelColor(mapContainer,
-            display.geoToPixel(73.47146955841399, 21.404434999821802)
+            display.geoToPixel(73.47146955841399, 21.404434999821802),
+            {expect: color1}
         );
 
         expect(color).to.equal(color1);
@@ -110,7 +111,7 @@ describe('collision detection - Text', function() {
             priority: 1
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: x1, y: y1});
+        let color = await getCanvasPixelColor(mapContainer, {x: x1, y: y1}, {expect: color1});
 
         expect(color).to.equal(color1);
     });
