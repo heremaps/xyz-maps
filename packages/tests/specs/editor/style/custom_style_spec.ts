@@ -76,7 +76,7 @@ describe('custom/overwritten styles', () => {
             fill: '#0000ff'
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400});
+        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {expect: '#0000ff'});
         expect(color).to.equal('#0000ff');
     });
 

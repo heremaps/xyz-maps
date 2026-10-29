@@ -70,7 +70,7 @@ describe('setStyleGroup Point with text', function() {
         // c1 c2 c2 c3 c4
         let colors = await getCanvasPixelColor(mapContainer, [
             {x: 350, y: 300}, {x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}, {x: 450, y: 300}
-        ]);
+        ], {expect: ['#ff0000', '#000000', '#ff0000', '#000000', '#ff0000']});
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');
@@ -87,7 +87,9 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000', 'text': FULL_BLOCK_CHAR, 'opacity': 0.5, 'font': FONT}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}], {
+            expect: ['#ff0000', '#800000', '#ff0000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#800000');
@@ -104,7 +106,7 @@ describe('setStyleGroup Point with text', function() {
 
         let colors = await getCanvasPixelColor(mapContainer, [
             {x: 375, y: 300}, {x: 388, y: 300}, {x: 400, y: 300}, {x: 414, y: 300}, {x: 425, y: 300}
-        ]);
+        ], {expect: ['#ff0000', '#000000', '#ff0000', '#000000', '#ff0000']});
 
         expect(colors[0]).to.equal('#ff0000'); // color left of "O"
         expect(colors[1]).to.equal('#000000'); // color on left arc of "O"
@@ -120,7 +122,9 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetX': 24}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 425, y: 300}, {x: 450, y: 300}]);
+        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 425, y: 300}, {x: 450, y: 300}], {
+            expect: ['#ff0000', '#000000', '#ff0000']
+        });
 
         expect(colors[0]).to.equal('#ff0000');
         expect(colors[1]).to.equal('#000000');

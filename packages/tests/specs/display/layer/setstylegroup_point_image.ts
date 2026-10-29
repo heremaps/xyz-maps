@@ -71,7 +71,7 @@ describe('setStyleGroup Point with image', function() {
         // get color mid bottom
         let colors = await getCanvasPixelColor(mapContainer, [
             {x: 400, y: 300}, {x: 390, y: 300}, {x: 410, y: 300}, {x: 400, y: 290}, {x: 400, y: 310}
-        ]);
+        ], {expect: (colors) => colors.every((color) => color !== '#ffffff')});
 
         expect(colors[0]).to.not.equal('#ffffff');
         expect(colors[1]).to.not.equal('#ffffff');

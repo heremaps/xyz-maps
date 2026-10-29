@@ -21,7 +21,6 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {vi} from 'vitest';
 
 describe('StyleGroup Image and Line geometry', () => {
     const redImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mP8z8AARLgB48hQAAAdEw/5itjcFgAAAABJRU5ErkJggg==';
@@ -107,10 +106,8 @@ describe('StyleGroup Image and Line geometry', () => {
         }]);
 
         // Style changes and image loading complete asynchronously; wait for the rendered result.
-        await vi.waitFor(async () => {
-            const colors = await getCanvasPixelColor(mapContainer, [px1, px2]);
-            expect(colors).to.deep.equal(['#0000ff', '#0000ff']);
-        }, {timeout: 2000});
+        const colors = await getCanvasPixelColor(mapContainer, [px1, px2], {expect: ['#0000ff', '#0000ff']});
+        expect(colors).to.deep.equal(['#0000ff', '#0000ff']);
     });
 
     it('set anchor to Line', async () => {
@@ -119,10 +116,10 @@ describe('StyleGroup Image and Line geometry', () => {
         }]);
 
         // Wait for the new anchor placement to replace the previous rendered frame.
-        await vi.waitFor(async () => {
-            const colors = await getCanvasPixelColor(mapContainer, [px1, px2, {x: 400, y: 300}]);
-            expect(colors).to.deep.equal(['#ffffff', '#ffffff', '#0000ff']);
-        }, {timeout: 2000});
+        const colors = await getCanvasPixelColor(mapContainer, [px1, px2, {x: 400, y: 300}], {
+            expect: ['#ffffff', '#ffffff', '#0000ff']
+        });
+        expect(colors).to.deep.equal(['#ffffff', '#ffffff', '#0000ff']);
     });
 
     it('stlye line 2', async () => {
@@ -348,7 +345,9 @@ describe('StyleGroup Image and Line geometry', () => {
             priority: 1
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4]);
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4], {
+            expect: ['#ffffff', '#ff00ff', '#ff00ff', '#ff0000', '#ff0000']
+        });
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal('#ff00ff');

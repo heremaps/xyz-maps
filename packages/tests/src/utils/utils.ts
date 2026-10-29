@@ -46,26 +46,35 @@ function backingScale() {
 }
 
 
+/**
+ * Reads canvas pixels, optionally polling for an expected rendered result.
+ * `expect` accepts a color for all positions, one color per position, or a predicate on the complete sample.
+ * Every attempt reads all pixels afresh. Without `expect`, only one sample is taken.
+ * Defaults: 100 ms initial delay, then up to 38 retries at 50 ms intervals when `expect` is supplied
+ * (about two seconds, subject to scheduling). Explicit delay/retry options override these defaults.
+ * Returns the last sample even if it does not match, so the caller's assertions report the actual colors.
+ * Do not wrap calls in another polling loop.
+ */
 export async function getCanvasPixelColor(
     elem: HTMLElement,
     pos: { x: number, y: number } | { x: number, y: number }[],
     options: {
-        expect?: string | string[],
+        expect?: string | string[] | ((colors: string[]) => boolean),
         delay?: number,
         retry?: number,
         retryDelay?: number
     } = {}): Promise<string | string[]> {
     const positions = Array.isArray(pos) ? pos : [pos];
-    const expect = options.expect ? (Array.isArray(options.expect) ? options.expect : [options.expect]) : new Array(positions.length);
-    const delay = options.delay || 100;
-    const retryDelay = options.retryDelay || 10;
-    let retry = options.retry || 0;
+    const expected = options.expect;
+    if (Array.isArray(expected) && expected.length !== positions.length) {
+        throw new Error('Expected one color per pixel position');
+    }
+    const delay = options.delay ?? 100;
+    const retryDelay = options.retryDelay ?? 50;
+    const retry = options.retry ?? (expected === undefined ? 0 : 38);
     const scaleFactor = backingScale();
     const canvas = elem.getElementsByTagName('canvas')[0];
     const context = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('2d');
-    let resultColors = [];
-    let retryCounter = 0;
-    let expectedCounter = 0;
 
     const getColor = (x: number, y: number) => {
         let pixel;
@@ -79,27 +88,17 @@ export async function getCanvasPixelColor(
         return '#' + ('00000' + ((pixel[0] << 16) | (pixel[1] << 8) | pixel[2]).toString(16)).slice(-6);
     };
 
-    function tryGetColor(timeout, cb) {
-        setTimeout(function() {
-            positions.forEach((v, i) => {
-                if (!resultColors[i] || (resultColors[i] != expect[i] && expect[i])) {
-                    let color = getColor(v.x, v.y);
-                    resultColors[i] = color;
-                    if (!expect[i] || expect[i] == color) {
-                        expectedCounter++;
-                    }
-                }
-            });
-
-            if (retryCounter++ < retry && expectedCounter < expect.length) {
-                tryGetColor(retryDelay, cb);
-            } else {
-                cb(Array.isArray(pos) ? resultColors : resultColors[0]);
-            }
-        }, timeout);
+    for (let attempt = 0; ; attempt++) {
+        await new Promise<void>((resolve) => setTimeout(resolve, attempt === 0 ? delay : retryDelay));
+        // Compare a complete fresh sample, never colors retained from different frames.
+        const colors = positions.map(({x, y}) => getColor(x, y));
+        const matches = typeof expected === 'function'
+            ? expected(colors)
+            : expected === undefined || colors.every((color, i) => color === (Array.isArray(expected) ? expected[i] : expected));
+        if (matches || attempt >= retry) {
+            return Array.isArray(pos) ? colors : colors[0];
+        }
     }
-
-    return new Promise((resolve) => tryGetColor(delay, resolve));
 }
 
 export class Observer {

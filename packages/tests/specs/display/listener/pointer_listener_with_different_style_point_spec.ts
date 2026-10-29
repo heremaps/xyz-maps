@@ -21,7 +21,6 @@ import {waitForViewportReady} from 'displayUtils';
 import {Listener, getCanvasPixelColor, prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import {vi} from 'vitest';
 import dataset from './pointer_listener_with_different_style_point_spec.json';
 
 describe('pointer listener with different style point', function() {
@@ -123,10 +122,10 @@ describe('pointer listener with different style point', function() {
         });
 
         // Refresh schedules rendering asynchronously; wait for the updated style to become visible.
-        await vi.waitFor(async () => {
-            const colors = await getCanvasPixelColor(mapContainer, [{x: 282, y: 203}, {x: 272, y: 203}, {x: 248, y: 203}, {x: 239, y: 203}]);
-            expect(colors).to.deep.equal(['#ffffff', '#be6b65', '#be6b65', '#ffffff']);
-        }, {timeout: 2000});
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 282, y: 203}, {x: 272, y: 203}, {x: 248, y: 203}, {x: 239, y: 203}], {
+            expect: ['#ffffff', '#be6b65', '#be6b65', '#ffffff']
+        });
+        expect(colors).to.deep.equal(['#ffffff', '#be6b65', '#be6b65', '#ffffff']);
     });
 
 

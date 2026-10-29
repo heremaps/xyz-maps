@@ -18,6 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
+import {vi} from 'vitest';
 import {mousemove} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
@@ -67,7 +68,10 @@ describe('Address get functions', function() {
         // hover address
         await mousemove(mapContainer, {x: 180, y: 100}, {x: 200, y: 100});
         expect(address.editState('selected')).to.be.false;
-        expect(address.editState('hovered')).to.be.true;
+        // Hover detection completes asynchronously after the simulated movement.
+        await vi.waitFor(() => {
+            expect(address.editState('hovered')).to.be.true;
+        }, {timeout: 2000});
 
         // select address
         address.select();
@@ -77,7 +81,9 @@ describe('Address get functions', function() {
         // leave address
         await mousemove(mapContainer, {x: 180, y: 100}, {x: 200, y: 80});
         expect(address.editState('selected')).to.be.true;
-        expect(address.editState('hovered')).to.be.false;
+        await vi.waitFor(() => {
+            expect(address.editState('hovered')).to.be.false;
+        }, {timeout: 2000});
 
         // unselect address
         address.unselect();
