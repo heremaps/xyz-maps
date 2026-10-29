@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './setstylegroup_point_rect.json';
 import {click} from 'triggerEvents';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('setStyleGroup Point with rect', function() {
     const expect = chai.expect;

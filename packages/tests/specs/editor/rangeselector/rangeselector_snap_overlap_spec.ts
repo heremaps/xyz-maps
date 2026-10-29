@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './rangeselector_snap_overlap_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('range selector: snapping and overlapping', () => {
     const expect = chai.expect;

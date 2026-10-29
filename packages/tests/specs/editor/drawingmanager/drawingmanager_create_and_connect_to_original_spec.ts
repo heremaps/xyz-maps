@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_create_and_connect_to_original_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('Create new Links and connect to original link', function() {
     const expect = chai.expect;

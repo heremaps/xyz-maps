@@ -21,7 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_set_routing_point_and_link_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('poi set routing point and link manually', function() {
     const expect = chai.expect;

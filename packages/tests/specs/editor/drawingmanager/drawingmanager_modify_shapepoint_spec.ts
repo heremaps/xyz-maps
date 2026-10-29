@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_modify_shapepoint_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('Create new Link by drawing manager and remove some shape points', function() {
     const expect = chai.expect;

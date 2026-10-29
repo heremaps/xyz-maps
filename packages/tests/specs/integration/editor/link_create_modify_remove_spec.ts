@@ -23,7 +23,7 @@ import {drag} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_create_modify_remove_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('Validate submit of creating new link, modifying and removing link', function() {
     const expect = chai.expect;

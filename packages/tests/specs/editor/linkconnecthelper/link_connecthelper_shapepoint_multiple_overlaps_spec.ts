@@ -21,7 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_shapepoint_multiple_overlaps_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('link connect helper which has multiple overlapped shape points 1', function() {
     const expect = chai.expect;

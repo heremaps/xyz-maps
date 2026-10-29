@@ -20,7 +20,7 @@
 import {prepare} from 'utils';
 import dataset from './remote_filtering.json';
 import {Feature} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('remote filtering in spaceprovider', () => {
     const expect = chai.expect;

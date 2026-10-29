@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, EditOperation} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_edit_restrictions_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('link edit restrictions', function() {
     const expect = chai.expect;

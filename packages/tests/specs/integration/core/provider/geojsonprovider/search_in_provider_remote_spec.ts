@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './search_in_provider_remote_spec.json';
-import {describe, beforeAll, it} from 'vitest';
+import {describe, beforeAll, it, chai} from 'vitest';
 
 // GeoJSonProvider actually does not support remote search......
 // search locally instead

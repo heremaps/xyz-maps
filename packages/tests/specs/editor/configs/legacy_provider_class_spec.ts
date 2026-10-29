@@ -21,7 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './legacy_provider_class_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 // Legacy coverage. The linkLayer provider in legacy_provider_class_spec.json sets "class": "NAVLINK".
 // The editor still reads this key (IEditor.getLayerForClass, IEditor.getLayerForFeature), but the key

@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './add_feature_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('add feature to spaceprovider', function() {
     const expect = chai.expect;

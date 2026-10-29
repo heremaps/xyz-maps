@@ -18,7 +18,7 @@
  */
 
 import {Task, TaskManager, TaskSequence} from '@here/xyz-maps-common';
-import {beforeAll, describe, it} from 'vitest';
+import {beforeAll, describe, it, chai} from 'vitest';
 
 describe('task sequence', function() {
     const expect = chai.expect;

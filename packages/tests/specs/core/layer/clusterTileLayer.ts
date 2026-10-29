@@ -20,7 +20,7 @@
 import {prepare} from 'utils';
 import dataset from './clusterTileLayer.json';
 import {ClusterTileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, it} from 'vitest';
+import {describe, beforeAll, it, chai} from 'vitest';
 
 describe('ClusterTileLayer', function() {
     const expect = chai.expect;

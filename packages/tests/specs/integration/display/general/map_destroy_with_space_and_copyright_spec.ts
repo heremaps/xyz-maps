@@ -19,7 +19,7 @@
 import {prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './map_destroy_with_space_and_copyright_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('destroy display with space layer and copyright', function() {
     const expect = chai.expect;

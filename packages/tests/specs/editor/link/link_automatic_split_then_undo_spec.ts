@@ -22,7 +22,7 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_split_then_undo_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('drag a link shape point to the other one to split itself and then undo', function() {
     const expect = chai.expect;

@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_split_hide_turn_restrictions_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('link splitting hides the turn restrictions edit', function() {
     const expect = chai.expect;

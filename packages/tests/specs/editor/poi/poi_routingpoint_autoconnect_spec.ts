@@ -22,7 +22,7 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_routingpoint_autoconnect_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('POI routing point auto reconnect', function() {
     const expect = chai.expect;

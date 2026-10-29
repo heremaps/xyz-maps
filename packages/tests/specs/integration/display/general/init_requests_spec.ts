@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {MonitorXHR, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './init_requests_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('initial requests of display', function() {
     const expect = chai.expect;

@@ -22,7 +22,7 @@ import {Listener, prepare} from 'utils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_mapview_listener_spec.json';
-import {vi, describe, beforeAll, afterAll, it} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('mapview change listener', function() {
     const expect = chai.expect;

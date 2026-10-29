@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './search_locally_geojsonprovider_spec.json';
-import {describe, beforeAll, it} from 'vitest';
+import {describe, beforeAll, it, chai} from 'vitest';
 
 describe('search features in geojson provider by single parameter', function() {
     const expect = chai.expect;

@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './add_remove_feature_spec.json';
-import {describe, beforeAll, it} from 'vitest';
+import {describe, beforeAll, it, chai} from 'vitest';
 
 describe('add and remove features in layer', function() {
     const expect = chai.expect;

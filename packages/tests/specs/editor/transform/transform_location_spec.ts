@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './transform_location_spec.json';
 import chaiAlmost from 'chai-almost';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('transform for poi and point address', () => {
     const expect = chai.expect;

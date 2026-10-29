@@ -20,7 +20,7 @@
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {drag} from 'triggerEvents';
-import {vi, describe, beforeAll, afterAll, it} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it, chai} from 'vitest';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './map_destroy_spec.json';
 

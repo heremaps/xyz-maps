@@ -23,7 +23,7 @@ import {TileLayer} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import {TestLocalProvider} from '../../../src/TestProvider';
 import dataset from '../address/address_setcoordinates_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('coordinatePrecision configuration', function() {
     const expect = chai.expect;

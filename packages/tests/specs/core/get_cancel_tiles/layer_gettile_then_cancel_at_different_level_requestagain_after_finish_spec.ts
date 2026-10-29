@@ -20,7 +20,7 @@
 import {prepare} from 'utils';
 import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_gettile_then_cancel_at_different_level_requestagain_after_finish_spec.json';
-import {describe, beforeAll, it} from 'vitest';
+import {describe, beforeAll, it, chai} from 'vitest';
 
 describe('layer get and cancel requesting with different level', function() {
     const expect = chai.expect;

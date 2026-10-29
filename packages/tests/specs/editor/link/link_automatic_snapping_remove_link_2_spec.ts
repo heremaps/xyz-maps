@@ -22,7 +22,7 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_snapping_remove_link_2_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('drag a link shape point to the other and removes the link automatically', function() {
     const expect = chai.expect;

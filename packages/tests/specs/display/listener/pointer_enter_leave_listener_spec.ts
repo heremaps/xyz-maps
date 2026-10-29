@@ -22,7 +22,7 @@ import {Listener, prepare, waitForPointerEvent} from 'utils';
 import {mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_enter_leave_listener_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('pointer enter and leave feature listener', function() {
     const expect = chai.expect;

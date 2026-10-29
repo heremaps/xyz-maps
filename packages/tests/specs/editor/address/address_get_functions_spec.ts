@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {vi, describe, beforeAll, afterAll, it} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it, chai} from 'vitest';
 import {mousemove} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';

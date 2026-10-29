@@ -21,7 +21,7 @@ import {waitForEditorReady, clean, submit} from 'editorUtils';
 import dataset from './map_observer_changes_spec.json';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('map changes observers', function() {
     const expect = chai.expect;

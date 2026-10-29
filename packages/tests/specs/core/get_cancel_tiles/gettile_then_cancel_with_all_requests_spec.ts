@@ -20,7 +20,7 @@
 import {prepare} from 'utils';
 import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_then_cancel_with_all_requests_spec.json';
-import {describe, beforeAll, it} from 'vitest';
+import {describe, beforeAll, it, chai} from 'vitest';
 
 describe.skip('get and cancel requesting all other related requests', function() {
     // cancel request without callback will cancel all requests with the same qk

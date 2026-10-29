@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 const FULL_BLOCK_CHAR = '\u2588';
 let FONT = 'bold 30px Arial,Helvetica,sans-serif';

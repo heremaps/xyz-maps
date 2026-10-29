@@ -20,7 +20,7 @@
 import {prepare} from 'utils';
 import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_gettile_multiple_times_cancel_spec.json';
-import {describe, beforeAll, it} from 'vitest';
+import {describe, beforeAll, it, chai} from 'vitest';
 
 describe('layer get one tile multiple times and cancel', function() {
     const expect = chai.expect;

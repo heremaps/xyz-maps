@@ -22,7 +22,7 @@ import {getCanvasPixelColor, Listener, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_circle.json';
 import {click} from 'triggerEvents';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('setStyleGroup Point with circle', function() {
     const expect = chai.expect;

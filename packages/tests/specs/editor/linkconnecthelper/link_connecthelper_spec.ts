@@ -22,7 +22,7 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Crossing, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('link connect helper with undo', () => {
     const expect = chai.expect;

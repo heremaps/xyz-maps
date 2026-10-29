@@ -24,7 +24,7 @@ import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 
 describe('link connection candidates', function() {

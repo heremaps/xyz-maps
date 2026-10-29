@@ -24,7 +24,7 @@ import chaiAlmost from 'chai-almost';
 import dataset from './link_split_spec.json';
 import {Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import {drag} from 'triggerEvents';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('link splitting and set its properties correctly', function() {
     const expect = chai.expect;

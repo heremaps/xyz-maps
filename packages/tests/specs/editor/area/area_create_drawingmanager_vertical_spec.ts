@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, Area} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_vertical_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('Area drawing manager points with same longitude', function() {
     const expect = chai.expect;

@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('StyleGroup Circle and Line geometry', () => {
     const expect = chai.expect;

@@ -22,7 +22,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './set_get_viewbounds_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('set and get viewbounds', () => {
     const expect = chai.expect;

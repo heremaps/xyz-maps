@@ -23,7 +23,7 @@ import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
-import {beforeAll, it, describe, afterAll} from 'vitest';
+import {beforeAll, it, describe, afterAll, chai} from 'vitest';
 
 
 const expect = chai.expect;

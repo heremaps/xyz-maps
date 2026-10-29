@@ -22,7 +22,7 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './stylegroup_line_spec.json';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('setStyleGroup Line', () => {
     const {expect} = chai;

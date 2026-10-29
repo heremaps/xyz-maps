@@ -23,7 +23,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_crosscandidate_spec.json';
 import {Crossing} from '@here/xyz-maps-editor';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('link connect helper crosscandidate', function() {
     const expect = chai.expect;

@@ -23,7 +23,7 @@ import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('turn restriction test basic', function() {
     const expect = chai.expect;

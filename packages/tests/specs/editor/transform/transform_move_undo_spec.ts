@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './transform_move_undo_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('undo the link transforming, link should connect to its connected links', function() {
     const expect = chai.expect;

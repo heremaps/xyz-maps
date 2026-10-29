@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_text.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 let FONT = 'bold 48px Arial,Helvetica,sans-serif';
 

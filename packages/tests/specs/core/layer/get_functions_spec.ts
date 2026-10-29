@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './get_functions_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('get functions', function() {
     const expect = chai.expect;

@@ -21,7 +21,7 @@ import {Map} from '@here/xyz-maps-display';
 import {CircleStyle, Feature, LocalProvider, TileLayer} from '@here/xyz-maps-core';
 import {waitForViewportReady} from 'displayUtils';
 import {createPickingTerrain, terrainScreenshot} from '../../../src/utils/terrainPicking';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe.skip('Terrain Circle picking', () => {
     const expect = chai.expect;

@@ -20,7 +20,7 @@
 import {prepare} from 'utils';
 import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_then_cancel_at_different_level_requestagain_after_finish_with_same_callback_spec.json';
-import {describe, beforeAll, it} from 'vitest';
+import {describe, beforeAll, it, chai} from 'vitest';
 
 describe('get and cancel requesting with different level with same callback', function() {
     const expect = chai.expect;

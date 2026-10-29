@@ -20,7 +20,7 @@
 import {prepare} from 'utils';
 import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_basic_get_cancel_tile_spec.json';
-import {describe, beforeAll, it} from 'vitest';
+import {describe, beforeAll, it, chai} from 'vitest';
 
 describe('layer basic get and cancel tiles', function() {
     const expect = chai.expect;

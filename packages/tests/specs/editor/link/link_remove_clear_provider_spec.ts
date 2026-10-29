@@ -22,7 +22,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_remove_clear_provider_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('link remove and clear provider', function() {
     const expect = chai.expect;

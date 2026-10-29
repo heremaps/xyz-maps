@@ -22,7 +22,7 @@ import {Listener, prepare, waitForPointerEvent} from 'utils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_pointer_events_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('validate pointer events', function() {
     const expect = chai.expect;

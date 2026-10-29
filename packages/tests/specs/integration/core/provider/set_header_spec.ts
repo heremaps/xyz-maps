@@ -19,7 +19,7 @@
 
 import {MonitorXHR, prepare} from 'utils';
 import dataset from './set_header_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('set request header of requests that handled by provider', function() {
     const expect = chai.expect;

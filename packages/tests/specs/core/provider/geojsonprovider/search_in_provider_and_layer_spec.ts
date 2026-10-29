@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './search_in_provider_and_layer_spec.json';
-import {describe, beforeAll, it} from 'vitest';
+import {describe, beforeAll, it, chai} from 'vitest';
 
 describe('search features in poi layer and provider', function() {
     const expect = chai.expect;

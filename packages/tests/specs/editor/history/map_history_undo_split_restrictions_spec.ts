@@ -22,7 +22,7 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './map_history_undo_split_restrictions_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('turn restriction with spliting the depart link and undo', function() {
     const expect = chai.expect;

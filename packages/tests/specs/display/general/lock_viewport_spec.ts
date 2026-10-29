@@ -23,7 +23,7 @@ import {drag, mousewheel} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './lock_viewport_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('validate lockviewport function', function() {
     const expect = chai.expect;

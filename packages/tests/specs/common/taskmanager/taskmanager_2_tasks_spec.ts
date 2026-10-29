@@ -18,7 +18,7 @@
  */
 
 import {TaskManager} from '@here/xyz-maps-common';
-import {describe, it} from 'vitest';
+import {describe, it, chai} from 'vitest';
 
 describe('task manager run 2 tasks', function() {
     const expect = chai.expect;

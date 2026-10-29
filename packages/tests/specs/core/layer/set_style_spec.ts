@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './set_style_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('set features style and restore', function() {
     const expect = chai.expect;

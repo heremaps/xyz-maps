@@ -22,7 +22,7 @@ import {getCanvasPixelColor, Listener} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {click} from 'triggerEvents';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('Pointerevents Line 3d', () => {
     const expect = chai.expect;

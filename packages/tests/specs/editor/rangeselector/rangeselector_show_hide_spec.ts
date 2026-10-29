@@ -24,7 +24,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './rangeselector_show_hide_spec.json';
 import chaiAlmost from 'chai-almost';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('range selector util', function() {
     const expect = chai.expect;

@@ -21,7 +21,7 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Area} from '@here/xyz-maps-editor';
 import dataset from './area_display_zoomlevel_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('Area object display and hide', function() {
     const expect = chai.expect;

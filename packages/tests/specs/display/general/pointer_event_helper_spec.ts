@@ -1,5 +1,5 @@
 import {waitForPointerEvent} from 'utils';
-import {vi, describe, beforeEach, afterEach, it} from 'vitest';
+import {vi, describe, beforeEach, afterEach, it, chai} from 'vitest';
 
 describe('pointer event helper', () => {
     let target: EventTarget;

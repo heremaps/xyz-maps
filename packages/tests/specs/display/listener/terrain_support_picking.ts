@@ -23,7 +23,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {Listener} from 'utils';
 import {click} from 'triggerEvents';
 import {createPickingTerrain, terrainFixtureUrl, terrainScreenshot} from '../../../src/utils/terrainPicking';
-import {describe, beforeAll, afterAll, beforeEach, it} from 'vitest';
+import {describe, beforeAll, afterAll, beforeEach, it, chai} from 'vitest';
 
 describe.skip('Terrain support picking', () => {
     const expect = chai.expect;

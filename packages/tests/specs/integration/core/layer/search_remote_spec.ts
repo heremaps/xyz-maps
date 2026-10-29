@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './search_remote_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('search in layers remotely', function() {
     const expect = chai.expect;

@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Line} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './line_basics_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('basic line tests', function() {
     const expect = chai.expect;

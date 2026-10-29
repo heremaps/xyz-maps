@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_link_undo_redo_spec.json';
 import {NavlinkShape} from '@here/xyz-maps-editor';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('edit turn restriction split link then undo and redo the change', function() {
     const expect = chai.expect;

@@ -20,7 +20,7 @@
  */
 
 import {TaskManager} from '@here/xyz-maps-common';
-import {describe, it} from 'vitest';
+import {describe, it, chai} from 'vitest';
 
 describe('task manager', function() {
     const expect = chai.expect;

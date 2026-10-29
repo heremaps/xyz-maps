@@ -22,7 +22,7 @@ import {Observer, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './display_observer_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('map observer', function() {
     const expect = chai.expect;

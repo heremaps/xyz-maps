@@ -22,7 +22,7 @@ import {Listener, prepare} from 'utils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './parent_map_listener_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('display event listener', function() {
     const expect = chai.expect;

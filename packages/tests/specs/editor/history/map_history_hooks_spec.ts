@@ -21,7 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import dataset from './map_history_hooks.json';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('map history hooks', function() {
     const expect = chai.expect;

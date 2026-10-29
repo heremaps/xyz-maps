@@ -22,7 +22,7 @@ import {Listener, getCanvasPixelColor, prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_listener_with_different_style_point_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('pointer listener with different style point', function() {
     const expect = chai.expect;

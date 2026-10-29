@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './zoom_in_20_plus.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('zoom in 20+', function() {
     const expect = chai.expect;

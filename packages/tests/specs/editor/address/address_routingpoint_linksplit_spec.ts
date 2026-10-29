@@ -21,7 +21,7 @@ import {editorClick, waitForEditorReady} from 'editorUtils';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_routingpoint_linksplit_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('Address routing point updates by link split', function() {
     const expect = chai.expect;

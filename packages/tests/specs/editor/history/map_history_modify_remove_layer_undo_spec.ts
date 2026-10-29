@@ -22,7 +22,7 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_modify_remove_layer_undo_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('modify object and remove its layer, then undo the change', function() {
     const expect = chai.expect;

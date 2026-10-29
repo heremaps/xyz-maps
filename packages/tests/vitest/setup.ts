@@ -42,15 +42,6 @@ for (const lib of libs) {
     }
 }
 
-// Preserve the global chai API of karma-chai using the chai bundled with vitest.
-g.chai = chai;
-// karma-chai also provided the global chai assertion styles. A few specs use them without defining them
-// (e.g. common/expressions_spec.ts, common/taskmanager_interrupt_spec.ts, display/stylegroup_line_spec.ts).
-// This replaces the global expect of vitest, whose chaining syntax differs (.to.be...).
-g.expect = chai.expect;
-g.assert = chai.assert;
-g.should = chai.should();
-
 // Karma ran all specs in one page, so a spec could rely on a chai-almost registration made by an earlier spec.
 // editor_hooks_spec.ts and link_zlevels_spec.ts use .almost without registering the plugin themselves.
 // Specs that call chai.use(chaiAlmost(tolerance)) still override this default.

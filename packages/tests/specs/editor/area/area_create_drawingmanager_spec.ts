@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Area} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('Area drawing manager without panning the map', () => {
     const expect = chai.expect;

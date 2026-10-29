@@ -19,7 +19,7 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_poi_layer_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('event listeners in poi layer', function() {
     const expect = chai.expect;

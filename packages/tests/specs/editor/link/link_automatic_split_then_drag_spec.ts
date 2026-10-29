@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_split_then_drag_spec.json';
 import {Navlink} from '@here/xyz-maps-editor';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('drag a link shape point to the other one to split itself and then drag it crossing', () => {
     const expect = chai.expect;

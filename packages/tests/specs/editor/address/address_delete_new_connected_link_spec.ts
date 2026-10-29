@@ -21,7 +21,7 @@ import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_delete_new_connected_link_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe.skip('New address connect to a new link and then remove the link', function() {
     // routingPoint and routingLink should be cleared when address's referenced link is removed

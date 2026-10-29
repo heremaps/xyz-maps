@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './settag_space_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('settag in spaceprovider', function() {
     const expect = chai.expect;

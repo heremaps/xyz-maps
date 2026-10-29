@@ -24,7 +24,7 @@ import {Map} from '@here/xyz-maps-display';
 import dataset from './link_zlevels_spec.json';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('navlink zlevels', () => {
     const expect = chai.expect;

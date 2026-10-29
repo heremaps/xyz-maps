@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('stylegroup Point alignment', function() {
     const expect = chai.expect;

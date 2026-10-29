@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Line, LineShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './multiline_basics_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('basic multiline tests', () => {
     const expect = chai.expect;

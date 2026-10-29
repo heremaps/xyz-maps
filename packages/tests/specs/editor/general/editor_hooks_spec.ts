@@ -22,7 +22,7 @@ import {Map} from '@here/xyz-maps-display';
 import {TileLayer} from '@here/xyz-maps-core';
 import {Editor, LineShape, NavlinkShape} from '@here/xyz-maps-editor';
 import {TestLocalProvider} from '../../../src/TestProvider';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('editor hooks test', function() {
     const expect = chai.expect;

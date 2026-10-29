@@ -22,7 +22,7 @@ import {prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './disable_zoomcontrol_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('ui component compass', function() {
     const expect = chai.expect;
