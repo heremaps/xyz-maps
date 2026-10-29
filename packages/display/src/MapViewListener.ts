@@ -125,7 +125,7 @@ class MapViewListener {
             }
         } else {
             this.triggeredLayers = {};
-            type = EVENT_MVC_START;
+            type = this.endTriggered ? EVENT_MVC : EVENT_MVC_START;
             this.viewport = curVP;
             this.rz = rotZ;
             this.center = curCenter;
