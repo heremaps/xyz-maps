@@ -118,7 +118,9 @@ describe('pointer listener with different style link', ()=>{
         let colors = await getCanvasPixelColor(mapContainer, [{x: 395, y: 294}, {x: 395, y: 303}, {x: 395, y: 310}, {
             x: 395,
             y: 316
-        }, {x: 395, y: 322}]);
+        }, {x: 395, y: 322}], {
+            expect: ['#ffffff', '#ff0000', '#ff00ff', '#ff0000', '#ffffff']
+        });
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal('#ff0000');
@@ -132,7 +134,7 @@ describe('pointer listener with different style link', ()=>{
 
         display.refresh(linkLayer);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 322, y: 309});
+        let color = await getCanvasPixelColor(mapContainer, {x: 322, y: 309}, {expect: '#ff0000'});
 
         expect(color).to.equal('#ff0000');
     });

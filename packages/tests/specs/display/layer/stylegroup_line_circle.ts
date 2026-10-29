@@ -102,7 +102,7 @@ describe('StyleGroup Circle and Line geometry', () => {
             'zIndex': 1, 'type': 'Circle', 'radius': 14, 'opacity': 1, 'fill': '#0000ff', 'repeat': 0
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [px1, px2]);
+        const colors = await getCanvasPixelColor(mapContainer, [px1, px2], {expect: '#0000ff'});
 
         expect(colors[0]).to.equal('#0000ff');
         expect(colors[1]).to.equal('#0000ff');
@@ -113,7 +113,9 @@ describe('StyleGroup Circle and Line geometry', () => {
             'zIndex': 1, 'type': 'Circle', 'radius': 14, 'opacity': 1, 'fill': '#0000ff', 'anchor': 'Line', 'repeat': 0
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [px1, px2, {x: 400, y: 300}]);
+        const colors = await getCanvasPixelColor(mapContainer, [px1, px2, {x: 400, y: 300}], {
+            expect: ['#ffffff', '#ffffff', '#0000ff']
+        });
 
         expect(colors[0]).to.equal('#ffffff');
         expect(colors[1]).to.equal('#ffffff');
@@ -125,7 +127,7 @@ describe('StyleGroup Circle and Line geometry', () => {
             'zIndex': 1, 'type': 'Circle', 'radius': 14, 'opacity': 1, 'fill': '#00ff00'
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [px1, px2, px3, px4]);
+        const colors = await getCanvasPixelColor(mapContainer, [px1, px2, px3, px4], {expect: '#00ff00'});
         for (let color of colors) {
             expect(color).to.equal('#00ff00');
         }
@@ -136,7 +138,9 @@ describe('StyleGroup Circle and Line geometry', () => {
             'zIndex': 2, 'type': 'Circle', 'radius': 6, 'opacity': 1, 'fill': '#00ff00', 'anchor': 'Line', 'repeat': 0
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}]);
+        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}], {
+            expect: '#00ff00'
+        });
         for (let color of colors) {
             expect(color).to.equal('#00ff00');
         }
