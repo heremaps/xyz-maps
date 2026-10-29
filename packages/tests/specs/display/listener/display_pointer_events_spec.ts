@@ -18,7 +18,7 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {Listener, prepare} from 'utils';
+import {Listener, prepare, waitForPointerEvent} from 'utils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_pointer_events_spec.json';
@@ -56,8 +56,10 @@ describe('validate pointer events', function() {
 
         let listener = new Listener(display, ['pointerenter', 'pointerleave']);
 
-        await mousemove(mapContainer, {x: 540, y: 300}, {x: 483, y: 352});
-        await mousemove(mapContainer, {x: 483, y: 352}, {x: 540, y: 300});
+        await waitForPointerEvent(display, 'pointerenter', () =>
+            mousemove(mapContainer, {x: 540, y: 300}, {x: 483, y: 352}));
+        await waitForPointerEvent(display, 'pointerleave', () =>
+            mousemove(mapContainer, {x: 483, y: 352}, {x: 540, y: 300}));
 
         let results = listener.stop();
 

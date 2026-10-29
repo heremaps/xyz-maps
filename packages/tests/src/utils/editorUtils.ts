@@ -43,27 +43,6 @@ export function submit(editor: Editor): Promise<{ permanentIDMap: any }> {
 
 type AsyncFunction = () => Promise<void>;
 
-export async function waitForEditorPointerEvent(
-    editor: Editor,
-    type: 'pointerenter' | 'pointerleave',
-    action: AsyncFunction
-): Promise<void> {
-    let timer: ReturnType<typeof setTimeout>;
-    let onEvent: (event: EditorEvent) => void;
-    const timeoutError = new Error(`Timed out waiting for editor ${type}`);
-    const event = new Promise<void>((resolve, reject) => {
-        onEvent = () => resolve();
-        editor.addEventListener(type, onEvent);
-        timer = setTimeout(() => reject(timeoutError), 2000);
-    });
-    try {
-        await Promise.all([event, Promise.resolve().then(action)]);
-    } finally {
-        clearTimeout(timer);
-        editor.removeEventListener(type, onEvent);
-    }
-}
-
 export function waitForEditorReady(editor: Editor, fn?: Function | AsyncFunction): Promise<Editor> {
     return new Promise(async (resolve, reject) => {
         let functionDone = false;

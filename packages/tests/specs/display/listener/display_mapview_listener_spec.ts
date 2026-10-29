@@ -22,6 +22,7 @@ import {Listener, prepare} from 'utils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_mapview_listener_spec.json';
+import {vi} from 'vitest';
 
 describe('mapview change listener', function() {
     const expect = chai.expect;
@@ -38,6 +39,7 @@ describe('mapview change listener', function() {
         });
 
         mapContainer = display.getContainer();
+        await waitForViewportReady(display);
     });
 
     after(async function() {
@@ -68,6 +70,39 @@ describe('mapview change listener', function() {
         let results = listener.stop();
 
         expect(results.mapviewchangeend.length).to.be.equal(results.mapviewchangestart.length);
+    });
+
+    it('pairs mapview events when movement resumes before the pending end', async function() {
+        const listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        const getViewBounds = display.getViewBounds.bind(display);
+        let reads = 0;
+        let resumeMovement: () => void;
+        const resume = new Promise<void>((resolve) => {
+            resumeMovement = resolve;
+        });
+        const bounds = vi.spyOn(display, 'getViewBounds').mockImplementation(() => {
+            const result = getViewBounds();
+            // The third watcher tick sees stable bounds and schedules the pending end.
+            if (++reads === 3) {
+                queueMicrotask(() => {
+                    display.pan(10, 0);
+                    resumeMovement();
+                });
+            }
+            return result;
+        });
+        try {
+            await waitForViewportReady(display, async () => {
+                display.pan(10, 0);
+                await resume;
+            });
+            const results = listener.stop();
+            expect(results.mapviewchangestart).to.have.lengthOf.above(0);
+            expect(results.mapviewchangeend.length).to.equal(results.mapviewchangestart.length);
+        } finally {
+            bounds.mockRestore();
+            listener.stop();
+        }
     });
 
     it('validate mapview events after dragging map slowly', async function() {

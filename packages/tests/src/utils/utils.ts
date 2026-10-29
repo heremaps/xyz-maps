@@ -36,6 +36,39 @@ export interface RequestSummary {
 
 export {prepare, TestData};
 
+type PointerEventType = 'pointerenter' | 'pointerleave';
+
+interface PointerEventTarget {
+    addEventListener(type: PointerEventType, listener: () => void): unknown;
+    removeEventListener(type: PointerEventType, listener: () => void): unknown;
+}
+
+/**
+ * Waits for deferred Map or Editor hover detection, which mousemove()'s fixed delay does not guarantee.
+ * Registers before the action and waits for both the action and the pointer event.
+ * Viewport/editor readiness helpers do not guarantee completion of hover detection.
+ */
+export async function waitForPointerEvent(
+    target: PointerEventTarget,
+    type: PointerEventType,
+    action: () => unknown
+): Promise<void> {
+    let timer: ReturnType<typeof setTimeout>;
+    const timeoutError = new Error(`Timed out waiting for ${type}`);
+    let onEvent: () => void;
+    const event = new Promise<void>((resolve, reject) => {
+        onEvent = resolve;
+        target.addEventListener(type, onEvent);
+        timer = setTimeout(() => reject(timeoutError), 2000);
+    });
+    try {
+        await Promise.all([event, Promise.resolve().then(action)]);
+    } finally {
+        clearTimeout(timer);
+        target.removeEventListener(type, onEvent);
+    }
+}
+
 function backingScale() {
     if ('devicePixelRatio' in window) {
         if (window.devicePixelRatio > 1) {

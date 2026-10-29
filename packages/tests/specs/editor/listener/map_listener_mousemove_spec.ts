@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Listener, prepare} from 'utils';
-import {waitForEditorPointerEvent, waitForEditorReady} from 'editorUtils';
+import {Listener, prepare, waitForPointerEvent} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
 import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
@@ -65,22 +65,22 @@ describe('map mousemove listener', function() {
         await click(mapContainer, 275, 155);
 
         // mouse over a link
-        await waitForEditorPointerEvent(editor, 'pointerenter', async () => {
+        await waitForPointerEvent(editor, 'pointerenter', async () => {
             await mousemove(mapContainer, {x: 275, y: 155}, {x: 289, y: 139});
         });
 
         // mouse out of a link
-        await waitForEditorPointerEvent(editor, 'pointerleave', async () => {
+        await waitForPointerEvent(editor, 'pointerleave', async () => {
             await mousemove(mapContainer, {x: 290, y: 139}, {x: 32, y: 155});
         });
 
         // mouse over a POI
-        await waitForEditorPointerEvent(editor, 'pointerenter', async () => {
+        await waitForPointerEvent(editor, 'pointerenter', async () => {
             await mousemove(mapContainer, {x: 210, y: 207}, {x: 213, y: 226});
         });
 
         // mouse out of a poi
-        await waitForEditorPointerEvent(editor, 'pointerleave', async () => {
+        await waitForPointerEvent(editor, 'pointerleave', async () => {
             await mousemove(mapContainer, {x: 213, y: 226}, {x: 210, y: 207});
         });
 

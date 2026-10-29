@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Listener, prepare} from 'utils';
-import {waitForEditorPointerEvent, waitForEditorReady} from 'editorUtils';
+import {Listener, prepare, waitForPointerEvent} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
 import {waitForViewportReady} from 'displayUtils';
 import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
@@ -71,7 +71,7 @@ describe('map mouseenter link when link layer is removed', function() {
         await click(mapContainer, 350, 132);
 
         // mouse over a link
-        await waitForEditorPointerEvent(editor, 'pointerenter', async () => {
+        await waitForPointerEvent(editor, 'pointerenter', async () => {
             await mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
         });
 
@@ -79,12 +79,12 @@ describe('map mouseenter link when link layer is removed', function() {
         await mousemove(mapContainer, {x: 330, y: 167}, {x: 360, y: 132});
 
         // mouse over a POI
-        await waitForEditorPointerEvent(editor, 'pointerenter', async () => {
+        await waitForPointerEvent(editor, 'pointerenter', async () => {
             await mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146});
         });
 
         // mouse out of a poi
-        await waitForEditorPointerEvent(editor, 'pointerleave', async () => {
+        await waitForPointerEvent(editor, 'pointerleave', async () => {
             await mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130});
         });
 
