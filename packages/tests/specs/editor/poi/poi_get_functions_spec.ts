@@ -18,6 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
+import {vi} from 'vitest';
 import {mousemove} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
@@ -64,7 +65,9 @@ describe('Place get functions', function() {
         // hover place
         await mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 300});
         expect(place.editState('selected')).to.be.false;
-        expect(place.editState('hovered')).to.be.true;
+        await vi.waitFor(() => {
+            expect(place.editState('hovered')).to.be.true;
+        }, {timeout: 2000});
 
         // select place
         place.select();
@@ -74,7 +77,9 @@ describe('Place get functions', function() {
         // leave place
         await mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 280});
         expect(place.editState('selected')).to.be.true;
-        expect(place.editState('hovered')).to.be.false;
+        await vi.waitFor(() => {
+            expect(place.editState('hovered')).to.be.false;
+        }, {timeout: 2000});
 
         // unselect place
         place.unselect();
