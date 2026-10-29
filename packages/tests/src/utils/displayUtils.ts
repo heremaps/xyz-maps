@@ -21,80 +21,88 @@ import {TileLayer} from '@here/xyz-maps-core';
 import Map from '@here/xyz-maps-display';
 
 
-type VpReadyCallback = Function | (() => void);
+type VpReadyCallback = () => unknown;
 
-
-// export function waitForViewportReady(display: Map, mapLayers: TileLayer[]): Promise<Map>;
-// export function waitForViewportReady(display: Map, fn?: VpReadyCallback): Promise<Map>;
+/**
+ * Waits for the action to complete, a settled mapview end and viewport readiness of the selected layers.
+ * Listeners are registered before the action. Missing signals are reported after ten seconds.
+ */
 export function waitForViewportReady(display: Map, mapLayers?: TileLayer[] | VpReadyCallback, fn?: VpReadyCallback): Promise<Map> {
-    return new Promise(async (resolve) => {
-        if (!mapLayers) {
-            mapLayers = display.getLayers();
-        } else if (typeof mapLayers == 'function') {
-            fn = mapLayers;
-            mapLayers = display.getLayers();
+    const action = typeof mapLayers === 'function' ? mapLayers : fn;
+    const selectedLayers = Array.isArray(mapLayers) ? mapLayers : display.getLayers();
+    const layers = selectedLayers.filter((layer, index) => selectedLayers.findIndex((other) => other.id === layer.id) === index);
+
+    return new Promise((resolve, reject) => {
+        const pendingLayers = new Set(layers);
+        let actionDone = !action;
+        let settled = false;
+        let starts = 0;
+        let ends = 0;
+        let timeout: ReturnType<typeof setTimeout>;
+        let readyTimer: ReturnType<typeof setTimeout>;
+        let viewEnded = false;
+        let layersReady = layers.length === 0;
+
+        function cleanup() {
+            clearTimeout(timeout);
+            clearTimeout(readyTimer);
+            layers.forEach((layer) => layer.removeEventListener('viewportReady', onLayerReady));
+            display.removeEventListener('mapviewchangestart', onViewStart);
+            display.removeEventListener('mapviewchangeend', onViewEnd);
         }
-        let layerAlwaysReady = !mapLayers.length;
-        let mapviewchangeend = false;
-        let mapviewready = layerAlwaysReady;
-        let readyLayers = {};
-        let layerCb = (evt) => {
-            let layer = evt.detail.layer;
-            readyLayers[layer.id] = layer;
 
-
-            for (let i in readyLayers) {
-                if (!readyLayers[i]) return;
-            }
-
-            mapviewready = true;
-
-            if (mapviewchangeend) {
-                for (let i in readyLayers) {
-                    readyLayers[i].removeEventListener('viewportReady', layerCb);
-                }
-                display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
-                display.removeEventListener('mapviewchangeend', mapviewchangeendcb);
-
+        function complete() {
+            if (!settled && actionDone && viewEnded && layersReady) {
+                settled = true;
+                cleanup();
                 resolve(display);
             }
-        };
-
-        let readyTimer;
-        let mapviewchangestartcb = () => {
-            mapviewready = layerAlwaysReady;
-            mapviewchangeend = false;
-            clearTimeout(readyTimer);
-        };
-        let mapviewchangeendcb = () => {
-            // wait for next mapviewchangestart event, if map is not ready (e.g. map is still dragging), timout will be cleared by next start event
-            readyTimer = setTimeout(() => {
-                mapviewchangeend = true;
-                if (mapviewready) {
-                    for (let i in readyLayers) {
-                        readyLayers[i].removeEventListener('viewportReady', layerCb);
-                    }
-
-                    display.removeEventListener('mapviewchangestart', mapviewchangestartcb);
-                    display.removeEventListener('mapviewchangeend', mapviewchangeendcb);
-
-                    resolve(display);
-                }
-            }, 10);
-        };
-
-        display.addEventListener('mapviewchangestart', mapviewchangestartcb);
-        display.addEventListener('mapviewchangeend', mapviewchangeendcb);
-
-        mapLayers.forEach((layer) => {
-            if (!readyLayers[layer.id]) {
-                layer.addEventListener('viewportReady', layerCb);
-                readyLayers[layer.id] = false;
-            }
-        });
-
-        if (fn) {
-            await fn();
         }
+
+        function fail(error: unknown) {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            reject(error);
+        }
+
+        function onLayerReady(event: CustomEvent<{layer: TileLayer}>) {
+            pendingLayers.delete(event.detail.layer);
+            layersReady = pendingLayers.size === 0;
+            complete();
+        }
+
+        function onViewStart() {
+            starts++;
+            layersReady = layers.length === 0;
+            viewEnded = false;
+            clearTimeout(readyTimer);
+        }
+
+        function onViewEnd() {
+            ends++;
+            // A new mapview start within the settling period invalidates this end event.
+            clearTimeout(readyTimer);
+            readyTimer = setTimeout(() => {
+                viewEnded = true;
+                complete();
+            }, 10);
+        }
+
+        display.addEventListener('mapviewchangestart', onViewStart);
+        display.addEventListener('mapviewchangeend', onViewEnd);
+        layers.forEach((layer) => layer.addEventListener('viewportReady', onLayerReady));
+        timeout = setTimeout(() => {
+            fail(new Error(
+                `Timed out waiting for viewport readiness: actionDone=${actionDone}, ` +
+                `mapviewchangeend=${viewEnded}, mapviewready=${layersReady}, ` +
+                `starts=${starts}, ends=${ends}, pendingLayers=${JSON.stringify([...pendingLayers].map((layer) => layer.id))}`
+            ));
+        }, 10000);
+
+        Promise.resolve().then(() => action?.()).then(() => {
+            actionDone = true;
+            complete();
+        }).catch(fail);
     });
 }
