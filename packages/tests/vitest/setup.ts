@@ -1,5 +1,4 @@
-import {afterAll, beforeAll, describe, it} from 'vitest';
-import chai from 'chai';
+import {afterAll, beforeAll, chai, describe, it} from 'vitest';
 import chaiAlmost from 'chai-almost';
 // @ts-ignore: provided by vitest/plugins.mts
 import libs from 'virtual:xyz-libs';
@@ -27,8 +26,7 @@ g.xdescribe = describe.skip;
 g.before = beforeAll;
 g.after = afterAll;
 
-// karma-chai provided a global chai 4. The specs call chai.expect and chai.use(chaiAlmost(tolerance)),
-// so use the chai 4 of this package instead of the chai bundled with vitest.
+// Preserve the global chai API of karma-chai using the chai bundled with vitest.
 g.chai = chai;
 // karma-chai also provided the global chai assertion styles. A few specs use them without defining them
 // (e.g. common/expressions_spec.ts, common/taskmanager_interrupt_spec.ts, display/stylegroup_line_spec.ts).

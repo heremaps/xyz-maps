@@ -68,7 +68,7 @@ export function project(component: Component, mode: string) {
             ]
         },
         optimizeDeps: {
-            include: ['chai', 'chai-almost']
+            include: ['chai-almost']
         },
         define: {
             __XYZ_COMPONENT__: JSON.stringify(component),

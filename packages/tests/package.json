@@ -28,7 +28,6 @@
     "@types/chai-almost": "^1.0.1",
     "@types/mocha": "^9.1.1",
     "@vitest/browser-playwright": "^5.0.5",
-    "chai": "~4.3.6",
     "chai-almost": "^1.0.1",
     "playwright": "^1.64.1",
     "typescript": "^5.9.3",
