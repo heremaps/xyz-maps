@@ -508,6 +508,9 @@ class Behavior {
                     toggleDragListeners(true);
                 }, 0);
             } else {
+                kinetic.cancel();
+                that.resetAnimation?.stop();
+                that.resetAnimation = null;
                 // Remove global listeners synchronously so destroyed maps cannot
                 // receive a later mouseup or touchend event.
                 toggleDragListeners(false);
