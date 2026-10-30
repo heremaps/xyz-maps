@@ -23,7 +23,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {createPickingTerrain, terrainScreenshot} from '../../../src/utils/terrainPicking';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
-describe.skip('Terrain Circle picking', () => {
+describe('Terrain Circle picking', () => {
     let map: Map;
     let layer: TileLayer;
     let circle: Feature;

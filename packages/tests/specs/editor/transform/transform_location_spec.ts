@@ -153,7 +153,7 @@ describe('transform for poi and point address', () => {
         expect(address.coord()).toEqualWithTolerance([76.035085462, 13.709278304, 0], 1e-6);
     });
 
-    it.skip('pan map inside container', async () => {
+    it('pan map inside container', async () => {
         // expect transformer not to transform when dragging inside transformer
         container.transform();
 

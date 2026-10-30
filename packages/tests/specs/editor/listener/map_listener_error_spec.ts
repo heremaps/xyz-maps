@@ -54,6 +54,7 @@ describe('map error listener', function() {
         await preparedData.clear();
     });
 
+    // Uses local providers and never resolves its Promise; needs a meaningful token-error scenario.
     it.skip('submit a link with invalid token', function() {
         return new Promise<void>((done) => {
             const _open = XMLHttpRequest.prototype.open;

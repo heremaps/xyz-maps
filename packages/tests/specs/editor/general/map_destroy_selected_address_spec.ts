@@ -21,7 +21,7 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_destroy_selected_address_spec.json';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('destroy editor when point address is selected', function() {
     let editor;
@@ -54,10 +54,11 @@ describe('destroy editor when point address is selected', function() {
         await preparedData.clear();
     });
 
-    it.skip('validate destroy editor is working', async function() {
-        // exception is thrown
+    // Editor.destroy() still throws "Cannot read properties of undefined (reading 'setStyle')" with a selected address.
+    it.skip('destroys the editor while an address is selected', function() {
         address.select();
+        expect(address.editState('selected')).toBe(true);
 
-        editor.destroy();
+        expect(() => editor.destroy()).not.toThrow();
     });
 });

@@ -51,7 +51,7 @@ describe('Create new Links whose start and end shape points have same longitude'
     });
 
 
-    it.skip('start drawingmanager', async function() {
+    it('start drawingmanager', async function() {
         editor.getDrawingBoard().start();
 
         expect(editor.getDrawingBoard().isActive()).toBe(true);
@@ -77,7 +77,7 @@ describe('Create new Links whose start and end shape points have same longitude'
     });
 
 
-    it.skip('revert changes and start again, draw link with start and end shape point with same longitude', async function() {
+    it('revert changes and start again, draw link with start and end shape point with same longitude', async function() {
         // link should have 4 shape points but not a vertical link with 2 shape points
         await waitForEditorReady(editor, ()=>{
             editor.revert();

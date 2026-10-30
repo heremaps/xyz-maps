@@ -24,7 +24,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_submit_removed_link.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
-describe.skip('ready event is triggered once after submitting removed links', function() {
+describe('ready event is triggered once after submitting removed links', function() {
     let editor;
     let display;
     let preparedData;

@@ -23,6 +23,7 @@ import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_delete_new_connected_link_spec.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
+// Routing assertions still fail; partially skipping this dependent workflow also stalls its cleanup.
 describe.skip('New poi connect to a new link and then remove the link', function() {
     let editor;
     let display;
@@ -96,6 +97,7 @@ describe.skip('New poi connect to a new link and then remove the link', function
     });
 
 
+    // After submission, routingLink is still null instead of undefined.
     it('submit created objects and validate again', async function() {
         let idMap;
 

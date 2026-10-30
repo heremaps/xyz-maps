@@ -25,7 +25,7 @@ import {click} from 'triggerEvents';
 import {createPickingTerrain, terrainFixtureUrl, terrainScreenshot} from '../../../src/utils/terrainPicking';
 import {describe, beforeAll, afterAll, beforeEach, it, expect} from 'vitest';
 
-describe.skip('Terrain support picking', () => {
+describe('Terrain support picking', () => {
     let map: Map;
     let terrain: TerrainTileLayer;
     let overlay: TileLayer;

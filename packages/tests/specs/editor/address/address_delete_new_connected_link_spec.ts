@@ -23,6 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import dataset from './address_delete_new_connected_link_spec.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
+// Routing assertions still fail; partially skipping this dependent workflow also stalls its cleanup.
 describe.skip('New address connect to a new link and then remove the link', function() {
     // routingPoint and routingLink should be cleared when address's referenced link is removed
     var preparedData;
@@ -83,6 +84,7 @@ describe.skip('New address connect to a new link and then remove the link', func
     });
 
 
+    // Removing the link still leaves routingPoint populated instead of null.
     it('remove the created link and validate links routingPoint', function() {
         link.remove();
 
@@ -91,6 +93,7 @@ describe.skip('New address connect to a new link and then remove the link', func
     });
 
 
+    // The submitted address still retains routingPoint instead of returning undefined.
     it('submit the address and validate its routingPoint again', async function() {
         let idMap;
 

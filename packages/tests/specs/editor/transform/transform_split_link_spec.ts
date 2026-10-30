@@ -70,6 +70,7 @@ describe('splitting link deactivates transformer of objects', function() {
     });
 
 
+    // This scenario still times out in both minified and dev bundle runs.
     it.skip('validate not able to transform', async function() {
         // transformer does not work correctly, it is not disabled and transforms splitted link
         let obj;

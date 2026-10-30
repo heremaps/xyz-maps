@@ -66,7 +66,7 @@ describe('link geofence setting', function() {
         ], 1e-6);
     });
 
-    it.skip('undo and set geofence', async function() {
+    it('undo and set geofence', async function() {
         // dragging link shape point should be restricted when geofence is set.
         editor.undo();
 

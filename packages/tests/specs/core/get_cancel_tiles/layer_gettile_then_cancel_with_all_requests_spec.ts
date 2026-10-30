@@ -22,6 +22,7 @@ import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_gettile_then_cancel_with_all_requests_spec.json';
 import {describe, beforeAll, it, expect} from 'vitest';
 
+// All four cancellation scenarios currently time out in both minified and dev bundle runs.
 describe.skip('layer get and cancel requesting all other related requests', function() {
     // cancel request without callback will cancel all requests with the same qk
     var placeLayer;
@@ -189,4 +190,3 @@ describe.skip('layer get and cancel requesting all other related requests', func
         });
     });
 });
-
