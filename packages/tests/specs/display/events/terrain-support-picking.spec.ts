@@ -23,7 +23,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {Listener} from 'utils';
 import {userEvent} from 'vitest/browser';
 import {createPickingTerrain, terrainFixtureUrl, terrainScreenshot} from '../../../src/utils/terrainPicking';
-import {describe, beforeAll, afterAll, beforeEach, it, expect} from 'vitest';
+import {vi, describe, beforeAll, afterAll, beforeEach, it, expect} from 'vitest';
 
 describe('Terrain support picking', () => {
     let map: Map;
@@ -99,6 +99,22 @@ describe('Terrain support picking', () => {
         const heights = pixels.map((pixel) => map.getTerrainPointAt(pixel)?.altitude);
         expect(Math.min(...heights)).toBeGreaterThan(1000);
         expect(Math.max(...heights) - Math.min(...heights), 'draped polygon spans the hill slope').toBeGreaterThan(20);
+    });
+
+    it('does not redraw the scene during CPU picking', () => {
+        const canvas = map.getContainer().querySelector('canvas');
+        const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+        expect(gl).not.toBeNull();
+        const clear = vi.spyOn(gl, 'clear');
+        try {
+            const pixel = pixels[Math.floor(pixels.length / 2)];
+            for (let i = 0; i < 10; i++) {
+                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).toBe(draped.id);
+            }
+            expect(clear).not.toHaveBeenCalled();
+        } finally {
+            clear.mockRestore();
+        }
     });
 
     for (const enabled of [false, true]) {

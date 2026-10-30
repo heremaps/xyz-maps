@@ -81,7 +81,7 @@ describe('Place layer addition and removal', function() {
             display.setCenter({longitude: 75.54966, latitude: 14.02363});
         });
 
-        editor.addLayer(poiLayer);
+        await waitForEditorReady(editor, () => editor.addLayer(poiLayer));
 
         let objs = editor.search(display.getViewBounds());
 

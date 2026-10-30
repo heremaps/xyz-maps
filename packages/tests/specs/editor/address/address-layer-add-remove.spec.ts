@@ -86,7 +86,7 @@ describe('Address layer addition and removal', function() {
             display.setCenter({longitude: -92.87121, latitude: 40.593582});
         });
 
-        editor.addLayer(addrLayer);
+        await waitForEditorReady(editor, () => editor.addLayer(addrLayer));
 
         let objs = editor.search({rect: display.getViewBounds()});
         expect(objs.length).toBe(4);

@@ -95,7 +95,7 @@ describe('Navlink layer addition and removal', function() {
             display.setCenter({longitude: 75.33726, latitude: 14.029014});
         });
 
-        editor.addLayer(linkLayer);
+        await waitForEditorReady(editor, () => editor.addLayer(linkLayer));
 
         let objs = editor.search(display.getViewBounds());
 

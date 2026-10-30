@@ -236,6 +236,8 @@ notification. Signals received during the action count unless followed by `ready
 editor's initial ready state alone does not complete the wait. Action failures and editor errors
 reject immediately. After ten seconds, missing readiness or an unfinished action rejects with
 the observed state. Observers, error listeners and the timeout are removed on completion or failure.
+After adding an editor layer, await `waitForEditorReady(editor, () => editor.addLayer(layer))`
+before interacting with its features.
 
 `editorClick(editor, x, y)` returns the original editor `pointerup` event after both that event and
 the native browser click have completed. Browser-action failures propagate; a two-second deadline

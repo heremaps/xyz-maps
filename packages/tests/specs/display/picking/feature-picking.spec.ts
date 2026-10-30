@@ -20,8 +20,9 @@
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
+import {LocalProvider, TileLayer} from '@here/xyz-maps-core';
 import dataset from './feature-picking.json';
-import {describe, beforeEach, afterEach, it, expect} from 'vitest';
+import {vi, describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('Feature picking', function() {
     let preparedData;
@@ -41,6 +42,7 @@ describe('Feature picking', function() {
             zoomlevel: 18,
             layers: preparedData.getLayers()
         });
+
         await waitForViewportReady(display);
 
         link = preparedData.getFeature('linkLayer', 1003913693);
@@ -196,5 +198,76 @@ describe('Feature picking', function() {
         o = display.getFeatureAt({x: 300, y: 300});
 
         expect(o.feature).toEqual(expect.objectContaining({id: 'Line'}));
+    });
+});
+
+describe('Picking with pending scene changes', () => {
+    let display: Map;
+    let layer: TileLayer;
+
+    beforeEach(async () => {
+        layer = new TileLayer({min: 2, max: 20, provider: new LocalProvider()});
+        layer.addFeature({
+            id: 'raised-circle',
+            type: 'Feature',
+            properties: {},
+            geometry: {type: 'Point', coordinates: [77.79802, 12.62214, 20]}
+        }, [{type: 'Circle', zIndex: 1, radius: 20, fill: '#ff0000', altitude: true}]);
+        display = new Map(document.getElementById('map'), {
+            center: {longitude: 77.79802, latitude: 12.62214},
+            zoomlevel: 18,
+            layers: [layer]
+        });
+        await waitForViewportReady(display);
+        vi.useFakeTimers({toFake: ['requestAnimationFrame', 'cancelAnimationFrame']});
+    });
+
+    afterEach(() => {
+        display.destroy();
+        vi.useRealTimers();
+    });
+
+    function expectCircleAt(x: number, y: number) {
+        for (let i = 0; i < 3; i++) {
+            expect(display.getFeatureAt({x, y})?.feature.id).toBe('raised-circle');
+        }
+    }
+
+    it('does not return a removed 3D layer before the next animation frame', () => {
+        expectCircleAt(400, 300);
+        display.removeLayer(layer);
+        for (let i = 0; i < 3; i++) {
+            expect(display.getFeatureAt({x: 400, y: 300})).toBeUndefined();
+        }
+    });
+
+    it('uses the updated camera for the first and subsequent picks before the next animation frame', () => {
+        expectCircleAt(400, 300);
+        display.setCenter({longitude: 77.79852, latitude: 12.62214});
+        const pixel = display.geoToPixel(77.79802, 12.62214, 20);
+        expect(Math.abs(pixel.x - 400)).toBeGreaterThan(40);
+        expectCircleAt(pixel.x, pixel.y);
+        expect(display.getFeatureAt({x: 400, y: 300})).toBeUndefined();
+    });
+
+    it('renders a pending scene change once and cancels its scheduled frame', async () => {
+        const canvas = display.getContainer().querySelector('canvas');
+        const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+        expect(gl).not.toBeNull();
+        const clear = vi.spyOn(gl, 'clear');
+        try {
+            display.setCenter({longitude: 77.79852, latitude: 12.62214});
+            const pixel = display.geoToPixel(77.79802, 12.62214, 20);
+            expectCircleAt(pixel.x, pixel.y);
+            expect(clear).toHaveBeenCalledTimes(1);
+            await vi.advanceTimersByTimeAsync(32);
+            expect(clear).toHaveBeenCalledTimes(1);
+
+            display.setCenter({longitude: 77.79802, latitude: 12.62214});
+            expectCircleAt(400, 300);
+            expect(clear).toHaveBeenCalledTimes(2);
+        } finally {
+            clear.mockRestore();
+        }
     });
 });
