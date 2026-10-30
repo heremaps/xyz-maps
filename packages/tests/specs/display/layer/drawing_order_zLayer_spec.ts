@@ -18,10 +18,10 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './drawing_order_zLayer_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('feature drawing order', () => {
     let layer1;
@@ -85,13 +85,11 @@ describe('feature drawing order', () => {
             fill: '#0000ff'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 290}, {x: 409, y: 308}, {x: 390, y: 305}], {
-            expect: ['#0000ff', '#00ff00', '#ff0000']
-        });
-
-        expect(colors[0]).toBe('#0000ff');
-        expect(colors[1]).toBe('#00ff00');
-        expect(colors[2]).toBe('#ff0000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 413, y: 290}, {x: 409, y: 308}, {x: 390, y: 305}],
+            ['#0000ff', '#00ff00', '#ff0000']
+        );
     });
 
     it('change zIndex of red circle to be in the middle', async () => {
@@ -102,13 +100,11 @@ describe('feature drawing order', () => {
             fill: '#ff0000'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 290}, {x: 421, y: 310}, {x: 440, y: 298}], {
-            expect: ['#0000ff', '#ff0000', '#00ff00']
-        });
-
-        expect(colors[0]).toBe('#0000ff');
-        expect(colors[1]).toBe('#ff0000');
-        expect(colors[2]).toBe('#00ff00');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 413, y: 290}, {x: 421, y: 310}, {x: 440, y: 298}],
+            ['#0000ff', '#ff0000', '#00ff00']
+        );
     });
 
     it('change zLayer to be blue circle to be in the middle', async () => {
@@ -120,13 +116,11 @@ describe('feature drawing order', () => {
             fill: '#0000ff'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 280}, {x: 435, y: 281}, {x: 440, y: 300}], {
-            expect: ['#ff0000', '#0000ff', '#00ff00']
-        });
-
-        expect(colors[0]).toBe('#ff0000');
-        expect(colors[1]).toBe('#0000ff');
-        expect(colors[2]).toBe('#00ff00');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 413, y: 280}, {x: 435, y: 281}, {x: 440, y: 300}],
+            ['#ff0000', '#0000ff', '#00ff00']
+        );
     });
 
     it('change zLayer to bring blue circle to back', async () => {
@@ -138,13 +132,11 @@ describe('feature drawing order', () => {
             fill: '#0000ff'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 413, y: 280}, {x: 435, y: 281}, {x: 415, y: 258}], {
-            expect: ['#ff0000', '#00ff00', '#0000ff']
-        });
-
-        expect(colors[0]).toBe('#ff0000');
-        expect(colors[1]).toBe('#00ff00');
-        expect(colors[2]).toBe('#0000ff');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 413, y: 280}, {x: 435, y: 281}, {x: 415, y: 258}],
+            ['#ff0000', '#00ff00', '#0000ff']
+        );
     });
 
     it('all circles in same zLayer', async () => {
@@ -172,13 +164,11 @@ describe('feature drawing order', () => {
             fill: '#0000ff'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 396, y: 280}, {x: 405, y: 308}, {x: 394, y: 306}], {
-            expect: ['#0000ff', '#00ff00', '#ff0000']
-        });
-
-        expect(colors[0]).toBe('#0000ff');
-        expect(colors[1]).toBe('#00ff00');
-        expect(colors[2]).toBe('#ff0000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 396, y: 280}, {x: 405, y: 308}, {x: 394, y: 306}],
+            ['#0000ff', '#00ff00', '#ff0000']
+        );
     });
 
     it('remove zLayer', async () => {
@@ -203,13 +193,11 @@ describe('feature drawing order', () => {
             fill: '#0000ff'
         }]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 420, y: 282}, {x: 414, y: 310}, {x: 396, y: 320}], {
-            expect: ['#0000ff', '#00ff00', '#ff0000']
-        });
-
-        expect(colors[0]).toBe('#0000ff');
-        expect(colors[1]).toBe('#00ff00');
-        expect(colors[2]).toBe('#ff0000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 420, y: 282}, {x: 414, y: 310}, {x: 396, y: 320}],
+            ['#0000ff', '#00ff00', '#ff0000']
+        );
     });
 
     it('set zLayer to bring red circle to front', async () => {
@@ -222,11 +210,7 @@ describe('feature drawing order', () => {
         }]);
 
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 405, y: 282}, {
-            expect: '#ff0000'
-        });
-
-        expect(color).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 405, y: 282}, '#ff0000');
     });
 
     it('set zLayers with high values and bring green circle to front', async () => {
@@ -245,10 +229,6 @@ describe('feature drawing order', () => {
             fill: '#ff0000'
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 405, y: 282}, {
-            expect: '#00ff00'
-        });
-
-        expect(color).toBe('#00ff00');
+        await expectCanvasPixelColor(mapContainer, {x: 405, y: 282}, '#00ff00');
     });
 });

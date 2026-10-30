@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {getCanvasPixelColor, prepare} from 'utils';
+import {expectCanvasPixelColor, prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
@@ -88,10 +88,7 @@ describe('link connect helper crosscandidate', function() {
         });
 
         // Showing crossings schedules overlay rendering; wait until both markers are visible.
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 247}, {x: 532, y: 240}], {
-            expect: ['#ff0000', '#ff0000']
-        });
-        expect(colors).toStrictEqual(['#ff0000', '#ff0000']);
+        await expectCanvasPixelColor(mapContainer, [{x: 380, y: 247}, {x: 532, y: 240}], ['#ff0000', '#ff0000']);
 
         let crx = <Crossing>(await editorClick(editor, 536, 239)).target;
         crx.connect();

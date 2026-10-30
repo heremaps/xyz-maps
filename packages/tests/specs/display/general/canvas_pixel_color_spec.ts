@@ -1,5 +1,5 @@
 import {vi, describe, it, expect} from 'vitest';
-import {getCanvasPixelColor} from 'utils';
+import {expectCanvasPixelColor, getCanvasPixelColor} from 'utils';
 
 describe('canvas pixel color sampling', () => {
     function canvasFixture() {
@@ -17,6 +17,35 @@ describe('canvas pixel color sampling', () => {
     it('reads once without an expected color', async () => {
         const {element} = canvasFixture();
         expect(await getCanvasPixelColor(element, {x: 0, y: 0}, {delay: 0})).toBe('#ff0000');
+    });
+
+    it('rejects empty position lists for both sampling and assertions', async () => {
+        const {element} = canvasFixture();
+        await expect(getCanvasPixelColor(element, [], {delay: 0})).rejects.toThrow('Expected at least one pixel position');
+        await expect(expectCanvasPixelColor(element, [], '#ff0000', {delay: 0}))
+            .rejects.toThrow('Expected at least one pixel position');
+    });
+
+    it('reports a missing canvas for both sampling and assertions', async () => {
+        const element = document.createElement('div');
+        await expect(getCanvasPixelColor(element, {x: 0, y: 0}, {delay: 0}))
+            .rejects.toThrow('Cannot read pixel colors: container has no canvas');
+        await expect(expectCanvasPixelColor(element, {x: 0, y: 0}, '#ff0000', {delay: 0}))
+            .rejects.toThrow('Cannot read pixel colors: container has no canvas');
+    });
+
+    it('reports unavailable rendering contexts for both sampling and assertions', async () => {
+        const {element} = canvasFixture();
+        const canvas = element.getElementsByTagName('canvas')[0];
+        const getContext = vi.spyOn(canvas, 'getContext').mockReturnValue(null);
+        try {
+            await expect(getCanvasPixelColor(element, {x: 0, y: 0}, {delay: 0}))
+                .rejects.toThrow('Cannot read pixel colors: no WebGL or Canvas2D context is available');
+            await expect(expectCanvasPixelColor(element, {x: 0, y: 0}, '#ff0000', {delay: 0}))
+                .rejects.toThrow('Cannot read pixel colors: no WebGL or Canvas2D context is available');
+        } finally {
+            getContext.mockRestore();
+        }
     });
 
     it('returns the last sample when the retry budget is exhausted', async () => {
@@ -68,5 +97,91 @@ describe('canvas pixel color sampling', () => {
         });
         expect(color).toBe('#0000ff');
         expect(samples).toBe(2);
+    });
+
+    it('asserts a single pixel or one color shared by multiple pixels', async () => {
+        const {element} = canvasFixture();
+        await expectCanvasPixelColor(element, {x: 0, y: 0}, '#ff0000', {delay: 0});
+        await expectCanvasPixelColor(element, {x: 0, y: 0}, ['#ff0000'], {delay: 0});
+        await expectCanvasPixelColor(element, [{x: 0, y: 0}, {x: 1, y: 0}], '#ff0000', {delay: 0});
+    });
+
+    it('asserts a different expected color for each position', async () => {
+        const {element, context} = canvasFixture();
+        context.fillStyle = '#0000ff';
+        context.fillRect(1, 0, 1, 1);
+        await expectCanvasPixelColor(element, [{x: 0, y: 0}, {x: 1, y: 0}], ['#ff0000', '#0000ff'], {delay: 0});
+    });
+
+    it('stops asserting after the first matching sample', async () => {
+        const {element, context} = canvasFixture();
+        let reads = 0;
+        const read = vi.spyOn(context, 'getImageData').mockImplementation(() => {
+            return new ImageData(new Uint8ClampedArray(++reads === 1 ? [255, 0, 0, 255] : [0, 0, 255, 255]), 1, 1);
+        });
+        try {
+            await expectCanvasPixelColor(element, {x: 0, y: 0}, '#0000ff', {retry: 2, delay: 0, retryDelay: 0});
+            expect(reads).toBe(2);
+        } finally {
+            read.mockRestore();
+        }
+    });
+
+    it('reports the final colors and positions after exactly the configured retries', async () => {
+        const {element, context} = canvasFixture();
+        const read = vi.spyOn(context, 'getImageData');
+        try {
+            await expect(expectCanvasPixelColor(element, {x: 0, y: 0}, '#0000ff', {
+                retry: 2, delay: 0, retryDelay: 0
+            })).rejects.toMatchObject({
+                actual: ['#ff0000'],
+                expected: ['#0000ff'],
+                message: expect.stringContaining('Canvas pixels at (0, 0)')
+            });
+            expect(read.mock.calls.length).toBe(3);
+        } finally {
+            read.mockRestore();
+        }
+    });
+
+    it('fails when expected pixels only occur in separate samples', async () => {
+        const {element, context} = canvasFixture();
+        let reads = 0;
+        const values = [[255, 0, 0], [255, 255, 255], [255, 255, 255], [0, 0, 255]];
+        const read = vi.spyOn(context, 'getImageData').mockImplementation(() => {
+            return new ImageData(new Uint8ClampedArray([...values[reads++], 255]), 1, 1);
+        });
+        try {
+            await expect(expectCanvasPixelColor(element, [{x: 0, y: 0}, {x: 1, y: 0}], ['#ff0000', '#0000ff'], {
+                retry: 1, delay: 0, retryDelay: 0
+            })).rejects.toMatchObject({
+                actual: ['#ffffff', '#0000ff'],
+                expected: ['#ff0000', '#0000ff']
+            });
+            expect(reads).toBe(4);
+        } finally {
+            read.mockRestore();
+        }
+    });
+
+    it('rejects mismatched position and color counts', async () => {
+        const {element} = canvasFixture();
+        await expect(expectCanvasPixelColor(element, [{x: 0, y: 0}, {x: 1, y: 0}], ['#ff0000'], {
+            delay: 0
+        })).rejects.toThrow('Expected one color per pixel position');
+    });
+
+    it('propagates sampling errors without retrying or replacing them', async () => {
+        const {element, context} = canvasFixture();
+        const error = new Error('Canvas sampling failed');
+        const read = vi.spyOn(context, 'getImageData').mockImplementation(() => {
+            throw error;
+        });
+        try {
+            await expect(expectCanvasPixelColor(element, {x: 0, y: 0}, '#ff0000', {delay: 0})).rejects.toBe(error);
+            expect(read.mock.calls.length).toBe(1);
+        } finally {
+            read.mockRestore();
+        }
     });
 });

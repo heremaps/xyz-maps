@@ -18,7 +18,7 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, Listener} from 'utils';
+import {Listener} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {click} from 'triggerEvents';

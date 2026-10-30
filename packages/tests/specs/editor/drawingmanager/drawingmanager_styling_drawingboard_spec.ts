@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {getCanvasPixelColor, prepare} from 'utils';
+import {expectCanvasPixelColor, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
@@ -131,14 +131,11 @@ describe('Styling drawingboard', function() {
 
         expect(editor.getDrawingBoard().getLength()).toBe(2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 200, y: 100}, {x: 208, y: 108}, {x: 200, y: 250}, {x: 208, y: 250}], {
-            expect: ['#ee9922', '#2233ee', '#c799e8', '#aa84a4']
-        });
-
-        expect(colors[0]).toBe('#ee9922');
-        expect(colors[1]).toBe('#2233ee');
-        expect(colors[2]).toBe('#c799e8');
-        expect(colors[3]).toBe('#aa84a4');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 200, y: 100}, {x: 208, y: 108}, {x: 200, y: 250}, {x: 208, y: 250}],
+            ['#ee9922', '#2233ee', '#c799e8', '#aa84a4']
+        );
     });
 
     it('finish drawing the link and validate link is created', function() {

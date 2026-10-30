@@ -103,6 +103,19 @@ Use the registered matcher for absolute numeric tolerances, including nested coo
 expect(actual).toEqualWithTolerance(expected, 1e-7);
 ```
 
+Use `expectCanvasPixelColor` from `utils` for exact canvas color assertions without repeating
+the expected colors in a polling condition and a separate assertion:
+
+```typescript
+await expectCanvasPixelColor(container, [{x: 380, y: 280}, {x: 247, y: 327}], ['#9fe030', '#906fff']);
+```
+
+It accepts a single position or an array, and one shared color or a color per position.
+It preserves `getCanvasPixelColor`'s initial delay and retry budget, reading all positions afresh
+on each attempt. Failure reports the positions and the final actual/expected colors.
+Both helpers reject empty position lists, missing canvases and unavailable rendering contexts.
+Do not add an outer `expect.poll()` loop. Keep `getCanvasPixelColor` for raw samples or custom predicates.
+
 The tolerance is explicit, finite and non-negative. Each numeric difference must be less than or equal
 to it; non-numeric fields and structure use native equality with strict key checking. This is not
 decimal precision like `toBeCloseTo`. The matcher does not change ordinary equality or configure

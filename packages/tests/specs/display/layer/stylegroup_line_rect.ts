@@ -18,10 +18,10 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor} from 'utils';
+import {expectCanvasPixelColor} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('StyleGroup Rect and Line geometry', () => {
     let px1 = {x: 300, y: 500};
@@ -100,12 +100,7 @@ describe('StyleGroup Rect and Line geometry', () => {
             'zIndex': 1, 'type': 'Rect', 'width': 28, 'opacity': 1, 'fill': '#0000ff'
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [px1, px2], {
-            expect: '#0000ff'
-        });
-
-        expect(colors[0]).toBe('#0000ff');
-        expect(colors[1]).toBe('#0000ff');
+        await expectCanvasPixelColor(mapContainer, [px1, px2], '#0000ff');
     });
 
     it('set anchor to Line', async () => {
@@ -113,13 +108,7 @@ describe('StyleGroup Rect and Line geometry', () => {
             'zIndex': 1, 'type': 'Rect', 'width': 28, 'opacity': 1, 'fill': '#0000ff', 'anchor': 'Line'
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [px1, px2, {x: 400, y: 300}], {
-            expect: ['#ffffff', '#ffffff', '#0000ff']
-        });
-
-        expect(colors[0]).toBe('#ffffff');
-        expect(colors[1]).toBe('#ffffff');
-        expect(colors[2]).toBe('#0000ff');
+        await expectCanvasPixelColor(mapContainer, [px1, px2, {x: 400, y: 300}], ['#ffffff', '#ffffff', '#0000ff']);
     });
 
     it('stlye line 2', async () => {
@@ -127,12 +116,7 @@ describe('StyleGroup Rect and Line geometry', () => {
             'zIndex': 1, 'type': 'Rect', 'width': 28, 'opacity': 1, 'fill': '#00ff00'
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [px1, px2, px3, px4], {
-            expect: '#00ff00'
-        });
-        for (let color of colors) {
-            expect(color).toBe('#00ff00');
-        }
+        await expectCanvasPixelColor(mapContainer, [px1, px2, px3, px4], '#00ff00');
     });
 
     it('set anchor2 to Line', async () => {
@@ -140,12 +124,7 @@ describe('StyleGroup Rect and Line geometry', () => {
             'zIndex': 2, 'type': 'Rect', 'width': 12, 'opacity': 1, 'fill': '#00ff00', 'anchor': 'Line'
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}], {
-            expect: '#00ff00'
-        });
-        for (let color of colors) {
-            expect(color).toBe('#00ff00');
-        }
+        await expectCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}], '#00ff00');
     });
 
 
@@ -164,13 +143,11 @@ describe('StyleGroup Rect and Line geometry', () => {
             zIndex: 1, type: 'Rect', width: 28, fill: '#0000ff', anchor: 'Line', collide: false, repeat: 0
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}], {
-            expect: ['#00ff00', '#0000ff', '#00ff00']
-        });
-
-        expect(colors[0]).toBe('#00ff00');
-        expect(colors[1]).toBe('#0000ff');
-        expect(colors[2]).toBe('#00ff00');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}],
+            ['#00ff00', '#0000ff', '#00ff00']
+        );
     });
 
     it('change priority', async () => {
@@ -189,13 +166,7 @@ describe('StyleGroup Rect and Line geometry', () => {
             zIndex: 1, type: 'Rect', width: 28, fill: '#0000ff', anchor: 'Line', collide: false, repeat: 0
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}], {
-            expect: '#00ff00'
-        });
-
-        expect(colors[0]).toBe('#00ff00');
-        expect(colors[1]).toBe('#00ff00');
-        expect(colors[2]).toBe('#00ff00');
+        await expectCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}], '#00ff00');
     });
 
     it('set anchor2 to Coordinates', async () => {
@@ -213,15 +184,11 @@ describe('StyleGroup Rect and Line geometry', () => {
             zIndex: 1, type: 'Rect', width: 28, fill: '#0000ff', anchor: 'Line', collide: false
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4], {
-            expect: ['#0000ff', '#00ff00', '#00ff00', '#00ff00', '#00ff00']
-        });
-
-        expect(colors[0]).toBe('#0000ff');
-        expect(colors[1]).toBe('#00ff00');
-        expect(colors[2]).toBe('#00ff00');
-        expect(colors[3]).toBe('#00ff00');
-        expect(colors[4]).toBe('#00ff00');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 400, y: 300}, px1, px2, px3, px4],
+            ['#0000ff', '#00ff00', '#00ff00', '#00ff00', '#00ff00']
+        );
     });
 
     it('set anchor1 to Coordinates', async () => {
@@ -239,15 +206,11 @@ describe('StyleGroup Rect and Line geometry', () => {
             zIndex: 1, type: 'Circle', width: 14, fill: '#0000ff', anchor: 'Coordinate', collide: false
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4], {
-            expect: ['#ffffff', '#00ff00', '#00ff00', '#00ff00', '#00ff00']
-        });
-
-        expect(colors[0]).toBe('#ffffff');
-        expect(colors[1]).toBe('#00ff00');
-        expect(colors[2]).toBe('#00ff00');
-        expect(colors[3]).toBe('#00ff00');
-        expect(colors[4]).toBe('#00ff00');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 400, y: 300}, px1, px2, px3, px4],
+            ['#ffffff', '#00ff00', '#00ff00', '#00ff00', '#00ff00']
+        );
     });
 
     it('change prio1', async () => {
@@ -271,15 +234,11 @@ describe('StyleGroup Rect and Line geometry', () => {
             priority: 1
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4], {
-            expect: ['#ffffff', '#0000ff', '#0000ff', '#00ff00', '#00ff00']
-        });
-
-        expect(colors[0]).toBe('#ffffff');
-        expect(colors[1]).toBe('#0000ff');
-        expect(colors[2]).toBe('#0000ff');
-        expect(colors[3]).toBe('#00ff00');
-        expect(colors[4]).toBe('#00ff00');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 400, y: 300}, px1, px2, px3, px4],
+            ['#ffffff', '#0000ff', '#0000ff', '#00ff00', '#00ff00']
+        );
     });
 
     it('check collision-groups', async () => {
@@ -320,15 +279,11 @@ describe('StyleGroup Rect and Line geometry', () => {
             priority: 1
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4], {
-            expect: ['#ffffff', '#ff0000', '#ff0000', '#ff0000', '#ff0000']
-        });
-
-        expect(colors[0]).toBe('#ffffff');
-        expect(colors[1]).toBe('#ff0000');
-        expect(colors[2]).toBe('#ff0000');
-        expect(colors[3]).toBe('#ff0000');
-        expect(colors[4]).toBe('#ff0000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 400, y: 300}, px1, px2, px3, px4],
+            ['#ffffff', '#ff0000', '#ff0000', '#ff0000', '#ff0000']
+        );
     });
 
     it('check partial collision-groups', async () => {
@@ -369,15 +324,11 @@ describe('StyleGroup Rect and Line geometry', () => {
             priority: 1
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, px1, px2, px3, px4], {
-            expect: ['#ffffff', '#ff00ff', '#ff00ff', '#ff0000', '#ff0000']
-        });
-
-        expect(colors[0]).toBe('#ffffff');
-        expect(colors[1]).toBe('#ff00ff');
-        expect(colors[2]).toBe('#ff00ff');
-        expect(colors[3]).toBe('#ff0000');
-        expect(colors[4]).toBe('#ff0000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 400, y: 300}, px1, px2, px3, px4],
+            ['#ffffff', '#ff00ff', '#ff00ff', '#ff0000', '#ff0000']
+        );
     });
 
     it('set minimum repeat distance - anchor Line', async () => {
@@ -392,13 +343,11 @@ describe('StyleGroup Rect and Line geometry', () => {
             repeat: 256
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}], {
-            expect: ['#ffffff', '#00ff00', '#ffffff']
-        });
-
-        expect(colors[0]).toBe('#ffffff');
-        expect(colors[1]).toBe('#00ff00');
-        expect(colors[2]).toBe('#ffffff');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 300, y: 300}, {x: 400, y: 300}, {x: 500, y: 300}],
+            ['#ffffff', '#00ff00', '#ffffff']
+        );
     });
 
     it('set minimum repeat distance - anchor Coordinate', async () => {
@@ -415,16 +364,13 @@ describe('StyleGroup Rect and Line geometry', () => {
             repeat: 256
         }]);
 
-        const colors = await getCanvasPixelColor(mapContainer, [
-            {x: 300, y: 500}, {x: 300, y: 100}, {x: 500, y: 100}, {x: 500, y: 500}
-        ], {
-            expect: ['#00ff00', '#00ff00', '#ffffff', '#ffffff']
-        });
-
-        expect(colors[0]).toBe('#00ff00');
-        expect(colors[1]).toBe('#00ff00');
-        expect(colors[2]).toBe('#ffffff');
-        expect(colors[3]).toBe('#ffffff');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [
+                {x: 300, y: 500}, {x: 300, y: 100}, {x: 500, y: 100}, {x: 500, y: 500}
+            ],
+            ['#00ff00', '#00ff00', '#ffffff', '#ffffff']
+        );
     });
 
     it('enable checkLineSpace', async () => {
@@ -447,10 +393,7 @@ describe('StyleGroup Rect and Line geometry', () => {
             collide: false
         }]);
 
-        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
-            expect: '#ff0000'
-        });
-        expect(color).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 400, y: 300}, '#ff0000');
     });
 
     it('disable checkLineSpace', async () => {
@@ -469,9 +412,6 @@ describe('StyleGroup Rect and Line geometry', () => {
             collide: false
         }]);
 
-        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
-            expect: '#00ff00'
-        });
-        expect(color).toBe('#00ff00');
+        await expectCanvasPixelColor(mapContainer, {x: 400, y: 300}, '#00ff00');
     });
 });

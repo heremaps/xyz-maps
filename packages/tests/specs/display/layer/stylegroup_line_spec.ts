@@ -18,11 +18,11 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './stylegroup_line_spec.json';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('setStyleGroup Line', () => {
     let preparedData;
@@ -54,11 +54,8 @@ describe('setStyleGroup Line', () => {
 
     it('style feature, validate its new style', async () => {
         // validate link style
-        let color1 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}, {
-            expect: '#ff0000'
-        }); // get link color
+        await expectCanvasPixelColor(mapContainer, {x: 448, y: 300}, '#ff0000'); // get link color
         // default color is red
-        expect(color1).toBe('#ff0000');
 
         // set link style
         linkLayer.setStyleGroup(
@@ -67,10 +64,7 @@ describe('setStyleGroup Line', () => {
         );
 
         // validate new link style
-        let color2 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}, {
-            expect: '#be6b65'
-        }); // get link color
-        expect(color2).toBe('#be6b65');
+        await expectCanvasPixelColor(mapContainer, {x: 448, y: 300}, '#be6b65'); // get link color
 
         // reset link style
         linkLayer.setStyleGroup(
@@ -78,10 +72,7 @@ describe('setStyleGroup Line', () => {
         );
 
         // validate link style is reset
-        let color3 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}, {
-            expect: '#ff0000'
-        }); // get link color
-        expect(color3).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 448, y: 300}, '#ff0000'); // get link color
     });
 
     it('style feature, validate its new style', async () => {
@@ -95,11 +86,7 @@ describe('setStyleGroup Line', () => {
         // validate new link style
         // get color at position of inline
         // get color at position of outline
-        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}], {
-            expect: '#ffffff'
-        });
-        expect(colors1[0]).toBe('#ffffff');
-        expect(colors1[1]).toBe('#ffffff');
+        await expectCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}], '#ffffff');
 
         // set link style
         linkLayer.setStyleGroup(
@@ -111,11 +98,7 @@ describe('setStyleGroup Line', () => {
         // validate new link style
         // get color at position of inline
         // get color at position of outline
-        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}], {
-            expect: ['#be6b65', '#ffffff']
-        });
-        expect(colors2[0]).toBe('#be6b65');
-        expect(colors2[1]).toBe('#ffffff');
+        await expectCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}], ['#be6b65', '#ffffff']);
     });
 
     it('style line with text, validate its new style', async () => {
@@ -138,18 +121,14 @@ describe('setStyleGroup Line', () => {
         // get color between bars of character H
         // get color of first character H (right side)
         // get link color between first H and E
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 420, y: 308}, {x: 431, y: 308}, {
-            x: 443,
-            y: 308
-        }, {x: 452, y: 308}, {x: 461, y: 308}], {
-            expect: ['#000000', '#ffffff', '#000000', '#ffffff', '#000000']
-        });
-
-        expect(colors[0]).toBe('#000000');
-        expect(colors[1]).toBe('#ffffff');
-        expect(colors[2]).toBe('#000000');
-        expect(colors[3]).toBe('#ffffff');
-        expect(colors[4]).toBe('#000000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 420, y: 308}, {x: 431, y: 308}, {
+                x: 443,
+                y: 308
+            }, {x: 452, y: 308}, {x: 461, y: 308}],
+            ['#000000', '#ffffff', '#000000', '#ffffff', '#000000']
+        );
     });
 
     it('validate style-function support for text', async () => {
@@ -164,10 +143,7 @@ describe('setStyleGroup Line', () => {
             }]);
 
         // H character
-        const color = await getCanvasPixelColor(mapContainer, {x: 431, y: 308}, {
-            expect: '#ff0000'
-        });
-        expect(color).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 431, y: 308}, '#ff0000');
     });
 
 
@@ -188,22 +164,16 @@ describe('setStyleGroup Line', () => {
             }]);
 
 
-        const colors = await getCanvasPixelColor(mapContainer, [
+        await expectCanvasPixelColor(
+            mapContainer,
+            [
             // red offset line
-            {x: 420, y: 325}, {x: 575, y: 325}, {x: 690, y: 505},
-            // no offset line
-            {x: 410, y: 300}, {x: 585, y: 300}, {x: 715, y: 500}
-        ], {
-            expect: ['#ff0000', '#ff0000', '#ff0000', '#000000', '#000000', '#000000']
-        });
-
-        expect(colors[0]).toBe('#ff0000');
-        expect(colors[1]).toBe('#ff0000');
-        expect(colors[2]).toBe('#ff0000');
-
-        expect(colors[3]).toBe('#000000');
-        expect(colors[4]).toBe('#000000');
-        expect(colors[5]).toBe('#000000');
+                {x: 420, y: 325}, {x: 575, y: 325}, {x: 690, y: 505},
+                // no offset line
+                {x: 410, y: 300}, {x: 585, y: 300}, {x: 715, y: 500}
+            ],
+            ['#ff0000', '#ff0000', '#ff0000', '#000000', '#000000', '#000000']
+        );
     });
 
     it('validate line offset left', async () => {
@@ -223,21 +193,15 @@ describe('setStyleGroup Line', () => {
             }]);
 
 
-        const colors = await getCanvasPixelColor(mapContainer, [
+        await expectCanvasPixelColor(
+            mapContainer,
+            [
             // blue offset line
-            {x: 420, y: 280}, {x: 600, y: 280}, {x: 735, y: 480},
-            // no offset line
-            {x: 410, y: 300}, {x: 585, y: 300}, {x: 715, y: 500}
-        ], {
-            expect: ['#0000ff', '#0000ff', '#0000ff', '#000000', '#000000', '#000000']
-        });
-
-        expect(colors[0]).toBe('#0000ff');
-        expect(colors[1]).toBe('#0000ff');
-        expect(colors[2]).toBe('#0000ff');
-
-        expect(colors[3]).toBe('#000000');
-        expect(colors[4]).toBe('#000000');
-        expect(colors[5]).toBe('#000000');
+                {x: 420, y: 280}, {x: 600, y: 280}, {x: 735, y: 480},
+                // no offset line
+                {x: 410, y: 300}, {x: 585, y: 300}, {x: 715, y: 500}
+            ],
+            ['#0000ff', '#0000ff', '#0000ff', '#000000', '#000000', '#000000']
+        );
     });
 });

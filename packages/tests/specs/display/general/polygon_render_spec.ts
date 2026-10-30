@@ -17,10 +17,10 @@
  * License-Filename: LICENSE
  */
 
-import {getCanvasPixelColor, prepare} from 'utils';
+import {expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './polygon_render_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('validate polygon rendering', function() {
     let mapContainer;
@@ -85,15 +85,11 @@ describe('validate polygon rendering', function() {
     });
 
     it('validate polygon and multipolygon are rendered', async function() {
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 70, y: 170}, {x: 170, y: 170}, {x: 270, y: 170}], {
-            retry: 4,
-            expect: ['#0100000', '#00ffff', '#00ffff']
-        });
-        // validate polygon is displayed
-        expect(colors[0]).toBe('#000000');
-        // validate multipolygon is displayed
-        expect(colors[1]).toBe('#00ffff');
-        // validate multipolygon is displayed
-        expect(colors[2]).toBe('#00ffff');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 70, y: 170}, {x: 170, y: 170}, {x: 270, y: 170}],
+            ['#000000', '#00ffff', '#00ffff'],
+            {retry: 4}
+        );
     });
 });

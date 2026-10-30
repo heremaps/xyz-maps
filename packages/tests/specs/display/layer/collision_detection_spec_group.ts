@@ -18,10 +18,10 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './collision_detection_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('collision detection - Group', function() {
     const color1 = '#ff0000';
@@ -90,13 +90,7 @@ describe('collision detection - Group', function() {
             priority: 1
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer,
-            display.geoToPixel(73.47146955841399, 21.404434999821802)
-            , {
-                expect: color1
-            });
-
-        expect(color).toBe(color1);
+        await expectCanvasPixelColor(mapContainer, display.geoToPixel(73.47146955841399, 21.404434999821802), color1);
     });
 
     it('create feature in center of tile', async () => {
@@ -125,11 +119,7 @@ describe('collision detection - Group', function() {
             priority: 1
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: x1, y: y1}, {
-            expect: color1
-        });
-
-        expect(color).toBe(color1);
+        await expectCanvasPixelColor(mapContainer, {x: x1, y: y1}, color1);
     });
 
 
@@ -157,11 +147,7 @@ describe('collision detection - Group', function() {
             priority: 1
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: x2, y: y2}, {
-            expect: '#ffffff'
-        });
-
-        expect(color).toBe('#ffffff');
+        await expectCanvasPixelColor(mapContainer, {x: x2, y: y2}, '#ffffff');
     });
 
     it('disable collision detection', async () => {
@@ -173,12 +159,7 @@ describe('collision detection - Group', function() {
         style2[0].collide = true;
         testLayer.setStyleGroup(feature2, style2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], {
-            expect: [color1, color2]
-        });
-
-        expect(colors[0]).toBe(color1);
-        expect(colors[1]).toBe(color2);
+        await expectCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], [color1, color2]);
     });
 
     it('reenable collision detection', async () => {
@@ -190,12 +171,7 @@ describe('collision detection - Group', function() {
         style2[0].collide = false;
         testLayer.setStyleGroup(feature2, style2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], {
-            expect: [color1, '#ffffff']
-        });
-
-        expect(colors[0]).toBe(color1);
-        expect(colors[1]).toBe('#ffffff');
+        await expectCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], [color1, '#ffffff']);
     });
 
     it('flip collision priorities', async () => {
@@ -211,12 +187,7 @@ describe('collision detection - Group', function() {
         }
         testLayer.setStyleGroup(feature2, style2);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], {
-            expect: ['#ffffff', color2]
-        });
-
-        expect(colors[0]).toBe('#ffffff');
-        expect(colors[1]).toBe(color2);
+        await expectCanvasPixelColor(mapContainer, [{x: x1, y: y1}, {x: x2, y: y2}], ['#ffffff', color2]);
     });
 
     it('move feature and make sure it becomes visible again', async () => {
@@ -225,13 +196,8 @@ describe('collision detection - Group', function() {
 
         testLayer.setFeatureCoordinates(feature1, [longitude, latitude]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: x1 + 100, y: y1}, {
-            retry: 5,
-            retryDelay: 50,
-            expect: color1
-        });
+        await expectCanvasPixelColor(mapContainer, {x: x1 + 100, y: y1}, color1, {retry: 5, retryDelay: 50});
 
-        expect(color).toBe(color1);
         display.debug(0);
     });
 
@@ -253,25 +219,13 @@ describe('collision detection - Group', function() {
 
         testLayer.setFeatureCoordinates(feature1, [longitude, latitude]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: x1, y: y1}, {
-            retry: 5,
-            retryDelay: 50,
-            expect: color1
-        });
-
-        expect(color).toBe(color1);
+        await expectCanvasPixelColor(mapContainer, {x: x1, y: y1}, color1, {retry: 5, retryDelay: 50});
     });
 
     it('remove top circle', async () => {
         let style1 = testLayer.getStyleGroup(feature1);
         testLayer.setStyleGroup(feature1, [style1[1]]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: x1, y: y1}, {
-            retry: 5,
-            retryDelay: 50,
-            expect: '#000000'
-        });
-
-        expect(color).toBe('#000000');
+        await expectCanvasPixelColor(mapContainer, {x: x1, y: y1}, '#000000', {retry: 5, retryDelay: 50});
     });
 });

@@ -16,12 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {getCanvasPixelColor, prepare} from 'utils';
+import {expectCanvasPixelColor, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './custom_style_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('custom/overwritten styles', () => {
     let editor;
@@ -62,10 +62,7 @@ describe('custom/overwritten styles', () => {
     });
 
     it('validate default layer style', async () => {
-        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {
-            expect: '#ff0000'
-        });
-        expect(color).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 300, y: 400}, '#ff0000');
     });
 
     it('set a custom style', async () => {
@@ -75,25 +72,18 @@ describe('custom/overwritten styles', () => {
             fill: '#0000ff'
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {expect: '#0000ff'});
-        expect(color).toBe('#0000ff');
+        await expectCanvasPixelColor(mapContainer, {x: 300, y: 400}, '#0000ff');
     });
 
     it('set property to trigger style refresh', async () => {
         area.prop('test', 'test');
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {
-            expect: '#0000ff'
-        });
-        expect(color).toBe('#0000ff');
+        await expectCanvasPixelColor(mapContainer, {x: 300, y: 400}, '#0000ff');
     });
 
     it('clear custom style', async () => {
         areaLayer.setStyleGroup(area);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {
-            expect: '#ff0000'
-        });
-        expect(color).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 300, y: 400}, '#ff0000');
     });
 });

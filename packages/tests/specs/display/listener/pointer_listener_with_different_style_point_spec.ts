@@ -18,7 +18,7 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {Listener, getCanvasPixelColor, prepare} from 'utils';
+import {Listener, expectCanvasPixelColor, prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_listener_with_different_style_point_spec.json';
@@ -121,10 +121,11 @@ describe('pointer listener with different style point', function() {
         }));
 
         // Refresh schedules rendering asynchronously; wait for the updated style to become visible.
-        const colors = await getCanvasPixelColor(mapContainer, [{x: 282, y: 203}, {x: 272, y: 203}, {x: 248, y: 203}, {x: 239, y: 203}], {
-            expect: ['#ffffff', '#be6b65', '#be6b65', '#ffffff']
-        });
-        expect(colors).toStrictEqual(['#ffffff', '#be6b65', '#be6b65', '#ffffff']);
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 282, y: 203}, {x: 272, y: 203}, {x: 248, y: 203}, {x: 239, y: 203}],
+            ['#ffffff', '#be6b65', '#be6b65', '#ffffff']
+        );
     });
 
 
@@ -133,9 +134,6 @@ describe('pointer listener with different style point', function() {
 
         display.refresh(poiLayer);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 254, y: 205}, {
-            expect: '#ff0000'
-        });
-        expect(color).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 254, y: 205}, '#ff0000');
     });
 });

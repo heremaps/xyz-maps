@@ -18,7 +18,7 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {getCanvasPixelColor, expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_map_and_link_layer.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
@@ -63,7 +63,6 @@ describe('display image and link layers', function() {
         expect(color).not.toBe('#ff0000');
 
         // validate link is displayed
-        color = await getCanvasPixelColor(mapContainer, {x: 700, y: 110}, {expect: '#ff0000'});
-        expect(color).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 700, y: 110}, '#ff0000');
     });
 });

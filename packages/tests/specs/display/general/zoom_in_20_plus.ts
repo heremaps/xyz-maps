@@ -18,7 +18,7 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {getCanvasPixelColor, expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './zoom_in_20_plus.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
@@ -66,10 +66,7 @@ describe('zoom in 20+', function() {
     });
 
     it('validate point is displayed', async () => {
-        let color = await getCanvasPixelColor(mapContainer, {x: 447, y: 79}, {
-            expect: '#ff0000'
-        });
-        expect(color).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 447, y: 79}, '#ff0000');
     });
 
     it('check if tiles are rendered', async () => {
@@ -149,9 +146,6 @@ describe('zoom in 20+', function() {
             display.setCenter(-77.0077688, 38.9011329);
         });
 
-        const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
-            expect: '#0000ff'
-        });
-        expect(color).toBe('#0000ff');
+        await expectCanvasPixelColor(mapContainer, {x: 400, y: 300}, '#0000ff');
     });
 });

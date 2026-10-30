@@ -17,6 +17,7 @@
  * License-Filename: LICENSE
  */
 import prepare, {TestData} from './prepareData';
+import {expect} from 'vitest';
 
 declare global {
     interface XMLHttpRequest {
@@ -79,6 +80,15 @@ function backingScale() {
 }
 
 
+type CanvasPixelPosition = {x: number, y: number};
+
+interface CanvasPixelColorOptions {
+    expect?: string | string[] | ((colors: string[]) => boolean);
+    delay?: number;
+    retry?: number;
+    retryDelay?: number;
+}
+
 /**
  * Reads canvas pixels, optionally polling for an expected rendered result.
  * `expect` accepts a color for all positions, one color per position, or a predicate on the complete sample.
@@ -90,14 +100,12 @@ function backingScale() {
  */
 export async function getCanvasPixelColor(
     elem: HTMLElement,
-    pos: { x: number, y: number } | { x: number, y: number }[],
-    options: {
-        expect?: string | string[] | ((colors: string[]) => boolean),
-        delay?: number,
-        retry?: number,
-        retryDelay?: number
-    } = {}): Promise<string | string[]> {
+    pos: CanvasPixelPosition | CanvasPixelPosition[],
+    options: CanvasPixelColorOptions = {}): Promise<string | string[]> {
     const positions = Array.isArray(pos) ? pos : [pos];
+    if (positions.length === 0) {
+        throw new Error('Expected at least one pixel position');
+    }
     const expected = options.expect;
     if (Array.isArray(expected) && expected.length !== positions.length) {
         throw new Error('Expected one color per pixel position');
@@ -107,7 +115,13 @@ export async function getCanvasPixelColor(
     const retry = options.retry ?? (expected === undefined ? 0 : 38);
     const scaleFactor = backingScale();
     const canvas = elem.getElementsByTagName('canvas')[0];
+    if (!canvas) {
+        throw new Error('Cannot read pixel colors: container has no canvas');
+    }
     const context = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('2d');
+    if (!context) {
+        throw new Error('Cannot read pixel colors: no WebGL or Canvas2D context is available');
+    }
 
     const getColor = (x: number, y: number) => {
         let pixel;
@@ -132,6 +146,24 @@ export async function getCanvasPixelColor(
             return Array.isArray(pos) ? colors : colors[0];
         }
     }
+}
+
+/**
+ * Waits for matching colors using the sampling helper's existing delay/retry budget.
+ * Reports the complete last sample and pixel positions on failure, without an outer polling loop.
+ */
+export async function expectCanvasPixelColor(
+    elem: HTMLElement,
+    pos: CanvasPixelPosition | CanvasPixelPosition[],
+    expected: string | string[],
+    options: Omit<CanvasPixelColorOptions, 'expect'> = {}
+): Promise<void> {
+    const positions = Array.isArray(pos) ? pos : [pos];
+    const colors = await getCanvasPixelColor(elem, pos, {...options, expect: expected});
+    const actual = Array.isArray(colors) ? colors : [colors];
+    const wanted = Array.isArray(expected) ? expected : positions.map(() => expected);
+    const coordinates = positions.map(({x, y}) => `(${x}, ${y})`).join(', ');
+    expect(actual, `Canvas pixels at ${coordinates}`).toStrictEqual(wanted);
 }
 
 export class Observer {

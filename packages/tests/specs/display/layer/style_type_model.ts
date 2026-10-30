@@ -18,11 +18,11 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './style_type_model.json';
 import {ModelStyle} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 
 describe('3d Model Styles', function() {
@@ -66,12 +66,7 @@ describe('3d Model Styles', function() {
         modelLayer.setStyleGroup(feature, [baseModelStyle]);
 
         // The OBJ loads asynchronously after the style is applied.
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
-            expect: '#ff0000',
-            retry: 8,
-            retryDelay: 50
-        });
-        expect(color).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 400, y: 300}, '#ff0000', {retry: 8, retryDelay: 50});
     });
 
     it('validate model orientation, rotate front face to top', async () => {
@@ -80,10 +75,7 @@ describe('3d Model Styles', function() {
             'rotate': [Math.PI/2, 0, 0]
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
-            expect: '#0000ff'
-        });
-        expect(color).toBe('#0000ff');
+        await expectCanvasPixelColor(mapContainer, {x: 400, y: 300}, '#0000ff');
     });
     it('validate model orientation, rotate back face to top', async () => {
         modelLayer.setStyleGroup(feature, [{
@@ -91,10 +83,7 @@ describe('3d Model Styles', function() {
             'rotate': [-Math.PI/2, 0, 0]
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
-            expect: '#ffff00'
-        });
-        expect(color).toBe('#ffff00');
+        await expectCanvasPixelColor(mapContainer, {x: 400, y: 300}, '#ffff00');
     });
 
     it('validate model orientation, rotate bottom face to top', async () => {
@@ -103,10 +92,7 @@ describe('3d Model Styles', function() {
             'rotate': [Math.PI, 0, 0]
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
-            expect: '#00ff00'
-        });
-        expect(color).toBe('#00ff00');
+        await expectCanvasPixelColor(mapContainer, {x: 400, y: 300}, '#00ff00');
     });
 
     it('validate model orientation, rotate left face to top', async () => {
@@ -115,10 +101,7 @@ describe('3d Model Styles', function() {
             'rotate': [0, 0, -Math.PI/2]
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
-            expect: '#00ffff'
-        });
-        expect(color).toBe('#00ffff');
+        await expectCanvasPixelColor(mapContainer, {x: 400, y: 300}, '#00ffff');
     });
 
     it('validate model orientation, rotate right face to top', async () => {
@@ -127,10 +110,7 @@ describe('3d Model Styles', function() {
             'rotate': [0, 0, Math.PI/2]
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
-            expect: '#ff00ff'
-        });
-        expect(color).toBe('#ff00ff');
+        await expectCanvasPixelColor(mapContainer, {x: 400, y: 300}, '#ff00ff');
     });
 
     it('validate model orientation, scale size', async () => {
@@ -139,10 +119,7 @@ describe('3d Model Styles', function() {
             'scale': [40, 40, 40]
         }]);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 200, y: 300}, {
-            expect: '#ff0000'
-        });
-        expect(color).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 200, y: 300}, '#ff0000');
     });
 
     it('validate specular shininess', async () => {
@@ -150,9 +127,6 @@ describe('3d Model Styles', function() {
             ...baseModelStyle,
             'specular': [1, 1, 1], 'shininess': 32
         }]);
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}], {
-            expect: '#ffffff'
-        });
-        expect(colors[0]).toBe('#ffffff');
+        await expectCanvasPixelColor(mapContainer, [{x: 400, y: 300}], '#ffffff');
     });
 });

@@ -18,10 +18,10 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_text.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 let FONT = 'bold 48px Arial,Helvetica,sans-serif';
 
@@ -67,15 +67,13 @@ describe('setStyleGroup Point with text', function() {
 
         //     #     #
         // c1 c2 c2 c3 c4
-        let colors = await getCanvasPixelColor(mapContainer, [
-            {x: 350, y: 300}, {x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}, {x: 450, y: 300}
-        ], {expect: ['#ff0000', '#000000', '#ff0000', '#000000', '#ff0000']});
-
-        expect(colors[0]).toBe('#ff0000');
-        expect(colors[1]).toBe('#000000');
-        expect(colors[2]).toBe('#ff0000');
-        expect(colors[3]).toBe('#000000');
-        expect(colors[4]).toBe('#ff0000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [
+                {x: 350, y: 300}, {x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}, {x: 450, y: 300}
+            ],
+            ['#ff0000', '#000000', '#ff0000', '#000000', '#ff0000']
+        );
     });
 
     it('style text with opacity', async () => {
@@ -86,13 +84,11 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000', 'text': FULL_BLOCK_CHAR, 'opacity': 0.5, 'font': FONT}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}], {
-            expect: ['#ff0000', '#800000', '#ff0000']
-        });
-
-        expect(colors[0]).toBe('#ff0000');
-        expect(colors[1]).toBe('#800000');
-        expect(colors[2]).toBe('#ff0000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}],
+            ['#ff0000', '#800000', '#ff0000']
+        );
     });
 
     it('style text with textRef', async () => {
@@ -103,15 +99,19 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'textRef': 'properties.address', 'font': FONT}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [
-            {x: 375, y: 300}, {x: 388, y: 300}, {x: 400, y: 300}, {x: 414, y: 300}, {x: 425, y: 300}
-        ], {expect: ['#ff0000', '#000000', '#ff0000', '#000000', '#ff0000']});
+        await expectCanvasPixelColor(
+            mapContainer,
+            [
+                {x: 375, y: 300}, {x: 388, y: 300}, {x: 400, y: 300}, {x: 414, y: 300}, {x: 425, y: 300}
+            ],
+            ['#ff0000', '#000000', '#ff0000', '#000000', '#ff0000']
+        );
 
-        expect(colors[0]).toBe('#ff0000'); // color left of "O"
-        expect(colors[1]).toBe('#000000'); // color on left arc of "O"
-        expect(colors[2]).toBe('#ff0000'); // color center "O"
-        expect(colors[3]).toBe('#000000'); // color on right arc of "O"
-        expect(colors[4]).toBe('#ff0000'); // color right of "O"
+        // color left of "O"
+        // color on left arc of "O"
+        // color center "O"
+        // color on right arc of "O"
+        // color right of "O"
     });
 
     it('style text with positive offsetX', async () => {
@@ -121,13 +121,11 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetX': 24}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 425, y: 300}, {x: 450, y: 300}], {
-            expect: ['#ff0000', '#000000', '#ff0000']
-        });
-
-        expect(colors[0]).toBe('#ff0000');
-        expect(colors[1]).toBe('#000000');
-        expect(colors[2]).toBe('#ff0000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 400, y: 300}, {x: 425, y: 300}, {x: 450, y: 300}],
+            ['#ff0000', '#000000', '#ff0000']
+        );
     });
 
     it('style text with negative offsetX', async () => {
@@ -137,13 +135,11 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetX': -24}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 355, y: 300}, {x: 375, y: 300}, {x: 400, y: 300}], {
-            expect: ['#ff0000', '#000000', '#ff0000']
-        });
-
-        expect(colors[0]).toBe('#ff0000');
-        expect(colors[1]).toBe('#000000');
-        expect(colors[2]).toBe('#ff0000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 355, y: 300}, {x: 375, y: 300}, {x: 400, y: 300}],
+            ['#ff0000', '#000000', '#ff0000']
+        );
     });
 
     it('style text with positive offsetY', async () => {
@@ -153,13 +149,11 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetY': 24}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 350}, {x: 400, y: 325}, {x: 400, y: 295}], {
-            expect: ['#ff0000', '#000000', '#ff0000']
-        });
-
-        expect(colors[0]).toBe('#ff0000');
-        expect(colors[1]).toBe('#000000');
-        expect(colors[2]).toBe('#ff0000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 400, y: 350}, {x: 400, y: 325}, {x: 400, y: 295}],
+            ['#ff0000', '#000000', '#ff0000']
+        );
     });
 
     it('style text with offsetY', async () => {
@@ -169,13 +163,11 @@ describe('setStyleGroup Point with text', function() {
                 {'zIndex': 1, 'type': 'Text', 'fill': '#000000', 'text': FULL_BLOCK_CHAR, 'font': FONT, 'offsetY': -24}
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 245}, {x: 400, y: 275}, {x: 400, y: 305}], {
-            expect: ['#ff0000', '#000000', '#ff0000']
-        });
-
-        expect(colors[0]).toBe('#ff0000');
-        expect(colors[1]).toBe('#000000');
-        expect(colors[2]).toBe('#ff0000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 400, y: 245}, {x: 400, y: 275}, {x: 400, y: 305}],
+            ['#ff0000', '#000000', '#ff0000']
+        );
     });
 
     it('style text with offsetX and offsetY', async () => {
@@ -193,17 +185,13 @@ describe('setStyleGroup Point with text', function() {
                 }
             ]);
 
-        let colors = await getCanvasPixelColor(mapContainer, [
-            {x: 400, y: 325}, {x: 425, y: 355}, {x: 450, y: 325}, {x: 420, y: 295}, {x: 425, y: 325}
-        ], {
-            expect: ['#ff0000', '#ff0000', '#ff0000', '#ff0000', '#000000']
-        });
-
-        expect(colors[0]).toBe('#ff0000');
-        expect(colors[1]).toBe('#ff0000');
-        expect(colors[2]).toBe('#ff0000');
-        expect(colors[3]).toBe('#ff0000');
-        expect(colors[4]).toBe('#000000');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [
+                {x: 400, y: 325}, {x: 425, y: 355}, {x: 450, y: 325}, {x: 420, y: 295}, {x: 425, y: 325}
+            ],
+            ['#ff0000', '#ff0000', '#ff0000', '#ff0000', '#000000']
+        );
     });
 
     it('validate text is not wrapped by default', async () => {
@@ -219,13 +207,7 @@ describe('setStyleGroup Point with text', function() {
             }]);
 
         // O O O
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 350, y: 300}, {x: 400, y: 300}, {x: 450, y: 300}], {
-            expect: '#ff0000'
-        });
-
-        for (let color of colors) {
-            expect(color).toBe('#ff0000');
-        }
+        await expectCanvasPixelColor(mapContainer, [{x: 350, y: 300}, {x: 400, y: 300}, {x: 450, y: 300}], '#ff0000');
     });
 
     it('validate text wrap 1 char', async () => {
@@ -244,13 +226,7 @@ describe('setStyleGroup Point with text', function() {
         //   O
         //   O
         //   O
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 300}, {x: 400, y: 350}], {
-            expect: '#ff0000'
-        });
-
-        for (let color of colors) {
-            expect(color).toBe('#ff0000');
-        }
+        await expectCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 300}, {x: 400, y: 350}], '#ff0000');
     });
 
     it('validate text wrap 3 chars', async () => {
@@ -268,13 +244,7 @@ describe('setStyleGroup Point with text', function() {
 
         //  O O
         //   O
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 375, y: 275}, {x: 425, y: 275}, {x: 400, y: 325}], {
-            expect: '#ff0000'
-        });
-
-        for (let color of colors) {
-            expect(color).toBe('#ff0000');
-        }
+        await expectCanvasPixelColor(mapContainer, [{x: 375, y: 275}, {x: 425, y: 275}, {x: 400, y: 325}], '#ff0000');
     });
 
     it('validate explicit line break', async () => {
@@ -293,12 +263,6 @@ describe('setStyleGroup Point with text', function() {
         //   O
         //   O
         //   O
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 300}, {x: 400, y: 350}], {
-            expect: '#ff0000'
-        });
-
-        for (let color of colors) {
-            expect(color).toBe('#ff0000');
-        }
+        await expectCanvasPixelColor(mapContainer, [{x: 400, y: 250}, {x: 400, y: 300}, {x: 400, y: 350}], '#ff0000');
     });
 });

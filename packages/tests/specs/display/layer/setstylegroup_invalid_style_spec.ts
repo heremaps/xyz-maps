@@ -18,7 +18,7 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_invalid_style_spec.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
@@ -75,10 +75,7 @@ describe('setStyleGroup with invalid style', function() {
         ]);
 
         // validate link style
-        let color2 = await getCanvasPixelColor(mapContainer, {x: 350, y: 300}, {
-            expect: '#be6b65'
-        }); // get link color
-        expect(color2).toBe('#be6b65');
+        await expectCanvasPixelColor(mapContainer, {x: 350, y: 300}, '#be6b65'); // get link color
     });
 
 
@@ -100,9 +97,6 @@ describe('setStyleGroup with invalid style', function() {
         ]);
 
         // validate address style
-        let color2 = await getCanvasPixelColor(mapContainer, {x: 300, y: 200}, {
-            expect: '#765432'
-        }); // get address color
-        expect(color2).toBe('#765432');
+        await expectCanvasPixelColor(mapContainer, {x: 300, y: 200}, '#765432'); // get address color
     });
 });

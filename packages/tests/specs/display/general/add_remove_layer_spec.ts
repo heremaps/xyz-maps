@@ -18,7 +18,7 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {getCanvasPixelColor, expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './add_remove_layer_spec.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
@@ -72,10 +72,7 @@ describe('get add and remove map layer', function() {
         expect(display.getLayers()).toHaveLength(1);
 
         // validate map tile is not displayed
-        let color = await getCanvasPixelColor(mapContainer, {x: 70, y: 119}, {
-            expect: '#ffffff'
-        });
-        expect(color).toBe('#ffffff');
+        await expectCanvasPixelColor(mapContainer, {x: 70, y: 119}, '#ffffff');
     });
 
     it('add image overlay and validate sat image', async function() {

@@ -18,7 +18,7 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, Listener, prepare} from 'utils';
+import {getCanvasPixelColor, expectCanvasPixelColor, Listener, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_link_with_same_zindex.json';
 import {click} from 'triggerEvents';
@@ -69,9 +69,7 @@ describe('setStyleGroup link with same zIndex', () => {
         // validate features have new style
         // get color of link inline
         // get color of link outline
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 304}], {expect: '#be6b65'});
-        expect(colors[0]).toBe('#be6b65');
-        expect(colors[1]).toBe('#be6b65');
+        await expectCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 304}], '#be6b65');
     });
 
     it('style feature with different stroke color, validate its style', async () => {
@@ -118,9 +116,7 @@ describe('setStyleGroup link with same zIndex', () => {
         // validate features have new style
         // get color of link inline
         // get color of link outline
-        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}], {expect: '#be6b65'});
-        expect(colors1[0]).toBe('#be6b65');
-        expect(colors1[1]).toBe('#be6b65');
+        await expectCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}], '#be6b65');
 
         // set style for the added feature with same zIndex, different strokewidth
         linkLayer.setStyleGroup(
@@ -132,9 +128,7 @@ describe('setStyleGroup link with same zIndex', () => {
         // validate features have new style
         // get color of link inline
         // get color of link outline
-        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}], {expect: '#be6b65'});
-        expect(colors2[0]).toBe('#be6b65');
-        expect(colors2[1]).toBe('#be6b65');
+        await expectCanvasPixelColor(mapContainer, [{x: 450, y: 300}, {x: 450, y: 306}], '#be6b65');
     });
 
     it('style feature with same zIndex and style, opacity set to 0.5, validate its style', async () => {
@@ -153,8 +147,7 @@ describe('setStyleGroup link with same zIndex', () => {
 
         // validate features have new style
         // get color of link in the middle
-        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300}, {expect: '#e0e0e0'});
-        expect(color).toBe('#e0e0e0');
+        await expectCanvasPixelColor(mapContainer, {x: 450, y: 300}, '#e0e0e0');
     });
 
     it('style feature with different zIndex and style, validate its style', async () => {
@@ -167,8 +160,7 @@ describe('setStyleGroup link with same zIndex', () => {
 
         // validate features have new style
         // get color of link in the middle
-        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300}, {expect: '#e0e0e0'});
-        expect(color).toBe('#e0e0e0');
+        await expectCanvasPixelColor(mapContainer, {x: 450, y: 300}, '#e0e0e0');
     });
 
     it('style feature with same zIndex 1 and style, validate its style', async () => {
@@ -181,8 +173,7 @@ describe('setStyleGroup link with same zIndex', () => {
 
         // validate features have new style
         // get color of link in the middle
-        let color = await getCanvasPixelColor(mapContainer, {x: 450, y: 300}, {expect: '#e0e0e0'});
-        expect(color).toBe('#e0e0e0');
+        await expectCanvasPixelColor(mapContainer, {x: 450, y: 300}, '#e0e0e0');
     });
 
     it('set strokeWidth in meter', async () => {
@@ -192,14 +183,12 @@ describe('setStyleGroup link with same zIndex', () => {
             {
                 'zIndex': 1, 'type': 'Line', 'stroke': '#ff0000', 'strokeWidth': '50m'
             }]);
-        const colors = await getCanvasPixelColor(mapContainer, {x: 500, y: 300 - 40}, {expect: '#ff0000'});
-        expect(colors).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 500, y: 300 - 40}, '#ff0000');
     });
 
     it('zoom in and validate strokeWidth in meter is double in size', async () => {
         await waitForViewportReady(display, () => display.setZoomlevel(display.getZoomlevel() + 1));
-        const colors = await getCanvasPixelColor(mapContainer, {x: 500, y: 300 - 80}, {expect: '#ff0000'});
-        expect(colors).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 500, y: 300 - 80}, '#ff0000');
     });
 
 

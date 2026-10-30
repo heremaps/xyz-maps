@@ -18,7 +18,7 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {Listener, getCanvasPixelColor, prepare} from 'utils';
+import {Listener, expectCanvasPixelColor, prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_listener_with_different_style_link_spec.json';
@@ -114,18 +114,14 @@ describe('pointer listener with different style link', ()=>{
             type: 'pointerup'
         }));
 
-        let colors = await getCanvasPixelColor(mapContainer, [{x: 395, y: 294}, {x: 395, y: 303}, {x: 395, y: 310}, {
-            x: 395,
-            y: 316
-        }, {x: 395, y: 322}], {
-            expect: ['#ffffff', '#ff0000', '#ff00ff', '#ff0000', '#ffffff']
-        });
-
-        expect(colors[0]).toBe('#ffffff');
-        expect(colors[1]).toBe('#ff0000');
-        expect(colors[2]).toBe('#ff00ff');
-        expect(colors[3]).toBe('#ff0000');
-        expect(colors[4]).toBe('#ffffff');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 395, y: 294}, {x: 395, y: 303}, {x: 395, y: 310}, {
+                x: 395,
+                y: 316
+            }, {x: 395, y: 322}],
+            ['#ffffff', '#ff0000', '#ff00ff', '#ff0000', '#ffffff']
+        );
     });
 
     it('reset layer style and validate', async ()=>{
@@ -133,9 +129,7 @@ describe('pointer listener with different style link', ()=>{
 
         display.refresh(linkLayer);
 
-        let color = await getCanvasPixelColor(mapContainer, {x: 322, y: 309}, {expect: '#ff0000'});
-
-        expect(color).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, {x: 322, y: 309}, '#ff0000');
     });
 
     it('set line offset (right) and validate click', async ()=>{

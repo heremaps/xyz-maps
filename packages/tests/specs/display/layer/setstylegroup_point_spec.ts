@@ -18,11 +18,11 @@
  */
 
 import {waitForViewportReady} from 'displayUtils';
-import {getCanvasPixelColor, prepare} from 'utils';
+import {expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_spec.json';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('setStyleGroup Point', function() {
     let paLayer: TileLayer;
@@ -72,12 +72,8 @@ describe('setStyleGroup Point', function() {
         // validate features have new style
         // get color of address 1
         // get color of address 2
-        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 217, y: 300}], {
-            expect: '#be6b65'
-        });
+        await expectCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 217, y: 300}], '#be6b65');
 
-        expect(colors1[0]).toBe('#be6b65');
-        expect(colors1[1]).toBe('#be6b65');
 
         // reset style
         paLayer.setStyleGroup(
@@ -91,12 +87,7 @@ describe('setStyleGroup Point', function() {
         // validate features have style reset
         // get color of address 1 again
         // get color of address 2 again
-        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 217, y: 300}], {
-            expect: '#ff0000'
-        });
-
-        expect(colors2[0]).toBe('#ff0000');
-        expect(colors2[1]).toBe('#ff0000');
+        await expectCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 217, y: 300}], '#ff0000');
     });
 
     it('style feature with different zIndex, validate its style', async function() {
@@ -111,13 +102,11 @@ describe('setStyleGroup Point', function() {
         // get color in middle of address 1
         // get color in mid bottom of address 1
         // get color in mid right of address 1
-        let colors1 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 400, y: 305}, {x: 405, y: 300}], {
-            expect: ['#ffffff', '#be6b65', '#ffffff']
-        });
-
-        expect(colors1[0]).toBe('#ffffff');
-        expect(colors1[1]).toBe('#be6b65');
-        expect(colors1[2]).toBe('#ffffff');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 400, y: 300}, {x: 400, y: 305}, {x: 405, y: 300}],
+            ['#ffffff', '#be6b65', '#ffffff']
+        );
 
 
         // set style for the added feature
@@ -131,12 +120,10 @@ describe('setStyleGroup Point', function() {
         // get color in middle of address 1
         // get color in mid bottom of address 1
         // get color in mid right of address 1
-        let colors2 = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}, {x: 400, y: 305}, {x: 405, y: 300}], {
-            expect: ['#be6b65', '#be6b65', '#ffffff']
-        });
-
-        expect(colors2[0]).toBe('#be6b65');
-        expect(colors2[1]).toBe('#be6b65');
-        expect(colors2[2]).toBe('#ffffff');
+        await expectCanvasPixelColor(
+            mapContainer,
+            [{x: 400, y: 300}, {x: 400, y: 305}, {x: 405, y: 300}],
+            ['#be6b65', '#be6b65', '#ffffff']
+        );
     });
 });
