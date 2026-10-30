@@ -1,0 +1,149 @@
+/*
+ * Copyright (C) 2019-2026 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {Map} from '@here/xyz-maps-display';
+import {Editor} from '@here/xyz-maps-editor';
+import dataset from './max-routing-point-distance.json';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
+
+describe('autoResolveRoutingPoint configuration', function() {
+    let preparedData;
+    let display;
+    let editor;
+
+    beforeEach(async function() {
+        preparedData = await prepare(dataset);
+        display = new Map(document.getElementById('map'), {
+            center: {longitude: 77.84172527566523, latitude: 17.450976000022266},
+            zoomlevel: 19,
+            layers: preparedData.getLayers()
+        });
+    });
+
+    afterEach(async function() {
+        if (editor) {
+            editor.destroy();
+        }
+        display.destroy();
+        await preparedData.clear();
+    });
+
+    function addNearbyLocations(options?, configure?) {
+        editor = new Editor(display, {
+            layers: preparedData.getLayers(),
+            ...options
+        });
+
+        const link = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 300}, {x: 400, y: 300}])
+            }
+        };
+        const address = {
+            type: 'Feature',
+            properties: {featureClass: 'ADDRESS'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 200, y: 250})
+            }
+        };
+        const place = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({x: 300, y: 250})
+            }
+        };
+        let added;
+
+        return waitForEditorReady(editor, () => {
+            added = editor.addFeature({linkLayer: [link], paLayer: [address, place]});
+
+            if (configure) {
+                configure(added[1], added[2]);
+            }
+        }).then(() => ({
+            link: added[0],
+            address: added[1],
+            place: added[2]
+        }));
+    }
+
+    it('resolves Address by default but not Place', async function() {
+        let {link, address, place} = await addNearbyLocations();
+
+        expect(address.getLink()).toBe(link);
+        expect(address.prop('routingPoint')).toEqual(expect.anything());
+        expect(place.getLink()).toBe(null);
+        expect(place.prop('routingPoint')).toBe(undefined);
+    });
+
+    it('resolves Place instead of Address when configured per class', async function() {
+        let {link, address, place} = await addNearbyLocations({
+            place: {
+                autoResolveRoutingPoint: true
+            },
+            address: {
+                autoResolveRoutingPoint: false
+            }
+        });
+
+        expect(address.getLink()).toBe(null);
+        expect(address.prop('routingPoint')).toBe(undefined);
+        expect(place.getLink()).toBe(link);
+        expect(place.prop('routingPoint')).toEqual(expect.anything());
+    });
+
+    it('allows per-feature behavior to override the global setting', async function() {
+        let {link, address, place} = await addNearbyLocations({
+            address: {
+                autoResolveRoutingPoint: false
+            },
+            place: {
+                autoResolveRoutingPoint: false
+            }
+        }, (address, place) => {
+            address.behavior('autoResolveRoutingPoint', false);
+            place.behavior('autoResolveRoutingPoint', true);
+        });
+
+        expect(address.getLink()).toBe(null);
+        place.createRoutingPoint();
+        expect(place.getLink()).toBe(link);
+    });
+
+    it('explicitly resolves a Place with createRoutingPoint when disabled', async function() {
+        let {link, place} = await addNearbyLocations({
+            place: {
+                autoResolveRoutingPoint: false
+            }
+        });
+
+        expect(place.getLink()).toBe(null);
+        place.createRoutingPoint();
+
+        expect(place.getLink()).toBe(link);
+        expect(place.prop('routingPoint')).toEqual(expect.anything());
+    });
+});

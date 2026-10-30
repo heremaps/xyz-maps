@@ -1,0 +1,111 @@
+/*
+ * Copyright (C) 2019-2026 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+
+import {prepare} from 'utils';
+import dataset from './feature-style-reset.json';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
+
+describe('Feature style reset', function() {
+    var preparedData;
+    var buildingLayer;
+    var linkLayer;
+    var placeLayer;
+    var addrLayer;
+    var addrProvider;
+
+    beforeEach(async function() {
+        preparedData = await prepare(dataset);
+
+        buildingLayer = preparedData.getLayers('buildingLayer');
+        linkLayer = preparedData.getLayers('linkLayer');
+        placeLayer = preparedData.getLayers('placeLayer');
+        addrLayer = preparedData.getLayers('paLayer');
+        addrProvider = addrLayer.getProvider();
+    });
+
+    afterEach(async function() {
+        await preparedData?.clear();
+    });
+
+    it('get style and validate', function() {
+        expect(buildingLayer.getStyle().styleGroups['MultiPolygon'][0]).toEqual(
+            expect.objectContaining({'zIndex': 0, 'type': 'Polygon'})
+        );
+
+        expect(linkLayer.getStyle().styleGroups['LineString'][0]).toEqual(
+            expect.objectContaining({'zIndex': 0, 'type': 'Line'})
+        );
+
+        expect(placeLayer.getStyle().styleGroups['Point'][0]).toEqual(
+            expect.objectContaining({'zIndex': 0, 'type': 'Circle'})
+        );
+    });
+
+    it('get address style and validate', function() {
+        let styles = addrLayer.getStyle();
+
+        expect(styles.styleGroups.Point).toStrictEqual([
+            {zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'}
+        ]);
+    });
+
+
+    it('get address feature style and validate', function() {
+        let pa = preparedData.getFeature('paLayer', -804);
+
+        let styles = addrLayer.getStyleGroup(pa);
+
+        expect(styles).toStrictEqual([
+            {zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'}
+        ]);
+    });
+
+    it('set address feature style', function() {
+        let pa = preparedData.getFeature('paLayer', -804);
+
+        addrLayer.setStyleGroup(pa, [
+            {'zIndex': 0, 'type': 'Rect', 'fill': '#FFFFFF', 'width': 32, 'height': 32}
+        ]);
+
+        let styles = addrLayer.getStyleGroup(pa);
+
+        expect(styles).toStrictEqual([
+            {'zIndex': 0, 'type': 'Rect', 'fill': '#FFFFFF', 'width': 32, 'height': 32}
+        ]);
+    });
+
+    it('reset feature style', function() {
+        let pa = preparedData.getFeature('paLayer', -804);
+
+        addrLayer.setStyleGroup(pa, [
+            {'zIndex': 0, 'type': 'Rect', 'fill': '#FFFFFF', 'width': 32, 'height': 32}
+        ]);
+        expect(addrLayer.getStyleGroup(pa)).toStrictEqual([
+            {'zIndex': 0, 'type': 'Rect', 'fill': '#FFFFFF', 'width': 32, 'height': 32}
+        ]);
+
+        addrLayer.setStyleGroup(pa);
+
+        let styles = addrLayer.getStyleGroup(pa);
+
+        expect(styles).toStrictEqual([
+            {zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'}
+        ]);
+    });
+});

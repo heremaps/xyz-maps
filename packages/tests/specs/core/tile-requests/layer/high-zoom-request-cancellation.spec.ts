@@ -1,0 +1,224 @@
+/*
+ * Copyright (C) 2019-2022 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+
+import {prepare} from 'utils';
+import {getTileOnLayer} from 'coreUtils';
+import dataset from './high-zoom-request-cancellation.json';
+import {describe, beforeAll, it, expect} from 'vitest';
+
+describe('TileLayer high zoom request cancellation', function() {
+    var placeLayer;
+
+
+    var qk11;
+    var qk12;
+
+    var qk21;
+    var qk22;
+
+    var qk31;
+    var qk32;
+
+    var qk41;
+    var qk42;
+
+    var qk51;
+    var qk52;
+
+    beforeAll(async function() {
+        let preparedData = await prepare(dataset);
+        placeLayer = preparedData.getLayers('placeLayer'); // placeLayer.level.length == 16
+
+        qk11 = '31123013201210'; // length 14
+        qk12 = '311230132012101'; // length 15
+
+        qk21 = '31123013201211'; // length 14
+        qk22 = '311230132012111'; // length 15
+
+        qk31 = '31123013201212'; // length 14
+        qk32 = '311230132012121'; // length 15
+
+        qk41 = '31123013201220'; // length 14
+        qk42 = '311230132012211'; // length 15
+
+        qk51 = '31123013201222'; // length 14
+        qk52 = '311230132012231'; // length 15
+    });
+
+
+    // Sydney, AUS
+    it('get tile at level 14 and another at 15', function() {
+        return new Promise<void>((done) => {
+            // qk11    = '31123013201210' // length 14
+            // qk12    = '311230132012101' // length 15
+            getTileOnLayer({
+                layer: placeLayer,
+                quadkeys: [qk11, qk12],
+                sameCallback: false,
+                onFinish: function(requests, callbackResults) {
+                    // 16 request(s) sent, 2 callback(s) called
+                    expect(requests.length).toBe(16);
+                    expect(callbackResults.length).toBe(2);
+
+                    let cancelledRequests = 0;
+                    for (let r in requests) {
+                        if (requests[r].status == 0) {
+                            cancelledRequests++;
+                        }
+                    }
+
+                    expect(cancelledRequests).toBe(0);
+
+
+                    done();
+                }
+            });
+        });
+    });
+
+    it('get tile at level 14 and another at 15, cancel the request at 15', function() {
+        return new Promise<void>((done) => {
+            // qk21    = '31123013201211' // length 14
+            // qk22    = '311230132012111' // length 15
+            getTileOnLayer({
+                layer: placeLayer,
+                quadkeys: [qk21, qk22],
+                sameCallback: false,
+                cancel: {
+                    quadkeys: [null, qk22],
+                    withCallback: true
+                },
+                onFinish: function(requests, callbackResults) {
+                    // 16 request(s) sent, 1 callback(s) called
+                    expect(requests.length).toBe(16);
+                    expect(callbackResults.length).toBe(1);
+
+                    let cancelledRequests = 0;
+                    for (let r in requests) {
+                        if (requests[r].status == 0) {
+                            cancelledRequests++;
+                        }
+                    }
+
+                    expect(cancelledRequests).toBe(0);
+
+
+                    done();
+                }
+            });
+        });
+    });
+
+
+    it('get tile at level 14 and another at 15, cancel the request at 14', function() {
+        return new Promise<void>((done) => {
+            // qk31    = '31123013201212' // length 14
+            // qk32    = '311230132012121' // length 15
+            getTileOnLayer({
+                layer: placeLayer,
+                quadkeys: [qk31, qk32],
+                sameCallback: false,
+                cancel: {
+                    quadkeys: [qk31],
+                    withCallback: true
+                },
+                onFinish: function(requests, callbackResults) {
+                    // 16 request(s) sent, 1 callback(s) called
+                    expect(requests.length).toBe(16);
+                    expect(callbackResults.length).toBe(1);
+
+                    let cancelledRequests = 0;
+                    for (let r in requests) {
+                        if (requests[r].status == 0) {
+                            cancelledRequests++;
+                        }
+                    }
+
+                    expect(cancelledRequests).toBe(12);
+
+
+                    done();
+                }
+            });
+        });
+    });
+
+    it('get tile at level 14 and another at 15', function() {
+        return new Promise<void>((done) => {
+            // qk41    = '31123013201220' // length 14
+            // qk42    = '311230132012211' // length 15
+            getTileOnLayer({
+                layer: placeLayer,
+                quadkeys: [qk41, qk42],
+                sameCallback: false,
+                onFinish: function(requests, callbackResults) {
+                    // 20 request(s) sent, 2 callback(s) called
+                    expect(requests.length).toBe(20);
+                    expect(callbackResults.length).toBe(2);
+
+                    let cancelledRequests = 0;
+                    for (let r in requests) {
+                        if (requests[r].status == 0) {
+                            cancelledRequests++;
+                        }
+                    }
+
+                    expect(cancelledRequests).toBe(0);
+
+
+                    done();
+                }
+            });
+        });
+    });
+
+    it('get tile at level 14 and another at 15 and cancel one at level 14', function() {
+        return new Promise<void>((done) => {
+            // qk51    = '31123013201222' // length 14
+            // qk52    = '311230132012231' // length 15
+            getTileOnLayer({
+                layer: placeLayer,
+                quadkeys: [qk51, qk52],
+                sameCallback: false,
+                cancel: {
+                    quadkeys: [qk51],
+                    withCallback: true
+                },
+                onFinish: function(requests, callbackResults) {
+                    // 20 request(s) sent, 1 callback(s) called
+                    expect(requests.length).toBe(20);
+                    expect(callbackResults.length).toBe(1);
+
+                    let cancelledRequests = 0;
+                    for (let r in requests) {
+                        if (requests[r].status == 0) {
+                            cancelledRequests++;
+                        }
+                    }
+
+                    expect(cancelledRequests).toBe(16);
+
+
+                    done();
+                }
+            });
+        });
+    });
+});
+

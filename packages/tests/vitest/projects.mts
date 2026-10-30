@@ -54,22 +54,22 @@ export function unitProject(): UserWorkspaceConfig {
 const COMPONENTS: Record<Component, {libs: LibraryComponent[]; include: string[]; map: MapMarkup}> = {
     common: {
         libs: ['common'],
-        include: ['specs/common/*/*.ts'],
+        include: ['specs/common/**/*.spec.ts'],
         map: 'none'
     },
     core: {
         libs: ['common', 'core'],
-        include: ['specs/core/get_cancel_tiles/*.ts', 'specs/core/geometry/*.ts', 'specs/core/layer/*.ts', 'specs/core/provider/*/*.ts'],
+        include: ['specs/core/**/*.spec.ts'],
         map: 'plain'
     },
     display: {
         libs: ['common', 'core', 'display'],
-        include: ['specs/display/*/*.ts'],
+        include: ['specs/display/**/*.spec.ts'],
         map: 'sized'
     },
     editor: {
         libs: ['common', 'core', 'display', 'editor'],
-        include: ['specs/editor/*/*.ts'],
+        include: ['specs/editor/**/*.spec.ts'],
         map: 'sized'
     },
     integration: {

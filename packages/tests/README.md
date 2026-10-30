@@ -63,7 +63,7 @@ Everything after `pnpm run test` is passed to Vitest, see `vitest run --help`.
 
 ```
 pnpm run test --project editor                  # a single component, can be repeated
-pnpm run test --project editor specs/editor/link   # only spec files whose path contains the string
+pnpm run test --project editor specs/editor/navlink   # only spec files whose path contains the string
 pnpm run test --project editor -t "drawing"     # only tests whose name matches
 pnpm run test --mode dev                        # run against dist/xyz-maps-<name>.js instead of the minified bundles
 pnpm run test --bail 1                          # stop after the first failure
@@ -118,6 +118,18 @@ Keep browser integration scenarios under `specs/{common,core,display,editor}`. P
 under `specs/unit/<responsibility>/*.spec.ts`; do not import browser input, DOM fixtures or
 library implementations into pure helper regressions. Real rendering, picking and native input
 coverage stays in the browser projects.
+
+Use `kebab-case.spec.ts` for local spec filenames and `kebab-case` for folders. Name a
+scenario's JSON fixture after its spec, without `.spec` (for example,
+`navlink-shape-insertion.spec.ts` and `navlink-shape-insertion.json`). Shared fixtures may
+retain their own descriptive names.
+
+Keep the component boundary and group specs by capability, such as `editor/history`,
+`editor/navlink`, `display/viewport`, `display/styles` or `core/tile-requests/{provider,layer}`.
+Prefer these focused folders over a catch-all `general` folder. Browser projects discover
+`**/*.spec.ts` recursively; Hub integration keeps its existing layout and discovery rules.
+Use `describe` for the capability or scenario and `it` for the expected behavior. Distinguish
+related scenarios by their actual conditions instead of numbered filenames.
 
 Shared support is organized by responsibility and available through the typed `@test/*` alias:
 
@@ -211,6 +223,10 @@ completion substitute. A ten-second deadline reports the pending layer IDs and a
 state. Action, registration and cleanup failures reject, and all subscriptions are removed
 on settlement, including after partial registration.
 
+Viewport readiness is not an animation-completion signal: a delayed animation frame may arrive
+after a settled view-end event. For animated controls, await `expect.poll()` for the exact target
+camera state inside the readiness action, then assert the final state. Do not substitute a fixed sleep.
+
 `waitForEditorReady(editor, action?)` waits for both action completion and a fresh `ready=true`
 notification. Signals received during the action count unless followed by `ready=false`; the
 editor's initial ready state alone does not complete the wait. Action failures and editor errors
@@ -231,6 +247,10 @@ their measured movement sequence.
 `dblclick` delegates to native `userEvent.dblClick`; `mousemove` uses native hover at both endpoints
 and retains its existing 75 ms processing allowance. Positive hover transitions still need
 `waitForPointerEvent`, since browser-action completion does not guarantee feature picking is finished.
+For counted enter/leave sequences, use one `userEvent.hover` per destination and await the expected
+pointer event. Replaying a helper's origin hover can re-hit-test newly highlighted geometry and
+introduce an extra transition. Assert event targets as well as counts.
+
 Coordinate drags and anchored wheel input use typed Vitest browser commands backed by Playwright:
 the public drag-and-drop/wheel APIs do not cover the existing duration, secondary button and wheel anchor.
 Drags retain their duration, interpolated positions, buttons and modifiers, and send their exact

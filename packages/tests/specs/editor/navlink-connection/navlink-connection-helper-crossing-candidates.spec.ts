@@ -1,0 +1,116 @@
+/*
+ * Copyright (C) 2019-2022 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+import {expectCanvasPixelColor, prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {Map} from '@here/xyz-maps-display';
+import {Editor} from '@here/xyz-maps-editor';
+import dataset from './navlink-connection-helper-crossing-candidates.json';
+import {Crossing} from '@here/xyz-maps-editor';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+
+describe('Navlink connection helper crossing candidates', function() {
+    let editor;
+    let display;
+    let preparedData;
+    let mapContainer;
+
+    let crossings;
+    let linkLayer;
+
+    beforeAll(async function() {
+        preparedData = await prepare(dataset);
+        display = new Map(document.getElementById('map'), {
+            // @ts-ignore
+            renderOptions: {
+                preserveDrawingBuffer: true
+            },
+            center: {longitude: 80.56914, latitude: 16.726454},
+            zoomlevel: 19,
+            layers: preparedData.getLayers()
+        });
+        editor = new Editor(display, {
+            layers: preparedData.getLayers()
+        });
+        await waitForEditorReady(editor);
+        mapContainer = display.getContainer();
+        linkLayer = preparedData.getLayers('linkLayer');
+    });
+
+    afterAll(async function() {
+        editor.destroy();
+        display.destroy();
+        await preparedData.clear();
+    });
+
+    it('check crossings and validate', function() {
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 325, y: 250}, {x: 537, y: 241}])
+            }
+        };
+        let link = editor.addFeature(l, linkLayer);
+
+        crossings = link.checkCrossings();
+        let c0 = crossings[0];
+        let c1 = crossings[1];
+
+        expect(c0.distance).toBe(0);
+        expect(c0.x).toEqualWithTolerance(387.4074, 1e-1);
+        expect(c0.y).toEqualWithTolerance(247.3506, 1e-1);
+
+        expect(c1.distance).toEqualWithTolerance(6.1643, 1e-1);
+        expect(c1.x).toEqualWithTolerance(539.8465, 1e-1);
+        expect(c1.y).toEqualWithTolerance(242.1822, 1e-1);
+    });
+
+    it('show crossings and connect one of it', async function() {
+        crossings.forEach((c) => {
+            c.show();
+        });
+
+        // Showing crossings schedules overlay rendering; wait until both markers are visible.
+        await expectCanvasPixelColor(mapContainer, [{x: 380, y: 247}, {x: 532, y: 240}], ['#ff0000', '#ff0000']);
+
+        let crx = <Crossing>(await editorClick(editor, 536, 239)).target;
+        crx.connect();
+
+        expect(editor.info()).toHaveLength(4);
+    });
+
+    it('add another link to map and check its crossing', async function() {
+        let l = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 325, y: 275}, {x: 525, y: 266}])
+            }
+        };
+        let link1 = editor.addFeature(l, linkLayer);
+
+        crossings = link1.checkCrossings();
+        let c = crossings[0];
+        expect(c.distance).toBe(0);
+        expect(c.x).toEqualWithTolerance(377.1906, 1e-1);
+        expect(c.y).toEqualWithTolerance(272.6514, 1e-1);
+    });
+});

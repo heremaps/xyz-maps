@@ -1,0 +1,109 @@
+/*
+ * Copyright (C) 2019-2022 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+import {prepare} from 'utils';
+import {waitForEditorReady, editorClick} from 'editorUtils';
+import {userEvent} from 'vitest/browser';
+import {Map} from '@here/xyz-maps-display';
+import {Editor} from '@here/xyz-maps-editor';
+import dataset from './navlink-shape-point.json';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+
+describe('Navlink shape point', function() {
+    let editor;
+    let display;
+    let preparedData;
+    let mapContainer;
+
+    let link1;
+    let shape;
+
+    beforeAll(async function() {
+        preparedData = await prepare(dataset);
+        display = new Map(document.getElementById('map'), {
+            center: {longitude: 77.26942, latitude: 13.08243},
+            zoomlevel: 18,
+            layers: preparedData.getLayers()
+        });
+        editor = new Editor(display, {
+            layers: preparedData.getLayers()
+        });
+
+        await waitForEditorReady(editor);
+        mapContainer = display.getContainer();
+
+        link1 = preparedData.getFeature('linkLayer', -189083);
+    });
+
+    afterAll(async function() {
+        editor.destroy();
+        display.destroy();
+        await preparedData.clear();
+    });
+
+    it('click on link to get shape point', async function() {
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
+        shape = (await editorClick(editor, 100, 100)).target;
+
+        expect(shape.getConnectedLinks()).toHaveLength(1);
+        expect(shape.getIndex()).toBe(3);
+    });
+
+    it('disconnect link at shape point and validate new coordinates', function() {
+        shape.disconnect();
+
+        expect(link1.prop('disconnected')).toBe('HOOK');
+        expect(link1.prop('estate')).toBe('UPDATED');
+        expect(link1.coord()).toEqualWithTolerance([
+            [77.26942, 13.082952518, 0],
+            [77.268883558, 13.082952518, 0],
+            [77.267810675, 13.082952518, 0],
+            [77.267810675, 13.083448055, 0]
+        ], 1e-6);
+    });
+
+    it('remove a link shape point and validate coordinates again', async function() {
+        shape = (await editorClick(editor, 100, 200)).target;
+
+        shape.remove();
+
+        expect(link1.coord()).toEqualWithTolerance([
+            [77.26942, 13.082952518, 0],
+            [77.268883558, 13.082952518, 0],
+            [77.267810675, 13.083448055, 0]
+        ], 1e-6);
+    });
+
+    it('split link and validate the new links', async function() {
+        shape = (await editorClick(editor, 300, 200)).target;
+
+        let links = shape.splitLink();
+
+        // click on ground
+        await userEvent.click(mapContainer, {position: {x: 100, y: 500}, modifiers: ['Alt']});
+
+        expect(links[0].coord()).toEqualWithTolerance([
+            [77.26942, 13.082952518, 0],
+            [77.268883558, 13.082952518, 0]
+        ], 1e-6);
+        expect(links[1].coord()).toEqualWithTolerance([
+            [77.268883558, 13.082952518, 0],
+            [77.267810675, 13.083448055, 0]
+        ], 1e-6);
+    });
+});
