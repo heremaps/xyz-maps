@@ -127,6 +127,12 @@ to it; non-numeric fields and structure use native equality with strict key chec
 decimal precision like `toBeCloseTo`. The matcher does not change ordinary equality or configure
 shared tolerance state.
 
+`waitForEditorReady(editor, action?)` waits for both action completion and a fresh `ready=true`
+notification. Signals received during the action count unless followed by `ready=false`; the
+editor's initial ready state alone does not complete the wait. Action failures and editor errors
+reject immediately. After ten seconds, missing readiness or an unfinished action rejects with
+the observed state. Observers, error listeners and the timeout are removed on completion or failure.
+
 * Do not use `done` callbacks or `this.timeout()`, Vitest does not support them. Return a promise or use `async`.
 * A spec file must not import another spec file. Put shared helpers into `src/utils`.
 * Vitest does not check types. Run `pnpm run typecheck` for specs, helpers, browser setup and setup declarations

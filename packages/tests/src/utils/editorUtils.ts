@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,34 +42,77 @@ export function submit(editor: Editor): Promise<{ permanentIDMap: any }> {
     });
 }
 
-type AsyncFunction = () => Promise<void>;
+interface EditorReadyTarget extends Pick<Editor, 'addObserver' | 'removeObserver'> {
+    addEventListener(type: 'error', listener: (error: Error) => void): void;
+    removeEventListener(type: 'error', listener: (error: Error) => void): void;
+}
 
-export function waitForEditorReady(editor: Editor, fn?: Function | AsyncFunction): Promise<Editor> {
-    return new Promise(async (resolve, reject) => {
-        let functionDone = false;
-        let readyCb = (ob: string, newValue: boolean) => {
-            if (newValue && functionDone) {
+/**
+ * Waits for the action to complete and a fresh ready signal, including signals received during the action.
+ * A later busy signal invalidates earlier readiness. Missing readiness or an unfinished action fails after ten seconds.
+ */
+export function waitForEditorReady<T extends EditorReadyTarget>(editor: T, fn?: () => unknown): Promise<T> {
+    return new Promise((resolve, reject) => {
+        let actionDone = !fn;
+        let ready: boolean | undefined;
+        let settled = false;
+        const timeoutError = new Error('Timed out waiting for editor readiness');
+
+        function cleanup() {
+            clearTimeout(timeout);
+            try {
                 editor.removeObserver('ready', readyCb);
+            } finally {
                 editor.removeEventListener('error', errorCb);
-
-                resolve(editor);
             }
-        };
-
-        let errorCb = (err: Error) => {
-            editor.removeObserver('ready', readyCb);
-            editor.removeEventListener('error', errorCb);
-
-            reject(err);
-        };
-
-        editor.addObserver('ready', readyCb);
-        editor.addEventListener('error', errorCb);
-
-        if (fn) {
-            await fn();
         }
-        functionDone = true;
+
+        function settle(finish: () => void) {
+            if (settled) return;
+            settled = true;
+            try {
+                cleanup();
+            } catch (error) {
+                reject(error);
+                return;
+            }
+            finish();
+        }
+
+        function complete() {
+            if (actionDone && ready === true) {
+                settle(() => resolve(editor));
+            }
+        }
+
+        function fail(error: unknown) {
+            settle(() => reject(error));
+        }
+
+        function readyCb(ob: string, newValue: boolean) {
+            ready = newValue;
+            complete();
+        }
+
+        function errorCb(error: Error) {
+            fail(error);
+        }
+
+        const timeout = setTimeout(() => {
+            timeoutError.message += `: actionDone=${actionDone}, ready=${ready}`;
+            fail(timeoutError);
+        }, 10000);
+
+        try {
+            editor.addObserver('ready', readyCb);
+            editor.addEventListener('error', errorCb);
+            Promise.resolve(fn?.()).then(() => {
+                actionDone = true;
+                complete();
+            }).catch(fail);
+        } catch (error) {
+            fail(error);
+        }
     });
 }
 
