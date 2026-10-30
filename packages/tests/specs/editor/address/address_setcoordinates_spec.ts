@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_setcoordinates_spec.json';
@@ -88,7 +89,7 @@ describe('add Address layer set coordinates', function() {
 
     it('drag the address, remove the address layer and validate modified address in viewport', async function() {
         let mapContainer = display.getContainer();
-        await click(mapContainer, 200, 100);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
         await drag(mapContainer, {x: 200, y: 100}, {x: 200, y: 150});
 
         editor.removeLayer(addrLayer);

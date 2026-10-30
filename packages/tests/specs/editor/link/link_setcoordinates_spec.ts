@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_setcoordinates_spec.json';
@@ -72,7 +73,7 @@ describe('set link coordinates', () => {
             [77.178910288, 13.40406441, 0]
         ]);
 
-        await click(mapContainer, 200, 100);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
         await drag(mapContainer, {x: 200, y: 100}, {x: 100, y: 200});
 
         expect(link.coord()).toEqualWithTolerance([

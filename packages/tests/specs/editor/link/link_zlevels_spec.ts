@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 // @ts-ignore @deprecated
 import dataset from './link_zlevels_spec.json';
@@ -89,7 +90,7 @@ describe('navlink zlevels', () => {
 
 
     it('drag shape point and validate', async () => {
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
         await drag(mapContainer, {x: 400, y: 200}, {x: 200, y: 300});
 
         expect(link.getZLevels()).toStrictEqual([1, 1, 1]);

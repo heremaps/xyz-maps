@@ -18,7 +18,8 @@
  */
 import {Listener, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_drag_spec.json';
@@ -59,13 +60,13 @@ describe('map drag listener', function() {
         let listener = new Listener(editor, ['dragStart', 'dragStop']);
 
         // click on poi
-        await click(mapContainer, 569, 428);
+        await userEvent.click(mapContainer, {position: {x: 569, y: 428}, modifiers: ['Alt']});
 
         // drag poi
         await drag(mapContainer, {x: 569, y: 428}, {x: 551, y: 408});
 
         // click the poi
-        await click(mapContainer, 551, 408);
+        await userEvent.click(mapContainer, {position: {x: 551, y: 408}, modifiers: ['Alt']});
 
         // drag poi routing point
         await drag(mapContainer, {x: 546, y: 448}, {x: 570, y: 460});

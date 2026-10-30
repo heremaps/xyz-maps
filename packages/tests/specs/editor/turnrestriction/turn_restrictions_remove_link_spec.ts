@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_remove_link_spec.json';
@@ -61,10 +61,10 @@ describe('edit turn restriction by function on link then remove the link', funct
     it('set turn restriction and validate turn restriction value', async function() {
         link2.editTurnRestrictions();
 
-        await click(mapContainer, 185, 100);
+        await userEvent.click(mapContainer, {position: {x: 185, y: 100}, modifiers: ['Alt']});
 
         // deactivate turn restriction
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
         expect(link2.prop('turnRestriction')).toEqual({start: [link1.id]});
     });
 

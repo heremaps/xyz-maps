@@ -40,6 +40,22 @@ describe('pointer event helper', () => {
         expect(vi.getTimerCount()).toBe(0);
     });
 
+    it('waits for deferred hover detection after the mousemove processing allowance', async () => {
+        let completed = false;
+        const pending = waitForPointerEvent(target, 'pointermove', async () => {
+            setTimeout(() => target.dispatchEvent(new Event('pointermove')), 100);
+            await new Promise<void>((resolve) => setTimeout(resolve, 75));
+        }).then(() => {
+            completed = true;
+        });
+        await vi.advanceTimersByTimeAsync(75);
+        expect(completed).toBe(false);
+        await vi.advanceTimersByTimeAsync(25);
+        await pending;
+        expect(completed).toBe(true);
+        expect(vi.getTimerCount()).toBe(0);
+    });
+
     it('reports a missing event and removes its listener', async () => {
         const remove = vi.spyOn(target, 'removeEventListener');
         const pending = waitForPointerEvent(target, 'pointerleave', () => {})

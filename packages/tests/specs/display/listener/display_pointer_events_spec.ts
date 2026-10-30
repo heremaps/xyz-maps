@@ -19,7 +19,8 @@
 
 import {waitForViewportReady} from 'displayUtils';
 import {Listener, prepare, waitForPointerEvent} from 'utils';
-import {click, mousemove} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_pointer_events_spec.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
@@ -70,7 +71,7 @@ describe('validate pointer events', function() {
         let result = display.getFeatureAt({x: 456, y: 352});
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await click(mapContainer, 456, 352);
+        await userEvent.click(mapContainer, {position: {x: 456, y: 352}, modifiers: ['Alt']});
 
         let results = listener.stop();
 
@@ -99,7 +100,7 @@ describe('validate pointer events', function() {
     it('validate pointenter and pointerleave again', async function() {
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await click(mapContainer, 788, 352);
+        await userEvent.click(mapContainer, {position: {x: 788, y: 352}, modifiers: ['Alt']});
 
         let results = listener.stop();
 

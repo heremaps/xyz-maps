@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_split_hide_turn_restrictions_spec.json';
@@ -59,7 +60,7 @@ describe('link splitting hides the turn restrictions edit', function() {
         link3.select();
         link3.editTurnRestrictions();
 
-        await click(mapContainer, 110, 100);
+        await userEvent.click(mapContainer, {position: {x: 110, y: 100}, modifiers: ['Alt']});
 
         expect(link3.prop('turnRestriction')).toEqual({start: [link2.id]});
     });

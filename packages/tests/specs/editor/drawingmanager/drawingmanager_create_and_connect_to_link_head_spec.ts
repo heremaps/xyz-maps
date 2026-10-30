@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {click, mousemove} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_create_and_connect_to_link_head_spec.json';
@@ -61,7 +62,7 @@ describe('Create new Links and connect to head of original link', function() {
         });
 
         await mousemove(mapContainer, {x: 400, y: 190}, {x: 400, y: 200});
-        await click(mapContainer, 400, 200);
+        await userEvent.click(mapContainer, {position: {x: 400, y: 200}, modifiers: ['Alt']});
 
         editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
     });

@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_outofview_spec.json';
@@ -56,13 +57,13 @@ describe('turn restriction test move link outside of viewport', function() {
     });
 
     it('edit turn restriction and validate it is set', async function() {
-        await click(mapContainer, 150, 100);
+        await userEvent.click(mapContainer, {position: {x: 150, y: 100}, modifiers: ['Alt']});
 
         let shape = <NavlinkShape>(await editorClick(editor, 300, 100)).target;
 
         shape.editTurnRestrictions();
 
-        await click(mapContainer, 310, 100);
+        await userEvent.click(mapContainer, {position: {x: 310, y: 100}, modifiers: ['Alt']});
 
         expect(link1.prop('turnRestriction')).toEqual({end: [link2.id]});
     });

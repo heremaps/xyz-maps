@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_layer_add_remove_spec.json';
@@ -69,7 +70,7 @@ describe('Address layer add and remove', function() {
 
     it('click n drag on an address, validate map is dragged', async function() {
         // click on an address
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
         // drag on Address
         await waitForEditorReady(editor, async ()=>{
@@ -93,7 +94,7 @@ describe('Address layer add and remove', function() {
 
     it('click n drag on an address, validate map is not dragged', async function() {
         // click on an address
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
         // drag on Address
         await drag(mapContainer, {x: 100, y: 200}, {x: 154, y: 237});
@@ -102,6 +103,6 @@ describe('Address layer add and remove', function() {
         expect(nc).toEqual({longitude: -92.87121, latitude: 40.593582});
 
         // click on ground
-        await click(mapContainer, 300, 200);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 200}, modifiers: ['Alt']});
     });
 });

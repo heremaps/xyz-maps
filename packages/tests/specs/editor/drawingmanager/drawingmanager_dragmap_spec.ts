@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click, drag, mousemove} from 'triggerEvents';
+import {drag, mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_dragmap_spec.json';
@@ -72,15 +73,15 @@ describe('Create new Links by drawing manager', function() {
 
     it('add shape point and validate', async function() {
         await mousemove(mapContainer, {x: 100, y: 80}, {x: 100, y: 100});
-        await click(mapContainer, 100, 100);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 100}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 100, y: 280}, {x: 100, y: 300});
-        await click(mapContainer, 100, 300);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 300}, modifiers: ['Alt']});
 
         expect(editor.getDrawingBoard().getLength()).toBe(3);
 
         await mousemove(mapContainer, {x: 100, y: 180}, {x: 150, y: 200});
-        await click(mapContainer, 150, 200);
+        await userEvent.click(mapContainer, {position: {x: 150, y: 200}, modifiers: ['Alt']});
 
         expect(editor.getDrawingBoard().getLength()).toBe(4);
     });
@@ -112,7 +113,7 @@ describe('Create new Links by drawing manager', function() {
         await mousemove(mapContainer, {x: 250, y: 100}, {x: 250, y: 120});
         expect(drawingBoard._b.getFeature().geojson.geometry.coordinates.slice(-1)[0]).not.toEqual(initialPreviewPosition);
 
-        await click(mapContainer, 250, 100, 2);
+        await userEvent.click(mapContainer, {position: {x: 250, y: 100}, button: 'right', modifiers: ['Alt']});
         expect(editor.getDrawingBoard().getLength()).toBe(initialShapeCount);
     });
 

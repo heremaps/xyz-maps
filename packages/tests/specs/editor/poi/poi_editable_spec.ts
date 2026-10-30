@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_editable_spec.json';
@@ -74,7 +75,7 @@ describe('poi editable', function() {
 
         poi.editable(true);
 
-        await click(mapContainer, 300, 250);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 250}, modifiers: ['Alt']});
 
         await drag(mapContainer, {x: 300, y: 250}, {x: 370, y: 250});
 

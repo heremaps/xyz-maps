@@ -19,6 +19,7 @@
 import type {EditorEvent} from '@here/xyz-maps-editor';
 import {editorClick} from 'editorUtils';
 import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 describe('editor click helper', () => {
@@ -49,10 +50,15 @@ describe('editor click helper', () => {
                 listeners.delete(listener);
             })
         };
-        container.addEventListener('mouseup', () => {
+        function emit() {
             if (emitPointerUp) listeners.forEach((listener) => listener(event));
+        }
+        const nativeClick = vi.spyOn(userEvent, 'click').mockImplementation(() => {
+            expect(listeners.size).toBe(1);
+            emit();
+            return Promise.resolve();
         });
-        return {editor, event, listeners, removeNative: vi.spyOn(container, 'removeEventListener')};
+        return {editor, event, listeners, emit, nativeClick};
     }
 
     function expectCleanedUp(target: ReturnType<typeof fixture>) {
@@ -61,25 +67,27 @@ describe('editor click helper', () => {
         expect(target.editor.removeEventListener).toHaveBeenCalledWith(
             'pointerup', target.editor.addEventListener.mock.calls[0][1]
         );
-        expect(target.removeNative.mock.calls.filter(([type]) => type === 'click')).toHaveLength(1);
         expect(vi.getTimerCount()).toBe(0);
     }
 
     it('registers before clicking and returns the original editor event', async () => {
         const target = fixture();
-        const dispatched = vi.spyOn(container, 'dispatchEvent');
         expect(await editorClick(target.editor, 10, 10)).toBe(target.event);
-        expect(dispatched.mock.calls.map(([event]) => event.type)).toStrictEqual(['mousedown', 'mouseup', 'click']);
+        expect(target.nativeClick).toHaveBeenCalledExactlyOnceWith(container, {
+            position: {x: 10, y: 10},
+            modifiers: ['Alt'],
+            timeout: 2000
+        });
         expectCleanedUp(target);
     });
 
     it('waits for click completion even if pointerup arrived first', async () => {
         const target = fixture();
         let completed = false;
-        container.addEventListener('click', (event) => {
-            event.stopImmediatePropagation();
-            setTimeout(() => container.dispatchEvent(new MouseEvent('click')), 100);
-        }, {capture: true, once: true});
+        target.nativeClick.mockImplementationOnce(() => {
+            target.emit();
+            return new Promise<void>((resolve) => setTimeout(resolve, 100));
+        });
         const pending = editorClick(target.editor, 10, 10).then((event) => {
             completed = true;
             return event;
@@ -105,23 +113,25 @@ describe('editor click helper', () => {
         expectCleanedUp(target);
     });
 
-    it('times out a missing click even after pointerup and cancels the native listener', async () => {
+    it('times out an unfinished native click even after pointerup', async () => {
         const target = fixture();
-        container.addEventListener('click', (event) => event.stopImmediatePropagation(), {capture: true});
+        target.nativeClick.mockImplementationOnce(() => {
+            target.emit();
+            return new Promise<void>(() => {});
+        });
         const pending = editorClick(target.editor, 10, 10).then(() => null, (error: Error) => error);
         await vi.advanceTimersByTimeAsync(2000);
         expect((await pending)?.message).toBe('Timed out waiting for editor click: pointerup=true, click=false');
         expectCleanedUp(target);
     });
 
-    for (const phase of ['mousedown', 'click']) {
-        it(`propagates ${phase} simulation failures and removes both listeners`, async () => {
+    for (const ready of [false, true]) {
+        it(`propagates native click failures ${ready ? 'after' : 'before'} pointerup and cleans up`, async () => {
             const target = fixture();
-            const error = new Error('click dispatch failed');
-            const dispatch = container.dispatchEvent.bind(container);
-            vi.spyOn(container, 'dispatchEvent').mockImplementation((event) => {
-                if (event.type === phase) throw error;
-                return dispatch(event);
+            const error = new Error('native click failed');
+            target.nativeClick.mockImplementationOnce(() => {
+                if (ready) target.emit();
+                return Promise.reject(error);
             });
             await expect(editorClick(target.editor, 10, 10)).rejects.toBe(error);
             expectCleanedUp(target);
@@ -131,12 +141,11 @@ describe('editor click helper', () => {
     it('propagates registration failures without starting the click', async () => {
         const target = fixture();
         const error = new Error('pointerup registration failed');
-        const dispatched = vi.spyOn(container, 'dispatchEvent');
         target.editor.addEventListener.mockImplementationOnce(() => {
             throw error;
         });
         await expect(editorClick(target.editor, 10, 10)).rejects.toBe(error);
-        expect(dispatched).not.toHaveBeenCalled();
+        expect(target.nativeClick).not.toHaveBeenCalled();
         expect(target.listeners.size).toBe(0);
         expect(target.editor.removeEventListener).toHaveBeenCalledTimes(1);
         expect(vi.getTimerCount()).toBe(0);
@@ -152,7 +161,7 @@ describe('editor click helper', () => {
         expect(vi.getTimerCount()).toBe(0);
     });
 
-    it('propagates cancellation of a pending native click and removes its listener', async () => {
+    it('propagates cancellation of a pending synthetic click and removes its listener', async () => {
         const controller = new AbortController();
         const error = new Error('pending click cancelled');
         const remove = vi.spyOn(container, 'removeEventListener');

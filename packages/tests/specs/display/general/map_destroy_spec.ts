@@ -91,20 +91,14 @@ describe('destroy display', function() {
         window.addEventListener('error', onError);
         try {
             await waitForViewportReady(map);
-            vi.useFakeTimers({
-                toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-                    'requestAnimationFrame', 'cancelAnimationFrame']
-            });
-            const gesture = drag(map.getContainer(), {x: 300, y: 300}, {x: 400, y: 300});
-            await vi.advanceTimersByTimeAsync(61);
-            await gesture;
+            await drag(map.getContainer(), {x: 300, y: 300}, {x: 400, y: 300});
             const callsAfterRelease = pan.mock.calls.length;
-            await vi.advanceTimersToNextFrame();
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
             expect(pan.mock.calls.length).toBeGreaterThan(callsAfterRelease);
             pan.mockRestore();
             map.destroy();
 
-            await vi.advanceTimersByTimeAsync(600);
+            await new Promise<void>((resolve) => setTimeout(resolve, 600));
             expect(errors).toStrictEqual([]);
         } finally {
             window.removeEventListener('error', onError);
@@ -112,7 +106,42 @@ describe('destroy display', function() {
                 pan.mockRestore();
                 map.destroy();
             }
-            vi.useRealTimers();
         }
     });
+
+    for (const animation of ['zoom', 'flight']) {
+        it(`cancels an active ${animation} animation when the display is destroyed`, async () => {
+            const map = new Map(document.getElementById('map'), {
+                center: {longitude: 77.852437, latitude: 13.542848},
+                zoomlevel: 18,
+                layers: []
+            });
+            const errors: string[] = [];
+            const onError = (event: ErrorEvent) => errors.push(event.message);
+            window.addEventListener('error', onError);
+            try {
+                await waitForViewportReady(map);
+                vi.useFakeTimers({
+                    toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
+                        'requestAnimationFrame', 'cancelAnimationFrame']
+                });
+                if (animation === 'zoom') {
+                    map.setZoomlevel(19, 150, 150, 1000);
+                } else {
+                    map.flyTo({longitude: 77.853, latitude: 13.543}, 19, {duration: 1000});
+                }
+                await vi.advanceTimersByTimeAsync(100);
+                expect(map.getZoomlevel()).not.toBe(18);
+                expect(map.getZoomlevel()).not.toBe(19);
+                map.destroy();
+                await vi.advanceTimersByTimeAsync(1500);
+                expect(errors).toStrictEqual([]);
+                expect(map).toEqual({});
+            } finally {
+                window.removeEventListener('error', onError);
+                if (map.destroy) map.destroy();
+                vi.useRealTimers();
+            }
+        });
+    }
 });

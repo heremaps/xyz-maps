@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {mousemove, drag, click} from 'triggerEvents';
+import {mousemove, drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_viewport_spec.json';
@@ -68,12 +69,12 @@ describe('map viewport lock', function() {
     });
 
     it('create link with drawingboard', async function() {
-        await click(mapContainer, 100, 100);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 100}, modifiers: ['Alt']});
 
         // try draging the map
         await drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
 
-        await click(mapContainer, 100, 300);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 300}, modifiers: ['Alt']});
 
         let lnk;
 

@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_set_start_delete_link_spec.json';
@@ -62,7 +62,7 @@ describe('edit turn restriction set turn restriction and delete link', function(
         link2.select();
         link2.editTurnRestrictions();
 
-        await click(mapContainer, 300, 300);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 300}, modifiers: ['Alt']});
 
         expect(link2.prop('turnRestriction')).toEqual({start: [12345]});
     });

@@ -19,7 +19,7 @@
 
 import {waitForViewportReady} from 'displayUtils';
 import {prepare} from 'utils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './disable_zoomcontrol_spec.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
@@ -57,17 +57,17 @@ describe('ui component compass', function() {
     });
 
     it('validate pitch resets on click', async function() {
-        await waitForViewportReady(display, () => {
+        await waitForViewportReady(display, async () => {
             // click zoom control to zoom in
-            click(mapContainer, 765, 490);
+            await userEvent.click(mapContainer, {position: {x: 765, y: 490}, modifiers: ['Alt']});
         });
         expect(display.pitch()).toBe(0);
     });
 
     it('validate is set to maxpitch on click', async function() {
-        await waitForViewportReady(display, () => {
+        await waitForViewportReady(display, async () => {
             // click zoom control to zoom in
-            click(mapContainer, 765, 490);
+            await userEvent.click(mapContainer, {position: {x: 765, y: 490}, modifiers: ['Alt']});
         });
         expect(display.pitch()).toBe(MAX_PITCH);
     });
@@ -87,9 +87,9 @@ describe('ui component compass', function() {
             maxPitch: MAX_PITCH
         });
 
-        await waitForViewportReady(display, () => {
+        await waitForViewportReady(display, async () => {
             // click the position where compass control was
-            click(mapContainer, 765, 490);
+            await userEvent.click(mapContainer, {position: {x: 765, y: 490}, modifiers: ['Alt']});
         });
         expect(display.pitch()).toBe(INITIAL_PITCH);
     });
@@ -115,8 +115,8 @@ describe('ui component compass', function() {
     });
 
     it('validate compass is active and click rests rotation and pitch', async function() {
-        await waitForViewportReady(display, () => {
-            click(mapContainer, 765, 490);
+        await waitForViewportReady(display, async () => {
+            await userEvent.click(mapContainer, {position: {x: 765, y: 490}, modifiers: ['Alt']});
         });
 
         expect(display.rotate()).toBe(0);
@@ -124,7 +124,7 @@ describe('ui component compass', function() {
     });
 
     it('destroy display while animation is running', async () => {
-        await click(mapContainer, 765, 490);
+        await userEvent.click(mapContainer, {position: {x: 765, y: 490}, modifiers: ['Alt']});
         display.destroy();
     });
 
@@ -142,8 +142,8 @@ describe('ui component compass', function() {
         const onError = (event: ErrorEvent) => errors.push(event.message);
         window.addEventListener('error', onError);
         try {
-            await click(mapContainer, 765, 490);
-            await click(mapContainer, 765, 490);
+            await userEvent.click(mapContainer, {position: {x: 765, y: 490}, modifiers: ['Alt']});
+            await userEvent.click(mapContainer, {position: {x: 765, y: 490}, modifiers: ['Alt']});
             display.destroy();
 
             // Allow pending animation frames to expose callbacks against the destroyed map.

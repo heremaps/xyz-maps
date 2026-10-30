@@ -4,6 +4,7 @@ import type {UserWorkspaceConfig} from 'vitest/config';
 import type {BrowserConfigOptions} from 'vitest/node';
 import type {LibraryComponent, MapMarkup} from './types.ts';
 import {type Component, distOf, root, xyzArtifacts, xyzAssets, xyzEnvironment} from './plugins.mts';
+import {mapDrag, mapWheel} from './commands.mts';
 
 const src = path.join(root, 'src');
 
@@ -94,12 +95,13 @@ export function project(component: Component, mode: string): UserWorkspaceConfig
             // the timeout of the mocha settings in the former build.js
             testTimeout: 20000,
             hookTimeout: 20000,
-            // one spec file after another. The specs drive a single map with simulated mouse events.
+            // one spec file after another by default; the CLI can enable parallel browser specs.
             fileParallelism: false,
             browser: {
                 enabled: true,
                 headless: true,
                 screenshotFailures: false,
+                commands: {mapDrag, mapWheel},
                 // karma used --window-size=1280,1024
                 viewport: {width: 1280, height: 1024},
                 ...browser()

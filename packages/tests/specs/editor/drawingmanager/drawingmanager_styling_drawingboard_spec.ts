@@ -18,7 +18,8 @@
  */
 import {expectCanvasPixelColor, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click, mousemove} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_styling_drawingboard_spec.json';
@@ -63,7 +64,7 @@ describe('Styling drawingboard', function() {
         let layer = editor.getOverlay();
 
         await mousemove(mapContainer, {x: 100, y: 80}, {x: 100, y: 100});
-        await click(mapContainer, 100, 100);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 100}, modifiers: ['Alt']});
 
         let features = layer.search(display.getViewBounds());
         // 3 features: link, link shape and floating shape below mouse
@@ -77,7 +78,7 @@ describe('Styling drawingboard', function() {
         });
 
         await mousemove(mapContainer, {x: 100, y: 280}, {x: 100, y: 300});
-        await click(mapContainer, 100, 300);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 300}, modifiers: ['Alt']});
 
         features = layer.search(display.getViewBounds());
         // 4 features: link, 2 link shapes and float shape below mouse
@@ -124,10 +125,10 @@ describe('Styling drawingboard', function() {
 
     it('add shape point and validate new style of drawingboard', async function() {
         await mousemove(mapContainer, {x: 200, y: 80}, {x: 200, y: 100});
-        await click(mapContainer, 200, 100);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 200, y: 280}, {x: 200, y: 300});
-        await click(mapContainer, 200, 300);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 300}, modifiers: ['Alt']});
 
         expect(editor.getDrawingBoard().getLength()).toBe(2);
 

@@ -18,7 +18,8 @@
  */
 import {Listener, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_click_spec.json';
@@ -54,7 +55,7 @@ describe('map click on ground and link', function() {
 
         let mapContainer = display.getContainer();
         // click on ground
-        await click(mapContainer, 200, 170);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 170}, modifiers: ['Alt']});
 
         // drag map
         await waitForEditorReady(editor, async ()=>{
@@ -82,7 +83,7 @@ describe('map click on ground and link', function() {
         let link = editor.addFeature(lnk);
 
         // click on a link
-        await click(mapContainer, 160, 100);
+        await userEvent.click(mapContainer, {position: {x: 160, y: 100}, modifiers: ['Alt']});
 
         let results = listener.stop();
 
@@ -98,5 +99,8 @@ describe('map click on ground and link', function() {
             mapX: 160,
             mapY: 100
         }));
+        for (const event of results.pointerup) {
+            expect(event.nativeEvent).toEqual(expect.objectContaining({isTrusted: true, altKey: true}));
+        }
     });
 });

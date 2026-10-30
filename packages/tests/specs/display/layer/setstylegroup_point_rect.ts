@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {expectCanvasPixelColor, Listener, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_rect.json';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('setStyleGroup Point with rect', function() {
@@ -233,7 +233,7 @@ describe('setStyleGroup Point with rect', function() {
     it('validate pointer-events for meter width', async () => {
         const listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await click(mapContainer, 460, 360);
+        await userEvent.click(mapContainer, {position: {x: 460, y: 360}, modifiers: ['Alt']});
 
         const {pointerdown, pointerup} = listener.stop();
 

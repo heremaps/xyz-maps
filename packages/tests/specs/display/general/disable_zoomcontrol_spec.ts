@@ -19,7 +19,7 @@
 
 import {waitForViewportReady} from 'displayUtils';
 import {prepare} from 'utils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './disable_zoomcontrol_spec.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
@@ -46,9 +46,9 @@ describe('disable zoomcontrol component', function() {
     it('validate zoomcontrol component is active', async function() {
         expect(display.getZoomlevel()).toBe(18);
 
-        await waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, async ()=>{
             // click zoom control to zoom in
-            click(mapContainer, 765, 520);
+            await userEvent.click(mapContainer, {position: {x: 765, y: 520}, modifiers: ['Alt']});
         });
         expect(display.getZoomlevel()).toBe(19);
     });
@@ -66,7 +66,7 @@ describe('disable zoomcontrol component', function() {
         expect(display.getZoomlevel()).toBe(18);
 
         // click the position where zoom control was
-        await click(mapContainer, 765, 520);
+        await userEvent.click(mapContainer, {position: {x: 765, y: 520}, modifiers: ['Alt']});
 
         // await waitForViewportReady(display);
         expect(display.getZoomlevel()).toBe(18);
@@ -82,9 +82,9 @@ describe('disable zoomcontrol component', function() {
 
         expect(display.getZoomlevel()).toBe(18);
 
-        await waitForViewportReady(display, ()=>{
+        await waitForViewportReady(display, async ()=>{
             // click zoom control
-            click(mapContainer, 765, 520);
+            await userEvent.click(mapContainer, {position: {x: 765, y: 520}, modifiers: ['Alt']});
         });
 
         expect(display.getZoomlevel()).toBe(19);

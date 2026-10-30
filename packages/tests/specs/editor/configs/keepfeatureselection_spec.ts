@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './keepfeatureselection_spec.json';
@@ -83,7 +83,7 @@ describe('set keepFeatureSelection', function() {
         expect(links[1].editState('selected')).toBe(true);
 
         // click on ground to unselect link
-        await click(mapContainer, 150, 200);
+        await userEvent.click(mapContainer, {position: {x: 150, y: 200}, modifiers: ['Alt']});
 
         expect(links[1].editState('selected')).toBe(false);
 
@@ -133,7 +133,7 @@ describe('set keepFeatureSelection', function() {
         expect(links[1].editState('selected')).toBe(true);
 
         // clik on ground
-        await click(mapContainer, 150, 200);
+        await userEvent.click(mapContainer, {position: {x: 150, y: 200}, modifiers: ['Alt']});
 
         // validate link is still selected
         expect(links[1].editState('selected')).toBe(true);
@@ -181,7 +181,7 @@ describe('set keepFeatureSelection', function() {
         expect(links[1].editState('selected')).toBe(true);
 
         // click on ground
-        await click(mapContainer, 150, 200);
+        await userEvent.click(mapContainer, {position: {x: 150, y: 200}, modifiers: ['Alt']});
 
         // validate link is not selected
         expect(links[1].editState('selected')).toBe(false);

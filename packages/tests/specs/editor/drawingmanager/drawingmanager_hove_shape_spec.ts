@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click, mousemove} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_hove_shape_spec.json';
@@ -55,7 +56,7 @@ describe('Hover shape point in drawingboard create link then move mouse', functi
 
         // add one shape
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         // move mouse point
         await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
@@ -71,10 +72,10 @@ describe('Hover shape point in drawingboard create link then move mouse', functi
         editor.getDrawingBoard().start();
 
         await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
-        await click(mapContainer, 200, 300);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 300}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 200, y: 300}, {x: 300, y: 300});
-        await click(mapContainer, 300, 300);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 300}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 300, y: 300}, {x: 350, y: 300});
 

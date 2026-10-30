@@ -18,7 +18,8 @@
  */
 import {Listener, prepare, waitForPointerEvent} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {mousemove, click} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_mousemove_spec.json';
@@ -52,16 +53,19 @@ describe('map mousemove listener', function() {
 
     it('validate pointerenter and pointerleave listener', async function() {
         // click on map
-        await click(mapContainer, 275, 155);
+        await userEvent.click(mapContainer, {position: {x: 275, y: 155}, modifiers: ['Alt']});
         await mousemove(mapContainer, {x: 275, y: 155}, {x: 260, y: 139});
 
-        let listener = new Listener(editor, ['pointerenter', 'pointerleave']);
-
         // click on link
-        await click(mapContainer, 290, 139);
+        await userEvent.click(mapContainer, {position: {x: 290, y: 139}, modifiers: ['Alt']});
 
         // click on map
-        await click(mapContainer, 275, 155);
+        await userEvent.click(mapContainer, {position: {x: 275, y: 155}, modifiers: ['Alt']});
+
+        // Refresh hover after deselection before recording the explicit hover sequence.
+        await waitForPointerEvent(display, 'pointermove', () =>
+            mousemove(mapContainer, {x: 275, y: 155}, {x: 275, y: 155}));
+        let listener = new Listener(editor, ['pointerenter', 'pointerleave']);
 
         // mouse over a link
         await waitForPointerEvent(editor, 'pointerenter', async () => {

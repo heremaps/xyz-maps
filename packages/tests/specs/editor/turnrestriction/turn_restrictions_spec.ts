@@ -19,7 +19,8 @@
 
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick, submit} from 'editorUtils';
-import {mousemove, click} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_spec.json';
@@ -65,7 +66,7 @@ describe('turn restriction test basic', function() {
 
         link.editTurnRestrictions();
 
-        await click(mapContainer, 300, 115);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 115}, modifiers: ['Alt']});
 
         expect(link.prop('turnRestriction')).toEqual({start: [link2.id]});
     });
@@ -85,10 +86,10 @@ describe('turn restriction test basic', function() {
     });
 
     it('edit turn restriction again and revert, after that move mouse and submit', async function() {
-        await click(mapContainer, 320, 100);
+        await userEvent.click(mapContainer, {position: {x: 320, y: 100}, modifiers: ['Alt']});
         let shape = <NavlinkShape>(await editorClick(editor, 300, 115)).target;
         shape.editTurnRestrictions();
-        await click(mapContainer, 300, 115);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 115}, modifiers: ['Alt']});
 
         await waitForEditorReady(editor, () => {
             editor.revert();

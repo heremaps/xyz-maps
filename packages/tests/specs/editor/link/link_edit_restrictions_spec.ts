@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, EditOperation} from '@here/xyz-maps-editor';
 import dataset from './link_edit_restrictions_spec.json';
@@ -58,7 +59,7 @@ describe('link edit restrictions', function() {
     });
 
     it('click on a link, drag shape and validate', async function() {
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
         await drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
 

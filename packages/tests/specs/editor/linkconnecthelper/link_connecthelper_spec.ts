@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Crossing, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_spec.json';
@@ -74,7 +75,7 @@ describe('link connect helper with undo', () => {
         crx.connect();
 
         // click to select a link
-        await click(mapContainer, 169, 300);
+        await userEvent.click(mapContainer, {position: {x: 169, y: 300}, modifiers: ['Alt']});
 
         let shape = <NavlinkShape>(await editorClick(editor, 116, 300)).target;
         let links = shape.getConnectedLinks();
@@ -98,7 +99,7 @@ describe('link connect helper with undo', () => {
         crx.connect();
 
         // click on a link
-        await click(mapContainer, 172, 200);
+        await userEvent.click(mapContainer, {position: {x: 172, y: 200}, modifiers: ['Alt']});
 
         let shape = <Crossing>(await editorClick(editor, 133, 200)).target;
         let links = shape.getConnectedLinks();

@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './map_history_undo_split_restrictions_spec.json';
@@ -64,7 +64,7 @@ describe('turn restriction with spliting the depart link and undo', function() {
     it('click on connection point to edit turn restrictions', async function() {
         link2.editTurnRestrictions();
 
-        await click(mapContainer, 390, 400);
+        await userEvent.click(mapContainer, {position: {x: 390, y: 400}, modifiers: ['Alt']});
 
         expect(link2.prop('turnRestriction')).toEqual({start: [link1.id]});
     });

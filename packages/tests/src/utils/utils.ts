@@ -37,7 +37,7 @@ export interface RequestSummary {
 
 export {prepare, TestData};
 
-type PointerEventType = 'pointerenter' | 'pointerleave';
+type PointerEventType = 'pointerenter' | 'pointerleave' | 'pointermove';
 
 interface PointerEventTarget {
     addEventListener(type: PointerEventType, listener: () => void): unknown;

@@ -18,7 +18,8 @@
  */
 import {waitForEditorReady} from 'editorUtils';
 import {prepare, TestData} from 'utils';
-import {click, drag} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './area_transformer_multiple_objects_spec.json';
@@ -190,7 +191,7 @@ describe('area transform multiple objects', () => {
 
     it('validate two objects are modified', async () => {
         // hide transformer
-        await click(mapContainer, 100, 50);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 50}, modifiers: ['Alt']});
         expect(editor.info()).toHaveLength(2);
     });
 });

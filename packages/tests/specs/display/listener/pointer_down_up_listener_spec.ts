@@ -19,7 +19,7 @@
 
 import {waitForViewportReady} from 'displayUtils';
 import {Listener, prepare} from 'utils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_down_up_listener_spec.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
@@ -50,7 +50,7 @@ describe('pointer down and pointer up listener', () => {
     it('validate pointer down and up events on line', async () => {
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await click(mapContainer, 554, 243);
+        await userEvent.click(mapContainer, {position: {x: 554, y: 243}, modifiers: ['Alt']});
 
         let results = listener.stop();
 
@@ -68,6 +68,7 @@ describe('pointer down and pointer up listener', () => {
             mapY: 243,
             type: 'pointerup'
         }));
+        expect(results.pointerup[0].nativeEvent).toEqual(expect.objectContaining({isTrusted: true, altKey: true}));
 
         const {geometry} = (<any>results.pointerup[0]).target;
         expect(geometry).toEqual(expect.objectContaining({
@@ -78,7 +79,7 @@ describe('pointer down and pointer up listener', () => {
     it('validate pointer down and up events on point', async () => {
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await click(mapContainer, 616, 240);
+        await userEvent.click(mapContainer, {position: {x: 616, y: 240}, modifiers: ['Alt']});
 
         let results = listener.stop();
 
@@ -106,7 +107,7 @@ describe('pointer down and pointer up listener', () => {
     it('validate pointer down and up events on the ground', async () => {
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await click(mapContainer, 253, 204);
+        await userEvent.click(mapContainer, {position: {x: 253, y: 204}, modifiers: ['Alt']});
 
         let results = listener.stop();
 
@@ -122,7 +123,7 @@ describe('pointer down and pointer up listener', () => {
 
         let listener = new Listener(display, ['pointerup']);
 
-        await click(mapContainer, 430, 300);
+        await userEvent.click(mapContainer, {position: {x: 430, y: 300}, modifiers: ['Alt']});
 
         let results = listener.stop();
 
@@ -142,7 +143,7 @@ describe('pointer down and pointer up listener', () => {
     it('validate pointer event target on polygon with hole', async () => {
         let listener = new Listener(display, ['pointerup']);
 
-        await click(mapContainer, 400, 280);
+        await userEvent.click(mapContainer, {position: {x: 400, y: 280}, modifiers: ['Alt']});
 
         let results = listener.stop();
 
@@ -161,7 +162,7 @@ describe('pointer down and pointer up listener', () => {
     it('validate pointer event target on linestring "inside" a polygon hole', async () => {
         let listener = new Listener(display, ['pointerup']);
 
-        await click(mapContainer, 400, 300);
+        await userEvent.click(mapContainer, {position: {x: 400, y: 300}, modifiers: ['Alt']});
 
         let results = listener.stop();
 
@@ -185,7 +186,7 @@ describe('pointer down and pointer up listener', () => {
 
         layer.setStyleGroup(layer.search('testLine'), [{type: 'Line', zIndex: 12, stroke: 'red', strokeWidth: .9}]);
 
-        await click(mapContainer, 400, 300);
+        await userEvent.click(mapContainer, {position: {x: 400, y: 300}, modifiers: ['Alt']});
 
         let results = listener.stop();
 
@@ -214,7 +215,7 @@ describe('pointer down and pointer up listener', () => {
 
         let listener = new Listener(display, ['pointerup']);
 
-        await click(mapContainer, 430, 300);
+        await userEvent.click(mapContainer, {position: {x: 430, y: 300}, modifiers: ['Alt']});
 
         let results = listener.stop();
 
@@ -231,5 +232,4 @@ describe('pointer down and pointer up listener', () => {
         }));
     });
 });
-
 

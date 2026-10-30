@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
-import {click, mousemove} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_create_and_split_original_spec.json';
@@ -59,7 +60,7 @@ describe('Create new Links and split original link', function() {
         });
 
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         let lnk;
         await waitForEditorReady(editor, ()=>{

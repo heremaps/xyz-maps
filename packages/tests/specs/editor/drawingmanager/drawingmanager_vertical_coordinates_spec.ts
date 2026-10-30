@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {mousemove, click} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_vertical_coordinates_spec.json';
@@ -57,19 +58,19 @@ describe('Create new Links whose start and end shape points have same longitude'
         expect(editor.getDrawingBoard().isActive()).toBe(true);
 
         await mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 150});
-        await click(mapContainer, 300, 150);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 150}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 150});
-        await click(mapContainer, 300, 150);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 150}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 300, y: 150}, {x: 200, y: 100});
-        await click(mapContainer, 200, 100);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 200, y: 150}, {x: 300, y: 200});
-        await click(mapContainer, 300, 200);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 200}, modifiers: ['Alt']});
 
         link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
 
@@ -87,17 +88,17 @@ describe('Create new Links whose start and end shape points have same longitude'
 
         // start shape point
         await mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 150});
-        await click(mapContainer, 300, 150);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 150}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 300, y: 150}, {x: 200, y: 100});
-        await click(mapContainer, 200, 100);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
 
         // end shape point, it has the same longtitude as the start shape point
         await mousemove(mapContainer, {x: 200, y: 150}, {x: 200, y: 300});
-        await click(mapContainer, 200, 300);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 300}, modifiers: ['Alt']});
 
         link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
 

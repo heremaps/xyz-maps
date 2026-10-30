@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {click, drag, mousemove} from 'triggerEvents';
+import {drag, mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Line} from '@here/xyz-maps-editor';
 import dataset from './line_basics_spec.json';
@@ -56,19 +57,19 @@ describe('basic line tests', function() {
         editor.getDrawingBoard().start({mode: 'Line'});
 
         await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 100});
-        await click(mapContainer, 200, 100);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 200});
-        await click(mapContainer, 300, 200);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 200}, modifiers: ['Alt']});
 
         let point = <DrawingShape>(await editorClick(editor, 200, 100)).target;
         point.remove();
 
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 300});
-        await click(mapContainer, 200, 300);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 300}, modifiers: ['Alt']});
 
         await drag(mapContainer, {x: 100, y: 200}, {x: 400, y: 300});
 

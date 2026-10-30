@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {drag, click, mousemove} from 'triggerEvents';
+import {drag, mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape} from '@here/xyz-maps-editor';
 import dataset from './area_create_drawingmanager_pan_map_spec.json';
@@ -57,17 +58,17 @@ describe('Area drawing manager and pan map', function() {
 
         // add a shape point
         await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
 
         // add one more shape point
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 100});
-        await click(mapContainer, 200, 100);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
 
 
         // add one more shape point
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 250});
-        await click(mapContainer, 300, 250);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 250}, modifiers: ['Alt']});
 
 
         // click on shape point and remove
@@ -77,7 +78,7 @@ describe('Area drawing manager and pan map', function() {
 
         // click on another shape point
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 350});
-        await click(mapContainer, 200, 350);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 350}, modifiers: ['Alt']});
 
         // drag the shape point
         await drag(mapContainer, {x: 200, y: 350}, {x: 400, y: 350});

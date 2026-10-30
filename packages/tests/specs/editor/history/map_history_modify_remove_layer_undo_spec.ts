@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_modify_remove_layer_undo_spec.json';
@@ -64,7 +65,7 @@ describe('modify object and remove its layer, then undo the change', function() 
         };
         editor.addFeature(p, preparedData.getLayers('placeLayer'));
 
-        await click(mapContainer, 300, 250);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 250}, modifiers: ['Alt']});
 
         await drag(mapContainer, {x: 300, y: 250}, {x: 400, y: 300});
 

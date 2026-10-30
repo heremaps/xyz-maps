@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_split_then_drag_spec.json';
@@ -76,7 +77,7 @@ describe('drag a link shape point to the other one to split itself and then drag
 
     it('click to select the split link and drag', async () => {
         // click a link
-        await click(mapContainer, 290, 100);
+        await userEvent.click(mapContainer, {position: {x: 290, y: 100}, modifiers: ['Alt']});
 
         // drag link shape point to which all other links are connecting
         await drag(mapContainer, {x: 250, y: 100}, {x: 500, y: 200});

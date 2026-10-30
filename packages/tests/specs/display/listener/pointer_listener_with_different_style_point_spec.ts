@@ -19,7 +19,7 @@
 
 import {waitForViewportReady} from 'displayUtils';
 import {Listener, expectCanvasPixelColor, prepare} from 'utils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_listener_with_different_style_point_spec.json';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
@@ -59,7 +59,7 @@ describe('pointer listener with different style point', function() {
     it('valite pointdown and up on link', async function() {
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await click(mapContainer, 321, 311);
+        await userEvent.click(mapContainer, {position: {x: 321, y: 311}, modifiers: ['Alt']});
 
         let results = listener.stop();
         expect(results.pointerdown).toHaveLength(1);
@@ -102,7 +102,7 @@ describe('pointer listener with different style point', function() {
 
 
         let listener = new Listener(display, ['pointerdown', 'pointerup']);
-        await click(mapContainer, 321, 311);
+        await userEvent.click(mapContainer, {position: {x: 321, y: 311}, modifiers: ['Alt']});
 
         let results = listener.stop();
         expect(results.pointerdown).toHaveLength(1);

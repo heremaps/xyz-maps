@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './address_click_spec.json';
@@ -64,7 +64,7 @@ describe('click on address to validate the coordinate', function() {
         expect(address.coord()).toEqualWithTolerance([76.283418331, 14.125304508, 0], 1e-6);
 
         // click on an address
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
         // validate address coordinate again
         expect(address.coord()).toEqualWithTolerance([76.283418331, 14.125304508, 0], 1e-6);
@@ -77,7 +77,7 @@ describe('click on address to validate the coordinate', function() {
         expect(poi.coord()).toEqualWithTolerance([76.283954773, 14.125304508, 0], 1e-6);
 
         // click on POI
-        await click(mapContainer, 300, 200);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 200}, modifiers: ['Alt']});
 
         // validate POI coordinate
         expect(poi.coord()).toEqualWithTolerance([76.283954773, 14.125304508, 0], 1e-6);
@@ -99,12 +99,12 @@ describe('click on address to validate the coordinate', function() {
         let address = editor.addFeature(a, preparedData.getLayers('paLayer'));
 
         // click on an address
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         // validate address coordinate
         expect(address.coord()).toEqualWithTolerance([76.283685558, 14.125304111, 0], 1e-6);
 
         // click on ground
-        await click(mapContainer, 300, 200);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 200}, modifiers: ['Alt']});
     });
 });

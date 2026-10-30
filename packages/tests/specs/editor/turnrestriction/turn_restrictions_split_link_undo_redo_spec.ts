@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_link_undo_redo_spec.json';
@@ -66,10 +66,10 @@ describe('edit turn restriction split link then undo and redo the change', funct
     it('set turn restriction and validate tr', async function() {
         link1.editTurnRestrictions();
 
-        await click(mapContainer, 180, 100);
+        await userEvent.click(mapContainer, {position: {x: 180, y: 100}, modifiers: ['Alt']});
 
         // deactivate turn restriction
-        await click(mapContainer, 120, 200);
+        await userEvent.click(mapContainer, {position: {x: 120, y: 200}, modifiers: ['Alt']});
 
         expect(link1.prop('turnRestriction')).toEqual({start: [link2.id]});
     });

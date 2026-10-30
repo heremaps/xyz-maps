@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_editable_spec.json';
@@ -68,7 +69,7 @@ describe('link editable', function() {
 
     it('click on link and try drag again', async function() {
         // click on link
-        await click(mapContainer, 100, 100);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 100}, modifiers: ['Alt']});
 
         // try drag link shape point
         await waitForEditorReady(editor, async ()=>{
@@ -94,7 +95,7 @@ describe('link editable', function() {
         lnk.editable(true);
 
         // click on link
-        await click(mapContainer, 100, 100);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 100}, modifiers: ['Alt']});
 
         // drag link shape point
         await drag(mapContainer, {x: 300, y: 300}, {x: 400, y: 300});

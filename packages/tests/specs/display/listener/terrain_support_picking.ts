@@ -21,7 +21,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Feature, LocalProvider, TerrainTileLayer, TileLayer} from '@here/xyz-maps-core';
 import {waitForViewportReady} from 'displayUtils';
 import {Listener} from 'utils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {createPickingTerrain, terrainFixtureUrl, terrainScreenshot} from '../../../src/utils/terrainPicking';
 import {describe, beforeAll, afterAll, beforeEach, it, expect} from 'vitest';
 
@@ -135,7 +135,7 @@ describe('Terrain support picking', () => {
             const listener = new Listener(map, ['pointerup']);
             let events;
             try {
-                await click(map.getContainer(), pixel.x, pixel.y);
+                await userEvent.click(map.getContainer(), {position: {x: pixel.x, y: pixel.y}, modifiers: ['Alt']});
             } finally {
                 events = listener.stop().pointerup;
             }

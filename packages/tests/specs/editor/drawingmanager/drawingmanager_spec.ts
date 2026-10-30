@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
-import {click, mousemove} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_spec.json';
@@ -71,10 +72,10 @@ describe('Create new Links then remove by drawingmanager', function() {
         expect(editor.getDrawingBoard().isActive()).toBe(true);
 
         await mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 150, y: 200}, {x: 150, y: 130});
-        await click(mapContainer, 150, 130);
+        await userEvent.click(mapContainer, {position: {x: 150, y: 130}, modifiers: ['Alt']});
 
         await waitForEditorReady(editor, ()=>{
             link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});

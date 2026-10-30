@@ -134,8 +134,29 @@ reject immediately. After ten seconds, missing readiness or an unfinished action
 the observed state. Observers, error listeners and the timeout are removed on completion or failure.
 
 `editorClick(editor, x, y)` returns the original editor `pointerup` event after both that event and
-the click simulation have completed. Simulation failures propagate; a two-second deadline covers
-both waits. Completion or failure removes the editor listener, native click listener and timer.
+the native browser click have completed. Browser-action failures propagate; a two-second deadline
+covers both waits and the Playwright action. Completion or failure removes the editor listener and timer.
+
+Use `userEvent.click` from `vitest/browser` for ordinary single clicks. Await every action,
+including inside viewport/editor readiness callbacks, and preserve coordinates, buttons and modifiers.
+Positions are relative to the map container; explicit `modifiers: ['Alt']` preserves the synthetic
+helper's existing modifier. Use `button: 'right'` for secondary-button clicks.
+The initial pilot specs also verify trusted native events. Hover-count specs finish selection
+setup and wait for the Map's deferred `pointermove` when refreshing hover before recording
+their measured movement sequence.
+`dblclick` delegates to native `userEvent.dblClick`; `mousemove` uses native hover at both endpoints
+and retains its existing 75 ms processing allowance. Positive hover transitions still need
+`waitForPointerEvent`, since browser-action completion does not guarantee feature picking is finished.
+Coordinate drags and anchored wheel input use typed Vitest browser commands backed by Playwright:
+the public drag-and-drop/wheel APIs do not cover the existing duration, secondary button and wheel anchor.
+Drags retain their duration, interpolated positions, final rounded move, buttons and modifiers.
+Wheel input retains its coordinate anchor, `-100 * d` pixel delta and 20 ms processing allowance;
+the helper also waits for delivery of the native wheel event.
+The low-level synthetic `click` helper and manually dispatched events are retained only for deliberate
+failure/cancellation or deferred-event regressions, not ordinary interactions.
+Hub integration specs remain unmodified and are not part of local validation.
+The specs' TypeScript config loads Playwright's option types and maps `vitest/browser` to its
+published declaration entry for compatibility with the existing `node` module resolution.
 
 * Do not use `done` callbacks or `this.timeout()`, Vitest does not support them. Return a promise or use `async`.
 * A spec file must not import another spec file. Put shared helpers into `src/utils`.

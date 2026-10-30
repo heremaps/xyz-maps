@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './featureselectionbydefault_spec.json';
@@ -82,7 +82,7 @@ describe('set featureSelectionByDefault', function() {
         let links = editor.addFeature([l1, l2]);
 
         // click on a link
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
         // validate link is not selected
         expect(links[1].editState('selected')).toBe(false);
@@ -118,7 +118,7 @@ describe('set featureSelectionByDefault', function() {
         let links = editor.addFeature([l1, l2]);
 
         // click on a link
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
         // validate link is selected
         expect(links[1].editState('selected')).toBe(true);

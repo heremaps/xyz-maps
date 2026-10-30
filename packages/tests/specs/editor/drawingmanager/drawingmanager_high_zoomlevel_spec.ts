@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click, mousemove} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_high_zoomlevel_spec.json';
@@ -53,10 +54,10 @@ describe('drawing board work at high zoomlevel', function() {
         editor.getDrawingBoard().start();
 
         await mousemove(mapContainer, {x: 200, y: 180}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 100, y: 100});
-        await click(mapContainer, 100, 100);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 100}, modifiers: ['Alt']});
 
         let lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         expect(lnk).not.toBe(undefined);

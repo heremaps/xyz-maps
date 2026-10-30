@@ -7,9 +7,11 @@
     "lib": ["es5", "ES2017", "dom"],
     "sourceMap": true,
     "allowJs": true,
-    "types" : ["chai"],
+    "types" : ["chai", "@vitest/browser-playwright"],
     "baseUrl": ".",
     "paths": {
+      "vitest/browser": ["node_modules/vitest/browser/context.d.ts"],
+      "vitest/internal/browser": ["node_modules/vitest/dist/browser.d.ts"],
       "*": ["src/utils/*"],
       "TestProviders": ["src/TestProvider.ts"]
     },

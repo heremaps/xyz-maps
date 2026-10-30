@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_editable_spec.json';
@@ -63,7 +64,7 @@ describe('address editable', function() {
     it('drag the point address, validate the address is not dragged', async function() {
         address.editable(false);
 
-        await click(mapContainer, 100, 300);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 300}, modifiers: ['Alt']});
         await waitForEditorReady(editor, async ()=>{
             await drag(mapContainer, {x: 100, y: 300}, {x: 324, y: 303});
         });
@@ -79,12 +80,12 @@ describe('address editable', function() {
         // set the address editable
         address.editable(true);
 
-        await click(mapContainer, 100, 300);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 300}, modifiers: ['Alt']});
         await drag(mapContainer, {x: 100, y: 300}, {x: 324, y: 303});
 
         expect(address.coord()).toEqualWithTolerance([80.536920945, 16.48135871, 0], 1e-6);
 
         // click to unselect address
-        await click(mapContainer, 200, 300);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 300}, modifiers: ['Alt']});
     });
 });

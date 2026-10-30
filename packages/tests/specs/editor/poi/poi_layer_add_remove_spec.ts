@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_layer_add_remove_spec.json';
@@ -67,7 +68,7 @@ describe('POI layer add and remove', function() {
     });
 
     it('try dragging the poi and validate the map is dragged', async function() {
-        await click(mapContainer, 200, 250);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 250}, modifiers: ['Alt']});
         await waitForEditorReady(editor, async ()=>{
             await drag(mapContainer, {x: 200, y: 250}, {x: 250, y: 280});
         });
@@ -89,7 +90,7 @@ describe('POI layer add and remove', function() {
     });
 
     it('try dragging the poi and validate the map is not dragged', async function() {
-        await click(mapContainer, 200, 250);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 250}, modifiers: ['Alt']});
         await drag(mapContainer, {x: 200, y: 250}, {x: 200, y: 260});
 
         expect(display.getCenter()).toEqual({longitude: 75.54966, latitude: 14.02363});

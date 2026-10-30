@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, expectCanvasPixelColor, Listener, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_link_with_same_zindex.json';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('setStyleGroup link with same zIndex', () => {
@@ -195,7 +195,7 @@ describe('setStyleGroup link with same zIndex', () => {
     it('validate pointer-events for meter width', async () => {
         const listener = new Listener(display, ['pointerdown', 'pointerup']);
 
-        await click(mapContainer, 500, 220);
+        await userEvent.click(mapContainer, {position: {x: 500, y: 220}, modifiers: ['Alt']});
 
         const {pointerdown, pointerup} = listener.stop();
 
@@ -217,7 +217,7 @@ describe('setStyleGroup link with same zIndex', () => {
         const listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await waitForViewportReady(display, () => display.setZoomlevel(21));
-        await click(mapContainer, 500, 599);
+        await userEvent.click(mapContainer, {position: {x: 500, y: 599}, modifiers: ['Alt']});
 
         const {pointerdown, pointerup} = listener.stop();
 

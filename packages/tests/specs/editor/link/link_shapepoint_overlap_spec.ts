@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_shapepoint_overlap_spec.json';
@@ -61,7 +61,7 @@ describe('verify Link overlapped shape point style', function() {
 
     it('select one link and click, valiate overlapped shapepoint is highlighted', async function() {
         link1.select();
-        await click(mapContainer, 300, 200);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 200}, modifiers: ['Alt']});
 
         let overlay = editor.getOverlay();
         let node = overlay.search({point: {longitude: 77.367151349, latitude: 13.09411499}, radius: 5});
@@ -74,7 +74,7 @@ describe('verify Link overlapped shape point style', function() {
 
     it('select the other link and click, valiate overlapped shapepoint is highlighted', async function() {
         link2.select();
-        await click(mapContainer, 200, 100);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
 
         let overlay = editor.getOverlay();
         let node = overlay.search({point: {longitude: 77.368224233, latitude: 13.095159976}, radius: 5});

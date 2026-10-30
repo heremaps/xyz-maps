@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click, drag, mousemove} from 'triggerEvents';
+import {drag, mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_create_and_split_original_outofview_spec.json';
@@ -62,7 +63,7 @@ describe('Create new Link and drag it outside of viewport before splitting the o
 
         // click to add a shape
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         // pan the map and move the split link outside of the viewport
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 110, y: 60});
@@ -77,7 +78,7 @@ describe('Create new Link and drag it outside of viewport before splitting the o
 
         // add one shape point to link
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         let lnk;
         await waitForEditorReady(editor, ()=>{

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {click} from './triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Editor, EditorEvent} from '@here/xyz-maps-editor';
 import {expect} from 'vitest';
 
@@ -26,9 +26,8 @@ interface EditorClickTarget extends Pick<Editor, 'container'> {
     removeEventListener(type: 'pointerup', listener: (event: EditorEvent) => void): void;
 }
 
-/** Waits for both the simulated click and editor pointerup, with a two-second deadline and listener cleanup. */
+/** Waits for both the native browser click and editor pointerup, with a two-second deadline and listener cleanup. */
 export async function editorClick(editor: EditorClickTarget, x: number, y: number): Promise<EditorEvent> {
-    const controller = new AbortController();
     const timeoutError = new Error('Timed out waiting for editor click');
     let timer: ReturnType<typeof setTimeout>;
     let pointerUpDone = false;
@@ -48,14 +47,17 @@ export async function editorClick(editor: EditorClickTarget, x: number, y: numbe
     });
     try {
         editor.addEventListener('pointerup', onPointerUp);
-        const simulatedClick = click(editor.container, x, y, 0, controller.signal).then(() => {
+        const nativeClick = userEvent.click(editor.container, {
+            position: {x, y},
+            modifiers: ['Alt'],
+            timeout: 2000
+        }).then(() => {
             clickDone = true;
         });
-        const [event] = await Promise.race([Promise.all([pointerUp, simulatedClick]), timeout]);
+        const [event] = await Promise.race([Promise.all([pointerUp, nativeClick]), timeout]);
         return event;
     } finally {
         clearTimeout(timer);
-        controller.abort();
         editor.removeEventListener('pointerup', onPointerUp);
     }
 }

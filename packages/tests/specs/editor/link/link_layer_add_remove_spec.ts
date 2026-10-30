@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_layer_add_remove_spec.json';
@@ -74,14 +75,14 @@ describe('Link layer add and remove', function() {
     });
 
     it('drag poi and validate it is not dragged', async function() {
-        await click(mapContainer, 200, 250);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 250}, modifiers: ['Alt']});
         await drag(mapContainer, {x: 200, y: 250}, {x: 200, y: 280});
 
         expect(poi.coord()).toEqualWithTolerance([75.336187116, 14.029118089, 0], 1e-6);
     });
 
     it('drag link shape and valdidate map is dragged', async function() {
-        await click(mapContainer, 150, 200);
+        await userEvent.click(mapContainer, {position: {x: 150, y: 200}, modifiers: ['Alt']});
         await waitForEditorReady(editor, async ()=>{
             await drag(mapContainer, {x: 400, y: 200}, {x: 450, y: 250});
         });

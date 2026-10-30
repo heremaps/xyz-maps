@@ -18,7 +18,8 @@
  */
 import {Listener, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_featureunselected_spec.json';
@@ -55,7 +56,7 @@ describe('map featureunselected event listener', function() {
         let listener = new Listener(editor, ['dragStart', 'dragStop', 'featureUnselected']);
 
         // click on link
-        await click(mapContainer, 150, 200);
+        await userEvent.click(mapContainer, {position: {x: 150, y: 200}, modifiers: ['Alt']});
 
         // drag link shape point
         await drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 210});

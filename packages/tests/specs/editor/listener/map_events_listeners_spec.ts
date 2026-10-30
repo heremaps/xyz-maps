@@ -18,7 +18,8 @@
  */
 import {Listener, prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_events_listeners_spec.json';
@@ -226,7 +227,7 @@ describe('map event system', function() {
         await drag(mapContainer, {x: 100, y: 200}, {x: 80, y: 200});
 
         // click on map
-        await click(mapContainer, 450, 50);
+        await userEvent.click(mapContainer, {position: {x: 450, y: 50}, modifiers: ['Alt']});
 
         // drag the ground
         await waitForEditorReady(editor, async ()=>{

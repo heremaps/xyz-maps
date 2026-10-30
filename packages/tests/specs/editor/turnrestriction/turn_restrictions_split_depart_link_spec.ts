@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_depart_link_spec.json';
@@ -61,13 +61,13 @@ describe('turn restriction test split the depart link', () => {
     });
 
     it('set turn restriction and validate', async function() {
-        await click(mapContainer, 200, 100);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
 
         let shape = <NavlinkShape>(await editorClick(editor, 200, 200)).target;
         shape.editTurnRestrictions();
 
         // click on traffic sign
-        await click(mapContainer, 215, 200);
+        await userEvent.click(mapContainer, {position: {x: 215, y: 200}, modifiers: ['Alt']});
 
         expect(link2.prop('turnRestriction')).toEqual({end: [link1.id]});
     });

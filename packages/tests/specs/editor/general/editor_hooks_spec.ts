@@ -17,7 +17,8 @@
  * License-Filename: LICENSE
  */
 import {editorClick, waitForEditorReady} from 'editorUtils';
-import {click, drag} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {TileLayer} from '@here/xyz-maps-core';
 import {Editor, LineShape, NavlinkShape} from '@here/xyz-maps-editor';
@@ -94,7 +95,7 @@ describe('editor hooks test', function() {
         const mapDiv = display.getContainer();
 
         // select the line
-        await click(mapDiv, 400, 400);
+        await userEvent.click(mapDiv, {position: {x: 400, y: 400}, modifiers: ['Alt']});
         // drag the shape
         await drag(mapDiv, {x: 200, y: 400}, {x: 100, y: 400});
 
@@ -299,7 +300,7 @@ describe('editor hooks test', function() {
         const mapDiv = display.getContainer();
 
         // select the line
-        await click(mapDiv, 400, 400);
+        await userEvent.click(mapDiv, {position: {x: 400, y: 400}, modifiers: ['Alt']});
         // drag the shape
         await drag(mapDiv, {x: 200, y: 400}, {x: 100, y: 400});
 

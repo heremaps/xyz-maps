@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './transform_spec.json';
@@ -71,7 +72,7 @@ describe('transform objects', () => {
 
         expect(features.length).toBeGreaterThanOrEqual(7);
 
-        await click(mapContainer, 100, 100);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 100}, modifiers: ['Alt']});
 
         features = overlay.search(display.getViewBounds());
         expect(features).toHaveLength(0);

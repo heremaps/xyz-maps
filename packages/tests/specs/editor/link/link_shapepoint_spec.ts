@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_shapepoint_spec.json';
@@ -57,7 +57,7 @@ describe('link shape points', function() {
     });
 
     it('click on link to get shape point', async function() {
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
         shape = (await editorClick(editor, 100, 100)).target;
 
         expect(shape.getConnectedLinks()).toHaveLength(1);
@@ -95,7 +95,7 @@ describe('link shape points', function() {
         let links = shape.splitLink();
 
         // click on ground
-        await click(mapContainer, 100, 500);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 500}, modifiers: ['Alt']});
 
         expect(links[0].coord()).toEqualWithTolerance([
             [77.26942, 13.082952518, 0],

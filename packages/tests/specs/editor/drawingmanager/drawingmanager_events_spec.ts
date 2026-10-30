@@ -18,7 +18,8 @@
  */
 import {Listener, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click, drag, mousemove} from 'triggerEvents';
+import {drag, mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_events_spec.json';
@@ -57,17 +58,17 @@ describe('mouse events when drawingmanager is active', function() {
 
         // click to add a shape
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         // click to add another shape
         await mousemove(mapContainer, {x: 200, y: 200}, {x: 300, y: 200});
-        await click(mapContainer, 300, 200);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 200}, modifiers: ['Alt']});
 
         // drag shape point
         await drag(mapContainer, {x: 300, y: 200}, {x: 250, y: 100});
 
         // click on one shape point
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         // drag map
         await waitForEditorReady(editor, async ()=>{

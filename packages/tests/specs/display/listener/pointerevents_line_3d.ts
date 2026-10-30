@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {Listener} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Pointerevents Line 3d', () => {
@@ -90,7 +90,7 @@ describe('Pointerevents Line 3d', () => {
         const x = 200 - 16 + 2;
         const y = 300;
 
-        await click(mapContainer, x, y);
+        await userEvent.click(mapContainer, {position: {x: x, y: y}, modifiers: ['Alt']});
 
         const results = listener.stop().pointerup;
         expect(results).toHaveLength(1);
@@ -110,7 +110,7 @@ describe('Pointerevents Line 3d', () => {
         const x = 200 - 16 - 2;
         const y = 300;
 
-        await click(mapContainer, x, y);
+        await userEvent.click(mapContainer, {position: {x: x, y: y}, modifiers: ['Alt']});
 
         const results = listener.stop().pointerup;
         expect(results).toHaveLength(1);
@@ -134,7 +134,7 @@ describe('Pointerevents Line 3d', () => {
         const x = 200 - 16 + 2;
         const y = 300;
 
-        await click(mapContainer, x, y);
+        await userEvent.click(mapContainer, {position: {x: x, y: y}, modifiers: ['Alt']});
 
         const results = listener.stop().pointerup;
         expect(results).toHaveLength(1);
@@ -157,7 +157,7 @@ describe('Pointerevents Line 3d', () => {
         const x = 200 - 16 - 2;
         const y = 300;
 
-        await click(mapContainer, x, y);
+        await userEvent.click(mapContainer, {position: {x: x, y: y}, modifiers: ['Alt']});
 
         const results = listener.stop().pointerup;
         expect(results).toHaveLength(1);

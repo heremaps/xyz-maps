@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {click, mousemove} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Area} from '@here/xyz-maps-editor';
 import dataset from './area_create_drawingmanager_vertical_spec.json';
@@ -56,23 +57,23 @@ describe('Area drawing manager points with same longitude', function() {
 
         // 1st shape point
         await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
         // 2nd shape point
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 100});
-        await click(mapContainer, 200, 100);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
 
         // 3rd shape point
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 150});
-        await click(mapContainer, 300, 150);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 150}, modifiers: ['Alt']});
 
         // 4th shape point, has the same longitude as the 3rd
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 170});
-        await click(mapContainer, 300, 170);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 170}, modifiers: ['Alt']});
 
         // 5th shape point
         await mousemove(mapContainer, {x: 100, y: 310}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         editor.getDrawingBoard().create({featureClass: 'AREA'});
 

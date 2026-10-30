@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_start_or_end_set_spec.json';
@@ -68,7 +68,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await click(mapContainer, 415, 200);
+        await userEvent.click(mapContainer, {position: {x: 415, y: 200}, modifiers: ['Alt']});
 
         expect(link3.prop('turnRestriction')).toEqual({end: []});
     });
@@ -78,7 +78,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await click(mapContainer, 415, 100);
+        await userEvent.click(mapContainer, {position: {x: 415, y: 100}, modifiers: ['Alt']});
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id], start: [link2.id]});
     });
 
@@ -87,7 +87,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await click(mapContainer, 385, 100);
+        await userEvent.click(mapContainer, {position: {x: 385, y: 100}, modifiers: ['Alt']});
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id], start: [link1.id]});
     });
 
@@ -96,7 +96,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id], start: [link1.id]});
 
         link3.editTurnRestrictions();
-        await click(mapContainer, 385, 100);
+        await userEvent.click(mapContainer, {position: {x: 385, y: 100}, modifiers: ['Alt']});
 
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id], start: []});
     });
@@ -107,7 +107,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id], start: [link1.id]});
 
         link3.editTurnRestrictions();
-        await click(mapContainer, 415, 200);
+        await userEvent.click(mapContainer, {position: {x: 415, y: 200}, modifiers: ['Alt']});
 
         expect(link3.prop('turnRestriction')).toEqual({end: [], start: [link1.id]});
     });
@@ -118,7 +118,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id], start: [link1.id]});
 
         link3.editTurnRestrictions();
-        await click(mapContainer, 415, 100);
+        await userEvent.click(mapContainer, {position: {x: 415, y: 100}, modifiers: ['Alt']});
 
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id], start: [link1.id, link2.id]});
     });
@@ -128,7 +128,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await click(mapContainer, 385, 100);
+        await userEvent.click(mapContainer, {position: {x: 385, y: 100}, modifiers: ['Alt']});
 
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id], start: [link1.id]});
     });
@@ -139,7 +139,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await click(mapContainer, 415, 200);
+        await userEvent.click(mapContainer, {position: {x: 415, y: 200}, modifiers: ['Alt']});
 
         expect(link3.prop('turnRestriction')).toEqual({end: []});
     });
@@ -150,7 +150,7 @@ describe('turn restriction either start or end is set', function() {
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id]});
 
         link3.editTurnRestrictions();
-        await click(mapContainer, 415, 100);
+        await userEvent.click(mapContainer, {position: {x: 415, y: 100}, modifiers: ['Alt']});
 
         expect(link3.prop('turnRestriction')).toEqual({end: [link4.id], start: [link2.id]});
     });

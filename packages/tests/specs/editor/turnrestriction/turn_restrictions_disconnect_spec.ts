@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_disconnect_spec.json';
@@ -67,13 +67,13 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         link1.editTurnRestrictions();
 
         // set turn restriction
-        await click(mapContainer, 200, 115);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 115}, modifiers: ['Alt']});
 
         expect(link1.prop('turnRestriction')).toEqual({end: [link2.id]});
     });
 
     it('deactivate turn restriction editor and disconnect shape point, validate disconnected link', async function() {
-        await click(mapContainer, 100, 300);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 300}, modifiers: ['Alt']});
 
         link1.select();
 
@@ -116,17 +116,17 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         link4.editTurnRestrictions();
 
         // set turn restriction
-        await click(mapContainer, 290, 200);
+        await userEvent.click(mapContainer, {position: {x: 290, y: 200}, modifiers: ['Alt']});
         // click to deactivate turn restriction
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
 
         link3.editTurnRestrictions();
 
         // set turn restriction
-        await click(mapContainer, 290, 200);
+        await userEvent.click(mapContainer, {position: {x: 290, y: 200}, modifiers: ['Alt']});
         // click to deactivate turn restriction
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
         expect(link1.prop('turnRestriction')).toEqual({end: [link2.id]});
         expect(link3.prop('turnRestriction')).toEqual({end: [link2.id]});

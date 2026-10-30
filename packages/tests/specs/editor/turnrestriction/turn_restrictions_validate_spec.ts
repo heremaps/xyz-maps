@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {mousemove, click} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_validate_spec.json';
@@ -62,11 +63,11 @@ describe('turn restriction validate', function() {
     });
 
     it('modify turn restriction and validate its value', async function() {
-        await click(mapContainer, 100, 115);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 115}, modifiers: ['Alt']});
 
         link3.editTurnRestrictions();
 
-        await click(mapContainer, 212, 152);
+        await userEvent.click(mapContainer, {position: {x: 212, y: 152}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 210, y: 110});
 

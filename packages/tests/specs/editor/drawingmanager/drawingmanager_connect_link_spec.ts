@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click, drag, mousemove} from 'triggerEvents';
+import {drag, mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_connect_link_spec.json';
@@ -61,10 +62,10 @@ describe('Create new Links and drag connect point,original link is not split', f
         });
 
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
-        await click(mapContainer, 200, 300);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 300}, modifiers: ['Alt']});
 
         // drag the connectting point
         await drag(mapContainer, {x: 143, y: 95}, {x: 50, y: 100});

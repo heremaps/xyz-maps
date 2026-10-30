@@ -18,7 +18,7 @@
  */
 import {Listener, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_click_spec.json';
@@ -55,19 +55,19 @@ describe('map click listener', function() {
         let listener = new Listener(editor, ['pointerup']);
 
         // lick on Address
-        await click(mapContainer, 300, 260);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 260}, modifiers: ['Alt']});
 
         // click on address navigation point
-        await click(mapContainer, 300, 200);
+        await userEvent.click(mapContainer, {position: {x: 300, y: 200}, modifiers: ['Alt']});
 
         // click on map
-        await click(mapContainer, 631, 324);
+        await userEvent.click(mapContainer, {position: {x: 631, y: 324}, modifiers: ['Alt']});
 
         // click on link
-        await click(mapContainer, 350, 200);
+        await userEvent.click(mapContainer, {position: {x: 350, y: 200}, modifiers: ['Alt']});
 
         // click on link shape point
-        await click(mapContainer, 400, 200);
+        await userEvent.click(mapContainer, {position: {x: 400, y: 200}, modifiers: ['Alt']});
 
         let results = listener.stop();
 

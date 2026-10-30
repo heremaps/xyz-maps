@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {click, drag, mousemove} from 'triggerEvents';
+import {drag, mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_modify_shapepoint_spec.json';
@@ -53,13 +54,13 @@ describe('Create new Link by drawing manager and remove some shape points', func
         let mapContainer = display.getContainer();
 
         await mousemove(mapContainer, {x: 100, y: 80}, {x: 100, y: 100});
-        await click(mapContainer, 100, 100);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 100}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
-        await click(mapContainer, 100, 300);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 300}, modifiers: ['Alt']});
 
         await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
-        await click(mapContainer, 100, 200);
+        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
         await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 

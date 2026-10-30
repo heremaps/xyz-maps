@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick, submit} from 'editorUtils';
-import {click, mousemove} from 'triggerEvents';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_create_and_connect_to_original_spec.json';
@@ -61,7 +62,7 @@ describe('Create new Links and connect to original link', function() {
         });
 
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
-        await click(mapContainer, 200, 200);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
 
         let lnk;
         await waitForEditorReady(editor, async () => {
@@ -76,7 +77,7 @@ describe('Create new Links and connect to original link', function() {
 
 
     it('validate the connect shape point then submit', async function() {
-        await click(mapContainer, 200, 120);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 120}, modifiers: ['Alt']});
         let linkshape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
 
         let lnk = linkshape.getConnectedLinks();
@@ -91,7 +92,7 @@ describe('Create new Links and connect to original link', function() {
 
 
     it('validate the connect shape point again after submit', async function() {
-        await click(mapContainer, 200, 120);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 120}, modifiers: ['Alt']});
         let linkshape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
 
         let lnk = linkshape.getConnectedLinks();

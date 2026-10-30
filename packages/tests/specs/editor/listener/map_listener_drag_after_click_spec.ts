@@ -18,7 +18,8 @@
  */
 import {Listener, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_drag_after_click_spec.json';
@@ -54,19 +55,19 @@ describe('map events, click objects after dragging', function() {
         let listener = new Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
 
         // click on poi
-        await click(mapContainer, 165, 324);
+        await userEvent.click(mapContainer, {position: {x: 165, y: 324}, modifiers: ['Alt']});
 
         // click on another poi
-        await click(mapContainer, 257, 337);
+        await userEvent.click(mapContainer, {position: {x: 257, y: 337}, modifiers: ['Alt']});
 
         // click the poi
         await drag(mapContainer, {x: 257, y: 337}, {x: 357, y: 337});
 
         // click on the clicked poi
-        await click(mapContainer, 165, 324);
+        await userEvent.click(mapContainer, {position: {x: 165, y: 324}, modifiers: ['Alt']});
 
         // click on dragged poi
-        await click(mapContainer, 357, 337);
+        await userEvent.click(mapContainer, {position: {x: 357, y: 337}, modifiers: ['Alt']});
 
         let results = listener.stop();
 

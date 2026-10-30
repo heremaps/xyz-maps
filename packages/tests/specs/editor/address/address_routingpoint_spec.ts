@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_routingpoint_spec.json';
@@ -85,7 +86,7 @@ describe('routing point of address objects should always exists', function() {
         };
         let link3 = editor.addFeature(l3, preparedData.getLayers('linkLayer'));
 
-        await click(mapContainer, 200, 100);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
 
         expect(address.prop()).toEqual(expect.objectContaining({
             'routingLink': link2.id + '',
@@ -104,7 +105,7 @@ describe('routing point of address objects should always exists', function() {
     });
 
     it('drag connected link, address has its routing point changed', async function() {
-        await click(mapContainer, 200, 300);
+        await userEvent.click(mapContainer, {position: {x: 200, y: 300}, modifiers: ['Alt']});
         await drag(mapContainer, {x: 200, y: 300}, {x: 200, y: 400});
 
         expect(address.prop()).toEqual(expect.objectContaining({

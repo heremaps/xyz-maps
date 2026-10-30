@@ -18,7 +18,7 @@
  */
 import {Listener, prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {click} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_click_spec.json';
@@ -61,13 +61,13 @@ describe('link click events', function() {
         link.select();
 
         // click on link
-        await click(mapContainer, 250, 200);
+        await userEvent.click(mapContainer, {position: {x: 250, y: 200}, modifiers: ['Alt']});
 
         // click on link
-        await click(mapContainer, 260, 200);
+        await userEvent.click(mapContainer, {position: {x: 260, y: 200}, modifiers: ['Alt']});
 
         // click on link
-        await click(mapContainer, 270, 200);
+        await userEvent.click(mapContainer, {position: {x: 270, y: 200}, modifiers: ['Alt']});
 
         let results = listener.stop();
 

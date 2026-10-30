@@ -18,7 +18,8 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
-import {drag, click} from 'triggerEvents';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './poi_routingpoint_spec.json';
@@ -65,7 +66,7 @@ describe('set POI routing point', function() {
 
 
     it('click and drag routingPoint of poi, validate routing point of another poi not created and create it', async function() {
-        await click(mapContainer, 180, 300);
+        await userEvent.click(mapContainer, {position: {x: 180, y: 300}, modifiers: ['Alt']});
         await drag(mapContainer, {x: 100, y: 300}, {x: 100, y: 400});
 
         poi.createRoutingPoint();
