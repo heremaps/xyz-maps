@@ -3,11 +3,11 @@ import {playwright} from '@vitest/browser-playwright';
 import type {UserWorkspaceConfig} from 'vitest/config';
 import type {BrowserConfigOptions} from 'vitest/node';
 import type {LibraryComponent, MapMarkup} from './types.ts';
-import {type Component, distOf, root, xyzAssets, xyzEnvironment, xyzGlobals, xyzLibs} from './plugins.mts';
+import {type Component, distOf, root, xyzArtifacts, xyzAssets, xyzEnvironment} from './plugins.mts';
 
 const src = path.join(root, 'src');
 
-// libs: bundles that are loaded for the component, in this order
+// libs: UMD artifacts available to the project's module dependency graph
 // map: markup of the former statics/runner<component>.html that the specs rely on
 const COMPONENTS: Record<Component, {libs: LibraryComponent[]; include: string[]; map: MapMarkup}> = {
     common: {
@@ -17,7 +17,7 @@ const COMPONENTS: Record<Component, {libs: LibraryComponent[]; include: string[]
     },
     core: {
         libs: ['common', 'core'],
-        include: ['specs/core/get_cancel_tiles/*.ts', 'specs/core/layer/*.ts', 'specs/core/provider/*/*.ts'],
+        include: ['specs/core/get_cancel_tiles/*.ts', 'specs/core/geometry/*.ts', 'specs/core/layer/*.ts', 'specs/core/provider/*/*.ts'],
         map: 'plain'
     },
     display: {
@@ -71,7 +71,7 @@ export function project(component: Component, mode: string): UserWorkspaceConfig
     const {libs, include, map} = COMPONENTS[component];
 
     return {
-        plugins: [xyzLibs(libs, distOf(mode)), xyzGlobals(), xyzAssets(), xyzEnvironment(component)],
+        plugins: [xyzArtifacts(libs, distOf(mode)), xyzAssets(), xyzEnvironment(component)],
         resolve: {
             alias: [
                 // bare module names of the specs, same mapping as "paths" in tsconfig.json

@@ -15,6 +15,11 @@ The tests run against the bundles in `packages/*/dist`. Build them first in the 
 * `pnpm run build-release` for the minified bundles (default)
 * `pnpm run build-dev` for the bundles that are used with `--mode dev`
 
+Package imports resolve explicitly to these UMD files, not ESM entry points or TypeScript sources.
+Vite's dependency optimizer makes their CommonJS exports available as browser imports.
+The test harness neither injects library scripts nor rewrites imports to the libraries' global namespace.
+Dependency optimization is refreshed on startup so rebuilt artifacts are not hidden by a stale cache.
+
 ### Requirements
 
 * Google Chrome is installed. It is used by default.
@@ -93,6 +98,6 @@ Run them with `pnpm run test:integration`.
 
 * Do not use `done` callbacks or `this.timeout()`, Vitest does not support them. Return a promise or use `async`.
 * A spec file must not import another spec file. Put shared helpers into `src/utils`.
-* Vitest does not check types. Run `pnpm run typecheck` for specs, helpers, browser setup and virtual module declarations
+* Vitest does not check types. Run `pnpm run typecheck` for specs, helpers, browser setup and setup declarations
   (`tsconfig.json`), plus strict checking of Node-side plugins, projects and both Vitest configs (`tsconfig.vitest.json`).
 * The imports `utils`, `editorUtils`, `displayUtils`, `coreUtils`, `triggerEvents` and `TestProviders` refer to `src/utils` and `src/TestProvider.ts`, see `vitest/projects.mts`.

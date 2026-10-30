@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type {Plugin} from 'vitest/config';
-import type {LibraryBundle, LibraryComponent, Component} from './types.ts';
+import type {LibraryComponent, Component} from './types.ts';
 
 export const root = path.resolve(import.meta.dirname, '..');
 const assetsDir = path.join(root, 'assets');
@@ -20,14 +20,6 @@ export function distOf(mode: string): Dist {
     throw new Error(`Unknown mode "${mode}". Use "--mode dev" for the dev bundles or leave the mode out for the minified bundles.`);
 }
 
-// The libraries are UMD builds that find each other through the global namespace.
-const GLOBALS: { [pkg: string]: string } = {
-    '@here/xyz-maps-common': 'here.xyz.maps.common',
-    '@here/xyz-maps-core': 'here.xyz.maps',
-    '@here/xyz-maps-display': 'here.xyz.maps',
-    '@here/xyz-maps-editor': 'here.xyz.maps.editor'
-};
-
 const MIME: { [ext: string]: string } = {
     '.json': 'application/json',
     '.png': 'image/png',
@@ -35,83 +27,31 @@ const MIME: { [ext: string]: string } = {
     '.mtl': 'text/plain'
 };
 
-const LIBS_ID = 'virtual:xyz-libs';
-
 /**
- * Provides the library bundles as strings. vitest/setup.ts runs them as classic scripts in the order of
- * the given components, so that they set up the global namespace themselves.
- *
- * dist 'dev' uses dist/xyz-maps-<name>.js instead of the minified dist/xyz-maps-<name>.min.js, see distOf().
- * XYZ_<NAME>_SRC=<path> uses a different file for a single component, e.g. XYZ_EDITOR_SRC=../editor/dist/xyz-maps-editor.js
+ * Resolves package imports to the built UMD artifacts, never the ESM entry points or TypeScript sources.
+ * Linked workspace packages need explicit dependency optimization for their CommonJS exports.
  */
-export function xyzLibs(components: LibraryComponent[], dist: Dist): Plugin {
-    return {
-        name: 'xyz-libs',
-        enforce: 'pre',
-        resolveId(id: string) {
-            if (id === LIBS_ID) return '\0' + LIBS_ID;
-        },
-        load(id: string) {
-            if (id !== '\0' + LIBS_ID) return;
-
-            const libs: LibraryBundle[] = components.map((name) => {
-                const custom = process.env[`XYZ_${name.toUpperCase()}_SRC`];
-                const file = custom
-                    ? path.resolve(process.cwd(), custom)
-                    : path.join(root, '..', name, 'dist', `xyz-maps-${name}${dist == 'dev' ? '' : '.min'}.js`);
-
-                if (!fs.existsSync(file)) {
-                    throw new Error(`Cannot find "${file}". Build the packages first with "pnpm run build-release" (--mode dev: "pnpm run build-dev").`);
-                }
-                this.addWatchFile(file);
-
-                // a sourceMappingURL comment would make the browser look for the map next to the page
-                const code = fs.readFileSync(file, 'utf8').replace(/^\/\/# sourceMappingURL=.*$/gm, '');
-                return {component: name, name: path.basename(file), code};
-            });
-            return `export default ${JSON.stringify(libs)};`;
+export function xyzArtifacts(components: LibraryComponent[], dist: Dist): Plugin {
+    const alias = components.map((name) => {
+        const custom = process.env[`XYZ_${name.toUpperCase()}_SRC`];
+        const file = custom
+            ? path.resolve(process.cwd(), custom)
+            : path.join(root, '..', name, 'dist', `xyz-maps-${name}${dist == 'dev' ? '' : '.min'}.js`);
+        if (!fs.existsSync(file)) {
+            throw new Error(`Cannot find "${file}". Build the packages first with "pnpm run build-release" (--mode dev: "pnpm run build-dev").`);
         }
-    };
-}
-
-/**
- * Rewrites `import {A} from '@here/xyz-maps-core'` of the specs and helpers of this package to
- * `const {A} = globalThis.here.xyz.maps`, which is what the UMD externals of the former rollup build did.
- */
-export function xyzGlobals(): Plugin {
+        return {find: `@here/xyz-maps-${name}`, replacement: file};
+    });
     return {
-        name: 'xyz-globals',
-        // after the typescript transform, so that imports that are only used as types are already gone
-        enforce: 'post',
-        transform(code: string, id: string) {
-            const file = id.split('?')[0];
-            if (!file.startsWith(root) || file.includes('/node_modules/') || !code.includes('@here/xyz-maps-')) return;
-
-            const importRe = /import\s+([^;'"]*?)\s*from\s*['"](@here\/xyz-maps-[a-z]+)['"]\s*;?/g;
-            const out = code.replace(importRe, (match: string, clause: string, pkg: string) => {
-                const ns = GLOBALS[pkg];
-                if (!ns) throw new Error(`xyz-globals: no global known for "${pkg}" in ${file}`);
-                const source = `globalThis.${ns}`;
-                const lines: string[] = [];
-                const named = clause.match(/\{([^}]*)\}/);
-                const star = clause.match(/\*\s*as\s+([\w$]+)/);
-                const def = clause.replace(/\{[^}]*\}/, '').replace(/\*\s*as\s+[\w$]+/, '').replace(/,/g, '').trim();
-
-                if (def) lines.push(`const ${def} = ${source};`);
-                if (star) lines.push(`const ${star[1]} = ${source};`);
-                if (named) {
-                    const props = named[1].split(',').map((s) => s.trim()).filter(Boolean)
-                        .map((s) => s.replace(/\s+as\s+/, ': '));
-                    if (props.length) lines.push(`const {${props.join(', ')}} = ${source};`);
+        name: 'xyz-artifacts',
+        config() {
+            return {
+                resolve: {alias},
+                optimizeDeps: {
+                    include: alias.map(({find}) => find),
+                    force: true
                 }
-                // keep the line count so that stack traces still point to the right line
-                return lines.join(' ') + '\n'.repeat((match.match(/\n/g) || []).length);
-            });
-
-            if (/from\s*['"]@here\/xyz-maps-/.test(out) || /import\s*['"]@here\/xyz-maps-/.test(out)) {
-                throw new Error(`xyz-globals: unhandled import of @here/xyz-maps-* in ${file}`);
-            }
-            return {code: out, map: null};
+            };
         }
     };
 }
