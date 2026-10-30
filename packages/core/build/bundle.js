@@ -1,3 +1,5 @@
+// The embedded AMD loader uses Common without exposing that dependency to Rollup.
+import '@here/xyz-maps-common';
 import './shared';
 import './workers';
 import './index';

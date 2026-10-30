@@ -272,6 +272,9 @@ importers:
       '@types/offscreencanvas':
         specifier: ^2019.7.3
         version: 2019.7.3
+      earcut:
+        specifier: ^3.0.2
+        version: 3.2.4
       git-rev-sync:
         specifier: ^3.0.2
         version: 3.0.2
@@ -318,9 +321,6 @@ importers:
       '@rollup/plugin-virtual':
         specifier: ^3.0.2
         version: 3.0.2(rollup@4.64.2)
-      earcut:
-        specifier: ^3.0.2
-        version: 3.2.4
       gl-matrix:
         specifier: ^3.4.3
         version: 3.4.4

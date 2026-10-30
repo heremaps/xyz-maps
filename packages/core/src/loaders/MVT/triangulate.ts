@@ -21,7 +21,7 @@
 // TODO: clean generic implementation
 
 import Protobuf from 'pbf';
-import earcut from 'earcut';
+import {triangulatePolygon} from '../../geometry/triangulatePolygon';
 import {VectorTile} from '@mapbox/vector-tile';
 import {LayerData, XYZBin} from './XYZBin';
 
@@ -266,7 +266,7 @@ export default (arraybuffer, x: number, y: number, z: number) => {
 
                 for (let polygon of classifyRings(coordinates)) {
                     let data = flatten(polygon);
-                    let triangles = earcut(data.vertices, data.holes, data.dimensions);
+                    let triangles = triangulatePolygon(data.vertices, data.holes, data.dimensions);
 
                     for (let t of triangles) {
                         const index = prevPolysLength + t;

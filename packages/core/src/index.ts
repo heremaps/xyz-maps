@@ -44,6 +44,7 @@ export * from './features/Feature';
 export * from './tile/Tile';
 export * from './service/GeoCoder';
 export {tileUtils} from './tile/TileUtils';
+export {triangulatePolygon} from './geometry/triangulatePolygon';
 export * from './features/GeoJSON';
 
 export {ImageProvider} from './providers/ImageProvider';

@@ -18,7 +18,6 @@
  */
 import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
-import earcut from 'earcut';
 import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
 import {defaultFont, wrapText} from '../../textUtils';
 import {FontStyle, GlyphTexture} from '../GlyphTexture';
@@ -38,7 +37,8 @@ import {
     ImageStyle,
     ParsedStyleProperty,
     LayerStyle, TerrainTileFeature,
-    ElevationQuadTree
+    ElevationQuadTree,
+    triangulatePolygon
 } from '@here/xyz-maps-core';
 import {TemplateBuffer} from './templates/TemplateBuffer';
 import {addVerticalLine} from './addVerticalLine';
@@ -1205,7 +1205,7 @@ export class FeatureFactory {
                             for (let flat of flatPoly) {
                                 let d = flat.dimensions;
                                 let coords = aPosition.data.subarray(flat.start, flat.stop);
-                                let tri = earcut(coords, flat.holes, d);
+                                let tri = triangulatePolygon(coords, flat.holes, d);
                                 let i = (flat.start - flatPolyStart) / d;
 
                                 for (let t of tri) {
