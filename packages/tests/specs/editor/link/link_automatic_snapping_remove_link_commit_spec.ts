@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_snapping_remove_link_commit_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link auto remove and commit', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -60,11 +58,11 @@ describe('link auto remove and commit', function() {
         let mapContainer = display.getContainer();
         await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
-        expect(editor.info()).to.have.lengthOf(1);
+        expect(editor.info()).toHaveLength(1);
 
         let objs = editor.search(display.getViewBounds());
 
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
     });
 
     it('submit the change and validate link is removed', async function() {
@@ -80,12 +78,12 @@ describe('link auto remove and commit', function() {
             });
         });
 
-        expect(result).to.be.true;
-        expect(editor.info()).to.have.lengthOf(0);
+        expect(result).toBe(true);
+        expect(editor.info()).toHaveLength(0);
 
         let vb = editor.search({
             rect: display.getViewBounds()
         });
-        expect(vb).to.have.lengthOf(0);
+        expect(vb).toHaveLength(0);
     });
 });

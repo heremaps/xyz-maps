@@ -20,12 +20,10 @@
 import {prepare} from 'utils';
 import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_gettile_then_cancel_with_all_requests_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe.skip('layer get and cancel requesting all other related requests', function() {
     // cancel request without callback will cancel all requests with the same qk
-    const expect = chai.expect;
-
     var placeLayer;
 
     var qk11;
@@ -72,8 +70,8 @@ describe.skip('layer get and cancel requesting all other related requests', func
                     withCallback: false
                 },
                 onFinish: function(requests, callbackResults) {
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -82,7 +80,7 @@ describe.skip('layer get and cancel requesting all other related requests', func
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
                     done();
                 }
@@ -104,8 +102,8 @@ describe.skip('layer get and cancel requesting all other related requests', func
                     withCallback: false
                 },
                 onFinish: function(requests, callbackResults) {
-                    expect(requests.length).to.equal(4);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(4);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -114,7 +112,7 @@ describe.skip('layer get and cancel requesting all other related requests', func
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(3);
+                    expect(cancelledRequests).toBe(3);
 
 
                     done();
@@ -138,8 +136,8 @@ describe.skip('layer get and cancel requesting all other related requests', func
                     withCallback: false
                 },
                 onFinish: function(requests, callbackResults) {
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -148,7 +146,7 @@ describe.skip('layer get and cancel requesting all other related requests', func
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -172,8 +170,8 @@ describe.skip('layer get and cancel requesting all other related requests', func
                     withCallback: false
                 },
                 onFinish: function(requests, callbackResults) {
-                    expect(requests.length).to.equal(4);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(4);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -182,7 +180,7 @@ describe.skip('layer get and cancel requesting all other related requests', func
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();

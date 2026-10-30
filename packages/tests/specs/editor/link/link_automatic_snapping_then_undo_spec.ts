@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_snapping_then_undo_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('drag a link shape point to the other one and then undo', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -65,23 +63,23 @@ describe('drag a link shape point to the other one and then undo', function() {
 
         await drag(mapContainer, {x: 462, y: 389}, {x: 275, y: 228});
 
-        expect(editor.info()).to.have.lengthOf(1);
+        expect(editor.info()).toHaveLength(1);
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
     it('undo last drag and validate', async function() {
         editor.undo();
 
-        expect(editor.info()).to.have.lengthOf(0);
+        expect(editor.info()).toHaveLength(0);
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
 
         link2 = editor.getFeature(link2.id, linkLayer);
         let coord = link2.coord();
-        expect(coord).to.deep.almost([
+        chai.expect(coord).to.deep.almost([
             [76.22923083, 15.187728775, 0],
             [76.230233976, 15.186895307, 0]
         ]);

@@ -21,15 +21,13 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_text.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 let FONT = 'bold 48px Arial,Helvetica,sans-serif';
 
 const FULL_BLOCK_CHAR = '\u2588';
 
 describe('setStyleGroup Point with text', function() {
-    const expect = chai.expect;
-
     let paLayer;
     let display;
     let mapContainer;
@@ -73,11 +71,11 @@ describe('setStyleGroup Point with text', function() {
             {x: 350, y: 300}, {x: 375, y: 300}, {x: 400, y: 300}, {x: 425, y: 300}, {x: 450, y: 300}
         ], {expect: ['#ff0000', '#000000', '#ff0000', '#000000', '#ff0000']});
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#ff0000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#ff0000');
     });
 
     it('style text with opacity', async () => {
@@ -92,9 +90,9 @@ describe('setStyleGroup Point with text', function() {
             expect: ['#ff0000', '#800000', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#800000');
-        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#800000');
+        expect(colors[2]).toBe('#ff0000');
     });
 
     it('style text with textRef', async () => {
@@ -109,11 +107,11 @@ describe('setStyleGroup Point with text', function() {
             {x: 375, y: 300}, {x: 388, y: 300}, {x: 400, y: 300}, {x: 414, y: 300}, {x: 425, y: 300}
         ], {expect: ['#ff0000', '#000000', '#ff0000', '#000000', '#ff0000']});
 
-        expect(colors[0]).to.equal('#ff0000'); // color left of "O"
-        expect(colors[1]).to.equal('#000000'); // color on left arc of "O"
-        expect(colors[2]).to.equal('#ff0000'); // color center "O"
-        expect(colors[3]).to.equal('#000000'); // color on right arc of "O"
-        expect(colors[4]).to.equal('#ff0000'); // color right of "O"
+        expect(colors[0]).toBe('#ff0000'); // color left of "O"
+        expect(colors[1]).toBe('#000000'); // color on left arc of "O"
+        expect(colors[2]).toBe('#ff0000'); // color center "O"
+        expect(colors[3]).toBe('#000000'); // color on right arc of "O"
+        expect(colors[4]).toBe('#ff0000'); // color right of "O"
     });
 
     it('style text with positive offsetX', async () => {
@@ -127,9 +125,9 @@ describe('setStyleGroup Point with text', function() {
             expect: ['#ff0000', '#000000', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#ff0000');
     });
 
     it('style text with negative offsetX', async () => {
@@ -143,9 +141,9 @@ describe('setStyleGroup Point with text', function() {
             expect: ['#ff0000', '#000000', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#ff0000');
     });
 
     it('style text with positive offsetY', async () => {
@@ -159,9 +157,9 @@ describe('setStyleGroup Point with text', function() {
             expect: ['#ff0000', '#000000', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#ff0000');
     });
 
     it('style text with offsetY', async () => {
@@ -175,9 +173,9 @@ describe('setStyleGroup Point with text', function() {
             expect: ['#ff0000', '#000000', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#ff0000');
     });
 
     it('style text with offsetX and offsetY', async () => {
@@ -201,11 +199,11 @@ describe('setStyleGroup Point with text', function() {
             expect: ['#ff0000', '#ff0000', '#ff0000', '#ff0000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#ff0000');
-        expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#ff0000');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#ff0000');
+        expect(colors[2]).toBe('#ff0000');
+        expect(colors[3]).toBe('#ff0000');
+        expect(colors[4]).toBe('#000000');
     });
 
     it('validate text is not wrapped by default', async () => {
@@ -226,7 +224,7 @@ describe('setStyleGroup Point with text', function() {
         });
 
         for (let color of colors) {
-            expect(color).to.equal('#ff0000');
+            expect(color).toBe('#ff0000');
         }
     });
 
@@ -251,7 +249,7 @@ describe('setStyleGroup Point with text', function() {
         });
 
         for (let color of colors) {
-            expect(color).to.equal('#ff0000');
+            expect(color).toBe('#ff0000');
         }
     });
 
@@ -275,7 +273,7 @@ describe('setStyleGroup Point with text', function() {
         });
 
         for (let color of colors) {
-            expect(color).to.equal('#ff0000');
+            expect(color).toBe('#ff0000');
         }
     });
 
@@ -300,7 +298,7 @@ describe('setStyleGroup Point with text', function() {
         });
 
         for (let color of colors) {
-            expect(color).to.equal('#ff0000');
+            expect(color).toBe('#ff0000');
         }
     });
 });

@@ -24,12 +24,10 @@ import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 
 describe('link connection candidates', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let linkLayer;
@@ -113,17 +111,17 @@ describe('link connection candidates', function() {
 
     it('getConnectionCandidates returns empty array when no links are nearby', function() {
         const candidates = link2.getConnectionCandidates(0);
-        expect(candidates).to.be.an('array');
-        expect(candidates).to.have.lengthOf(0);
+        expect(candidates).toBeInstanceOf(Array);
+        expect(candidates).toHaveLength(0);
     });
 
     it('autoConnect behavior defaults to true', function() {
-        expect(link2.behavior('autoConnect')).to.be.true;
+        expect(link2.behavior('autoConnect')).toBe(true);
     });
 
     it('set autoConnect behavior to false', function() {
         link2.behavior({autoConnect: false});
-        expect(link2.behavior('autoConnect')).to.be.false;
+        expect(link2.behavior('autoConnect')).toBe(false);
     });
 
     it('drag shape with autoConnect=false does not connect', async function() {
@@ -135,28 +133,28 @@ describe('link connection candidates', function() {
 
         // shape should be at the dragged position but NOT connected
         const shape = <NavlinkShape>(await editorClick(editor, 200, 200)).target;
-        expect(shape).to.not.be.undefined;
-        expect(shape.class).to.equal('NAVLINK_SHAPE');
+        expect(shape).not.toBeUndefined();
+        expect(shape.class).toBe('NAVLINK_SHAPE');
 
         const connectedLinks = shape.getConnectedLinks();
-        expect(connectedLinks).to.have.lengthOf(0);
+        expect(connectedLinks).toHaveLength(0);
     });
 
     it('getConnectionCandidates returns multiple candidates when overlapping links are nearby', function() {
         // link2 endpoint is now at the same position as link1 and link3
         const candidates = link2.getConnectionCandidates(1);
-        expect(candidates).to.be.an('array');
-        expect(candidates).to.have.lengthOf(2);
+        expect(candidates).toBeInstanceOf(Array);
+        expect(candidates).toHaveLength(2);
 
         const candidateIds = candidates.map((c) => c.link.id).sort();
-        expect(candidateIds).to.include(link1.id);
-        expect(candidateIds).to.include(link3.id);
+        expect(candidateIds).toContain(link1.id);
+        expect(candidateIds).toContain(link3.id);
     });
 
     it('candidates are sorted by distance', function() {
         const candidates = link2.getConnectionCandidates(1);
         for (let i = 1; i < candidates.length; i++) {
-            expect(candidates[i].distance).to.be.at.least(candidates[i - 1].distance);
+            expect(candidates[i].distance).toBeGreaterThanOrEqual(candidates[i - 1].distance);
         }
     });
 
@@ -164,21 +162,21 @@ describe('link connection candidates', function() {
         const candidates = link2.getConnectionCandidates(1);
         const candidate = candidates[0];
 
-        expect(candidate).to.have.property('link');
-        expect(candidate).to.have.property('point');
-        expect(candidate).to.have.property('distance');
-        expect(candidate).to.have.property('segment');
-        expect(candidate.link.class).to.equal('NAVLINK');
-        expect(candidate.point).to.be.an('array');
-        expect(candidate.distance).to.be.a('number');
+        expect(candidate).toHaveProperty('link');
+        expect(candidate).toHaveProperty('point');
+        expect(candidate).toHaveProperty('distance');
+        expect(candidate).toHaveProperty('segment');
+        expect(candidate.link.class).toBe('NAVLINK');
+        expect(candidate.point).toBeInstanceOf(Array);
+        expect(candidate.distance).toBeTypeOf('number');
         // link2 endpoint is on segment 0 of link1/link3 (midpoint of their geometry)
-        expect(candidate.segment).to.equal(0);
+        expect(candidate.segment).toBe(0);
     });
 
     it('candidates do not include own link', function() {
         const candidates = link2.getConnectionCandidates(1);
         for (const candidate of candidates) {
-            expect(candidate.link.id).to.not.equal(link2.id);
+            expect(candidate.link.id).not.toBe(link2.id);
         }
     });
 
@@ -188,11 +186,11 @@ describe('link connection candidates', function() {
         const targetId = chosenCandidate.link.id;
 
         const result = chosenCandidate.connect();
-        expect(result).to.not.be.null;
-        expect(result).to.have.property('targetSplittedInto');
-        expect(result.targetSplittedInto).to.have.lengthOf(2);
+        expect(result).not.toBeNull();
+        expect(result).toHaveProperty('targetSplittedInto');
+        expect(result.targetSplittedInto).toHaveLength(2);
         // the split links should belong to the target
-        expect(result.targetSplittedInto[0].id).to.not.equal(targetId);
+        expect(result.targetSplittedInto[0].id).not.toBe(targetId);
     });
 
     it('undo connect and verify shape is unconnected again', function() {
@@ -202,39 +200,39 @@ describe('link connection candidates', function() {
         link3 = editor.search({id: 'link3'})[0];
         const candidates = link2.getConnectionCandidates(1);
         // after undo, should still see both candidates
-        expect(candidates).to.have.lengthOf(2);
+        expect(candidates).toHaveLength(2);
         const candidateIds = candidates.map((c) => c.link.id).sort();
-        expect(candidateIds).to.include(link1.id);
-        expect(candidateIds).to.include(link3.id);
+        expect(candidateIds).toContain(link1.id);
+        expect(candidateIds).toContain(link3.id);
     });
 
     it('NavlinkShape.getConnectionCandidates delegates correctly', async function() {
         // click on link2's start shape at (200,100) - only link2 has a shape here
         link2.select();
         const shape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
-        expect(shape).to.not.be.undefined;
-        expect(shape.class).to.equal('NAVLINK_SHAPE');
+        expect(shape).not.toBeUndefined();
+        expect(shape.class).toBe('NAVLINK_SHAPE');
 
         // start node (index 0) is far from link1/link3 -> no candidates
         const candidatesStart = shape.getConnectionCandidates();
-        expect(candidatesStart).to.be.an('array');
-        expect(candidatesStart).to.have.lengthOf(0);
+        expect(candidatesStart).toBeInstanceOf(Array);
+        expect(candidatesStart).toHaveLength(0);
 
         // verify that NavlinkShape delegates to Navlink correctly
         const candidatesFromLink = link2.getConnectionCandidates(1);
-        expect(candidatesFromLink).to.have.lengthOf(2);
+        expect(candidatesFromLink).toHaveLength(2);
     });
 
     it('set autoConnect back to true', function() {
         link2.behavior({autoConnect: true});
-        expect(link2.behavior('autoConnect')).to.be.true;
+        expect(link2.behavior('autoConnect')).toBe(true);
     });
 
     it('set autoConnect via behavior(name, value) overload', function() {
         link2.behavior('autoConnect', false);
-        expect(link2.behavior('autoConnect')).to.be.false;
+        expect(link2.behavior('autoConnect')).toBe(false);
         link2.behavior('autoConnect', true);
-        expect(link2.behavior('autoConnect')).to.be.true;
+        expect(link2.behavior('autoConnect')).toBe(true);
     });
 });
 

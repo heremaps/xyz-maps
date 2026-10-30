@@ -26,8 +26,6 @@ import dataset from './link_geofence_spec.json';
 import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('link geofence setting', function() {
-    const expect = chai.expect;
-
     let link;
     let editor;
     let display;
@@ -64,7 +62,7 @@ describe('link geofence setting', function() {
         link.select();
         await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [80.630968502, 17.715947679, 0],
             [80.632577828, 17.715436676, 0]
         ]);
@@ -80,7 +78,7 @@ describe('link geofence setting', function() {
 
         await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 
-        expect(lnk.coord()).to.deep.almost([
+        chai.expect(lnk.coord()).to.deep.almost([
             [80.630968502, 17.715947679, 0],
             [80.632577828, 17.715436676, 0]
         ]);
@@ -96,7 +94,7 @@ describe('link geofence setting', function() {
 
         await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 200});
 
-        expect(lnk.coord()).to.deep.almost([
+        chai.expect(lnk.coord()).to.deep.almost([
             [80.630968502, 17.715947679, 0],
             [80.632577828, 17.715436676, 0]
         ]);

@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_modify_address_changed_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link modify, address changed automatically', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -63,7 +61,7 @@ describe('link modify, address changed automatically', function() {
 
         await drag(mapContainer, {x: 300, y: 226}, {x: 300, y: 300});
 
-        expect(editor.info()).to.have.lengthOf(4);
+        expect(editor.info()).toHaveLength(4);
     });
 
     it('undo the drag, select and drag it again', async function() {
@@ -74,6 +72,6 @@ describe('link modify, address changed automatically', function() {
 
         await drag(mapContainer, {x: 300, y: 226}, {x: 398, y: 240});
 
-        expect(editor.info()).to.have.lengthOf(4);
+        expect(editor.info()).toHaveLength(4);
     });
 });

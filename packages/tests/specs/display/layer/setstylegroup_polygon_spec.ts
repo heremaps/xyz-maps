@@ -23,7 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_polygon_spec.json';
 import chaiAlmost from 'chai-almost';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 const IMG_SRC_RED = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mP8z8AARLgB48hQAAAdEw/5itjcFgAAAABJRU5ErkJggg==';
 const IMG_SRC_BLUE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mNkYPj/nwEPYBwZCgANIw/5um5PVwAAAABJRU5ErkJggg==';
@@ -32,8 +32,6 @@ const FULL_BLOCK_CHAR = '\u2588';
 const FONT = 'bold 30px Arial,Helvetica,sans-serif';
 
 describe('setStyleGroup Polygon', () => {
-    const expect = chai.expect;
-
     let buildingLayer: TileLayer;
     let display;
     let mapContainer;
@@ -78,8 +76,8 @@ describe('setStyleGroup Polygon', () => {
             expect: ['#9fe030', '#906fff']
         });
 
-        expect(colors[0]).to.equal('#9fe030');
-        expect(colors[1]).to.equal('#906fff');
+        expect(colors[0]).toBe('#9fe030');
+        expect(colors[1]).toBe('#906fff');
     });
 
     it('style feature with opacity, validate its new style', async () => {
@@ -94,8 +92,8 @@ describe('setStyleGroup Polygon', () => {
             expect: ['#c3ed7e', '#8796e1']
         });
 
-        expect(colors[0]).to.equal('#c3ed7e');
-        expect(colors[1]).to.equal('#8796e1');
+        expect(colors[0]).toBe('#c3ed7e');
+        expect(colors[1]).toBe('#8796e1');
     });
 
     it('style feature with opacity, validate its new style', async () => {
@@ -113,8 +111,8 @@ describe('setStyleGroup Polygon', () => {
             expect: ['#ff0000', '#906fff']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#906fff');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#906fff');
     });
 
 
@@ -125,8 +123,8 @@ describe('setStyleGroup Polygon', () => {
             display.setViewBounds(feature);
         });
 
-        expect(display.getCenter()).to.deep.almost({longitude: -74.012120162, latitude: 40.705173879});
-        expect(display.getZoomlevel()).to.equal(16);
+        chai.expect(display.getCenter()).to.deep.almost({longitude: -74.012120162, latitude: 40.705173879});
+        expect(display.getZoomlevel()).toBe(16);
     });
 
 
@@ -141,7 +139,7 @@ describe('setStyleGroup Polygon', () => {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('set circle style with anchor: Center', async () => {
@@ -155,7 +153,7 @@ describe('setStyleGroup Polygon', () => {
             expect: '#0000ff'
         });
 
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
 
     it('set circle style with anchor: Centroid', async () => {
@@ -169,7 +167,7 @@ describe('setStyleGroup Polygon', () => {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('set circle Rect', async () => {
@@ -183,7 +181,7 @@ describe('setStyleGroup Polygon', () => {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('set rect style with anchor: Center', async () => {
@@ -197,7 +195,7 @@ describe('setStyleGroup Polygon', () => {
             expect: '#0000ff'
         });
 
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
 
     it('set rect style with anchor: Centroid', async () => {
@@ -211,7 +209,7 @@ describe('setStyleGroup Polygon', () => {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('set icon style', async () => {
@@ -225,7 +223,7 @@ describe('setStyleGroup Polygon', () => {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('set icon style with anchor: Center', async () => {
@@ -239,7 +237,7 @@ describe('setStyleGroup Polygon', () => {
             expect: '#0000ff'
         });
 
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
 
     it('set icon style with anchor: Centroid', async () => {
@@ -253,7 +251,7 @@ describe('setStyleGroup Polygon', () => {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
 
@@ -269,7 +267,7 @@ describe('setStyleGroup Polygon', () => {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('set icon style with anchor: Center', async () => {
@@ -283,7 +281,7 @@ describe('setStyleGroup Polygon', () => {
             expect: '#0000ff'
         });
 
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
 
     it('set icon style with anchor: Centroid', async () => {
@@ -297,6 +295,6 @@ describe('setStyleGroup Polygon', () => {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 });

@@ -26,8 +26,6 @@ import dataset from './poi_editable_spec.json';
 import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('poi editable', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -60,7 +58,7 @@ describe('poi editable', function() {
     it('set poi to not editable and validate its coordinate', function() {
         poi.editable(false);
 
-        expect(poi.coord()).to.deep.almost([80.637593558, 16.500937174, 0]);
+        chai.expect(poi.coord()).to.deep.almost([80.637593558, 16.500937174, 0]);
     });
 
     it('drag the POI object and validate its coordinate again', async function() {
@@ -68,7 +66,7 @@ describe('poi editable', function() {
             await drag(mapContainer, {x: 300, y: 250}, {x: 200, y: 250});
         });
 
-        expect(poi.coord()).to.deep.almost([80.637593558, 16.500937174, 0]);
+        chai.expect(poi.coord()).to.deep.almost([80.637593558, 16.500937174, 0]);
     });
 
     it('set poi to editable and drag it', async function() {
@@ -82,6 +80,6 @@ describe('poi editable', function() {
 
         await drag(mapContainer, {x: 300, y: 250}, {x: 370, y: 250});
 
-        expect(poi.coord()).to.deep.almost([80.637969066, 16.500937174, 0]);
+        chai.expect(poi.coord()).to.deep.almost([80.637969066, 16.500937174, 0]);
     });
 });

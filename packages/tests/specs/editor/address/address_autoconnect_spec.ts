@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './address_autoconnect_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('address routing point connects to links automatically', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let editor;
     let display;
@@ -65,8 +63,8 @@ describe('address routing point connects to links automatically', function() {
     it('get an Address object which connects to a link', async () => {
         const props = address.prop();
 
-        expect(props.routingLink).to.equal(link1.id);
-        expect(props).to.deep.include({'routingPoint': [74.81124, 12.97608, 0]});
+        expect(props.routingLink).toBe(link1.id);
+        expect(props).toEqual(expect.objectContaining({'routingPoint': [74.81124, 12.97608, 0]}));
     });
 
     it('select the address object, drag its routing point and validate', async () => {
@@ -76,8 +74,8 @@ describe('address routing point connects to links automatically', function() {
         await drag(mapContainer, {x: 300, y: 400}, {x: 400, y: 500});
 
         const props = address.prop();
-        expect(props.routingLink).to.equal(link1.id + '');
-        expect(props).to.deep.include({'routingPoint': [74.81151, 12.97608, 0]});
+        expect(props.routingLink).toBe(link1.id + '');
+        expect(props).toEqual(expect.objectContaining({'routingPoint': [74.81151, 12.97608, 0]}));
     });
 
     it('drag again', async () => {
@@ -85,8 +83,8 @@ describe('address routing point connects to links automatically', function() {
         await drag(mapContainer, {x: 400, y: 400}, {x: 420, y: 370});
 
         const props = address.prop();
-        expect(props.routingLink).to.equal(link2.id + '');
-        expect(props).to.deep.include({'routingPoint': [74.81158, 12.97615, 0]});
+        expect(props.routingLink).toBe(link2.id + '');
+        expect(props).toEqual(expect.objectContaining({'routingPoint': [74.81158, 12.97615, 0]}));
     });
 
     it('drag to end of road', async () => {
@@ -94,8 +92,8 @@ describe('address routing point connects to links automatically', function() {
         await drag(mapContainer, {x: 420, y: 370}, {x: 450, y: 350});
 
         const props = address.prop();
-        expect(props.routingLink).to.equal(link2.id + '');
-        expect(props).to.deep.include({'routingPoint': [74.81165, 12.97621, 0]});
+        expect(props.routingLink).toBe(link2.id + '');
+        expect(props).toEqual(expect.objectContaining({'routingPoint': [74.81165, 12.97621, 0]}));
 
         address.unselect();
     });

@@ -21,11 +21,9 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Area} from '@here/xyz-maps-editor';
 import dataset from './area_display_zoomlevel_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Area object display and hide', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
     let preparedData;
@@ -54,7 +52,7 @@ describe('Area object display and hide', function() {
 
     it('validate the object in viewport', function() {
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
 
@@ -64,7 +62,7 @@ describe('Area object display and hide', function() {
         });
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
 
@@ -75,7 +73,7 @@ describe('Area object display and hide', function() {
 
         let obj = (await editorClick(editor, 241, 222)).target;
 
-        expect(obj).to.equal(undefined);
+        expect(obj).toBe(undefined);
     });
 
 
@@ -86,9 +84,9 @@ describe('Area object display and hide', function() {
 
         let obj = <Area>(await editorClick(editor, 242, 146)).target;
 
-        expect(obj.properties).to.deep.include({
+        expect(obj.properties).toEqual(expect.objectContaining({
             type: 'building',
             name: 'test'
-        });
+        }));
     });
 });

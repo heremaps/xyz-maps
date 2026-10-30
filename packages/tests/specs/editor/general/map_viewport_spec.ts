@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './map_viewport_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('map viewport lock', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -58,7 +56,7 @@ describe('map viewport lock', function() {
 
         await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
-        expect(display.getCenter()).to.deep.equal({longitude: 76.00056, latitude: 13.00109});
+        expect(display.getCenter()).toEqual({longitude: 76.00056, latitude: 13.00109});
     });
 
     it('locked viewport is not draggable when drawingboard is active', async function() {
@@ -68,7 +66,7 @@ describe('map viewport lock', function() {
 
         await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 150});
 
-        expect(display.getCenter()).to.deep.equal({longitude: 76.00056, latitude: 13.00109});
+        expect(display.getCenter()).toEqual({longitude: 76.00056, latitude: 13.00109});
     });
 
     it('create link with drawingboard', async function() {
@@ -85,7 +83,7 @@ describe('map viewport lock', function() {
             lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
-        expect(lnk.coord()).to.deep.almost([
+        chai.expect(lnk.coord()).to.deep.almost([
             [75.998950675, 13.002135379, 0],
             [75.998950675, 13.00109, 0]
         ]);
@@ -99,7 +97,7 @@ describe('map viewport lock', function() {
     it('drag map not possible when viewport is locked', async function() {
         await drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
 
-        expect(display.getCenter()).to.deep.equal({longitude: 76.00056, latitude: 13.00109});
+        expect(display.getCenter()).toEqual({longitude: 76.00056, latitude: 13.00109});
     });
 
 
@@ -110,6 +108,6 @@ describe('map viewport lock', function() {
             await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 150});
         });
 
-        expect(display.getCenter().latitude).to.not.equal( 13.00109);
+        expect(display.getCenter().latitude).not.toBe( 13.00109);
     });
 });

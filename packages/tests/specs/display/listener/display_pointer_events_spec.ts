@@ -22,11 +22,9 @@ import {Listener, prepare, waitForPointerEvent} from 'utils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_pointer_events_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('validate pointer events', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let display;
     let mapContainer;
@@ -64,8 +62,8 @@ describe('validate pointer events', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerenter).to.have.lengthOf(1);
-        expect(results.pointerleave).to.have.lengthOf(1);
+        expect(results.pointerenter).toHaveLength(1);
+        expect(results.pointerleave).toHaveLength(1);
     });
 
     it('validate pointdown and pointerup events', async function() {
@@ -76,26 +74,26 @@ describe('validate pointer events', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerdown).to.have.lengthOf(1);
-        expect(results.pointerdown[0]).to.deep.include({
+        expect(results.pointerdown).toHaveLength(1);
+        expect(results.pointerdown[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 456,
             mapY: 352,
             type: 'pointerdown'
-        });
-        expect(results.pointerdown[0].target).to.deep.include({
+        }));
+        expect(results.pointerdown[0].target).toEqual(expect.objectContaining({
             id: pa.id
-        });
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        }));
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 456,
             mapY: 352,
             type: 'pointerup'
-        });
-        expect(results.pointerup[0].target).to.deep.include({
+        }));
+        expect(results.pointerup[0].target).toEqual(expect.objectContaining({
             id: pa.id
-        });
+        }));
     });
 
     it('validate pointenter and pointerleave again', async function() {
@@ -105,7 +103,7 @@ describe('validate pointer events', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerdown).to.have.lengthOf(1);
-        expect(results.pointerup).to.have.lengthOf(1);
+        expect(results.pointerdown).toHaveLength(1);
+        expect(results.pointerup).toHaveLength(1);
     });
 });

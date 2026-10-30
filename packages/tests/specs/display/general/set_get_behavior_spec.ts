@@ -23,11 +23,9 @@ import {drag, mousewheel} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './set_get_behavior_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('set and get behavior', function() {
-    const expect = chai.expect;
-
     let display;
     let mapContainer;
 
@@ -47,16 +45,16 @@ describe('set and get behavior', function() {
     });
 
     it('validate map display has correct values', async function() {
-        expect(display.getCenter()).to.deep.equal({
+        expect(display.getCenter()).toEqual({
             longitude: 77.79802, latitude: 12.62214
         });
-        expect(display.getViewBounds()).to.deep.almost({
+        chai.expect(display.getViewBounds()).to.deep.almost({
             maxLat: 12.623710427048564,
             maxLon: 77.80016576721192,
             minLat: 12.620569563312458,
             minLon: 77.7958742327881
         });
-        expect(display.getZoomlevel()).to.equal(18);
+        expect(display.getZoomlevel()).toBe(18);
     });
 
     it('set pan behavior to false and validate the map', async function() {
@@ -64,17 +62,17 @@ describe('set and get behavior', function() {
 
         await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
-        expect(display.getCenter()).to.deep.equal({
+        expect(display.getCenter()).toEqual({
             longitude: 77.79802, latitude: 12.62214
         });
-        expect(display.getViewBounds()).to.deep.almost({
+        chai.expect(display.getViewBounds()).to.deep.almost({
             maxLat: 12.623710427048564,
             maxLon: 77.80016576721192,
             minLat: 12.620569563312458,
             minLon: 77.7958742327881
         });
-        expect(display.getZoomlevel()).to.equal(18);
-        expect(display.getBehavior()).to.deep.include({zoom: true, drag: false});
+        expect(display.getZoomlevel()).toBe(18);
+        expect(display.getBehavior()).toEqual(expect.objectContaining({zoom: true, drag: false}));
     });
 
     it('set pan behavior to false', async function() {
@@ -84,11 +82,11 @@ describe('set and get behavior', function() {
             await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
         });
 
-        expect(display.getCenter().longitude).to.not.equal(
+        expect(display.getCenter().longitude).not.toBe(
             77.79802
         );
-        expect(display.getBehavior()).to.deep.include(
-            {zoom: true, drag: true}
+        expect(display.getBehavior()).toEqual(
+            expect.objectContaining({zoom: true, drag: true})
         );
     });
 
@@ -104,9 +102,9 @@ describe('set and get behavior', function() {
             await drag(mapContainer, {x: 200, y: 200}, {x: 240, y: 160}, 60, 0, {ctrlKey: true});
         });
 
-        expect(display.getCenter()).to.deep.equal(center);
-        expect(display.pitch()).to.not.equal(pitch);
-        expect(display.rotate()).to.not.equal(rotation);
+        expect(display.getCenter()).toEqual(center);
+        expect(display.pitch()).not.toBe(pitch);
+        expect(display.rotate()).not.toBe(rotation);
     });
 
     it('zoom out and validate', async function() {
@@ -114,8 +112,8 @@ describe('set and get behavior', function() {
 
         await mousewheel(mapContainer, 200, 210, 1);
 
-        expect(display.getZoomlevel()).to.equal(18);
-        expect(display.getBehavior()).to.deep.include({zoom: false, drag: true});
+        expect(display.getZoomlevel()).toBe(18);
+        expect(display.getBehavior()).toEqual(expect.objectContaining({zoom: false, drag: true}));
     });
 
     it('set zoom behavior to true and validate', async function() {
@@ -125,8 +123,8 @@ describe('set and get behavior', function() {
             display.setZoomlevel(19);
         });
 
-        expect(display.getZoomlevel()).to.equal(19);
-        expect(display.getBehavior()).to.deep.include({zoom: true, drag: true});
+        expect(display.getZoomlevel()).toBe(19);
+        expect(display.getBehavior()).toEqual(expect.objectContaining({zoom: true, drag: true}));
 
         display.setBehavior('zoom', 'fixed');
 
@@ -134,6 +132,6 @@ describe('set and get behavior', function() {
             await mousewheel(mapContainer, 200, 210, -1);
         });
 
-        expect(display.getZoomlevel()).to.equal(18);
+        expect(display.getZoomlevel()).toBe(18);
     });
 });

@@ -19,10 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './search_locally_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('search features in provider by single parameter', function() {
-    const expect = chai.expect;
     var preparedData;
     var addressLayer;
 
@@ -36,41 +35,41 @@ describe('search features in provider by single parameter', function() {
         let obj = addressLayer.search({
             id: '-12432'
         });
-        expect(obj).to.deep.include({
+        expect(obj).toEqual(expect.objectContaining({
             id: -12432,
             type: 'Feature'
-        });
+        }));
     });
 
     it('search in provider by feature id again', function() {
         let obj = addressLayer.search({
             id: '-12431'
         });
-        expect(obj).to.deep.include({
+        expect(obj).toEqual(expect.objectContaining({
             id: -12431,
             type: 'Feature'
-        });
+        }));
     });
 
     it('search by point and radius', function() {
         let objs = addressLayer.search({point: {longitude: 79.927917, latitude: 12.963206}, radius: 80});
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
     });
 
 
     it('search in provider by rect', function() {
         let objs = addressLayer.search({rect: {minLon: 79.925268, minLat: 12.963451, maxLon: 79.927414, maxLat: 12.964541}});
-        expect(objs).to.have.lengthOf(5);
+        expect(objs).toHaveLength(5);
     });
 
 
     it('search in provider by rect again', function() {
         let objs = addressLayer.search({rect: {minLon: 79.925848, minLat: 12.964151, maxLon: 79.927994, maxLat: 12.96524}});
-        expect(objs).to.have.lengthOf(7);
+        expect(objs).toHaveLength(7);
     });
 
     it('search in provider by rect again', function() {
         let objs = addressLayer.search({rect: {minLon: 79.925848, minLat: 12.964151, maxLon: 79.927994, maxLat: 12.96524}});
-        expect(objs).to.have.lengthOf(7);
+        expect(objs).toHaveLength(7);
     });
 });

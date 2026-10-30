@@ -19,7 +19,7 @@
 
 import {click} from './triggerEvents';
 import {Editor, EditorEvent} from '@here/xyz-maps-editor';
-import {chai} from 'vitest';
+import {chai, expect} from 'vitest';
 
 export async function editorClick(editor: Editor, x: number, y: number): Promise<EditorEvent> {
     return new Promise((resolve) => {
@@ -110,15 +110,13 @@ export async function clean(editor: Editor, idMapStack) {
 }
 
 export function validateSegment(segment, expectedSegment, linkId?: string | number) {
-    const expect = chai.expect;
-
-    expect({
+    chai.expect({
         from: segment.from,
         to: segment.to,
         reversed: segment.reversed
     }).to.deep.almost(expectedSegment, 1e-5);
 
     if (linkId !== undefined) {
-        expect(segment.feature).to.deep.include({id: linkId});
+        expect(segment.feature).toEqual(expect.objectContaining({id: linkId}));
     }
 }

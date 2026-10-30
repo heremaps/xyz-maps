@@ -26,8 +26,6 @@ import dataset from './transform_area_spec.json';
 import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('transform area objects', () => {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -61,7 +59,7 @@ describe('transform area objects', () => {
 
         await drag(mapContainer, {x: 307 + 6, y: 260}, {x: 347 + 6, y: 260});
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [77.797686602, 12.622401739, 0],
             [77.796410675, 12.622244695, 0],
             [77.797048639, 12.621878261, 0],
@@ -72,7 +70,7 @@ describe('transform area objects', () => {
     it('move area with transformer and validate its coordinates', async () => {
         await drag(mapContainer, {x: 220, y: 300}, {x: 240, y: 350});
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [77.797793893, 12.622139999, 0],
             [77.796517966, 12.621982955, 0],
             [77.79715593, 12.621616521, 0],
@@ -83,7 +81,7 @@ describe('transform area objects', () => {
     it('rotate area with transformer and validate its coordinates', async () => {
         await drag(mapContainer, {x: 370, y: 410}, {x: 300, y: 450});
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [77.797834836, 12.62174725, 0],
             [77.796686946, 12.622313097, 0],
             [77.797005983, 12.621661241, 0],

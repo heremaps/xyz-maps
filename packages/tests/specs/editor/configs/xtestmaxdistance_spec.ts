@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './xtestmaxdistance_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('CrossingTester', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -81,7 +79,7 @@ describe('CrossingTester', function() {
         let link2 = editor.addFeature(l2);
 
         let crx = link2.checkCrossings();
-        expect(crx).to.have.lengthOf(1);
+        expect(crx).toHaveLength(1);
     });
 
     it('reset snapTolerance, validate new link created again', async function() {
@@ -115,6 +113,6 @@ describe('CrossingTester', function() {
         let link2 = editor.addFeature(l2);
 
         let crx = link2.checkCrossings();
-        expect(crx).to.have.lengthOf(0);
+        expect(crx).toHaveLength(0);
     });
 });

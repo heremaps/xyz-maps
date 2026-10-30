@@ -23,11 +23,10 @@ import chaiAlmost from 'chai-almost';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import {NavlinkShape} from '@here/xyz-maps-editor';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 
 describe('validate attributes after splitting a link', function() {
-    const expect = chai.expect;
     chai.use(chaiAlmost());
     let editor;
     let display;
@@ -76,24 +75,24 @@ describe('validate attributes after splitting a link', function() {
         let splitLinks = shape.splitLink();
 
 
-        expect(splitLinks[0].coord()).to.deep.almost([[80.596384432, 16.651483922, 0], [80.597457316, 16.651483922, 0]]);
-        expect(splitLinks[0].prop()).to.be.deep.include({
+        chai.expect(splitLinks[0].coord()).to.deep.almost([[80.596384432, 16.651483922, 0], [80.597457316, 16.651483922, 0]]);
+        expect(splitLinks[0].prop()).toEqual(expect.objectContaining({
             featureClass: 'NAVLINK',
             type: 'highway',
             name: 'A2',
             turnRestriction: {start: [], end: ['abc']},
             direction: 'START_TO_END',
             pedestrianOnly: false
-        });
+        }));
 
-        expect(splitLinks[1].coord()).to.deep.almost([[80.597457316, 16.651483922, 0], [80.5985302, 16.651226949, 0]]);
-        expect(splitLinks[1].prop()).to.be.deep.include({
+        chai.expect(splitLinks[1].coord()).to.deep.almost([[80.597457316, 16.651483922, 0], [80.5985302, 16.651226949, 0]]);
+        expect(splitLinks[1].prop()).toEqual(expect.objectContaining({
             featureClass: 'NAVLINK',
             type: 'highway',
             name: 'A2',
             turnRestriction: {start: [], end: ['abc']},
             direction: 'START_TO_END',
             pedestrianOnly: false
-        });
+        }));
     });
 });

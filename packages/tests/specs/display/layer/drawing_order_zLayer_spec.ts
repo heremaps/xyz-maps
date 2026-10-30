@@ -21,11 +21,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './drawing_order_zLayer_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('feature drawing order', () => {
-    const expect = chai.expect;
-
     let layer1;
     let layer2;
     let feature1;
@@ -91,9 +89,9 @@ describe('feature drawing order', () => {
             expect: ['#0000ff', '#00ff00', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#0000ff');
-        expect(colors[1]).to.equal('#00ff00');
-        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#0000ff');
+        expect(colors[1]).toBe('#00ff00');
+        expect(colors[2]).toBe('#ff0000');
     });
 
     it('change zIndex of red circle to be in the middle', async () => {
@@ -108,9 +106,9 @@ describe('feature drawing order', () => {
             expect: ['#0000ff', '#ff0000', '#00ff00']
         });
 
-        expect(colors[0]).to.equal('#0000ff');
-        expect(colors[1]).to.equal('#ff0000');
-        expect(colors[2]).to.equal('#00ff00');
+        expect(colors[0]).toBe('#0000ff');
+        expect(colors[1]).toBe('#ff0000');
+        expect(colors[2]).toBe('#00ff00');
     });
 
     it('change zLayer to be blue circle to be in the middle', async () => {
@@ -126,9 +124,9 @@ describe('feature drawing order', () => {
             expect: ['#ff0000', '#0000ff', '#00ff00']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#0000ff');
-        expect(colors[2]).to.equal('#00ff00');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#0000ff');
+        expect(colors[2]).toBe('#00ff00');
     });
 
     it('change zLayer to bring blue circle to back', async () => {
@@ -144,9 +142,9 @@ describe('feature drawing order', () => {
             expect: ['#ff0000', '#00ff00', '#0000ff']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#00ff00');
-        expect(colors[2]).to.equal('#0000ff');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#00ff00');
+        expect(colors[2]).toBe('#0000ff');
     });
 
     it('all circles in same zLayer', async () => {
@@ -178,9 +176,9 @@ describe('feature drawing order', () => {
             expect: ['#0000ff', '#00ff00', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#0000ff');
-        expect(colors[1]).to.equal('#00ff00');
-        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#0000ff');
+        expect(colors[1]).toBe('#00ff00');
+        expect(colors[2]).toBe('#ff0000');
     });
 
     it('remove zLayer', async () => {
@@ -209,9 +207,9 @@ describe('feature drawing order', () => {
             expect: ['#0000ff', '#00ff00', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#0000ff');
-        expect(colors[1]).to.equal('#00ff00');
-        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#0000ff');
+        expect(colors[1]).toBe('#00ff00');
+        expect(colors[2]).toBe('#ff0000');
     });
 
     it('set zLayer to bring red circle to front', async () => {
@@ -228,7 +226,7 @@ describe('feature drawing order', () => {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('set zLayers with high values and bring green circle to front', async () => {
@@ -251,6 +249,6 @@ describe('feature drawing order', () => {
             expect: '#00ff00'
         });
 
-        expect(color).to.equal('#00ff00');
+        expect(color).toBe('#00ff00');
     });
 });

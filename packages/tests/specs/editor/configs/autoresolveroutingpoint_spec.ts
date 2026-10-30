@@ -21,10 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './maxroutingpointdistance_spec.json';
-import {describe, beforeEach, afterEach, it, chai} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('autoResolveRoutingPoint configuration', function() {
-    const expect = chai.expect;
     let preparedData;
     let display;
     let editor;
@@ -94,10 +93,10 @@ describe('autoResolveRoutingPoint configuration', function() {
     it('resolves Address by default but not Place', async function() {
         let {link, address, place} = await addNearbyLocations();
 
-        expect(address.getLink()).to.equal(link);
-        expect(address.prop('routingPoint')).to.exist;
-        expect(place.getLink()).to.equal(null);
-        expect(place.prop('routingPoint')).to.equal(undefined);
+        expect(address.getLink()).toBe(link);
+        expect(address.prop('routingPoint')).toEqual(expect.anything());
+        expect(place.getLink()).toBe(null);
+        expect(place.prop('routingPoint')).toBe(undefined);
     });
 
     it('resolves Place instead of Address when configured per class', async function() {
@@ -110,10 +109,10 @@ describe('autoResolveRoutingPoint configuration', function() {
             }
         });
 
-        expect(address.getLink()).to.equal(null);
-        expect(address.prop('routingPoint')).to.equal(undefined);
-        expect(place.getLink()).to.equal(link);
-        expect(place.prop('routingPoint')).to.exist;
+        expect(address.getLink()).toBe(null);
+        expect(address.prop('routingPoint')).toBe(undefined);
+        expect(place.getLink()).toBe(link);
+        expect(place.prop('routingPoint')).toEqual(expect.anything());
     });
 
     it('allows per-feature behavior to override the global setting', async function() {
@@ -129,9 +128,9 @@ describe('autoResolveRoutingPoint configuration', function() {
             place.behavior('autoResolveRoutingPoint', true);
         });
 
-        expect(address.getLink()).to.equal(null);
+        expect(address.getLink()).toBe(null);
         place.createRoutingPoint();
-        expect(place.getLink()).to.equal(link);
+        expect(place.getLink()).toBe(link);
     });
 
     it('explicitly resolves a Place with createRoutingPoint when disabled', async function() {
@@ -141,10 +140,10 @@ describe('autoResolveRoutingPoint configuration', function() {
             }
         });
 
-        expect(place.getLink()).to.equal(null);
+        expect(place.getLink()).toBe(null);
         place.createRoutingPoint();
 
-        expect(place.getLink()).to.equal(link);
-        expect(place.prop('routingPoint')).to.exist;
+        expect(place.getLink()).toBe(link);
+        expect(place.prop('routingPoint')).toEqual(expect.anything());
     });
 });

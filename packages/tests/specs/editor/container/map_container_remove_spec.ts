@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_container_remove_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map container remove', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
 
@@ -65,7 +63,7 @@ describe('map container remove', function() {
 
     it('validate objects in viewport', function() {
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(4);
+        expect(objs).toHaveLength(4);
     });
 
 
@@ -73,6 +71,6 @@ describe('map container remove', function() {
         container.remove();
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
     });
 });

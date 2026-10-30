@@ -19,11 +19,9 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_poi_layer_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('event listeners in poi layer', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var placeLayer;
     var placeProvider;
@@ -46,10 +44,10 @@ describe('event listeners in poi layer', function() {
     it('validate remove feature event', function() {
         let obj = placeProvider.exists({id: place1.id});
 
-        expect(obj.feature).to.deep.include({
+        expect(obj.feature).toEqual(expect.objectContaining({
             id: place1.id,
             type: 'Feature'
-        });
+        }));
     });
 
     it('start event listener', function() {
@@ -62,10 +60,10 @@ describe('event listeners in poi layer', function() {
 
         let results = listener.stop();
 
-        expect(results.featuresRemove[0].detail.features[0]).to.deep.include({
+        expect(results.featuresRemove[0].detail.features[0]).toEqual(expect.objectContaining({
             id: place1.id,
             type: 'Feature'
-        });
+        }));
     });
 
 
@@ -97,19 +95,19 @@ describe('event listeners in poi layer', function() {
 
         let results = listener.stop();
 
-        expect(results.featuresAdd).to.have.lengthOf(1);
-        expect(results.featuresRemove).to.have.lengthOf(0);
-        expect(results.featureCoordinatesChange).to.have.lengthOf(1);
+        expect(results.featuresAdd).toHaveLength(1);
+        expect(results.featuresRemove).toHaveLength(0);
+        expect(results.featureCoordinatesChange).toHaveLength(1);
 
-        expect(results.featuresAdd[0].detail.features[0]).to.deep.include({
+        expect(results.featuresAdd[0].detail.features[0]).toEqual(expect.objectContaining({
             id: 'abcpoi',
             type: 'Feature'
-        });
+        }));
 
-        expect(results.featureCoordinatesChange[0].detail.feature).to.deep.include({
+        expect(results.featureCoordinatesChange[0].detail.feature).toEqual(expect.objectContaining({
             id: place2.id,
             type: 'Feature'
-        });
+        }));
 
         placeLayer.removeFeature({
             type: 'Feature',

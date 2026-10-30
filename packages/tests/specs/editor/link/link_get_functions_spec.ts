@@ -22,11 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_get_functions_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('Link getters return correct value', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -55,25 +53,25 @@ describe('Link getters return correct value', function() {
     });
 
     it('get a link in viewport and validate', function() {
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [8.527619957, 49.909971348, 0],
             [8.527861356, 49.909978257, 0]
         ]);
 
-        expect(link.prop()).to.deep.include({
+        expect(link.prop()).toEqual(expect.objectContaining({
             featureClass: 'NAVLINK',
             type: 'residential',
             name: 'test road',
             turnRestriction: {end: ['abcdefg']},
             direction: 'END_TO_START',
             pedestrianOnly: true
-        });
-        expect(link.getZLevels()).to.deep.equal([0, 0]);
-        expect(link.style()[0]).to.deep.include({
+        }));
+        expect(link.getZLevels()).toStrictEqual([0, 0]);
+        expect(link.style()[0]).toEqual(expect.objectContaining({
             zIndex: 0,
             type: 'Line',
             strokeWidth: 10,
             stroke: '#ff0000'
-        });
+        }));
     });
 });

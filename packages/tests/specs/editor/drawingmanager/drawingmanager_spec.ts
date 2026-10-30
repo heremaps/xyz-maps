@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('Create new Links then remove by drawingmanager', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -60,19 +58,19 @@ describe('Create new Links then remove by drawingmanager', function() {
     it('start drawingmanager', function() {
         editor.getDrawingBoard().start();
 
-        expect(editor.getDrawingBoard().isActive()).to.be.true;
+        expect(editor.getDrawingBoard().isActive()).toBe(true);
     });
 
     it('cancel drawingmanager', function() {
         editor.getDrawingBoard().cancel();
 
-        expect(editor.getDrawingBoard().isActive()).to.be.false;
+        expect(editor.getDrawingBoard().isActive()).toBe(false);
     });
 
     it('start drawingmanager again', async function() {
         editor.getDrawingBoard().start();
 
-        expect(editor.getDrawingBoard().isActive()).to.be.true;
+        expect(editor.getDrawingBoard().isActive()).toBe(true);
 
         await mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
         await click(mapContainer, 200, 200);
@@ -84,7 +82,7 @@ describe('Create new Links then remove by drawingmanager', function() {
             link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [76.983987116, 12.888282928, 0],
             [76.983718895, 12.888648976, 0]
         ]);
@@ -96,7 +94,7 @@ describe('Create new Links then remove by drawingmanager', function() {
         });
         link = editor.getFeature(link.id, linkLayer);
 
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [76.983987116, 12.888282928, 0],
             [76.983718895, 12.888648976, 0]
         ]);

@@ -22,11 +22,9 @@ import {Listener, prepare, waitForPointerEvent} from 'utils';
 import {mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_enter_leave_listener_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('pointer enter and leave feature listener', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let linkLayer;
     let display;
@@ -62,20 +60,20 @@ describe('pointer enter and leave feature listener', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerenter).to.have.lengthOf(1);
-        expect(results.pointerenter[0]).to.deep.include({
+        expect(results.pointerenter).toHaveLength(1);
+        expect(results.pointerenter[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 376,
             mapY: 246,
             type: 'pointerenter'
-        });
-        expect(results.pointerleave).to.have.lengthOf(1);
-        expect(results.pointerleave[0]).to.deep.include({
+        }));
+        expect(results.pointerleave).toHaveLength(1);
+        expect(results.pointerleave[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 357,
             mapY: 274,
             type: 'pointerleave'
-        });
+        }));
     });
 
     it('validate pointerenter and leave event for hoving link', async function() {
@@ -88,20 +86,20 @@ describe('pointer enter and leave feature listener', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerenter).to.have.lengthOf(1);
-        expect(results.pointerenter[0]).to.deep.include({
+        expect(results.pointerenter).toHaveLength(1);
+        expect(results.pointerenter[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 389,
             mapY: 390,
             type: 'pointerenter'
-        });
-        expect(results.pointerleave).to.have.lengthOf(1);
-        expect(results.pointerleave[0]).to.deep.include({
+        }));
+        expect(results.pointerleave).toHaveLength(1);
+        expect(results.pointerleave[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 374,
             mapY: 358,
             type: 'pointerleave'
-        });
+        }));
     });
 
 
@@ -114,8 +112,8 @@ describe('pointer enter and leave feature listener', function() {
         await mousemove(mapContainer, {x: 323, y: 288}, {x: 338, y: 274});
 
         let results = listener.stop();
-        expect(results.pointerenter).to.have.lengthOf(0);
-        expect(results.pointerleave).to.have.lengthOf(0);
+        expect(results.pointerenter).toHaveLength(0);
+        expect(results.pointerleave).toHaveLength(0);
     });
 
     it('enable events and validate again', async function() {
@@ -129,7 +127,7 @@ describe('pointer enter and leave feature listener', function() {
             mousemove(mapContainer, {x: 323, y: 288}, {x: 338, y: 274}));
 
         let results = listener.stop();
-        expect(results.pointerenter).to.have.lengthOf(1);
-        expect(results.pointerleave).to.have.lengthOf(1);
+        expect(results.pointerenter).toHaveLength(1);
+        expect(results.pointerleave).toHaveLength(1);
     });
 });

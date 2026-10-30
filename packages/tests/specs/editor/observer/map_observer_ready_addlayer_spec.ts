@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_ready_addlayer_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map ready observer for addlayer', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -44,7 +42,7 @@ describe('map ready observer for addlayer', function() {
         await waitForEditorReady(editor);
 
         let results = observer.stop();
-        expect(results['ready']).to.deep.equal([true]);
+        expect(results['ready']).toStrictEqual([true]);
     });
 
     afterAll(async function() {
@@ -55,7 +53,7 @@ describe('map ready observer for addlayer', function() {
     it('observe ready with addlayer', async function() {
         let layers = editor.getLayers();
 
-        expect(layers).to.be.lengthOf(0);
+        expect(layers).toHaveLength(0);
 
         let observer = new Observer(editor, 'ready');
 
@@ -66,10 +64,10 @@ describe('map ready observer for addlayer', function() {
         });
 
         let results = observer.stop();
-        expect(results['ready']).to.deep.equal([false, true]);
+        expect(results['ready']).toStrictEqual([false, true]);
 
         layers = editor.getLayers();
 
-        expect(layers).to.be.lengthOf(1);
+        expect(layers).toHaveLength(1);
     });
 });

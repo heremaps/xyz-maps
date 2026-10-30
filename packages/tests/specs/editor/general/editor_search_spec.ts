@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './editor_search_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('editor search function', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var editor;
     var display;
@@ -72,13 +70,13 @@ describe('editor search function', function() {
     it('search with id', function() {
         let objs = editor.search({id: link1.id, layers: [linkLayer]});
 
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
     it('search with ids', function() {
         let objs = editor.search({ids: [link1.id, link2.id], layers: [linkLayer]});
 
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     it('search with point', function() {
@@ -95,16 +93,16 @@ describe('editor search function', function() {
 
     it('search with rect', function() {
         let objs = editor.search({rect: {minLon: 76.904027, minLat: 16.410843, maxLon: 76.906172, maxLat: 16.412387}});
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
 
         objs = editor.search({rect: {minLon: 76.904027, minLat: 16.410843, maxLon: 76.906172, maxLat: 16.412387}, layers: [placeLayer]});
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
 
         objs = editor.search({rect: {minLon: 76.904027, minLat: 16.410843, maxLon: 76.906172, maxLat: 16.412387}, layers: [linkLayer]});
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
 
 
         objs = editor.search({rect: {minLon: 76.904027, minLat: 16.410843, maxLon: 76.906172, maxLat: 16.412387}, layers: [buildingLayer, paLayer]});
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
     });
 });

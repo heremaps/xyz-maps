@@ -23,11 +23,9 @@ import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './address_setcoordinates_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('add Address layer set coordinates', function() {
-    const expect = chai.expect;
-
     var preparedData;
     let editor;
     let display;
@@ -59,7 +57,7 @@ describe('add Address layer set coordinates', function() {
     });
 
     it('verify address has correct geo coordinate then modify its geo coordinate', function() {
-        expect(address.coord()).to.deep.almost([
+        chai.expect(address.coord()).to.deep.almost([
             75.572408633, 12.951587932, 0
         ]);
 
@@ -68,7 +66,7 @@ describe('add Address layer set coordinates', function() {
 
 
     it('verify address has correct geo coordinate', function() {
-        expect(address.coord()).to.deep.almost([
+        chai.expect(address.coord()).to.deep.almost([
             75.573481516, 12.950542341, 0
         ]);
     });
@@ -76,7 +74,7 @@ describe('add Address layer set coordinates', function() {
     it('modify and verify address has correct geo coordinate', function() {
         address.coord([75.572408632, 12.9515879324, 0]);
 
-        expect(address.coord()).to.deep.almost([
+        chai.expect(address.coord()).to.deep.almost([
             75.572408632, 12.951587932, 0
         ]);
     });
@@ -86,8 +84,8 @@ describe('add Address layer set coordinates', function() {
         let objs1 = editor.search({rect: display.getViewBounds(), layers: [addrLayer]});
         let objs2 = editor.search({rect: display.getViewBounds()});
 
-        expect(objs1).to.have.lengthOf(1);
-        expect(objs2).to.have.lengthOf(2);
+        expect(objs1).toHaveLength(1);
+        expect(objs2).toHaveLength(2);
     });
 
     it('drag the address, remove the address layer and validate modified address in viewport', async function() {
@@ -100,14 +98,14 @@ describe('add Address layer set coordinates', function() {
         let objs1 = editor.search({rect: display.getViewBounds(), layers: [addrLayer]});
         let objs2 = editor.search({rect: display.getViewBounds()});
 
-        expect(objs1).to.have.lengthOf(1);
-        expect(objs2).to.have.lengthOf(1);
+        expect(objs1).toHaveLength(1);
+        expect(objs2).toHaveLength(1);
     });
 
     it('add Address layer, verify address has correct geo coordinate', async function() {
         editor.addLayer(addrLayer);
 
-        expect(address.coord()).to.deep.almost([
+        chai.expect(address.coord()).to.deep.almost([
             75.572408633, 12.951326536, 0
         ]);
     });

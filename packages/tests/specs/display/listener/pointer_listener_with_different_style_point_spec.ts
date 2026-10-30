@@ -22,11 +22,9 @@ import {Listener, getCanvasPixelColor, prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_listener_with_different_style_point_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('pointer listener with different style point', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let mapContainer;
     let poiLayer;
@@ -64,26 +62,26 @@ describe('pointer listener with different style point', function() {
         await click(mapContainer, 321, 311);
 
         let results = listener.stop();
-        expect(results.pointerdown).to.have.lengthOf(1);
-        expect(results.pointerdown[0]).to.deep.include({
+        expect(results.pointerdown).toHaveLength(1);
+        expect(results.pointerdown[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 321,
             mapY: 311,
             type: 'pointerdown'
-        });
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        }));
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 321,
             mapY: 311,
             type: 'pointerup'
-        });
+        }));
     });
 
     it('validate style', function() {
-        expect(poiLayer.getStyle().styleGroups['Point'][0]).to.deep.include({
+        expect(poiLayer.getStyle().styleGroups['Point'][0]).toEqual(expect.objectContaining({
             zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'
-        });
+        }));
     });
 
     it('set style and validate point down and up events', async function() {
@@ -107,26 +105,26 @@ describe('pointer listener with different style point', function() {
         await click(mapContainer, 321, 311);
 
         let results = listener.stop();
-        expect(results.pointerdown).to.have.lengthOf(1);
-        expect(results.pointerdown[0]).to.deep.include({
+        expect(results.pointerdown).toHaveLength(1);
+        expect(results.pointerdown[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 321,
             mapY: 311,
             type: 'pointerdown'
-        });
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        }));
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 321,
             mapY: 311,
             type: 'pointerup'
-        });
+        }));
 
         // Refresh schedules rendering asynchronously; wait for the updated style to become visible.
         const colors = await getCanvasPixelColor(mapContainer, [{x: 282, y: 203}, {x: 272, y: 203}, {x: 248, y: 203}, {x: 239, y: 203}], {
             expect: ['#ffffff', '#be6b65', '#be6b65', '#ffffff']
         });
-        expect(colors).to.deep.equal(['#ffffff', '#be6b65', '#be6b65', '#ffffff']);
+        expect(colors).toStrictEqual(['#ffffff', '#be6b65', '#be6b65', '#ffffff']);
     });
 
 
@@ -138,6 +136,6 @@ describe('pointer listener with different style point', function() {
         let color = await getCanvasPixelColor(mapContainer, {x: 254, y: 205}, {
             expect: '#ff0000'
         });
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 });

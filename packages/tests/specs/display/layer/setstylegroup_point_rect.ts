@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './setstylegroup_point_rect.json';
 import {click} from 'triggerEvents';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('setStyleGroup Point with rect', function() {
-    const expect = chai.expect;
-
     let paLayer;
     let display;
     let mapContainer;
@@ -78,11 +76,11 @@ describe('setStyleGroup Point with rect', function() {
             expect: ['#ff0000', '#000000', '#000000', '#000000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#000000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#000000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#000000');
     });
 
     it('style feature with opacity, validate its style', async () => {
@@ -106,11 +104,11 @@ describe('setStyleGroup Point with rect', function() {
             expect: ['#990000', '#000000', '#000000', '#000000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#990000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#000000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[0]).toBe('#990000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#000000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#000000');
     });
 
     it('style feature with rotation, validate its style', async () => {
@@ -133,11 +131,11 @@ describe('setStyleGroup Point with rect', function() {
             expect: '#ff0000'
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#ff0000');
-        expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#ff0000');
-        expect(colors[4]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#ff0000');
+        expect(colors[2]).toBe('#ff0000');
+        expect(colors[3]).toBe('#ff0000');
+        expect(colors[4]).toBe('#ff0000');
     });
 
     it('style feature with offsetX, validate its style', async () => {
@@ -160,11 +158,11 @@ describe('setStyleGroup Point with rect', function() {
             expect: ['#ff0000', '#000000', '#ff0000', '#000000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#ff0000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#000000');
     });
 
     it('style feature with offsetX again, validate its style', async () => {
@@ -187,11 +185,11 @@ describe('setStyleGroup Point with rect', function() {
             expect: ['#ff0000', '#ff0000', '#000000', '#000000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#ff0000');
-        expect(colors[2]).to.equal('#000000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#ff0000');
+        expect(colors[2]).toBe('#000000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#000000');
     });
 
     it('style feature with offsetY, validate its style', async () => {
@@ -214,11 +212,11 @@ describe('setStyleGroup Point with rect', function() {
             expect: ['#ff0000', '#000000', '#000000', '#000000', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#000000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#000000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#ff0000');
     });
 
     it('style feature with offsetY again, validate its style', async () => {
@@ -241,11 +239,11 @@ describe('setStyleGroup Point with rect', function() {
             expect: ['#ff0000', '#000000', '#000000', '#ff0000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#000000');
-        expect(colors[3]).to.equal('#ff0000');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#000000');
+        expect(colors[3]).toBe('#ff0000');
+        expect(colors[4]).toBe('#000000');
     });
 
     it('set width in meter', async () => {
@@ -256,7 +254,7 @@ describe('setStyleGroup Point with rect', function() {
         const colors = await getCanvasPixelColor(mapContainer, {x: 400 - 30, y: 300 - 30}, {
             expect: '#ff0000'
         });
-        expect(colors).to.equal('#ff0000');
+        expect(colors).toBe('#ff0000');
     });
 
     it('zoom in and validate width in meter is double in size', async () => {
@@ -264,7 +262,7 @@ describe('setStyleGroup Point with rect', function() {
         const colors = await getCanvasPixelColor(mapContainer, {x: 400 - 60, y: 300 - 60}, {
             expect: '#ff0000'
         });
-        expect(colors).to.equal('#ff0000');
+        expect(colors).toBe('#ff0000');
     });
 
 
@@ -275,16 +273,16 @@ describe('setStyleGroup Point with rect', function() {
 
         const {pointerdown, pointerup} = listener.stop();
 
-        expect(pointerdown).to.have.lengthOf(1);
-        expect(pointerdown[0]).to.deep.include({
+        expect(pointerdown).toHaveLength(1);
+        expect(pointerdown[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 460,
             mapY: 360,
             type: 'pointerdown'
-        });
+        }));
 
-        expect(pointerup).to.have.lengthOf(1);
+        expect(pointerup).toHaveLength(1);
         const {geometry} = (<any>pointerup[0]).target;
-        expect(geometry).to.deep.include({type: 'Point'});
+        expect(geometry).toEqual(expect.objectContaining({type: 'Point'}));
     });
 });

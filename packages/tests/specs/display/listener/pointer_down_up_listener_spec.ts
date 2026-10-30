@@ -22,11 +22,9 @@ import {Listener, prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_down_up_listener_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('pointer down and pointer up listener', () => {
-    const expect = chai.expect;
-
     let preparedData;
     let display;
     let mapContainer;
@@ -56,25 +54,25 @@ describe('pointer down and pointer up listener', () => {
 
         let results = listener.stop();
 
-        expect(results.pointerdown).to.have.lengthOf(1);
-        expect(results.pointerdown[0]).to.deep.include({
+        expect(results.pointerdown).toHaveLength(1);
+        expect(results.pointerdown[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 554,
             mapY: 243,
             type: 'pointerdown'
-        });
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        }));
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 554,
             mapY: 243,
             type: 'pointerup'
-        });
+        }));
 
         const {geometry} = (<any>results.pointerup[0]).target;
-        expect(geometry).to.deep.include({
+        expect(geometry).toEqual(expect.objectContaining({
             type: 'LineString'
-        });
+        }));
     });
 
     it('validate pointer down and up events on point', async () => {
@@ -84,24 +82,24 @@ describe('pointer down and pointer up listener', () => {
 
         let results = listener.stop();
 
-        expect(results.pointerdown).to.have.lengthOf(1);
-        expect(results.pointerdown[0]).to.deep.include({
+        expect(results.pointerdown).toHaveLength(1);
+        expect(results.pointerdown[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 616,
             mapY: 240,
             type: 'pointerdown'
-        });
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        }));
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 616,
             mapY: 240,
             type: 'pointerup'
-        });
+        }));
         const {geometry} = (<any>results.pointerup[0]).target;
-        expect(geometry).to.deep.include({
+        expect(geometry).toEqual(expect.objectContaining({
             type: 'Point'
-        });
+        }));
     });
 
 
@@ -112,8 +110,8 @@ describe('pointer down and pointer up listener', () => {
 
         let results = listener.stop();
 
-        expect(results.pointerdown).to.have.lengthOf(1);
-        expect(results.pointerup).to.have.lengthOf(1);
+        expect(results.pointerdown).toHaveLength(1);
+        expect(results.pointerup).toHaveLength(1);
     });
 
     it('validate pointer event target on polygon', async () => {
@@ -128,17 +126,17 @@ describe('pointer down and pointer up listener', () => {
 
         let results = listener.stop();
 
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 430,
             mapY: 300,
             type: 'pointerup'
-        });
+        }));
         const geometry = (<any>results.pointerup[0]).target.geometry;
-        expect(geometry).to.deep.include({
+        expect(geometry).toEqual(expect.objectContaining({
             type: 'Polygon'
-        });
+        }));
     });
 
     it('validate pointer event target on polygon with hole', async () => {
@@ -148,16 +146,16 @@ describe('pointer down and pointer up listener', () => {
 
         let results = listener.stop();
 
-        expect(results.pointerup).to.have.lengthOf(1);
+        expect(results.pointerup).toHaveLength(1);
 
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 400,
             mapY: 280,
             type: 'pointerup'
-        });
+        }));
 
-        expect(results.pointerup[0].target).to.equal(undefined);
+        expect(results.pointerup[0].target).toBe(undefined);
     });
 
     it('validate pointer event target on linestring "inside" a polygon hole', async () => {
@@ -167,17 +165,17 @@ describe('pointer down and pointer up listener', () => {
 
         let results = listener.stop();
 
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 400,
             mapY: 300,
             type: 'pointerup'
-        });
+        }));
         const geometry = (<any>results.pointerup[0]).target.geometry;
-        expect(geometry).to.deep.include({
+        expect(geometry).toEqual(expect.objectContaining({
             type: 'LineString'
-        });
+        }));
     });
 
 
@@ -191,17 +189,17 @@ describe('pointer down and pointer up listener', () => {
 
         let results = listener.stop();
 
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 400,
             mapY: 300,
             type: 'pointerup'
-        });
+        }));
         const geometry = (<any>results.pointerup[0]).target.geometry;
-        expect(geometry).to.deep.include({
+        expect(geometry).toEqual(expect.objectContaining({
             type: 'LineString'
-        });
+        }));
     });
 
     it('validate pointer event target on polygon visualized as point', async () => {
@@ -220,17 +218,17 @@ describe('pointer down and pointer up listener', () => {
 
         let results = listener.stop();
 
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 430,
             mapY: 300,
             type: 'pointerup'
-        });
+        }));
         const geometry = (<any>results.pointerup[0]).target.geometry;
-        expect(geometry).to.deep.include({
+        expect(geometry).toEqual(expect.objectContaining({
             type: 'Polygon'
-        });
+        }));
     });
 });
 

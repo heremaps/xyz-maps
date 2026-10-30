@@ -26,8 +26,6 @@ import dataset from './link_drag_snap_spec.json';
 import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('link shape point drag to snapping to other links', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -65,7 +63,7 @@ describe('link shape point drag to snapping to other links', function() {
 
         await drag(mapContainer, {x: 150, y: 150}, {x: 294, y: 100});
 
-        expect(link2.coord()).to.deep.almost([
+        chai.expect(link2.coord()).to.deep.almost([
             [75.290493779, 16.325440813, 0], [75.289957337, 16.32531211, 0]
         ]);
     });
@@ -77,7 +75,7 @@ describe('link shape point drag to snapping to other links', function() {
 
         await drag(mapContainer, {x: 150, y: 150}, {x: 294, y: 200});
 
-        expect(lnk.coord()).to.deep.almost([
+        chai.expect(lnk.coord()).to.deep.almost([
             [75.290493779, 16.325183407, 0], [75.289957337, 16.32531211, 0]
         ]);
     });

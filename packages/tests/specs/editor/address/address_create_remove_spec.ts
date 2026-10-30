@@ -22,11 +22,9 @@ import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './address_create_remove_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('add Address object and then remove', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var editor;
     var display;
@@ -68,7 +66,7 @@ describe('add Address object and then remove', function() {
 
         editor.undo();
         editor.redo();
-        expect(address.prop('estate')).to.be.equal('CREATED');
+        expect(address.prop('estate')).toBe('CREATED');
 
         await waitForEditorReady(editor, async ()=>{
             idMap = await submit(editor);
@@ -80,8 +78,8 @@ describe('add Address object and then remove', function() {
         address = editor.search({layers: [paLayer], rect: display.getViewBounds()})[0];
 
         address.remove();
-        expect(address.prop('removed')).to.be.equal('HOOK');
-        expect(address.prop('estate')).to.be.equal('REMOVED');
+        expect(address.prop('removed')).toBe('HOOK');
+        expect(address.prop('estate')).toBe('REMOVED');
 
         await waitForEditorReady(editor, async ()=>{
             await submit(editor);

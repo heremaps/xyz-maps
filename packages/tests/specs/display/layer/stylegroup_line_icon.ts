@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('StyleGroup Image and Line geometry', () => {
     const redImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mP8z8AARLgB48hQAAAdEw/5itjcFgAAAABJRU5ErkJggg==';
@@ -29,7 +29,6 @@ describe('StyleGroup Image and Line geometry', () => {
     const blueImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mNkYPj/nwEPYBwZCgANIw/5um5PVwAAAABJRU5ErkJggg==';
     const magentaImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAFElEQVR42mP8z/D/PwMewDgyFAAApMMX8QnY984AAAAASUVORK5CYII=';
 
-    const expect = chai.expect;
     let px1 = {x: 300, y: 500};
     let px2 = {x: 500, y: 100};
     let px3 = {x: 300, y: 100};
@@ -108,7 +107,7 @@ describe('StyleGroup Image and Line geometry', () => {
 
         // Style changes and image loading complete asynchronously; wait for the rendered result.
         const colors = await getCanvasPixelColor(mapContainer, [px1, px2], {expect: ['#0000ff', '#0000ff']});
-        expect(colors).to.deep.equal(['#0000ff', '#0000ff']);
+        expect(colors).toStrictEqual(['#0000ff', '#0000ff']);
     });
 
     it('set anchor to Line', async () => {
@@ -120,7 +119,7 @@ describe('StyleGroup Image and Line geometry', () => {
         const colors = await getCanvasPixelColor(mapContainer, [px1, px2, {x: 400, y: 300}], {
             expect: ['#ffffff', '#ffffff', '#0000ff']
         });
-        expect(colors).to.deep.equal(['#ffffff', '#ffffff', '#0000ff']);
+        expect(colors).toStrictEqual(['#ffffff', '#ffffff', '#0000ff']);
     });
 
     it('stlye line 2', async () => {
@@ -132,7 +131,7 @@ describe('StyleGroup Image and Line geometry', () => {
             expect: '#00ff00'
         });
         for (let color of colors) {
-            expect(color).to.equal('#00ff00');
+            expect(color).toBe('#00ff00');
         }
     });
 
@@ -145,7 +144,7 @@ describe('StyleGroup Image and Line geometry', () => {
             expect: '#00ff00'
         });
         for (let color of colors) {
-            expect(color).to.equal('#00ff00');
+            expect(color).toBe('#00ff00');
         }
     });
 
@@ -168,9 +167,9 @@ describe('StyleGroup Image and Line geometry', () => {
             expect: ['#00ff00', '#0000ff', '#00ff00']
         });
 
-        expect(colors[0]).to.equal('#00ff00');
-        expect(colors[1]).to.equal('#0000ff');
-        expect(colors[2]).to.equal('#00ff00');
+        expect(colors[0]).toBe('#00ff00');
+        expect(colors[1]).toBe('#0000ff');
+        expect(colors[2]).toBe('#00ff00');
     });
 
     it('change priority', async () => {
@@ -192,9 +191,9 @@ describe('StyleGroup Image and Line geometry', () => {
             expect: '#00ff00'
         });
 
-        expect(colors[0]).to.equal('#00ff00');
-        expect(colors[1]).to.equal('#00ff00');
-        expect(colors[2]).to.equal('#00ff00');
+        expect(colors[0]).toBe('#00ff00');
+        expect(colors[1]).toBe('#00ff00');
+        expect(colors[2]).toBe('#00ff00');
     });
 
     it('set anchor2 to Coordinates', async () => {
@@ -215,11 +214,11 @@ describe('StyleGroup Image and Line geometry', () => {
             expect: ['#0000ff', '#00ff00', '#00ff00', '#00ff00', '#00ff00']
         });
 
-        expect(colors[0]).to.equal('#0000ff');
-        expect(colors[1]).to.equal('#00ff00');
-        expect(colors[2]).to.equal('#00ff00');
-        expect(colors[3]).to.equal('#00ff00');
-        expect(colors[4]).to.equal('#00ff00');
+        expect(colors[0]).toBe('#0000ff');
+        expect(colors[1]).toBe('#00ff00');
+        expect(colors[2]).toBe('#00ff00');
+        expect(colors[3]).toBe('#00ff00');
+        expect(colors[4]).toBe('#00ff00');
     });
 
     it('set anchor1 to Coordinates', async () => {
@@ -240,11 +239,11 @@ describe('StyleGroup Image and Line geometry', () => {
             expect: ['#ffffff', '#00ff00', '#00ff00', '#00ff00', '#00ff00']
         });
 
-        expect(colors[0]).to.equal('#ffffff');
-        expect(colors[1]).to.equal('#00ff00');
-        expect(colors[2]).to.equal('#00ff00');
-        expect(colors[3]).to.equal('#00ff00');
-        expect(colors[4]).to.equal('#00ff00');
+        expect(colors[0]).toBe('#ffffff');
+        expect(colors[1]).toBe('#00ff00');
+        expect(colors[2]).toBe('#00ff00');
+        expect(colors[3]).toBe('#00ff00');
+        expect(colors[4]).toBe('#00ff00');
     });
 
     it('change prio1', async () => {
@@ -272,11 +271,11 @@ describe('StyleGroup Image and Line geometry', () => {
             expect: ['#ffffff', '#0000ff', '#0000ff', '#00ff00', '#00ff00']
         });
 
-        expect(colors[0]).to.equal('#ffffff');
-        expect(colors[1]).to.equal('#0000ff');
-        expect(colors[2]).to.equal('#0000ff');
-        expect(colors[3]).to.equal('#00ff00');
-        expect(colors[4]).to.equal('#00ff00');
+        expect(colors[0]).toBe('#ffffff');
+        expect(colors[1]).toBe('#0000ff');
+        expect(colors[2]).toBe('#0000ff');
+        expect(colors[3]).toBe('#00ff00');
+        expect(colors[4]).toBe('#00ff00');
     });
 
     it('check collision-groups', async () => {
@@ -319,11 +318,11 @@ describe('StyleGroup Image and Line geometry', () => {
             expect: ['#ffffff', '#ff0000', '#ff0000', '#ff0000', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#ffffff');
-        expect(colors[1]).to.equal('#ff0000');
-        expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#ff0000');
-        expect(colors[4]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ffffff');
+        expect(colors[1]).toBe('#ff0000');
+        expect(colors[2]).toBe('#ff0000');
+        expect(colors[3]).toBe('#ff0000');
+        expect(colors[4]).toBe('#ff0000');
     });
 
     it('check partial collision-groups', async () => {
@@ -366,11 +365,11 @@ describe('StyleGroup Image and Line geometry', () => {
             expect: ['#ffffff', '#ff00ff', '#ff00ff', '#ff0000', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#ffffff');
-        expect(colors[1]).to.equal('#ff00ff');
-        expect(colors[2]).to.equal('#ff00ff');
-        expect(colors[3]).to.equal('#ff0000');
-        expect(colors[4]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ffffff');
+        expect(colors[1]).toBe('#ff00ff');
+        expect(colors[2]).toBe('#ff00ff');
+        expect(colors[3]).toBe('#ff0000');
+        expect(colors[4]).toBe('#ff0000');
     });
 
     it('set minimum repeat distance - anchor Line', async () => {
@@ -388,9 +387,9 @@ describe('StyleGroup Image and Line geometry', () => {
             expect: ['#ffffff', '#00ff00', '#ffffff']
         });
 
-        expect(colors[0]).to.equal('#ffffff');
-        expect(colors[1]).to.equal('#00ff00');
-        expect(colors[2]).to.equal('#ffffff');
+        expect(colors[0]).toBe('#ffffff');
+        expect(colors[1]).toBe('#00ff00');
+        expect(colors[2]).toBe('#ffffff');
     });
 
     it('set minimum repeat distance - anchor Coordinate', async () => {
@@ -412,10 +411,10 @@ describe('StyleGroup Image and Line geometry', () => {
             expect: ['#00ff00', '#00ff00', '#ffffff', '#ffffff']
         });
 
-        expect(colors[0]).to.equal('#00ff00');
-        expect(colors[1]).to.equal('#00ff00');
-        expect(colors[2]).to.equal('#ffffff');
-        expect(colors[3]).to.equal('#ffffff');
+        expect(colors[0]).toBe('#00ff00');
+        expect(colors[1]).toBe('#00ff00');
+        expect(colors[2]).toBe('#ffffff');
+        expect(colors[3]).toBe('#ffffff');
     });
 
     it('enable checkLineSpace', async () => {
@@ -441,7 +440,7 @@ describe('StyleGroup Image and Line geometry', () => {
         const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
             expect: '#ff0000'
         });
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('disable checkLineSpace', async () => {
@@ -463,6 +462,6 @@ describe('StyleGroup Image and Line geometry', () => {
         const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
             expect: '#00ff00'
         });
-        expect(color).to.equal('#00ff00');
+        expect(color).toBe('#00ff00');
     });
 });

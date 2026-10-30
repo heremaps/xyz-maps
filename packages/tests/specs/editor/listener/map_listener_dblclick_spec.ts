@@ -22,11 +22,9 @@ import {mousemove, dblclick} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_dblclick_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map double click listener', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -75,8 +73,8 @@ describe('map double click listener', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerup).to.have.lengthOf(4);
-        expect(results.dbltap).to.have.lengthOf(0);
+        expect(results.pointerup).toHaveLength(4);
+        expect(results.dbltap).toHaveLength(0);
 
         await waitForEditorReady(editor, ()=>{
             editor.revert();
@@ -100,8 +98,8 @@ describe('map double click listener', function() {
         await dblclick(mapContainer, 300, 300);
 
         let results = listener.stop();
-        expect(results.pointerup).to.have.lengthOf(2);
-        expect(results.dbltap).to.have.lengthOf(0);
+        expect(results.pointerup).toHaveLength(2);
+        expect(results.dbltap).toHaveLength(0);
 
         editor.getDrawingBoard().cancel();
     });

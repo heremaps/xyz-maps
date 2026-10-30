@@ -22,11 +22,9 @@ import {Listener, prepare} from 'utils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_mapview_listener_spec.json';
-import {vi, describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('mapview change listener', function() {
-    const expect = chai.expect;
-
     let display;
     let mapContainer;
 
@@ -55,8 +53,8 @@ describe('mapview change listener', function() {
 
         let results = listener.stop();
 
-        expect(results.mapviewchangestart).to.have.lengthOf.above(0);
-        expect(results.mapviewchangeend).to.have.lengthOf.above(0);
+        expect((results.mapviewchangestart).length).toBeGreaterThan(0);
+        expect((results.mapviewchangeend).length).toBeGreaterThan(0);
     });
 
     it('validate mapview events numbers after dragging map', async function() {
@@ -69,7 +67,7 @@ describe('mapview change listener', function() {
 
         let results = listener.stop();
 
-        expect(results.mapviewchangeend.length).to.be.equal(results.mapviewchangestart.length);
+        expect(results.mapviewchangeend.length).toBe(results.mapviewchangestart.length);
     });
 
     it('pairs mapview events when movement resumes before the pending end', async function() {
@@ -97,8 +95,8 @@ describe('mapview change listener', function() {
                 await resume;
             });
             const results = listener.stop();
-            expect(results.mapviewchangestart).to.have.lengthOf.above(0);
-            expect(results.mapviewchangeend.length).to.equal(results.mapviewchangestart.length);
+            expect((results.mapviewchangestart).length).toBeGreaterThan(0);
+            expect(results.mapviewchangeend.length).toBe(results.mapviewchangestart.length);
         } finally {
             bounds.mockRestore();
             listener.stop();
@@ -115,9 +113,9 @@ describe('mapview change listener', function() {
 
         let results = listener.stop();
 
-        expect(results.mapviewchangestart).to.have.lengthOf.above(0);
-        expect(results.mapviewchangeend).to.have.lengthOf.above(0);
-        expect(results.mapviewchangeend.length).to.be.equal(results.mapviewchangestart.length);
+        expect((results.mapviewchangestart).length).toBeGreaterThan(0);
+        expect((results.mapviewchangeend).length).toBeGreaterThan(0);
+        expect(results.mapviewchangeend.length).toBe(results.mapviewchangestart.length);
     });
 
     it('lock viewport for panning then validate mapview events after dragging map', async function() {
@@ -128,8 +126,8 @@ describe('mapview change listener', function() {
 
         let results = listener.stop();
 
-        expect(results.mapviewchangestart).to.have.lengthOf(0);
-        expect(results.mapviewchangeend).to.have.lengthOf(0);
+        expect(results.mapviewchangestart).toHaveLength(0);
+        expect(results.mapviewchangeend).toHaveLength(0);
 
         display.lockViewport({pan: false});
     });

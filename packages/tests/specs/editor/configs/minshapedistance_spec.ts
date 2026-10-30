@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './minshapedistance_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set snapTolerance', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -79,8 +77,8 @@ describe('set snapTolerance', function() {
         });
 
         // validate link1 has 2 shape points, 1 shape point is eleminated because minimum distance of shapes is 5 meters
-        expect(link1.coord()).to.have.lengthOf(2);
-        expect(link2.coord()).to.have.lengthOf(3);
+        expect(link1.coord()).toHaveLength(2);
+        expect(link2.coord()).toHaveLength(3);
     });
 
     it('reset snapTolerance, validate new link created again', async function() {
@@ -121,8 +119,8 @@ describe('set snapTolerance', function() {
 
         // validate link1 has 3 shape points
         // validate link3 has 2 shape points, 1 shape point is eleminated because default minimum distance of shapes is 2 meters
-        expect(link1.coord()).to.have.lengthOf(3);
-        expect(link2.coord()).to.have.lengthOf(3);
-        expect(link3.coord()).to.have.lengthOf(2);
+        expect(link1.coord()).toHaveLength(3);
+        expect(link2.coord()).toHaveLength(3);
+        expect(link3.coord()).toHaveLength(2);
     });
 });

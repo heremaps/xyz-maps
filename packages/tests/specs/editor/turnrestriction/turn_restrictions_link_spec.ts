@@ -22,11 +22,9 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('edit turn restrictions by function on link', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -64,13 +62,13 @@ describe('edit turn restrictions by function on link', function() {
 
         await click(mapContainer, 100, 115);
 
-        expect(link1.prop('turnRestriction')).to.deep.equal({start: [link2.id]});
+        expect(link1.prop('turnRestriction')).toEqual({start: [link2.id]});
     });
 
 
     it('set turn restriction again and validate it', async function() {
         await click(mapContainer, 200, 115);
 
-        expect(link1.prop('turnRestriction')).to.deep.equal({start: [link2.id], end: [link2.id]});
+        expect(link1.prop('turnRestriction')).toEqual({start: [link2.id], end: [link2.id]});
     });
 });

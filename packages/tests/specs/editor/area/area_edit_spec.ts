@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_edit_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('modify area geometry', () => {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -65,7 +63,7 @@ describe('modify area geometry', () => {
     it('get an area object and select', () => {
         area.select();
 
-        expect(area.coord()[0][0]).to.have.lengthOf(5);
+        expect(area.coord()[0][0]).toHaveLength(5);
     });
 
     it('drag a middle point to add shape point and validate', async () => {
@@ -73,7 +71,7 @@ describe('modify area geometry', () => {
 
         await drag(mapContainer, {x: 300, y: 300}, {x: 300, y: 250});
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [-111.718267489, 40.211738323, 0],
             [-111.718267489, 40.210918996, 0],
             [-111.717194605, 40.210918996, 0],
@@ -87,7 +85,7 @@ describe('modify area geometry', () => {
         areashp = (await editorClick(editor, 200, 500)).target;
         areashp.remove();
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
             [-111.717194605, 40.211738323, 0],
@@ -99,7 +97,7 @@ describe('modify area geometry', () => {
     it('drag middle point to add shape point again', async () => {
         await drag(mapContainer, {x: 400, y: 400}, {x: 450, y: 400});
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
             [-111.716926385, 40.21132866, 0],
@@ -116,7 +114,7 @@ describe('modify area geometry', () => {
 
         let a = editor.getFeature(area.id, areaLayer);
 
-        expect(a.coord()).to.deep.almost([[[
+        chai.expect(a.coord()).to.deep.almost([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
             [-111.716926385, 40.21132866, 0],
@@ -129,7 +127,7 @@ describe('modify area geometry', () => {
     it('add a hole', async () => {
         area.addHole({x: 360, y: 370});
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
             [-111.716926385, 40.21132866, 0],
@@ -154,12 +152,12 @@ describe('modify area geometry', () => {
 
         const results = listener.stop();
 
-        expect(results.geometryValidation).to.have.lengthOf.above(0);
-        expect(results.geometryValidation[0]).to.deep.include({
+        expect((results.geometryValidation).length).toBeGreaterThan(0);
+        expect(results.geometryValidation[0]).toEqual(expect.objectContaining({
             type: 'geometryValidation',
             target: area
-        });
-        expect(results.geometryValidation[0].detail.geometryValidation).to.deep.include({
+        }));
+        expect(results.geometryValidation[0].detail.geometryValidation).toEqual(expect.objectContaining({
             valid: false,
             reason: 'topologyViolation',
             operation: 'shapeMove',
@@ -167,7 +165,7 @@ describe('modify area geometry', () => {
             polygonIndex: 0,
             lineStringIndex: 0,
             coordinateIndex: 1
-        });
+        }));
     });
 
     it('fire geometryValidation on blocked self-intersecting shape drag', async () => {
@@ -177,12 +175,12 @@ describe('modify area geometry', () => {
         await drag(mapContainer, {x: 300, y: 250}, {x: 450, y: 320});
 
         const results = listener.stop();
-        expect(results.geometryValidation).to.have.lengthOf.above(0);
-        expect(results.geometryValidation[0]).to.deep.include({
+        expect((results.geometryValidation).length).toBeGreaterThan(0);
+        expect(results.geometryValidation[0]).toEqual(expect.objectContaining({
             type: 'geometryValidation',
             target: area
-        });
-        expect(results.geometryValidation[0].detail.geometryValidation).to.deep.include({
+        }));
+        expect(results.geometryValidation[0].detail.geometryValidation).toEqual(expect.objectContaining({
             valid: false,
             reason: 'selfIntersection',
             operation: 'shapeMove',
@@ -190,6 +188,6 @@ describe('modify area geometry', () => {
             polygonIndex: 0,
             lineStringIndex: 0,
             coordinateIndex: 4
-        });
+        }));
     });
 });

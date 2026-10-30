@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_error_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map error listener', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
     var preparedData;
@@ -72,7 +70,7 @@ describe('map error listener', function() {
             let lnk = editor.search({point: {longitude: 86.904889, latitude: 16.410735}, radius: 50, remote: true});
 
             let results = listener.stop();
-            expect(results.error).to.have.lengthOf(1);
+            expect(results.error).toHaveLength(1);
         });
     });
 });

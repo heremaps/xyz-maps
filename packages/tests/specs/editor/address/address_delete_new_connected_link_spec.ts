@@ -21,12 +21,10 @@ import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_delete_new_connected_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe.skip('New address connect to a new link and then remove the link', function() {
     // routingPoint and routingLink should be cleared when address's referenced link is removed
-    const expect = chai.expect;
-
     var preparedData;
     var editor;
     var display;
@@ -81,15 +79,15 @@ describe.skip('New address connect to a new link and then remove the link', func
         link = editor.addFeature(lnk, linkLayer);
         address = editor.addFeature(addr, addresssLayer);
 
-        expect(address.prop('routingPoint')).to.deep.equal([72.81088, 19.44203, 0]);
+        expect(address.prop('routingPoint')).toStrictEqual([72.81088, 19.44203, 0]);
     });
 
 
     it('remove the created link and validate links routingPoint', function() {
         link.remove();
 
-        expect(address.prop('routingPoint')).to.be.equal(null);
-        expect(address.prop('routingLink')).to.be.equal(null);
+        expect(address.prop('routingPoint')).toBe(null);
+        expect(address.prop('routingLink')).toBe(null);
     });
 
 
@@ -104,7 +102,7 @@ describe.skip('New address connect to a new link and then remove the link', func
         let addressId = idMap.permanentIDMap[address.getProvider().id][address.id];
         let addr = editor.getFeature(addressId, addresssLayer);
 
-        expect(addr.prop('routingPoint')).to.be.undefined;
-        expect(addr.prop('routingLink')).to.be.undefined;
+        expect(addr.prop('routingPoint')).toBeUndefined();
+        expect(addr.prop('routingLink')).toBeUndefined();
     });
 });

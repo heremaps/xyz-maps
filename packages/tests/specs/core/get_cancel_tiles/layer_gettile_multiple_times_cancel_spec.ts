@@ -20,11 +20,9 @@
 import {prepare} from 'utils';
 import {getTileOnLayer} from 'coreUtils';
 import dataset from './layer_gettile_multiple_times_cancel_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('layer get one tile multiple times and cancel', function() {
-    const expect = chai.expect;
-
     var placeLayer;
 
     var qk1;
@@ -54,8 +52,8 @@ describe('layer get one tile multiple times and cancel', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 3 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(3);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(3);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -64,7 +62,7 @@ describe('layer get one tile multiple times and cancel', function() {
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -87,8 +85,8 @@ describe('layer get one tile multiple times and cancel', function() {
                 },
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 2 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(2);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(2);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -97,7 +95,7 @@ describe('layer get one tile multiple times and cancel', function() {
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -120,8 +118,8 @@ describe('layer get one tile multiple times and cancel', function() {
                 },
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 1 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -130,7 +128,7 @@ describe('layer get one tile multiple times and cancel', function() {
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -153,8 +151,8 @@ describe('layer get one tile multiple times and cancel', function() {
                 },
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 0 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(0);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -163,7 +161,7 @@ describe('layer get one tile multiple times and cancel', function() {
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(1);
+                    expect(cancelledRequests).toBe(1);
 
 
                     done();

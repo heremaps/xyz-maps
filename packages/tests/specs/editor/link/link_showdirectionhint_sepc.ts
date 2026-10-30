@@ -22,11 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_showdirectionhint_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('show link direction hint', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -64,59 +62,59 @@ describe('show link direction hint', function() {
 
     it('validate direction hint with shapes', async function() {
         let features = editor.getOverlay().search({rect: display.getViewBounds()});
-        expect(features).to.be.empty;
+        expect(features).toHaveLength(0);
 
         link1.showDirectionHint('BOTH');
         link2.showDirectionHint('START_TO_END');
         link3.showDirectionHint('END_TO_START');
 
         features = editor.getOverlay().search({rect: display.getViewBounds()});
-        expect(features).to.be.lengthOf(9);
+        expect(features).toHaveLength(9);
 
         // A and B shapes on link1
         shape = editor.getOverlay().search({point: {longitude: 80.406079675, latitude: 19.640517232}, radius: 5});
-        expect(shape).to.be.lengthOf(1);
-        expect(shape[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_A'});
+        expect(shape).toHaveLength(1);
+        expect(shape[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_A'}));
 
         shape = editor.getOverlay().search({point: {longitude: 80.407152558, latitude: 19.640517232}, radius: 5});
-        expect(shape).to.be.lengthOf(1);
-        expect(shape[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_B'});
+        expect(shape).toHaveLength(1);
+        expect(shape[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_B'}));
 
         // A and B shapes on link2
         shape = editor.getOverlay().search({point: {longitude: 80.406079675, latitude: 19.640012}, radius: 5});
-        expect(shape).to.be.lengthOf(1);
-        expect(shape[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_A'});
+        expect(shape).toHaveLength(1);
+        expect(shape[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_A'}));
 
         shape = editor.getOverlay().search({point: {longitude: 80.407152558, latitude: 19.640012}, radius: 5});
-        expect(shape).to.be.lengthOf(1);
-        expect(shape[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_B'});
+        expect(shape).toHaveLength(1);
+        expect(shape[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_B'}));
 
         // A and B shapes on link3
         shape = editor.getOverlay().search({point: {longitude: 80.406079675, latitude: 19.639506766}, radius: 5});
-        expect(shape).to.be.lengthOf(1);
-        expect(shape[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_A'});
+        expect(shape).toHaveLength(1);
+        expect(shape[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_A'}));
 
         shape = editor.getOverlay().search({point: {longitude: 80.407152558, latitude: 19.639506766}, radius: 5});
-        expect(shape).to.be.lengthOf(1);
-        expect(shape[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_B'});
+        expect(shape).toHaveLength(1);
+        expect(shape[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_B'}));
 
         // direction hint on link1
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.640517232}, radius: 5});
-        expect(hint).to.be.lengthOf(1);
-        expect(hint[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_2WAY'});
-        expect(hint[0].properties.bearing).to.almost.equal(-0.0001803074);
+        expect(hint).toHaveLength(1);
+        expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_2WAY'}));
+        chai.expect(hint[0].properties.bearing).to.almost.equal(-0.0001803074);
 
         // direction hint on link2
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.640012}, radius: 5});
-        expect(hint).to.be.lengthOf(1);
-        expect(hint[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_1WAY'});
-        expect(hint[0].properties.bearing).to.almost.equal(-0.0001803031);
+        expect(hint).toHaveLength(1);
+        expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_1WAY'}));
+        chai.expect(hint[0].properties.bearing).to.almost.equal(-0.0001803031);
 
         // direction hin on link3
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.639506766}, radius: 5});
-        expect(hint).to.be.lengthOf(1);
-        expect(hint[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_1WAY'});
-        expect(hint[0].properties.bearing).to.almost.equal(179.999819701);
+        expect(hint).toHaveLength(1);
+        expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_1WAY'}));
+        chai.expect(hint[0].properties.bearing).to.almost.equal(179.999819701);
     });
 
     it('hide direction hint and validate', async function() {
@@ -125,12 +123,12 @@ describe('show link direction hint', function() {
         link3.showDirectionHint();
 
         let features = editor.getOverlay().search({rect: display.getViewBounds()});
-        expect(features).to.be.empty;
+        expect(features).toHaveLength(0);
     });
 
     it('validate direction hint without shapes', async function() {
         let features = editor.getOverlay().search({rect: display.getViewBounds()});
-        expect(features).to.be.empty;
+        expect(features).toHaveLength(0);
 
         link1.showDirectionHint('BOTH', true);
         link2.showDirectionHint('START_TO_END', true);
@@ -138,41 +136,41 @@ describe('show link direction hint', function() {
 
         // no shape on link1
         shape = editor.getOverlay().search({point: {longitude: 80.406079675, latitude: 19.640517232}, radius: 5});
-        expect(shape).to.be.empty;
+        expect(shape).toHaveLength(0);
 
         shape = editor.getOverlay().search({point: {longitude: 80.407152558, latitude: 19.640517232}, radius: 5});
-        expect(shape).to.be.empty;
+        expect(shape).toHaveLength(0);
 
         // no shape on link2
         shape = editor.getOverlay().search({point: {longitude: 80.406079675, latitude: 19.640012}, radius: 5});
-        expect(shape).to.be.empty;
+        expect(shape).toHaveLength(0);
 
         shape = editor.getOverlay().search({point: {longitude: 80.407152558, latitude: 19.640012}, radius: 5});
-        expect(shape).to.be.empty;
+        expect(shape).toHaveLength(0);
 
         // no shape on link3
         shape = editor.getOverlay().search({point: {longitude: 80.406079675, latitude: 19.639506766}, radius: 5});
-        expect(shape).to.be.empty;
+        expect(shape).toHaveLength(0);
 
         shape = editor.getOverlay().search({point: {longitude: 80.407152558, latitude: 19.639506766}, radius: 5});
-        expect(shape).to.be.empty;
+        expect(shape).toHaveLength(0);
 
         // direction hint on link1
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.640517232}, radius: 5});
-        expect(hint).to.be.lengthOf(1);
-        expect(hint[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_2WAY'});
-        expect(hint[0].properties.bearing).to.almost.equal(-0.0001803074);
+        expect(hint).toHaveLength(1);
+        expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_2WAY'}));
+        chai.expect(hint[0].properties.bearing).to.almost.equal(-0.0001803074);
 
         // direction hint on link2
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.640012}, radius: 5});
-        expect(hint).to.be.lengthOf(1);
-        expect(hint[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_1WAY'});
-        expect(hint[0].properties.bearing).to.almost.equal(-0.0001803031);
+        expect(hint).toHaveLength(1);
+        expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_1WAY'}));
+        chai.expect(hint[0].properties.bearing).to.almost.equal(-0.0001803031);
 
         // direction hin on link3
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.639506766}, radius: 5});
-        expect(hint).to.be.lengthOf(1);
-        expect(hint[0].properties).to.deep.include({type: 'NAVLINK_DIRECTION_HINT_1WAY'});
-        expect(hint[0].properties.bearing).to.almost.equal(179.999819701);
+        expect(hint).toHaveLength(1);
+        expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_1WAY'}));
+        chai.expect(hint[0].properties.bearing).to.almost.equal(179.999819701);
     });
 });

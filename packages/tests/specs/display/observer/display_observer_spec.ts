@@ -22,11 +22,9 @@ import {Observer, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './display_observer_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('map observer', function() {
-    const expect = chai.expect;
-
     let display;
 
     beforeAll(async function() {
@@ -61,8 +59,8 @@ describe('map observer', function() {
         });
 
         let results = observer.stop();
-        expect(results.center[0]).to.deep.almost({longitude: 80.241128629, latitude: 15.6931352023});
-        expect(results.center[1]).to.deep.almost({longitude: 80.042093977, latitude: 15.494536519});
+        chai.expect(results.center[0]).to.deep.almost({longitude: 80.241128629, latitude: 15.6931352023});
+        chai.expect(results.center[1]).to.deep.almost({longitude: 80.042093977, latitude: 15.494536519});
     });
 
     it('set map center with same coord and validate observer again', async function() {
@@ -79,7 +77,7 @@ describe('map observer', function() {
         });
 
         let results = observer.stop();
-        expect(results.center).to.have.lengthOf(0);
+        expect(results.center).toHaveLength(0);
     });
 
 
@@ -91,6 +89,6 @@ describe('map observer', function() {
         });
 
         let results = observer.stop();
-        expect(results.zoomlevel[0]).to.equal(19);
+        expect(results.zoomlevel[0]).toBe(19);
     });
 });

@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_shapepoint_multiple_self_overlaps_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link connect helper which has multiple overlapped shape points and crossing from one link', () => {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -54,7 +52,7 @@ describe('link connect helper which has multiple overlapped shape points and cro
 
     it('validate there are crossings found', () => {
         let crossings = link1.checkCrossings();
-        expect(crossings).to.have.lengthOf(2);
+        expect(crossings).toHaveLength(2);
     });
 
     it('get crossings and connect', async () => {
@@ -63,6 +61,6 @@ describe('link connect helper which has multiple overlapped shape points and cro
             c.connect();
         });
 
-        expect(editor.info()).to.have.lengthOf(6);
+        expect(editor.info()).toHaveLength(6);
     });
 });

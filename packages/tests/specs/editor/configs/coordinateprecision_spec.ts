@@ -23,10 +23,9 @@ import {TileLayer} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import {TestLocalProvider} from '../../../src/TestProvider';
 import dataset from '../address/address_setcoordinates_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('coordinatePrecision configuration', function() {
-    const expect = chai.expect;
     let preparedData;
     let display;
     let editor;
@@ -68,7 +67,7 @@ describe('coordinatePrecision configuration', function() {
         const address = preparedData.getFeature('paLayer', -47939);
         address.coord([75.5734815169876, 12.9505423419876, 0]);
 
-        expect(address.geometry.coordinates).to.deep.equal([75.573, 12.951, 0]);
+        expect(address.geometry.coordinates).toStrictEqual([75.573, 12.951, 0]);
     });
 
     it('rounds Place geometry coordinates to the configured precision', function() {
@@ -85,7 +84,7 @@ describe('coordinatePrecision configuration', function() {
         );
         place.coord([75.573481516, 12.950542341, 0]);
 
-        expect(place.geometry.coordinates).to.deep.equal([75.573, 12.951, 0]);
+        expect(place.geometry.coordinates).toStrictEqual([75.573, 12.951, 0]);
     });
 
     it('rounds Navlink geometry coordinates to the configured precision', function() {
@@ -93,7 +92,7 @@ describe('coordinatePrecision configuration', function() {
         link.coord([[75.573481516, 12.950542341, 0],
             [75.573481516, 12.950542341, 0]]);
 
-        expect(link.geometry.coordinates).to.deep.equal([
+        expect(link.geometry.coordinates).toStrictEqual([
             [75.573, 12.951, 0], [75.573, 12.951, 0]
         ]);
     });
@@ -123,7 +122,7 @@ describe('coordinatePrecision configuration', function() {
 
         console.log(area, area.geometry.coordinates);
 
-        expect(area.geometry.coordinates).to.deep.equal([[[
+        expect(area.geometry.coordinates).toStrictEqual([[[
             [75.573, 12.951, 0], [75.573, 12.951, 0],
             [75.573, 12.951, 0], [75.573, 12.951, 0]
         ]]]);
@@ -131,11 +130,11 @@ describe('coordinatePrecision configuration', function() {
 
     it('applies precision changes made through config', function() {
         editor.config({coordinatePrecision: 6});
-        expect(editor.config('coordinatePrecision')).to.equal(6);
+        expect(editor.config('coordinatePrecision')).toBe(6);
 
         const address = preparedData.getFeature('paLayer', -47939);
         address.coord([75.573481516, 12.950542341, 0]);
 
-        expect(address.geometry.coordinates).to.deep.equal([75.573482, 12.950542, 0]);
+        expect(address.geometry.coordinates).toStrictEqual([75.573482, 12.950542, 0]);
     });
 });

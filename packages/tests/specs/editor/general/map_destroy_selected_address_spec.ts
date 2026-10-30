@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_destroy_selected_address_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it} from 'vitest';
 
 describe('destroy editor when point address is selected', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;

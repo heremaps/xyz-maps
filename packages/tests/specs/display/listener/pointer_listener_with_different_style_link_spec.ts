@@ -22,11 +22,9 @@ import {Listener, getCanvasPixelColor, prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_listener_with_different_style_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('pointer listener with different style link', ()=>{
-    const expect = chai.expect;
-
     let preparedData;
     let mapContainer;
     let linkLayer;
@@ -65,20 +63,20 @@ describe('pointer listener with different style link', ()=>{
         await click(mapContainer, 605, 310);
 
         let results = listener.stop();
-        expect(results.pointerdown).to.have.lengthOf(1);
-        expect(results.pointerdown[0]).to.deep.include({
+        expect(results.pointerdown).toHaveLength(1);
+        expect(results.pointerdown[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 605,
             mapY: 310,
             type: 'pointerdown'
-        });
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        }));
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 605,
             mapY: 310,
             type: 'pointerup'
-        });
+        }));
     });
 
     it('set link style and validate pointer events on link objects', async ()=>{
@@ -101,20 +99,20 @@ describe('pointer listener with different style link', ()=>{
         await click(mapContainer, 322, 309);
 
         let results = listener.stop();
-        expect(results.pointerdown).to.have.lengthOf(1);
-        expect(results.pointerdown[0]).to.deep.include({
+        expect(results.pointerdown).toHaveLength(1);
+        expect(results.pointerdown[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 322,
             mapY: 309,
             type: 'pointerdown'
-        });
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        }));
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 322,
             mapY: 309,
             type: 'pointerup'
-        });
+        }));
 
         let colors = await getCanvasPixelColor(mapContainer, [{x: 395, y: 294}, {x: 395, y: 303}, {x: 395, y: 310}, {
             x: 395,
@@ -123,11 +121,11 @@ describe('pointer listener with different style link', ()=>{
             expect: ['#ffffff', '#ff0000', '#ff00ff', '#ff0000', '#ffffff']
         });
 
-        expect(colors[0]).to.equal('#ffffff');
-        expect(colors[1]).to.equal('#ff0000');
-        expect(colors[2]).to.equal('#ff00ff');
-        expect(colors[3]).to.equal('#ff0000');
-        expect(colors[4]).to.equal('#ffffff');
+        expect(colors[0]).toBe('#ffffff');
+        expect(colors[1]).toBe('#ff0000');
+        expect(colors[2]).toBe('#ff00ff');
+        expect(colors[3]).toBe('#ff0000');
+        expect(colors[4]).toBe('#ffffff');
     });
 
     it('reset layer style and validate', async ()=>{
@@ -137,7 +135,7 @@ describe('pointer listener with different style link', ()=>{
 
         let color = await getCanvasPixelColor(mapContainer, {x: 322, y: 309}, {expect: '#ff0000'});
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('set line offset (right) and validate click', async ()=>{
@@ -168,13 +166,13 @@ describe('pointer listener with different style link', ()=>{
 
         let results = listener.stop().pointerup;
 
-        expect(results).to.have.lengthOf(2);
+        expect(results).toHaveLength(2);
 
-        expect(results[0]).to.deep.include({type: 'pointerup'});
-        expect(results[0].target).to.equal(feature);
+        expect(results[0]).toEqual(expect.objectContaining({type: 'pointerup'}));
+        expect(results[0].target).toBe(feature);
 
-        expect(results[1]).to.deep.include({type: 'pointerup'});
-        expect(results[1].target).to.equal(feature);
+        expect(results[1]).toEqual(expect.objectContaining({type: 'pointerup'}));
+        expect(results[1].target).toBe(feature);
     });
 
     it('set line offset (left) and validate click', async ()=>{
@@ -206,13 +204,13 @@ describe('pointer listener with different style link', ()=>{
 
         let results = listener.stop().pointerup;
 
-        expect(results).to.have.lengthOf(2);
+        expect(results).toHaveLength(2);
 
-        expect(results[0]).to.deep.include({type: 'pointerup'});
-        expect(results[0].target).to.equal(feature);
+        expect(results[0]).toEqual(expect.objectContaining({type: 'pointerup'}));
+        expect(results[0].target).toBe(feature);
 
-        expect(results[1]).to.deep.include({type: 'pointerup'});
-        expect(results[1].target).to.equal(feature);
+        expect(results[1]).toEqual(expect.objectContaining({type: 'pointerup'}));
+        expect(results[1].target).toBe(feature);
     });
 
     it('set line offset and validate click in empty space', async ()=>{
@@ -258,21 +256,21 @@ describe('pointer listener with different style link', ()=>{
 
         let results = listener.stop().pointerup;
 
-        expect(results).to.have.lengthOf(5);
+        expect(results).toHaveLength(5);
 
-        expect(results[0]).to.deep.include({type: 'pointerup'});
-        expect(results[0].target).to.equal(feature);
+        expect(results[0]).toEqual(expect.objectContaining({type: 'pointerup'}));
+        expect(results[0].target).toBe(feature);
 
-        expect(results[1]).to.deep.include({type: 'pointerup'});
-        expect(results[1].target).to.equal(feature);
+        expect(results[1]).toEqual(expect.objectContaining({type: 'pointerup'}));
+        expect(results[1].target).toBe(feature);
 
-        expect(results[2]).to.deep.include({type: 'pointerup'});
-        expect(results[2].target).to.equal(feature);
+        expect(results[2]).toEqual(expect.objectContaining({type: 'pointerup'}));
+        expect(results[2].target).toBe(feature);
 
-        expect(results[3]).to.deep.include({type: 'pointerup'});
-        expect(results[3].target).to.be.undefined;
+        expect(results[3]).toEqual(expect.objectContaining({type: 'pointerup'}));
+        expect(results[3].target).toBeUndefined();
 
-        expect(results[4]).to.deep.include({type: 'pointerup'});
-        expect(results[4].target).to.be.undefined;
+        expect(results[4]).toEqual(expect.objectContaining({type: 'pointerup'}));
+        expect(results[4].target).toBeUndefined();
     });
 });

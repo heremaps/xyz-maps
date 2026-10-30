@@ -21,11 +21,9 @@ import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_delete_new_connected_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe.skip('New poi connect to a new link and then remove the link', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -87,14 +85,14 @@ describe.skip('New poi connect to a new link and then remove the link', function
 
         poi.createRoutingPoint();
 
-        expect(poi.prop('routingPoint')).to.deep.equal([78.34833, 17.31552, 0]);
+        expect(poi.prop('routingPoint')).toStrictEqual([78.34833, 17.31552, 0]);
     });
 
     it('remove link and validate again', async function() {
         link.remove();
 
-        expect(poi.prop('routingLink')).to.be.equal(null);
-        expect(poi.prop('routingPoint')).to.be.equal(null);
+        expect(poi.prop('routingLink')).toBe(null);
+        expect(poi.prop('routingPoint')).toBe(null);
     });
 
 
@@ -110,7 +108,7 @@ describe.skip('New poi connect to a new link and then remove the link', function
 
         let p = editor.getFeature(poiId, placeLayer);
 
-        expect(p.prop('routingLink')).to.be.undefined;
-        expect(p.prop('routingPoint')).to.be.undefined;
+        expect(p.prop('routingLink')).toBeUndefined();
+        expect(p.prop('routingPoint')).toBeUndefined();
     });
 });

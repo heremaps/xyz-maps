@@ -22,11 +22,9 @@ import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_connect_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Create new Links and drag connect point,original link is not split', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -77,7 +75,7 @@ describe('Create new Links and drag connect point,original link is not split', f
 
         // connectTo link is not split
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     it('create link again, nothing happens', async function() {

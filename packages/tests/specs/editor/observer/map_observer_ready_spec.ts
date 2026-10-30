@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_ready_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map ready observer', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let mapContainer;
@@ -82,7 +80,7 @@ describe('map ready observer', function() {
         });
 
         let results = observer.stop();
-        expect(results['ready']).to.deep.equal([false, true, false, true]);
+        expect(results['ready']).toStrictEqual([false, true, false, true]);
     });
 
     it('start observe again with submitting changes', async function() {
@@ -114,7 +112,7 @@ describe('map ready observer', function() {
         });
 
         let results = observer.stop();
-        expect(results['ready']).to.deep.equal([false, true, false, true]);
+        expect(results['ready']).toStrictEqual([false, true, false, true]);
     });
 
     it('observe again with activate and deactivate the editor', function() {
@@ -125,7 +123,7 @@ describe('map ready observer', function() {
         editor.active(true);
 
         let results = observer.stop();
-        expect(results['ready']).to.have.lengthOf(0);
+        expect(results['ready']).toHaveLength(0);
     });
 
     it('observe again with setting zoomlevels', async function() {
@@ -156,6 +154,6 @@ describe('map ready observer', function() {
         });
 
         let results = observer.stop();
-        expect(results['ready']).to.deep.equal([false, true, false, true, false, true, false, true, false, true, false, true]);
+        expect(results['ready']).toStrictEqual([false, true, false, true, false, true, false, true, false, true, false, true]);
     });
 });

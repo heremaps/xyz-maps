@@ -1,6 +1,6 @@
 import {Map} from '@here/xyz-maps-display';
 import {waitForViewportReady} from 'displayUtils';
-import {vi, describe, beforeEach, afterEach, it, chai} from 'vitest';
+import {vi, describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('viewport readiness helper', () => {
     let display: Map;
@@ -27,7 +27,7 @@ describe('viewport readiness helper', () => {
         } catch (error) {
             received = error;
         }
-        chai.expect(received).to.equal(expected);
+        expect(received).toBe(expected);
     });
 
     it('propagates asynchronous action errors', async () => {
@@ -40,7 +40,7 @@ describe('viewport readiness helper', () => {
         } catch (error) {
             received = error;
         }
-        chai.expect(received).to.equal(expected);
+        expect(received).toBe(expected);
     });
 
     it('waits for the action as well as viewport readiness', async () => {
@@ -49,7 +49,7 @@ describe('viewport readiness helper', () => {
             await new Promise<void>((resolve) => setTimeout(resolve, 200));
             actionDone = true;
         });
-        chai.expect(actionDone).to.equal(true);
+        expect(actionDone).toBe(true);
     });
 
     it('reports missing readiness signals instead of hanging', async () => {
@@ -59,9 +59,9 @@ describe('viewport readiness helper', () => {
             const result = waitForViewportReady(display).then(() => null, (error: Error) => error);
             await vi.advanceTimersByTimeAsync(10000);
             const error = await result;
-            chai.expect(error?.message).to.include('mapviewchangeend=false');
-            chai.expect(error?.message).to.include('starts=0, ends=0');
-            chai.expect(vi.getTimerCount()).to.equal(0);
+            expect(error?.message).toContain('mapviewchangeend=false');
+            expect(error?.message).toContain('starts=0, ends=0');
+            expect(vi.getTimerCount()).toBe(0);
         } finally {
             vi.useRealTimers();
         }

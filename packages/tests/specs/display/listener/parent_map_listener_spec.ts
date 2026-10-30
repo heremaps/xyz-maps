@@ -22,11 +22,9 @@ import {Listener, prepare} from 'utils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './parent_map_listener_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('display event listener', function() {
-    const expect = chai.expect;
-
     let display;
     let mapContainer;
 
@@ -55,11 +53,11 @@ describe('display event listener', function() {
 
         let results = listener.stop();
 
-        expect(results.mapviewchangestart).to.have.lengthOf.above(0);
-        expect(results.mapviewchangeend).to.have.lengthOf.above(0);
+        expect((results.mapviewchangestart).length).toBeGreaterThan(0);
+        expect((results.mapviewchangeend).length).toBeGreaterThan(0);
 
         // number of triggered mapviewchangestart events are greater or equal to mapviewchangeend events
-        expect(results.mapviewchangeend.length).to.not.be.above(results.mapviewchangestart.length);
+        expect(results.mapviewchangeend.length).not.toBeGreaterThan(results.mapviewchangestart.length);
     });
 
     it('validate mapviewchange start and end events with setting map center', async function() {
@@ -75,8 +73,8 @@ describe('display event listener', function() {
 
         let results = listener.stop();
 
-        expect(results.mapviewchangestart).to.have.lengthOf.above(1);
-        expect(results.mapviewchangeend).to.have.lengthOf.above(1);
+        expect((results.mapviewchangestart).length).toBeGreaterThan(1);
+        expect((results.mapviewchangeend).length).toBeGreaterThan(1);
     });
 
     it('lock viewport and validate mapviewchange start and end events', async function() {
@@ -87,8 +85,8 @@ describe('display event listener', function() {
         await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
         let results = listener.stop();
-        expect(results.mapviewchangestart).to.have.lengthOf(0);
-        expect(results.mapviewchangeend).to.have.lengthOf(0);
+        expect(results.mapviewchangestart).toHaveLength(0);
+        expect(results.mapviewchangeend).toHaveLength(0);
     });
 
     it('unlock viewport and validate mapviewchange start and end events', async function() {
@@ -101,10 +99,10 @@ describe('display event listener', function() {
         });
 
         let results = listener.stop();
-        expect(results.mapviewchangestart).to.have.lengthOf.above(0);
-        expect(results.mapviewchangeend).to.have.lengthOf.above(0);
+        expect((results.mapviewchangestart).length).toBeGreaterThan(0);
+        expect((results.mapviewchangeend).length).toBeGreaterThan(0);
 
         // number of triggered mapviewchangestart events are greater or equal to mapviewchangeend events
-        expect(results.mapviewchangeend.length).to.not.be.above(results.mapviewchangestart.length);
+        expect(results.mapviewchangeend.length).not.toBeGreaterThan(results.mapviewchangestart.length);
     });
 });

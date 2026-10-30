@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_snapping_remove_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('link auto remove link', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -71,17 +69,17 @@ describe('link auto remove link', function() {
 
         await drag(mapContainer, {x: 300, y: 150}, {x: 250, y: 150});
 
-        expect(link4.coord()).to.deep.almost([
+        chai.expect(link4.coord()).to.deep.almost([
             [77.055479819, 12.972132213, 0],
             [77.056284482, 12.971609461, 0]
         ]);
 
-        expect(link3.coord()).to.deep.almost([
+        chai.expect(link3.coord()).to.deep.almost([
             [77.055479819, 12.972132213, 0],
             [77.056016261, 12.972393589, 0]
         ]);
 
-        expect(link2.coord()).to.deep.almost([
+        chai.expect(link2.coord()).to.deep.almost([
             [77.055211598, 12.972393589, 0],
             [77.055479819, 12.972132213, 0]
         ]);
@@ -90,7 +88,7 @@ describe('link auto remove link', function() {
     it('drag link shape point which is too far away from the other shape point', async function() {
         await drag(mapContainer, {x: 250, y: 150}, {x: 200, y: 104});
 
-        expect(editor.info()).to.have.lengthOf(3);
+        expect(editor.info()).toHaveLength(3);
     });
 
     it('undo last drag, drag link shape point which snaps automatically to other shape point', async function() {
@@ -105,14 +103,14 @@ describe('link auto remove link', function() {
         await drag(mapContainer, {x: 250, y: 150}, {x: 200, y: 103});
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
 
-        expect(lnk3.coord()).to.deep.almost([
+        chai.expect(lnk3.coord()).to.deep.almost([
             [77.055211598, 12.972393589, 0],
             [77.056016261, 12.972393589, 0]
         ]);
 
-        expect(lnk4.coord()).to.deep.almost([
+        chai.expect(lnk4.coord()).to.deep.almost([
             [77.055211598, 12.972393589, 0],
             [77.056284482, 12.971609461, 0]
         ]);

@@ -22,11 +22,9 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_shapepoint_overlap_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('verify Link overlapped shape point style', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -67,11 +65,11 @@ describe('verify Link overlapped shape point style', function() {
 
         let overlay = editor.getOverlay();
         let node = overlay.search({point: {longitude: 77.367151349, latitude: 13.09411499}, radius: 5});
-        expect(node[0].properties.isOverlapping).to.be.false;
+        expect(node[0].properties.isOverlapping).toBe(false);
         node = overlay.search({point: {longitude: 77.368224233, latitude: 13.09411499}, radius: 5});
-        expect(node[0].properties.isOverlapping).to.be.true;
+        expect(node[0].properties.isOverlapping).toBe(true);
         node = overlay.search({point: {longitude: 77.369297116, latitude: 13.09411499}, radius: 5});
-        expect(node[0].properties.isOverlapping).to.be.false;
+        expect(node[0].properties.isOverlapping).toBe(false);
     });
 
     it('select the other link and click, valiate overlapped shapepoint is highlighted', async function() {
@@ -80,10 +78,10 @@ describe('verify Link overlapped shape point style', function() {
 
         let overlay = editor.getOverlay();
         let node = overlay.search({point: {longitude: 77.368224233, latitude: 13.095159976}, radius: 5});
-        expect(node[0].properties.isOverlapping).to.be.false;
+        expect(node[0].properties.isOverlapping).toBe(false);
         node = overlay.search({point: {longitude: 77.368224233, latitude: 13.09411499}, radius: 5});
-        expect(node[0].properties.isOverlapping).to.be.true;
+        expect(node[0].properties.isOverlapping).toBe(true);
         node = overlay.search({point: {longitude: 77.368224233, latitude: 13.09307}, radius: 5});
-        expect(node[0].properties.isOverlapping).to.be.false;
+        expect(node[0].properties.isOverlapping).toBe(false);
     });
 });

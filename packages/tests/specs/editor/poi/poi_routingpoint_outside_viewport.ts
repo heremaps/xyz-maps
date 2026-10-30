@@ -21,10 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_routingpoint_outside_viewport.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('poi connects to a link which is outside of viewport', function() {
-    const expect = chai.expect;
     let editor;
     let display;
     let preparedData;
@@ -58,17 +57,17 @@ describe('poi connects to a link which is outside of viewport', function() {
     });
 
     it('validate routing point is undefined and validate again after creating the routingPoint', function() {
-        expect(poi1.prop().routingPoint).to.equal(undefined);
+        expect(poi1.prop().routingPoint).toBe(undefined);
 
         poi1.createRoutingPoint();
-        expect(poi1.prop().routingPoint).to.deep.equal([78.35334, 17.31482, 0]);
-        expect(poi1.getLink().id).to.equal(link1.id);
+        expect(poi1.prop().routingPoint).toStrictEqual([78.35334, 17.31482, 0]);
+        expect(poi1.getLink().id).toBe(link1.id);
     });
 
     it('get link objects in viewport and validate', function() {
         let objs = editor.search({rect: display.getViewBounds(), layers: [linkLayer]});
 
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
     it('move map to a new area and validate link is not in viewport, poi connects still connects the link', async function() {
@@ -77,9 +76,9 @@ describe('poi connects to a link which is outside of viewport', function() {
         });
 
         let objs = editor.search({rect: display.getViewBounds(), layers: [linkLayer]});
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
 
-        expect(poi1.getLink().id).to.equal(link1.id);
+        expect(poi1.getLink().id).toBe(link1.id);
     });
 
     it('move map to a new area and validate links are in viewport, poi connects still connects the link ', async function() {
@@ -88,9 +87,9 @@ describe('poi connects to a link which is outside of viewport', function() {
         });
 
         let objs = editor.search({rect: display.getViewBounds(), layers: [linkLayer]});
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
 
-        expect(poi1.getLink().id).to.equal(link1.id);
+        expect(poi1.getLink().id).toBe(link1.id);
     });
 
 
@@ -100,7 +99,7 @@ describe('poi connects to a link which is outside of viewport', function() {
         });
 
         let objs = editor.search({rect: display.getViewBounds(), layers: [linkLayer]});
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
     it('add a POI and create its routingPoint, validate poi connects to a link', async function() {
@@ -115,7 +114,7 @@ describe('poi connects to a link which is outside of viewport', function() {
         poi2 = editor.addFeature(p, preparedData.getLayers('placeLayer'));
         poi2.createRoutingPoint();
 
-        expect(poi2.prop('routingPoint')).to.deep.equal([78.35377, 17.31523, 0]);
+        expect(poi2.prop('routingPoint')).toStrictEqual([78.35377, 17.31523, 0]);
     });
 
     it('move map to a new area where no link in viewport, validate poi still connects to a link', async function() {
@@ -124,9 +123,9 @@ describe('poi connects to a link which is outside of viewport', function() {
         });
 
         let objs = editor.search({rect: display.getViewBounds(), layers: [linkLayer]});
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
 
-        expect(poi2.prop('routingPoint')).to.deep.equal([78.35377, 17.31523, 0]);
+        expect(poi2.prop('routingPoint')).toStrictEqual([78.35377, 17.31523, 0]);
     });
 
 
@@ -142,6 +141,6 @@ describe('poi connects to a link which is outside of viewport', function() {
         let poi3 = editor.addFeature(p, preparedData.getLayers('placeLayer'));
         poi3.createRoutingPoint();
 
-        expect(poi2.prop('routingPoint')).to.deep.equal([78.35377, 17.31523, 0]);
+        expect(poi2.prop('routingPoint')).toStrictEqual([78.35377, 17.31523, 0]);
     });
 });

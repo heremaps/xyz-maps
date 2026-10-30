@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {vi, describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 import {mousemove} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
@@ -26,8 +26,6 @@ import chaiAlmost from 'chai-almost';
 import dataset from './address_get_functions_spec.json';
 
 describe('Address get functions', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
     var preparedData;
@@ -62,45 +60,45 @@ describe('Address get functions', function() {
 
 
     it('get editstates', async function() {
-        expect(address.editState('selected')).to.be.false;
-        expect(address.editState('hovered')).to.be.false;
+        expect(address.editState('selected')).toBe(false);
+        expect(address.editState('hovered')).toBe(false);
 
         // hover address
         await mousemove(mapContainer, {x: 180, y: 100}, {x: 200, y: 100});
-        expect(address.editState('selected')).to.be.false;
+        expect(address.editState('selected')).toBe(false);
         // Hover detection completes asynchronously after the simulated movement.
         await vi.waitFor(() => {
-            expect(address.editState('hovered')).to.be.true;
+            expect(address.editState('hovered')).toBe(true);
         }, {timeout: 2000});
 
         // select address
         address.select();
-        expect(address.editState('selected')).to.be.true;
-        expect(address.editState('hovered')).to.be.true;
+        expect(address.editState('selected')).toBe(true);
+        expect(address.editState('hovered')).toBe(true);
 
         // leave address
         await mousemove(mapContainer, {x: 180, y: 100}, {x: 200, y: 80});
-        expect(address.editState('selected')).to.be.true;
+        expect(address.editState('selected')).toBe(true);
         await vi.waitFor(() => {
-            expect(address.editState('hovered')).to.be.false;
+            expect(address.editState('hovered')).toBe(false);
         }, {timeout: 2000});
 
         // unselect address
         address.unselect();
-        expect(address.editState('selected')).to.be.false;
-        expect(address.editState('hovered')).to.be.false;
+        expect(address.editState('selected')).toBe(false);
+        expect(address.editState('hovered')).toBe(false);
     });
 
     it('get correct geoCoordinates, pixel coordinate', async function() {
-        expect(address.coord()).to.deep.almost([73.262911206, 19.210066027, 0]);
-        expect(address.prop()).to.deep.include({
+        chai.expect(address.coord()).to.deep.almost([73.262911206, 19.210066027, 0]);
+        expect(address.prop()).toEqual(expect.objectContaining({
             'routingLink': link.id + '',
             'routingPoint': [73.26291, 19.20981, 0],
             'housenumber': '180a',
             'roadname': 'test street'
-        });
-        expect(address.getLink()).to.deep.include({
+        }));
+        expect(address.getLink()).toEqual(expect.objectContaining({
             'id': link.id
-        });
+        }));
     });
 });

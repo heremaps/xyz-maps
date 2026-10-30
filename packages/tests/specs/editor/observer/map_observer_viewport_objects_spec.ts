@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_viewport_objects_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map changes observers validate object numbers in viewport', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -51,6 +49,6 @@ describe('map changes observers validate object numbers in viewport', function()
 
     it('observe ready', function() {
         let zl = display.getZoomlevel();
-        expect(zl).to.equal(18);
+        expect(zl).toBe(18);
     });
 });

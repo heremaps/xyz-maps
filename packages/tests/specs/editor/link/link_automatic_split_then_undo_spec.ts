@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_split_then_undo_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('drag a link shape point to the other one to split itself and then undo', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -56,10 +54,10 @@ describe('drag a link shape point to the other one to split itself and then undo
     });
 
     it('validate 1 link in viewport and no link in viewport is changed', function() {
-        expect(editor.info()).to.have.lengthOf(0);
+        expect(editor.info()).toHaveLength(0);
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
 
@@ -67,20 +65,20 @@ describe('drag a link shape point to the other one to split itself and then undo
         link.select();
         await drag(mapContainer, {x: 400, y: 200}, {x: 100, y: 100});
 
-        expect(editor.info()).to.have.lengthOf(3);
+        expect(editor.info()).toHaveLength(3);
     });
 
     it('validate 2 links in viewport', function() {
         let objs = editor.search(display.getViewBounds());
 
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     it('undo last drag', async function() {
         editor.undo();
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
     it('revert changes', async function() {
@@ -89,6 +87,6 @@ describe('drag a link shape point to the other one to split itself and then undo
         });
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 });

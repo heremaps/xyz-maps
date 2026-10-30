@@ -22,11 +22,9 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_set_start_delete_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('edit turn restriction set turn restriction and delete link', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -51,7 +49,7 @@ describe('edit turn restriction set turn restriction and delete link', function(
         link1 = preparedData.getFeature('linkLayer', -189219);
         link2 = preparedData.getFeature('linkLayer', -189220);
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     afterAll(async function() {
@@ -66,7 +64,7 @@ describe('edit turn restriction set turn restriction and delete link', function(
 
         await click(mapContainer, 300, 300);
 
-        expect(link2.prop('turnRestriction')).to.deep.equal({start: [12345]});
+        expect(link2.prop('turnRestriction')).toEqual({start: [12345]});
     });
 
 
@@ -74,7 +72,7 @@ describe('edit turn restriction set turn restriction and delete link', function(
         link2.remove();
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
 
@@ -82,10 +80,10 @@ describe('edit turn restriction set turn restriction and delete link', function(
         editor.undo();
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
 
 
         link2 = preparedData.getFeature('linkLayer', -189220);
-        expect(link2.prop('turnRestriction')).to.deep.equal({start: [12345]});
+        expect(link2.prop('turnRestriction')).toEqual({start: [12345]});
     });
 });

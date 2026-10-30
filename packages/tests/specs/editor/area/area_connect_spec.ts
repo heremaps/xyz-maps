@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_connected_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('modify connected areas', () => {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -66,7 +64,7 @@ describe('modify connected areas', () => {
 
     it('select area 1', () => {
         area1.select();
-        expect(area1.coord()[0]).to.have.lengthOf(4);
+        expect(area1.coord()[0]).toHaveLength(4);
     });
 
     it('drag "not connected shape" and validate geometry', async () => {
@@ -74,7 +72,7 @@ describe('modify connected areas', () => {
 
         await drag(mapContainer, {x: 270, y: 298}, {x: 276, y: 378});
 
-        expect(area1.coord()).to.deep.almost([[
+        chai.expect(area1.coord()).to.deep.almost([[
             [-74.01302593, 40.703938124],
             [-74.0088631419824, 40.70520692619138],
             [-74.01100890908656, 40.70195354163019],
@@ -87,14 +85,14 @@ describe('modify connected areas', () => {
 
         await drag(mapContainer, {x: 469, y: 301}, {x: 511, y: 349});
 
-        expect(area1.coord()).to.deep.almost([[
+        chai.expect(area1.coord()).to.deep.almost([[
             [-74.01302593, 40.703938124],
             [-74.007983378, 40.70440986],
             [-74.01100890908656, 40.70195354163019],
             [-74.01302593, 40.703938124]
         ]]);
 
-        expect(area2.coord()).to.deep.almost([[
+        chai.expect(area2.coord()).to.deep.almost([[
             [-74.007983378, 40.70440986],
             [-74.00457160777405, 40.70520692619138],
             [-74.00671737487824, 40.70195354163019],
@@ -105,16 +103,16 @@ describe('modify connected areas', () => {
     it('validate history', () => {
         let info = editor.info();
 
-        expect(info.length).to.equal(2);
-        expect(info[0].id).to.equal('A1');
-        expect(info[1].id).to.equal('A2');
+        expect(info.length).toBe(2);
+        expect(info[0].id).toBe('A1');
+        expect(info[1].id).toBe('A2');
     });
 
     it('undo and validate', () => {
         editor.undo();
         let info = editor.info();
 
-        expect(info.length).to.equal(1);
-        expect(info[0].id).to.equal('A1');
+        expect(info.length).toBe(1);
+        expect(info[0].id).toBe('A1');
     });
 });

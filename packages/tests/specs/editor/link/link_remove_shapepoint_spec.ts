@@ -21,10 +21,9 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './link_remove_shapepoint_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('remove link shapepoints', function() {
-    const expect = chai.expect;
     let editor;
     let display;
     let preparedData;
@@ -64,7 +63,7 @@ describe('remove link shapepoints', function() {
         };
         link = editor.addFeature(lnk);
 
-        expect(editor.get('changes.length')).to.equal(1);
+        expect(editor.get('changes.length')).toBe(1);
     });
 
     it('remove a shape point and validate the coord', async function() {
@@ -73,13 +72,13 @@ describe('remove link shapepoints', function() {
         let shape = <NavlinkShape>(await editorClick(editor, 200, 200)).target;
         shape.remove();
 
-        expect(link.coord()).to.have.lengthOf(2);
+        expect(link.coord()).toHaveLength(2);
     });
 
     it('click another link shape point to remove', async function() {
         let shape = <NavlinkShape>(await editorClick(editor, 100, 200)).target;
         shape.remove();
 
-        expect(link.coord()).to.have.lengthOf(2);
+        expect(link.coord()).toHaveLength(2);
     });
 });

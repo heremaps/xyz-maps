@@ -22,11 +22,9 @@ import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_hove_shape_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Hover shape point in drawingboard create link then move mouse', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -86,7 +84,7 @@ describe('Hover shape point in drawingboard create link then move mouse', functi
 
         await mousemove(mapContainer, {x: 300, y: 300}, {x: 360, y: 300});
 
-        expect(link.coord()).to.have.lengthOf(2);
-        expect(editor.info()).to.have.lengthOf(1);
+        expect(link.coord()).toHaveLength(2);
+        expect(editor.info()).toHaveLength(1);
     });
 });

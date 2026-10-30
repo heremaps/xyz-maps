@@ -22,11 +22,9 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_click_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map click listener', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -73,36 +71,36 @@ describe('map click listener', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerup).to.have.lengthOf(5);
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup).toHaveLength(5);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 300,
             mapY: 260,
             type: 'pointerup'
-        });
-        expect(results.pointerup[1]).to.deep.include({
+        }));
+        expect(results.pointerup[1]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 300,
             mapY: 200,
             type: 'pointerup'
-        });
-        expect(results.pointerup[2]).to.deep.include({
+        }));
+        expect(results.pointerup[2]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 631,
             mapY: 324,
             type: 'pointerup'
-        });
-        expect(results.pointerup[3]).to.deep.include({
+        }));
+        expect(results.pointerup[3]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 350,
             mapY: 200,
             type: 'pointerup'
-        });
-        expect(results.pointerup[4]).to.deep.include({
+        }));
+        expect(results.pointerup[4]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 400,
             mapY: 200,
             type: 'pointerup'
-        });
+        }));
     });
 });

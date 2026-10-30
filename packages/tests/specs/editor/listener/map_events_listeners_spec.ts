@@ -23,10 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './map_events_listeners_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('map event system', function() {
-    const expect = chai.expect;
     let link; let address; let poi; let area;
 
     let editor;
@@ -65,28 +64,28 @@ describe('map event system', function() {
         await drag(mapContainer, {x: 200, y: 75}, {x: 150, y: 75});
 
         let results = listener.stop();
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 120,
             mapY: 101,
             type: 'pointerup'
-        });
-        expect(results.dragStart).to.have.lengthOf(1);
-        expect(results.dragStart[0]).to.deep.include({
+        }));
+        expect(results.dragStart).toHaveLength(1);
+        expect(results.dragStart[0]).toEqual(expect.objectContaining({
             button: 0,
             mapY: 75,
             type: 'dragStart'
-        });
-        expect(results.dragStop).to.have.lengthOf(1);
-        expect(results.dragStop[0]).to.deep.include({
+        }));
+        expect(results.dragStop).toHaveLength(1);
+        expect(results.dragStop[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 150,
             mapY: 75,
             type: 'dragStop'
-        });
+        }));
 
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [8.571648762, 50.037391625, 0],
             [8.572185204, 50.037391625, 0],
             // [8.571863339, 50.037477763, 0],
@@ -109,39 +108,39 @@ describe('map event system', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 100,
             mapY: 150,
             type: 'pointerup'
-        });
-        expect(results.dragStart).to.have.lengthOf(2);
-        expect(results.dragStart[0]).to.deep.include({
+        }));
+        expect(results.dragStart).toHaveLength(2);
+        expect(results.dragStart[0]).toEqual(expect.objectContaining({
             button: 0,
             mapY: 100,
             type: 'dragStart'
-        });
-        expect(results.dragStart[1]).to.deep.include({
+        }));
+        expect(results.dragStart[1]).toEqual(expect.objectContaining({
             button: 0,
             mapY: 150,
             type: 'dragStart'
-        });
-        expect(results.dragStop).to.have.lengthOf(2);
-        expect(results.dragStop[0]).to.deep.include({
+        }));
+        expect(results.dragStop).toHaveLength(2);
+        expect(results.dragStop[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 150,
             mapY: 100,
             type: 'dragStop'
-        });
-        expect(results.dragStop[1]).to.deep.include({
+        }));
+        expect(results.dragStop[1]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 50,
             mapY: 150,
             type: 'dragStop'
-        });
+        }));
 
-        expect(address.coord()).to.deep.almost([8.571380542, 50.03721935, 0]);
+        chai.expect(address.coord()).to.deep.almost([8.571380542, 50.03721935, 0]);
     });
 
 
@@ -157,28 +156,28 @@ describe('map event system', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 150,
             mapY: 150,
             type: 'pointerup'
-        });
-        expect(results.dragStart).to.have.lengthOf(1);
-        expect(results.dragStart[0]).to.deep.include({
+        }));
+        expect(results.dragStart).toHaveLength(1);
+        expect(results.dragStart[0]).toEqual(expect.objectContaining({
             button: 0,
             mapY: 150,
             type: 'dragStart'
-        });
-        expect(results.dragStop).to.have.lengthOf(1);
-        expect(results.dragStop[0]).to.deep.include({
+        }));
+        expect(results.dragStop).toHaveLength(1);
+        expect(results.dragStop[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 120,
             mapY: 150,
             type: 'dragStop'
-        });
+        }));
 
-        expect(poi.coord()).to.deep.almost([8.571756051, 50.03721935, 0]);
+        chai.expect(poi.coord()).to.deep.almost([8.571756051, 50.03721935, 0]);
     });
 
 
@@ -193,27 +192,27 @@ describe('map event system', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerup).to.have.lengthOf(1);
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 150,
             mapY: 190,
             type: 'pointerup'
-        });
-        expect(results.dragStart).to.have.lengthOf(1);
-        expect(results.dragStart[0]).to.deep.include({
+        }));
+        expect(results.dragStart).toHaveLength(1);
+        expect(results.dragStart[0]).toEqual(expect.objectContaining({
             button: 0,
             type: 'dragStart'
-        });
-        expect(results.dragStop).to.have.lengthOf(1);
-        expect(results.dragStop[0]).to.deep.include({
+        }));
+        expect(results.dragStop).toHaveLength(1);
+        expect(results.dragStop[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 150,
             mapY: 220,
             type: 'dragStop'
-        });
+        }));
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [8.571916983, 50.037115985, 0],
             [8.572185204, 50.037047074, 0],
             [8.571916983, 50.036978164, 0],
@@ -248,7 +247,7 @@ describe('map event system', function() {
 
         let results = listener.stop();
 
-        expect(results.dragStart).to.have.lengthOf(1);
-        expect(results.dragStop).to.have.lengthOf(1);
+        expect(results.dragStart).toHaveLength(1);
+        expect(results.dragStop).toHaveLength(1);
     });
 });

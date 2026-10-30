@@ -23,10 +23,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {Listener} from 'utils';
 import {click} from 'triggerEvents';
 import {createPickingTerrain, terrainFixtureUrl, terrainScreenshot} from '../../../src/utils/terrainPicking';
-import {describe, beforeAll, afterAll, beforeEach, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, beforeEach, it, chai, expect} from 'vitest';
 
 describe.skip('Terrain support picking', () => {
-    const expect = chai.expect;
     let map: Map;
     let terrain: TerrainTileLayer;
     let overlay: TileLayer;
@@ -60,7 +59,7 @@ describe.skip('Terrain support picking', () => {
         });
         await waitForViewportReady(map);
         pixels = (await terrainScreenshot(map)).inside;
-        expect(pixels.length, 'rendered draped polygon on the slope').to.be.greaterThan(20);
+        expect(pixels.length, 'rendered draped polygon on the slope').toBeGreaterThan(20);
     });
 
     afterAll(() => map.destroy());
@@ -75,7 +74,7 @@ describe.skip('Terrain support picking', () => {
         const image = new Image();
         image.src = terrainFixtureUrl();
         await image.decode();
-        expect([image.naturalWidth, image.naturalHeight]).to.deep.equal([512, 512]);
+        expect([image.naturalWidth, image.naturalHeight]).toStrictEqual([512, 512]);
         const canvas = document.createElement('canvas');
         canvas.width = canvas.height = 512;
         const context = canvas.getContext('2d');
@@ -90,15 +89,15 @@ describe.skip('Terrain support picking', () => {
             for (let x = 0; x < 512; x++) {
                 const height = elevation(x, y);
                 maximum = Math.max(maximum, height);
-                expect(height).to.be.within(1000, 1300);
-                if (x < 16 || y < 16 || x >= 496 || y >= 496) expect(height).to.equal(1000);
+                chai.expect(height).to.be.within(1000, 1300);
+                if (x < 16 || y < 16 || x >= 496 || y >= 496) expect(height).toBe(1000);
             }
         }
-        expect(maximum).to.be.closeTo(1300, 0.1);
-        expect(Math.abs(elevation(150, 245) - elevation(290, 245))).to.be.greaterThan(10);
+        chai.expect(maximum).to.be.closeTo(1300, 0.1);
+        expect(Math.abs(elevation(150, 245) - elevation(290, 245))).toBeGreaterThan(10);
         const heights = pixels.map((pixel) => map.getTerrainPointAt(pixel)?.altitude);
-        expect(Math.min(...heights)).to.be.greaterThan(1000);
-        expect(Math.max(...heights) - Math.min(...heights), 'draped polygon spans the hill slope').to.be.greaterThan(20);
+        expect(Math.min(...heights)).toBeGreaterThan(1000);
+        expect(Math.max(...heights) - Math.min(...heights), 'draped polygon spans the hill slope').toBeGreaterThan(20);
     });
 
     for (const enabled of [false, true]) {
@@ -109,8 +108,8 @@ describe.skip('Terrain support picking', () => {
                     {layers: selection === 'overlay only' ? [overlay] : [terrain, overlay]};
                 for (const pixel of pixels) {
                     const result = map.getFeatureAt(pixel, options);
-                    expect(result?.feature.id, `draped pixel ${pixel.x},${pixel.y}`).to.equal(draped.id);
-                    expect(result?.layer?.id).to.equal(overlay.id);
+                    expect(result?.feature.id, `draped pixel ${pixel.x},${pixel.y}`).toBe(draped.id);
+                    expect(result?.layer?.id).toBe(overlay.id);
                 }
             });
         }
@@ -120,11 +119,11 @@ describe.skip('Terrain support picking', () => {
         for (const enabled of [false, true]) {
             terrain.pointerEvents(enabled);
             for (const pixel of pixels) {
-                expect(map.getFeatureAt(pixel, {layers: []})?.feature.id).to.equal(undefined);
+                expect(map.getFeatureAt(pixel, {layers: []})?.feature.id).toBe(undefined);
                 const result = map.getFeatureAt(pixel, {layers: [terrain]});
                 // Explicit API queries are independent of pointer-event subscription.
-                expect(result?.layer?.id).to.equal(terrain.id);
-                expect(result?.feature.id).not.to.equal(draped.id);
+                expect(result?.layer?.id).toBe(terrain.id);
+                expect(result?.feature.id).not.toBe(draped.id);
             }
         }
     });
@@ -139,24 +138,23 @@ describe.skip('Terrain support picking', () => {
             } finally {
                 events = listener.stop().pointerup;
             }
-            expect(events.length).to.equal(1);
+            expect(events.length).toBe(1);
             return events[0].target?.id;
         };
-        expect(await pointerTarget()).to.equal(draped.id);
+        expect(await pointerTarget()).toBe(draped.id);
         overlay.pointerEvents(false);
-        expect(await pointerTarget()).to.equal(undefined);
+        expect(await pointerTarget()).toBe(undefined);
         terrain.pointerEvents(true);
-        expect(await pointerTarget()).to.equal(map.getFeatureAt(pixel, {layers: [terrain]})?.feature.id);
+        expect(await pointerTarget()).toBe(map.getFeatureAt(pixel, {layers: [terrain]})?.feature.id);
         overlay.pointerEvents(true);
-        expect(await pointerTarget()).to.equal(draped.id);
+        expect(await pointerTarget()).toBe(draped.id);
     });
 
     it('picks draped pixels shifted away from the polygon sea-level projection', () => {
         const seaLevel = map.geoToPixel({longitude: 0.0038, latitude: 0.0031, altitude: 0});
-        expect(Math.min(...pixels.map((pixel) => Math.hypot(pixel.x - seaLevel.x, pixel.y - seaLevel.y))))
-            .to.be.greaterThan(40);
+        expect(Math.min(...pixels.map((pixel) => Math.hypot(pixel.x - seaLevel.x, pixel.y - seaLevel.y)))).toBeGreaterThan(40);
         for (const pixel of pixels) {
-            expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).to.equal(draped.id);
+            expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).toBe(draped.id);
         }
     });
 
@@ -170,17 +168,17 @@ describe.skip('Terrain support picking', () => {
         overlay.setStyleGroup(draped, [{type: 'Polygon', zIndex: 1, fill: '#0000ff'}]);
         try {
             const visible = await terrainScreenshot(map);
-            expect(visible.inside.length).to.be.greaterThan(20);
+            expect(visible.inside.length).toBeGreaterThan(20);
             for (const pixel of visible.inside) {
-                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).to.equal(circle.id);
+                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).toBe(circle.id);
             }
             overlay.setStyleGroup(circle, [{
                 type: 'Circle', zIndex: 2, radius: 24, fill: '#ff0000', altitude: true, offsetZ: '-600m'
             }]);
-            expect((await terrainScreenshot(map)).redPixels).to.equal(0);
+            expect((await terrainScreenshot(map)).redPixels).toBe(0);
             for (let y = 10; y < map.getContainer().clientHeight; y += 20) {
                 for (let x = 10; x < map.getContainer().clientWidth; x += 20) {
-                    expect(map.getFeatureAt({x, y}, {layers: [overlay]})?.feature.id).not.to.equal(circle.id);
+                    expect(map.getFeatureAt({x, y}, {layers: [overlay]})?.feature.id).not.toBe(circle.id);
                 }
             }
         } finally {
@@ -203,21 +201,21 @@ describe.skip('Terrain support picking', () => {
                 map.pitch(0);
             });
             const visible = await terrainScreenshot(map);
-            expect(visible.inside.length, 'rear circle visible from above').to.be.greaterThan(5);
+            expect(visible.inside.length, 'rear circle visible from above').toBeGreaterThan(5);
             for (const pixel of visible.inside) {
-                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).to.equal(rear.id);
+                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).toBe(rear.id);
             }
             await waitForViewportReady(map, () => map.pitch(75));
-            expect(map.pitch()).to.be.closeTo(75, 1e-6);
+            chai.expect(map.pitch()).to.be.closeTo(75, 1e-6);
             const projected = map.geoToPixel(0.00472, 0.0083, 1180);
-            expect(projected.x).to.be.within(20, map.getContainer().clientWidth - 20);
-            expect(projected.y).to.be.within(20, map.getContainer().clientHeight - 20);
-            expect((await terrainScreenshot(map)).redPixels, 'hidden by the hill crest').to.equal(0);
+            chai.expect(projected.x).to.be.within(20, map.getContainer().clientWidth - 20);
+            chai.expect(projected.y).to.be.within(20, map.getContainer().clientHeight - 20);
+            expect((await terrainScreenshot(map)).redPixels, 'hidden by the hill crest').toBe(0);
             for (const enabled of [false, true]) {
                 terrain.pointerEvents(enabled);
                 for (let y = 10; y < map.getContainer().clientHeight; y += 20) {
                     for (let x = 10; x < map.getContainer().clientWidth; x += 20) {
-                        expect(map.getFeatureAt({x, y}, {layers: [overlay]})?.feature.id).not.to.equal(rear.id);
+                        expect(map.getFeatureAt({x, y}, {layers: [overlay]})?.feature.id).not.toBe(rear.id);
                     }
                 }
             }
@@ -238,10 +236,10 @@ describe.skip('Terrain support picking', () => {
         });
         try {
             const {inside} = await terrainScreenshot(map);
-            expect(inside.length).to.be.greaterThan(20);
+            expect(inside.length).toBeGreaterThan(20);
             for (const pixel of inside) {
-                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).to.equal(draped.id);
-                expect(map.getFeatureAt(pixel, {layers: []})?.feature.id).to.equal(undefined);
+                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).toBe(draped.id);
+                expect(map.getFeatureAt(pixel, {layers: []})?.feature.id).toBe(undefined);
             }
         } finally {
             await waitForViewportReady(map, [terrain, overlay], () => {

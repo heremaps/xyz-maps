@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_split_hide_turn_restrictions_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('link splitting hides the turn restrictions edit', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -65,12 +63,12 @@ describe('link splitting hides the turn restrictions edit', function() {
 
         await click(mapContainer, 110, 100);
 
-        expect(link3.prop('turnRestriction')).to.deep.equal({start: [link2.id]});
+        expect(link3.prop('turnRestriction')).toEqual({start: [link2.id]});
     });
 
     it('validate objects in viewport', function() {
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
     });
 
     it('drag middle point to split the link, validate turn restrictions is deactivated, link is clicked', async function() {
@@ -79,7 +77,7 @@ describe('link splitting hides the turn restrictions edit', function() {
         // link is clicked, not turn restriction editor
         let link = (await editorClick(editor, 110, 100)).target;
 
-        expect(link.geometry.coordinates).to.deep.almost([
+        chai.expect(link.geometry.coordinates).to.deep.almost([
             [77.773883099, 13.345438764, 0],
             [77.774419541, 13.345438764, 0],
             [77.774419541, 13.344393992, 0]

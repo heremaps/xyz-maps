@@ -26,8 +26,6 @@ import dataset from './drawingmanager_create_and_split_original_spec.json';
 import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('Create new Links and split original link', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -72,17 +70,17 @@ describe('Create new Links and split original link', function() {
         let lnk1 = editor.info()[1];
         let lnk2 = editor.info()[2];
 
-        expect(lnk1.geometry.coordinates).to.deep.almost([
+        chai.expect(lnk1.geometry.coordinates).to.deep.almost([
             [79.262377116, 13.049935177, 0],
             [79.262071345, 13.049935177, 0]
         ]);
 
-        expect(lnk2.geometry.coordinates).to.deep.almost([
+        chai.expect(lnk2.geometry.coordinates).to.deep.almost([
             [79.262071345, 13.049935177, 0],
             [79.261840675, 13.049935177, 0]
         ]);
 
-        expect(lnk.coord()).to.deep.almost([
+        chai.expect(lnk.coord()).to.deep.almost([
             [79.262071345, 13.049935177, 0],
             [79.262377116, 13.049412589, 0]
         ]);

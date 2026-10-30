@@ -22,11 +22,9 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './keepfeatureselection_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set keepFeatureSelection', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -82,12 +80,12 @@ describe('set keepFeatureSelection', function() {
         let links = editor.addFeature([l1, l2]);
 
         links[1].select();
-        expect(links[1].editState('selected')).to.be.true;
+        expect(links[1].editState('selected')).toBe(true);
 
         // click on ground to unselect link
         await click(mapContainer, 150, 200);
 
-        expect(links[1].editState('selected')).to.be.false;
+        expect(links[1].editState('selected')).toBe(false);
 
         // select link
         links[1].select();
@@ -97,7 +95,7 @@ describe('set keepFeatureSelection', function() {
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
         });
 
-        expect(links[1].editState('selected')).to.be.false;
+        expect(links[1].editState('selected')).toBe(false);
     });
 
     it('set keepFeatureSelection to true, validate if feature is selected', async function() {
@@ -132,13 +130,13 @@ describe('set keepFeatureSelection', function() {
 
         links[1].select();
 
-        expect(links[1].editState('selected')).to.be.true;
+        expect(links[1].editState('selected')).toBe(true);
 
         // clik on ground
         await click(mapContainer, 150, 200);
 
         // validate link is still selected
-        expect(links[1].editState('selected')).to.be.true;
+        expect(links[1].editState('selected')).toBe(true);
 
         await waitForEditorReady(editor, ()=>{
             // set map center
@@ -146,7 +144,7 @@ describe('set keepFeatureSelection', function() {
         });
 
         // validate link is still selected
-        expect(links[1].editState('selected')).to.be.true;
+        expect(links[1].editState('selected')).toBe(true);
     });
 
     it('reset keepFeatureSelection to default, validate if feature is selected', async function() {
@@ -180,13 +178,13 @@ describe('set keepFeatureSelection', function() {
         let links = editor.addFeature([l1, l2]);
 
         links[1].select();
-        expect(links[1].editState('selected')).to.be.true;
+        expect(links[1].editState('selected')).toBe(true);
 
         // click on ground
         await click(mapContainer, 150, 200);
 
         // validate link is not selected
-        expect(links[1].editState('selected')).to.be.false;
+        expect(links[1].editState('selected')).toBe(false);
 
         links[1].select();
 
@@ -196,6 +194,6 @@ describe('set keepFeatureSelection', function() {
         });
 
         // validate link is still selected
-        expect(links[1].editState('selected')).to.be.true;
+        expect(links[1].editState('selected')).toBe(true);
     });
 });

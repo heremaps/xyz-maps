@@ -21,11 +21,9 @@ import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './get_containers_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('validate map container', function() {
-    const expect = chai.expect;
-
     let display;
 
     beforeAll(async function() {
@@ -42,14 +40,14 @@ describe('validate map container', function() {
     });
 
     it('validate map containers', function() {
-        expect(display.getContainer().id).to.equal('map');
+        expect(display.getContainer().id).toBe('map');
 
-        expect(display.getContainer().style).to.deep.include({
+        expect(display.getContainer().style).toEqual(expect.objectContaining({
             'z-index': '',
             'height': '',
             'width': '',
             'position': ''
-        });
+        }));
     });
 
 
@@ -58,13 +56,13 @@ describe('validate map container', function() {
             display.setCenter({longitude: 77.79851889087672, latitude: 12.623621436440137});
         });
 
-        expect(display.getContainer().id).to.equal('map');
+        expect(display.getContainer().id).toBe('map');
 
-        expect(display.getContainer().style).to.deep.include({
+        expect(display.getContainer().style).toEqual(expect.objectContaining({
             'z-index': '',
             'height': '',
             'width': '',
             'position': ''
-        });
+        }));
     });
 });

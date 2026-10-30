@@ -3,8 +3,9 @@
 The tests run in a real browser with [Vitest browser mode](https://vitest.dev/guide/browser/) and Playwright.
 Specs explicitly import test APIs from `vitest` (`describe`, `it`, `beforeAll`, `afterAll`, etc.).
 Use `it.skip` or `describe.skip` for skipped tests. Test API globals are disabled.
-Common specs use native `expect` from `vitest`. Other existing assertions explicitly import `chai`
-from `vitest`; no Chai assertion globals are installed.
+Common and Core specs use native `expect` from `vitest`. Display and Editor also use native matchers,
+except for approximate comparisons that explicitly use `chai.expect` to preserve their tolerances.
+Integration specs still use explicit Chai imports. No Chai assertion globals are installed.
 `vitest/setup.ts` registers `chai-almost` for approximate comparisons.
 
 ### Build XYZ Maps JS

@@ -19,11 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './add_remove_feature_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('add and remove features in layer', function() {
-    const expect = chai.expect;
-
     var addrLayer;
 
 
@@ -38,12 +36,12 @@ describe('add and remove features in layer', function() {
             radius: 100
         });
 
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
     });
 
     it('add invalid feature (undefined)', async () => {
         let removed = addrLayer.addFeature(undefined);
-        expect(removed).to.be.an('undefined');
+        expect(removed).toBeUndefined();
     });
 
     it('add an address feature', async function() {
@@ -83,7 +81,7 @@ describe('add and remove features in layer', function() {
             radius: 100
         });
 
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     it('remove feature', async () => {
@@ -94,22 +92,22 @@ describe('add and remove features in layer', function() {
         let obj = addrLayer.search(area);
         let removed = addrLayer.removeFeature(obj[0]);
 
-        expect(removed.type).to.equal('Feature');
+        expect(removed.type).toBe('Feature');
 
         let result = addrLayer.search(area);
 
-        expect(result).to.have.lengthOf(1);
+        expect(result).toHaveLength(1);
     });
 
     it('remove empty feature ({})', async () => {
         let removed = addrLayer.removeFeature({});
 
-        expect(removed).to.be.an('undefined');
+        expect(removed).toBeUndefined();
     });
 
     it('remove invalid feature (undefined)', async () => {
         let removed = addrLayer.removeFeature(undefined);
 
-        expect(removed).to.be.an('undefined');
+        expect(removed).toBeUndefined();
     });
 });

@@ -22,11 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './poi_setcoordinates_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('set POI coordinates', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -58,19 +56,19 @@ describe('set POI coordinates', function() {
     });
 
     it('validate POI coordinate, set coordinate by geocoordinate and validate again', function() {
-        expect(poi.coord()).to.deep.almost([77.282700116, 13.1006019, 0]);
+        chai.expect(poi.coord()).to.deep.almost([77.282700116, 13.1006019, 0]);
 
         poi.coord([77.282701, 13.1006119, 0]);
-        expect(poi.coord()).to.deep.almost([77.282701, 13.1006119, 0]);
+        chai.expect(poi.coord()).to.deep.almost([77.282701, 13.1006119, 0]);
     });
 
     it('remove POI layer and validate objects in viewport', async function() {
         editor.removeLayer(poiLayer);
 
         let objs = editor.search({rect: display.getViewBounds(), layers: [poiLayer]});
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
 
         let objs1 = editor.search({rect: display.getViewBounds()});
-        expect(objs1).to.have.lengthOf(2);
+        expect(objs1).toHaveLength(2);
     });
 });

@@ -22,11 +22,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {providers, layers} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import {describe, afterAll, it, chai} from 'vitest';
+import {describe, afterAll, it, expect} from 'vitest';
 
 describe('editor triggers ready without adding layer to it', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
 
@@ -53,6 +51,6 @@ describe('editor triggers ready without adding layer to it', function() {
         await waitForEditorReady(editor);
 
         let results = observer.stop();
-        expect(results['ready']).to.have.lengthOf(1);
+        expect(results['ready']).toHaveLength(1);
     });
 });

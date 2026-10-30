@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_create_and_connect_to_original_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('Create new Links and connect to original link', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -72,7 +70,7 @@ describe('Create new Links and connect to original link', function() {
             lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
-        expect(lnk.coord()).to.deep.almost([
+        chai.expect(lnk.coord()).to.deep.almost([
             [77.220259106, 13.152202639, 0],
             [77.220259116, 13.151679372, 0]
         ]);
@@ -85,8 +83,8 @@ describe('Create new Links and connect to original link', function() {
 
         let lnk = linkshape.getConnectedLinks();
 
-        expect(lnk).to.have.lengthOf(1);
-        expect(lnk[0].id).to.equal(link.id);
+        expect(lnk).toHaveLength(1);
+        expect(lnk[0].id).toBe(link.id);
 
         await waitForEditorReady(editor, async () => {
             await submit(editor);
@@ -100,7 +98,7 @@ describe('Create new Links and connect to original link', function() {
 
         let lnk = linkshape.getConnectedLinks();
 
-        expect(lnk).to.have.lengthOf(1);
-        expect(lnk[0].id).to.equal(link.id);
+        expect(lnk).toHaveLength(1);
+        expect(lnk[0].id).toBe(link.id);
     });
 });

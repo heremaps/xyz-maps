@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_autosplit_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('link auto split', function() {
-    const expect = chai.expect;
-
     let editor: Editor;
     let display;
     let preparedData;
@@ -72,7 +70,7 @@ describe('link auto split', function() {
 
         let objs = editor.search(display.getViewBounds());
 
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
     });
 
     it('add another link object and drag one shape point to another to remove one', async function() {
@@ -91,7 +89,7 @@ describe('link auto split', function() {
         await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 200});
 
 
-        expect(link2.coord()).to.deep.almost([
+        chai.expect(link2.coord()).to.deep.almost([
             [76.976568895, 12.938862822, 0],
             [76.976837116, 12.938862822, 0],
             [76.978446442, 12.938862822, 0]
@@ -115,13 +113,13 @@ describe('link auto split', function() {
         await drag(mapContainer, {x: 100, y: 150}, {x: 250, y: 160});
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
 
-        expect(objs[0].coord()).to.deep.almost([
+        chai.expect(objs[0].coord()).to.deep.almost([
             [76.976837116, 12.939124232, 0],
             [76.977105337, 12.93907195, 0]
         ]);
-        expect(objs[1].coord()).to.deep.almost([
+        chai.expect(objs[1].coord()).to.deep.almost([
             [76.977105337, 12.93907195, 0],
             [76.976568895, 12.939385643, 0],
             [76.976837116, 12.939124232, 0]
@@ -157,7 +155,7 @@ describe('link auto split', function() {
         await drag(mapContainer, {x: 200, y: 200}, {x: 300, y: 200});
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
 
@@ -172,12 +170,12 @@ describe('link auto split', function() {
         };
         link6 = editor.addFeature(lnk6);
 
-        expect(link6.getZLevels()).to.deep.equal([0, 0, 1]);
+        expect(link6.getZLevels()).toStrictEqual([0, 0, 1]);
         link6.select();
 
         await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 200});
 
-        expect(link6.coord()).to.deep.almost([
+        chai.expect(link6.coord()).to.deep.almost([
             [76.976837117, 12.938862822, 0],
             [76.976837116, 12.939385643, 0],
             [76.976837116, 12.938862822, 1]
@@ -195,12 +193,12 @@ describe('link auto split', function() {
         };
         link7 = editor.addFeature(lnk7);
 
-        expect(link7.getZLevels()).to.deep.equal([1, 0, 1]);
+        expect(link7.getZLevels()).toStrictEqual([1, 0, 1]);
         link7.select();
 
         await drag(mapContainer, {x: 100, y: 300}, {x: 200, y: 400});
 
-        expect(link7.coord()).to.deep.almost([
+        chai.expect(link7.coord()).to.deep.almost([
             [76.976837116, 12.93834, 0],
             [76.976837116, 12.937817177, 1]
         ]);

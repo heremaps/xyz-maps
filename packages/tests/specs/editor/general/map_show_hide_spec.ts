@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './map_show_hide_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('map activate and deactivate', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -63,7 +61,7 @@ describe('map activate and deactivate', function() {
         link.select();
         await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
 
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [75.553958896, 13.997501028, 0],
             [75.554227116, 13.997501028, 0],
             [75.554227116, 13.997761284, 0]
@@ -73,7 +71,7 @@ describe('map activate and deactivate', function() {
     it('deactivate editor', function() {
         editor.active(false);
 
-        expect(editor.active()).to.be.false;
+        expect(editor.active()).toBe(false);
     });
 
 
@@ -81,7 +79,7 @@ describe('map activate and deactivate', function() {
         editor.active(true);
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
 
@@ -89,7 +87,7 @@ describe('map activate and deactivate', function() {
         link.select();
         await drag(mapContainer, {x: 150, y: 100}, {x: 100, y: 100});
 
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [75.553690675, 13.997501028, 0],
             [75.554227116, 13.997501028, 0],
             [75.554227116, 13.997761284, 0]

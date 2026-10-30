@@ -21,10 +21,9 @@ import {Map} from '@here/xyz-maps-display';
 import {CircleStyle, Feature, LocalProvider, TileLayer} from '@here/xyz-maps-core';
 import {waitForViewportReady} from 'displayUtils';
 import {createPickingTerrain, terrainScreenshot} from '../../../src/utils/terrainPicking';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe.skip('Terrain Circle picking', () => {
-    const expect = chai.expect;
     let map: Map;
     let layer: TileLayer;
     let circle: Feature;
@@ -63,10 +62,10 @@ describe.skip('Terrain Circle picking', () => {
                         type: 'Circle', zIndex: 1, radius: 32, fill: '#ff0000', altitude, alignment, ...offsets
                     }]);
                     const {inside} = await terrainScreenshot(map);
-                    expect(inside.length).to.be.greaterThan(20);
+                    expect(inside.length).toBeGreaterThan(20);
                     for (const pixel of inside) {
                         expect(map.getFeatureAt(pixel, {layers: [layer]})?.feature.id,
-                            `rendered Circle pixel ${pixel.x},${pixel.y}`).to.equal(circle.id);
+                            `rendered Circle pixel ${pixel.x},${pixel.y}`).toBe(circle.id);
                     }
                 });
             }
@@ -80,11 +79,11 @@ describe.skip('Terrain Circle picking', () => {
                 altitude: true, alignment, offsetZ: '-600m'
             }]);
             const {redPixels} = await terrainScreenshot(map);
-            expect(redPixels).to.equal(0);
+            expect(redPixels).toBe(0);
             const container = map.getContainer();
             for (let y = 10; y < container.clientHeight; y += 20) {
                 for (let x = 10; x < container.clientWidth; x += 20) {
-                    expect(map.getFeatureAt({x, y}, {layers: [layer]})?.feature.id).to.equal(undefined);
+                    expect(map.getFeatureAt({x, y}, {layers: [layer]})?.feature.id).toBe(undefined);
                 }
             }
         });

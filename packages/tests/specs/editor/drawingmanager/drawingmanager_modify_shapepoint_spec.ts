@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_modify_shapepoint_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('Create new Link by drawing manager and remove some shape points', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -71,7 +69,7 @@ describe('Create new Link by drawing manager and remove some shape points', func
         var shape = <DrawingShape>(await editorClick(editor, 100, 300)).target;
         shape.remove();
 
-        expect(editor.getDrawingBoard().getLength()).to.equal(2);
+        expect(editor.getDrawingBoard().getLength()).toBe(2);
 
         editor.getDrawingBoard().addShape({x: 200, y: 200});
 
@@ -79,7 +77,7 @@ describe('Create new Link by drawing manager and remove some shape points', func
 
         editor.getDrawingBoard().addShape({x: 300, y: 300});
 
-        expect(editor.getDrawingBoard().getLength()).to.equal(5);
+        expect(editor.getDrawingBoard().getLength()).toBe(5);
 
         shape = <DrawingShape>(await editorClick(editor, 200, 200)).target;
         shape.remove();
@@ -89,15 +87,15 @@ describe('Create new Link by drawing manager and remove some shape points', func
 
         editor.getDrawingBoard().removeShape(0);
 
-        expect(editor.getDrawingBoard().getLength()).to.equal(2);
+        expect(editor.getDrawingBoard().getLength()).toBe(2);
 
         let lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
 
-        expect(lnk.coord()).to.deep.almost([
+        chai.expect(lnk.coord()).to.deep.almost([
             [76.986168657, 12.88841505, 0],
             [76.986168657, 12.888153586, 0]
         ]);
 
-        expect(editor.getDrawingBoard().isActive()).to.be.false;
+        expect(editor.getDrawingBoard().isActive()).toBe(false);
     });
 });

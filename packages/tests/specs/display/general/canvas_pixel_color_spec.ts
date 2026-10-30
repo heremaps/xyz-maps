@@ -1,4 +1,4 @@
-import {vi, describe, it, chai} from 'vitest';
+import {vi, describe, it, expect} from 'vitest';
 import {getCanvasPixelColor} from 'utils';
 
 describe('canvas pixel color sampling', () => {
@@ -16,7 +16,7 @@ describe('canvas pixel color sampling', () => {
 
     it('reads once without an expected color', async () => {
         const {element} = canvasFixture();
-        chai.expect(await getCanvasPixelColor(element, {x: 0, y: 0}, {delay: 0})).to.equal('#ff0000');
+        expect(await getCanvasPixelColor(element, {x: 0, y: 0}, {delay: 0})).toBe('#ff0000');
     });
 
     it('returns the last sample when the retry budget is exhausted', async () => {
@@ -26,8 +26,8 @@ describe('canvas pixel color sampling', () => {
             const color = await getCanvasPixelColor(element, {x: 0, y: 0}, {
                 expect: '#0000ff', retry: 2, delay: 0, retryDelay: 0
             });
-            chai.expect(color).to.equal('#ff0000');
-            chai.expect(read.mock.calls.length).to.equal(3);
+            expect(color).toBe('#ff0000');
+            expect(read.mock.calls.length).toBe(3);
         } finally {
             read.mockRestore();
         }
@@ -44,8 +44,8 @@ describe('canvas pixel color sampling', () => {
             const colors = await getCanvasPixelColor(element, [{x: 0, y: 0}, {x: 1, y: 0}], {
                 expect: ['#ff0000', '#0000ff'], retry: 1, delay: 0, retryDelay: 0
             });
-            chai.expect(colors).to.deep.equal(['#ffffff', '#0000ff']);
-            chai.expect(reads).to.equal(4);
+            expect(colors).toStrictEqual(['#ffffff', '#0000ff']);
+            expect(reads).toBe(4);
         } finally {
             read.mockRestore();
         }
@@ -66,7 +66,7 @@ describe('canvas pixel color sampling', () => {
                 return false;
             }
         });
-        chai.expect(color).to.equal('#0000ff');
-        chai.expect(samples).to.equal(2);
+        expect(color).toBe('#0000ff');
+        expect(samples).toBe(2);
     });
 });

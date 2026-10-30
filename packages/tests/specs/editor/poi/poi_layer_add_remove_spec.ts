@@ -22,11 +22,9 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_layer_add_remove_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('POI layer add and remove', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -50,7 +48,7 @@ describe('POI layer add and remove', function() {
         poiLayer = preparedData.getLayers('placeLayer');
 
         let objects = editor.search({rect: display.getViewBounds()});
-        expect(objects).to.have.lengthOf(3);
+        expect(objects).toHaveLength(3);
     });
 
     afterAll(async function() {
@@ -64,8 +62,8 @@ describe('POI layer add and remove', function() {
 
         let objs = editor.search({rect: display.getViewBounds()});
 
-        expect(objs).to.have.lengthOf(2);
-        expect(editor.getLayers()).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
+        expect(editor.getLayers()).toHaveLength(2);
     });
 
     it('try dragging the poi and validate the map is dragged', async function() {
@@ -74,7 +72,7 @@ describe('POI layer add and remove', function() {
             await drag(mapContainer, {x: 200, y: 250}, {x: 250, y: 280});
         });
 
-        expect(display.getCenter().longitude).to.not.equal(75.54966);
+        expect(display.getCenter().longitude).not.toBe(75.54966);
     });
 
     it('add poi layer, and validate it is added', async function() {
@@ -86,14 +84,14 @@ describe('POI layer add and remove', function() {
 
         let objs = editor.search(display.getViewBounds());
 
-        expect(objs).to.have.lengthOf(3);
-        expect(editor.getLayers()).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
+        expect(editor.getLayers()).toHaveLength(3);
     });
 
     it('try dragging the poi and validate the map is not dragged', async function() {
         await click(mapContainer, 200, 250);
         await drag(mapContainer, {x: 200, y: 250}, {x: 200, y: 260});
 
-        expect(display.getCenter()).to.deep.equal({longitude: 75.54966, latitude: 14.02363});
+        expect(display.getCenter()).toEqual({longitude: 75.54966, latitude: 14.02363});
     });
 });

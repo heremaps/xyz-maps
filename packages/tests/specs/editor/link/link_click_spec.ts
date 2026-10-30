@@ -22,11 +22,9 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_click_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link click events', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -73,6 +71,6 @@ describe('link click events', function() {
 
         let results = listener.stop();
 
-        expect(results['pointerup']).to.have.lengthOf(2);
+        expect(results['pointerup']).toHaveLength(2);
     });
 });

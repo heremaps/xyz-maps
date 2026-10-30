@@ -21,11 +21,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './collision_detection_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('collision detection - Group', function() {
-    const expect = chai.expect;
-
     const color1 = '#ff0000';
     const color2 = '#0000ff';
 
@@ -98,7 +96,7 @@ describe('collision detection - Group', function() {
                 expect: color1
             });
 
-        expect(color).to.equal(color1);
+        expect(color).toBe(color1);
     });
 
     it('create feature in center of tile', async () => {
@@ -131,7 +129,7 @@ describe('collision detection - Group', function() {
             expect: color1
         });
 
-        expect(color).to.equal(color1);
+        expect(color).toBe(color1);
     });
 
 
@@ -163,7 +161,7 @@ describe('collision detection - Group', function() {
             expect: '#ffffff'
         });
 
-        expect(color).to.equal('#ffffff');
+        expect(color).toBe('#ffffff');
     });
 
     it('disable collision detection', async () => {
@@ -179,8 +177,8 @@ describe('collision detection - Group', function() {
             expect: [color1, color2]
         });
 
-        expect(colors[0]).to.equal(color1);
-        expect(colors[1]).to.equal(color2);
+        expect(colors[0]).toBe(color1);
+        expect(colors[1]).toBe(color2);
     });
 
     it('reenable collision detection', async () => {
@@ -196,8 +194,8 @@ describe('collision detection - Group', function() {
             expect: [color1, '#ffffff']
         });
 
-        expect(colors[0]).to.equal(color1);
-        expect(colors[1]).to.equal('#ffffff');
+        expect(colors[0]).toBe(color1);
+        expect(colors[1]).toBe('#ffffff');
     });
 
     it('flip collision priorities', async () => {
@@ -217,8 +215,8 @@ describe('collision detection - Group', function() {
             expect: ['#ffffff', color2]
         });
 
-        expect(colors[0]).to.equal('#ffffff');
-        expect(colors[1]).to.equal(color2);
+        expect(colors[0]).toBe('#ffffff');
+        expect(colors[1]).toBe(color2);
     });
 
     it('move feature and make sure it becomes visible again', async () => {
@@ -233,7 +231,7 @@ describe('collision detection - Group', function() {
             expect: color1
         });
 
-        expect(color).to.equal(color1);
+        expect(color).toBe(color1);
         display.debug(0);
     });
 
@@ -261,7 +259,7 @@ describe('collision detection - Group', function() {
             expect: color1
         });
 
-        expect(color).to.equal(color1);
+        expect(color).toBe(color1);
     });
 
     it('remove top circle', async () => {
@@ -274,6 +272,6 @@ describe('collision detection - Group', function() {
             expect: '#000000'
         });
 
-        expect(color).to.equal('#000000');
+        expect(color).toBe('#000000');
     });
 });

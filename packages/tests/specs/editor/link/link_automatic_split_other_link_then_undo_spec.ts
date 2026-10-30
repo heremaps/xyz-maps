@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_split_other_link_then_undo_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('drag a link shape point to the other link and then undo', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -60,10 +58,10 @@ describe('drag a link shape point to the other link and then undo', function() {
     });
 
     it('validate there are 2 links and no link in viewport is modified', function() {
-        expect(editor.info()).to.have.lengthOf(0);
+        expect(editor.info()).toHaveLength(0);
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
 
@@ -71,24 +69,24 @@ describe('drag a link shape point to the other link and then undo', function() {
         link2.select();
         await drag(mapContainer, {x: 300, y: 300}, {x: 150, y: 100});
 
-        expect(editor.info()).to.have.lengthOf(6);
+        expect(editor.info()).toHaveLength(6);
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(4);
+        expect(objs).toHaveLength(4);
     });
 
 
     it('undo last drag', async function() {
         editor.undo();
 
-        expect(editor.info()).to.have.lengthOf(0);
+        expect(editor.info()).toHaveLength(0);
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
 
         link2 = editor.getFeature(link2.id, linkLayer);
         let coords = link2.coord();
-        expect(coords).to.deep.almost([
+        chai.expect(coords).to.deep.almost([
             [76.304630721, 15.141012974, 0],
             [76.305703604, 15.141012974, 0],
             [76.306240046, 15.141012974, 0]

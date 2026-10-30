@@ -22,11 +22,9 @@ import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_vertical_coordinates_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Create new Links whose start and end shape points have same longitude', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -56,7 +54,7 @@ describe('Create new Links whose start and end shape points have same longitude'
     it.skip('start drawingmanager', async function() {
         editor.getDrawingBoard().start();
 
-        expect(editor.getDrawingBoard().isActive()).to.be.true;
+        expect(editor.getDrawingBoard().isActive()).toBe(true);
 
         await mousemove(mapContainer, {x: 150, y: 200}, {x: 200, y: 200});
         await click(mapContainer, 200, 200);
@@ -75,7 +73,7 @@ describe('Create new Links whose start and end shape points have same longitude'
 
         link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
 
-        expect(link.coord()).to.have.lengthOf(4);
+        expect(link.coord()).toHaveLength(4);
     });
 
 
@@ -103,6 +101,6 @@ describe('Create new Links whose start and end shape points have same longitude'
 
         link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
 
-        expect(link.coord()).to.have.lengthOf(4);
+        expect(link.coord()).toHaveLength(4);
     });
 });

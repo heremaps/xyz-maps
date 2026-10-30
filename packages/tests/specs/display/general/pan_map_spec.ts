@@ -22,11 +22,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './pan_map_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('pan the map', () => {
-    const expect = chai.expect;
-
     let display;
 
     beforeAll(async () => {
@@ -44,23 +42,23 @@ describe('pan the map', () => {
     });
 
     it('validate map center', async () => {
-        expect(display.getCenter()).to.deep.equal({longitude: 77.99026323, latitude: 12.13576713});
+        expect(display.getCenter()).toEqual({longitude: 77.99026323, latitude: 12.13576713});
     });
 
     it('pan the map and validate', async () => {
         await waitForViewportReady(display, () => {
             display.pan(100, 100, 0, 0);
         });
-        expect(display.getCenter()).to.deep.almost({latitude: 12.13629159, longitude: 77.9897267});
-        expect(display.getHeight()).to.equal(600);
-        expect(display.getWidth()).to.equal(800);
-        expect(display.getViewBounds()).to.deep.almost({
+        chai.expect(display.getCenter()).to.deep.almost({latitude: 12.13629159, longitude: 77.9897267});
+        expect(display.getHeight()).toBe(600);
+        expect(display.getWidth()).toBe(800);
+        chai.expect(display.getViewBounds()).to.deep.almost({
             maxLat: 12.13786494,
             maxLon: 77.99187255,
             minLat: 12.13471822,
             minLon: 77.98758102
         });
-        expect(display.getZoomlevel()).to.equal(18);
+        expect(display.getZoomlevel()).toBe(18);
     });
 
     it('pan using flyTo', async () => {
@@ -71,8 +69,8 @@ describe('pan the map', () => {
             display.flyTo(center, {duration: 100});
         });
 
-        expect(display.getCenter()).to.deep.almost(center);
-        expect(display.getZoomlevel()).to.equal(zoom);
+        chai.expect(display.getCenter()).to.deep.almost(center);
+        expect(display.getZoomlevel()).toBe(zoom);
     });
 
     it('pan & zoom using flyTo', async () => {
@@ -83,7 +81,7 @@ describe('pan the map', () => {
             display.flyTo(center, {duration: 100});
         });
 
-        expect(display.getCenter()).to.deep.almost(center);
-        expect(display.getZoomlevel()).to.equal(zoom);
+        chai.expect(display.getCenter()).to.deep.almost(center);
+        expect(display.getZoomlevel()).toBe(zoom);
     });
 });

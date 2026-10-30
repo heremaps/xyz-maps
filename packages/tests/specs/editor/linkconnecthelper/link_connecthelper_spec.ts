@@ -22,11 +22,9 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Crossing, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link connect helper with undo', () => {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -81,7 +79,7 @@ describe('link connect helper with undo', () => {
         let shape = <NavlinkShape>(await editorClick(editor, 116, 300)).target;
         let links = shape.getConnectedLinks();
 
-        expect(links).to.have.lengthOf(3);
+        expect(links).toHaveLength(3);
     });
 
 
@@ -105,6 +103,6 @@ describe('link connect helper with undo', () => {
         let shape = <Crossing>(await editorClick(editor, 133, 200)).target;
         let links = shape.getConnectedLinks();
 
-        expect(links).to.have.lengthOf(3);
+        expect(links).toHaveLength(3);
     });
 });

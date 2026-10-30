@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './maxroutingpointdistance_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set maxRoutingPointDistance', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -92,11 +90,11 @@ describe('set maxRoutingPointDistance', function() {
         let pa = editor.addFeature(addr1, preparedData.getLayers('paLayer'));
 
         // validate address is not created
-        expect(pa).to.equal(undefined);
-        expect(editor.info()).to.have.lengthOf(1);
+        expect(pa).toBe(undefined);
+        expect(editor.info()).toHaveLength(1);
 
         editor.addFeature(addr2, preparedData.getLayers('paLayer'));
-        expect(editor.info()).to.have.lengthOf(2);
+        expect(editor.info()).toHaveLength(2);
     });
 
     it('reset maxRoutingPointDistance, validate if a PA is created', async function() {
@@ -139,9 +137,9 @@ describe('set maxRoutingPointDistance', function() {
 
         editor.addFeature(l1, preparedData.getLayers('linkLayer'));
         editor.addFeature(addr1, preparedData.getLayers('paLayer'));
-        expect(editor.info()).to.have.lengthOf(2);
+        expect(editor.info()).toHaveLength(2);
 
         editor.addFeature(addr2, preparedData.getLayers('paLayer'));
-        expect(editor.info()).to.have.lengthOf(3);
+        expect(editor.info()).toHaveLength(3);
     });
 });

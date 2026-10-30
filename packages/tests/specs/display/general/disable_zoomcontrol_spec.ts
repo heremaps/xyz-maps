@@ -22,11 +22,9 @@ import {prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './disable_zoomcontrol_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('disable zoomcontrol component', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let display;
     let mapContainer;
@@ -46,13 +44,13 @@ describe('disable zoomcontrol component', function() {
     });
 
     it('validate zoomcontrol component is active', async function() {
-        expect(display.getZoomlevel()).to.equal(18);
+        expect(display.getZoomlevel()).toBe(18);
 
         await waitForViewportReady(display, ()=>{
             // click zoom control to zoom in
             click(mapContainer, 765, 520);
         });
-        expect(display.getZoomlevel()).to.equal(19);
+        expect(display.getZoomlevel()).toBe(19);
     });
 
     it('re-initialize display with zoomcontrol disabled, validate zoomcontrol again', async function() {
@@ -65,13 +63,13 @@ describe('disable zoomcontrol component', function() {
             layers: preparedData.getLayers()
         });
 
-        expect(display.getZoomlevel()).to.equal(18);
+        expect(display.getZoomlevel()).toBe(18);
 
         // click the position where zoom control was
         await click(mapContainer, 765, 520);
 
         // await waitForViewportReady(display);
-        expect(display.getZoomlevel()).to.equal(18);
+        expect(display.getZoomlevel()).toBe(18);
     });
 
 
@@ -82,13 +80,13 @@ describe('disable zoomcontrol component', function() {
             layers: preparedData.getLayers()
         });
 
-        expect(display.getZoomlevel()).to.equal(18);
+        expect(display.getZoomlevel()).toBe(18);
 
         await waitForViewportReady(display, ()=>{
             // click zoom control
             click(mapContainer, 765, 520);
         });
 
-        expect(display.getZoomlevel()).to.equal(19);
+        expect(display.getZoomlevel()).toBe(19);
     });
 });

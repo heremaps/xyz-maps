@@ -24,11 +24,9 @@ import chaiAlmost from 'chai-almost';
 import dataset from './link_split_spec.json';
 import {Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import {drag} from 'triggerEvents';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('link splitting and set its properties correctly', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -74,21 +72,21 @@ describe('link splitting and set its properties correctly', function() {
         let shape = <NavlinkShape>(await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].prop()).to.deep.include({
+        expect(splitLinks[0].prop()).toEqual(expect.objectContaining({
             'type': 'residential',
             'name': 'test street',
             'originLink': link1.id,
             'parentLink': link1.id
-        });
-        expect(splitLinks[1].prop()).to.deep.include({
+        }));
+        expect(splitLinks[1].prop()).toEqual(expect.objectContaining({
             'type': 'residential',
             'name': 'test street',
             'originLink': link1.id,
             'parentLink': link1.id
-        });
-        expect(link1.prop('splittedInto')).to.deep.equal([splitLinks[0].id, splitLinks[1].id]);
-        expect(link1.prop('splitted')).to.deep.equal('HOOK');
-        expect(link1.prop('estate')).to.be.equal('REMOVED');
+        }));
+        expect(link1.prop('splittedInto')).toStrictEqual([splitLinks[0].id, splitLinks[1].id]);
+        expect(link1.prop('splitted')).toEqual('HOOK');
+        expect(link1.prop('estate')).toBe('REMOVED');
     });
 
     // split turnRestrition
@@ -112,14 +110,14 @@ describe('link splitting and set its properties correctly', function() {
         let shape = <NavlinkShape>(await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].prop().turnRestrition).to.deep.equal({start: ['abc'], end: 'efg'});
-        expect(splitLinks[0].coord()).to.deep.almost([
+        expect(splitLinks[0].prop().turnRestrition).toEqual({start: ['abc'], end: 'efg'});
+        chai.expect(splitLinks[0].coord()).to.deep.almost([
             [77.468927692, 13.212794768, 0],
             [77.468927692, 13.212272527, 0]]
         );
 
-        expect(splitLinks[1].prop().turnRestrition).to.deep.equal({start: ['abc'], end: 'efg'});
-        expect(splitLinks[1].coord()).to.deep.almost([
+        expect(splitLinks[1].prop().turnRestrition).toEqual({start: ['abc'], end: 'efg'});
+        chai.expect(splitLinks[1].coord()).to.deep.almost([
             [77.468927692, 13.212272527, 0],
             [77.469464134, 13.212272527, 0]]
         );
@@ -154,10 +152,10 @@ describe('link splitting and set its properties correctly', function() {
         let shape = <NavlinkShape>(await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].prop('originLink')).to.equal('testOrigin');
-        expect(splitLinks[0].prop('parentLink')).to.equal(link.id);
-        expect(splitLinks[1].prop('originLink')).to.equal('testOrigin');
-        expect(splitLinks[1].prop('parentLink')).to.equal(link.id);
+        expect(splitLinks[0].prop('originLink')).toBe('testOrigin');
+        expect(splitLinks[0].prop('parentLink')).toBe(link.id);
+        expect(splitLinks[1].prop('originLink')).toBe('testOrigin');
+        expect(splitLinks[1].prop('parentLink')).toBe(link.id);
     });
 
 
@@ -177,7 +175,7 @@ describe('link splitting and set its properties correctly', function() {
 
         let link3 = editor.addFeature(lnk3, linkLayer);
         link3.prop({originLink: -8092793});
-        expect(link3.prop()).to.deep.include({originLink: -8092793});
+        expect(link3.prop()).toEqual(expect.objectContaining({originLink: -8092793}));
 
         let idMap;
 
@@ -193,8 +191,8 @@ describe('link splitting and set its properties correctly', function() {
         let shape = <NavlinkShape>(await editorClick(editor, 300, 200)).target;
         let splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].prop('parentLink')).to.equal(lnk3.id);
-        expect(splitLinks[1].prop('parentLink')).to.equal(lnk3.id);
+        expect(splitLinks[0].prop('parentLink')).toBe(lnk3.id);
+        expect(splitLinks[1].prop('parentLink')).toBe(lnk3.id);
     });
 
 
@@ -228,10 +226,10 @@ describe('link splitting and set its properties correctly', function() {
         let shape = <NavlinkShape>(await editorClick(editor, 100, 200)).target;
         let splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].prop('originLink')).to.equal('testOrigin');
-        expect(splitLinks[0].prop('parentLink')).to.equal(link.id);
-        expect(splitLinks[1].prop('originLink')).to.equal('testOrigin');
-        expect(splitLinks[1].prop('parentLink')).to.equal(link.id);
+        expect(splitLinks[0].prop('originLink')).toBe('testOrigin');
+        expect(splitLinks[0].prop('parentLink')).toBe(link.id);
+        expect(splitLinks[1].prop('originLink')).toBe('testOrigin');
+        expect(splitLinks[1].prop('parentLink')).toBe(link.id);
     });
 
 
@@ -262,20 +260,20 @@ describe('link splitting and set its properties correctly', function() {
 
         await drag(display.getContainer(), {x: 200, y: 200}, {x: 400, y: 400});
 
-        expect(link.coord()).to.be.deep.almost([
+        chai.expect(link.coord()).to.be.deep.almost([
             [77.468927698, 13.212794768, 100],
             [77.468927698, 13.212272527, 200],
             [77.470537021, 13.211228043, 449.9999767]
         ], 1e-6);
 
         const child1 = <Navlink>(await editorClick(editor, 350, 350)).target;
-        expect(child1.coord()).to.deep.almost([
+        chai.expect(child1.coord()).to.deep.almost([
             [77.47000058, 13.211750285, 400],
             [77.470537021, 13.211228043, 449.9999767]
         ], 1e-6);
 
         const child2 = <Navlink>(await editorClick(editor, 450, 450)).target;
-        expect(child2.coord()).to.deep.almost([
+        chai.expect(child2.coord()).to.deep.almost([
             [77.470537021, 13.211228043, 449.9999767],
             [77.471073462, 13.210705799, 500]
         ], 1e-6);

@@ -22,11 +22,9 @@ import {waitForEditorReady, submit, clean} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_submit_removed_link.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe.skip('ready event is triggered once after submitting removed links', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -101,6 +99,6 @@ describe.skip('ready event is triggered once after submitting removed links', fu
         let results = observer.stop();
 
         // expect to have ready events triggered one time (false and true)
-        expect(results.ready).to.have.lengthOf(2);
+        expect(results.ready).toHaveLength(2);
     });
 });

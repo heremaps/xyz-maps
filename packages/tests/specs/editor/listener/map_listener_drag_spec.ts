@@ -22,11 +22,9 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_drag_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map drag listener', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -74,33 +72,33 @@ describe('map drag listener', function() {
 
         let results = listener.stop();
 
-        expect(results.dragStart).to.have.lengthOf(2);
-        expect(results.dragStart[0]).to.deep.include({
+        expect(results.dragStart).toHaveLength(2);
+        expect(results.dragStart[0]).toEqual(expect.objectContaining({
             button: 0,
             // mapX: 100,
             // mapY: 428,
             type: 'dragStart'
-        });
-        expect(results.dragStart[1]).to.deep.include({
+        }));
+        expect(results.dragStart[1]).toEqual(expect.objectContaining({
             button: 0,
             // mapX: 132,
             // mapY: 107,
             type: 'dragStart'
-        });
+        }));
 
-        expect(results.dragStop).to.have.lengthOf(2);
-        expect(results.dragStop[0]).to.deep.include({
+        expect(results.dragStop).toHaveLength(2);
+        expect(results.dragStop[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 551,
             mapY: 408,
             type: 'dragStop'
-        });
-        expect(results.dragStop[1]).to.deep.include({
+        }));
+        expect(results.dragStop[1]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 570,
             mapY: 460,
             type: 'dragStop'
-        });
+        }));
     });
 
 
@@ -119,33 +117,33 @@ describe('map drag listener', function() {
 
         let results = listener.stop();
 
-        expect(results.dragStart).to.have.lengthOf(2);
-        expect(results.dragStart[0]).to.deep.include({
+        expect(results.dragStart).toHaveLength(2);
+        expect(results.dragStart[0]).toEqual(expect.objectContaining({
             button: 0,
             // mapX: 100,
             // mapY: 428,
             type: 'dragStart'
-        });
-        expect(results.dragStart[1]).to.deep.include({
+        }));
+        expect(results.dragStart[1]).toEqual(expect.objectContaining({
             button: 0,
             // mapX: 132,
             // mapY: 107,
             type: 'dragStart'
-        });
+        }));
 
-        expect(results.dragStop).to.have.lengthOf(2);
-        expect(results.dragStop[0]).to.deep.include({
+        expect(results.dragStop).toHaveLength(2);
+        expect(results.dragStop[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 180,
             mapY: 200,
             type: 'dragStop'
-        });
-        expect(results.dragStop[1]).to.deep.include({
+        }));
+        expect(results.dragStop[1]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 140,
             mapY: 190,
             type: 'dragStop'
-        });
+        }));
     });
 
 
@@ -164,7 +162,7 @@ describe('map drag listener', function() {
 
         let results = listener.stop();
 
-        expect(results.dragStart).to.have.lengthOf(0);
-        expect(results.dragStop).to.have.lengthOf(0);
+        expect(results.dragStart).toHaveLength(0);
+        expect(results.dragStop).toHaveLength(0);
     });
 });

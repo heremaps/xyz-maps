@@ -19,11 +19,9 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_link_layer_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('event listeners in link layer', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var linkLayer;
     var linkProvider;
@@ -39,7 +37,7 @@ describe('event listeners in link layer', function() {
             point: {longitude: 73.42605, latitude: 17.89042},
             radius: 50
         });
-        expect(results).to.have.lengthOf(4);
+        expect(results).toHaveLength(4);
 
         link1 = preparedData.getFeature('linkLayer', -9123);
         link2 = preparedData.getFeature('linkLayer', -9124);
@@ -52,10 +50,10 @@ describe('event listeners in link layer', function() {
     it('validate an link feature exists', function() {
         let obj = linkProvider.exists({id: link1.id});
 
-        expect(obj.feature).to.deep.include({
+        expect(obj.feature).toEqual(expect.objectContaining({
             id: link1.id,
             type: 'Feature'
-        });
+        }));
     });
 
     it('validate remove event', function() {
@@ -66,10 +64,10 @@ describe('event listeners in link layer', function() {
         let results = test.stop();
 
         let feature = results.featuresRemove[0].detail.features[0];
-        expect(feature).to.deep.include({
+        expect(feature).toEqual(expect.objectContaining({
             id: link1.id,
             type: 'Feature'
-        });
+        }));
     });
 
     it('validate add remove and modify events', function() {
@@ -99,22 +97,22 @@ describe('event listeners in link layer', function() {
 
         let results = test.stop();
 
-        expect(results.featuresAdd).to.have.lengthOf(1);
-        expect(results.featuresRemove).to.have.lengthOf(0);
-        expect(results.featureCoordinatesChange).to.have.lengthOf(1);
+        expect(results.featuresAdd).toHaveLength(1);
+        expect(results.featuresRemove).toHaveLength(0);
+        expect(results.featureCoordinatesChange).toHaveLength(1);
 
         // @ts-ignore
         let feature = results.featuresAdd[0].detail.features[0];
-        expect(feature).to.deep.include({
+        expect(feature).toEqual(expect.objectContaining({
             id: 'abc',
             type: 'Feature'
-        });
+        }));
         // @ts-ignore
         feature = results.featureCoordinatesChange[0].detail.feature;
-        expect(feature).to.deep.include({
+        expect(feature).toEqual(expect.objectContaining({
             id: link2.id,
             type: 'Feature'
-        });
+        }));
 
         linkLayer.removeFeature({
             type: 'Feature',

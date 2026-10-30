@@ -26,8 +26,6 @@ import dataset from './link_editable_spec.json';
 import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('link editable', function() {
-    const expect = chai.expect;
-
     let link;
     let editor;
     let display;
@@ -63,7 +61,7 @@ describe('link editable', function() {
     it('set link to not editable', function() {
         link.editable(false);
 
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.144053558, 17.96039, 0]
@@ -82,7 +80,7 @@ describe('link editable', function() {
         let lnk = editor.getFeature(link.id, linkLayer);
 
         // link geometry is not changed
-        expect(lnk.coord()).to.deep.almost([
+        chai.expect(lnk.coord()).to.deep.almost([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.144053558, 17.96039, 0]
@@ -106,7 +104,7 @@ describe('link editable', function() {
         lnk = editor.getFeature(link.id, linkLayer);
 
         // link geometry is changed
-        expect(lnk.coord()).to.deep.almost([
+        chai.expect(lnk.coord()).to.deep.almost([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.14459, 17.96039, 0]

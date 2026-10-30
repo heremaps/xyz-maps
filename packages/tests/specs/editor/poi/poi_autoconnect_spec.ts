@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_autoconnect_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('poi routing point connects to links automatically', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -70,26 +68,26 @@ describe('poi routing point connects to links automatically', function() {
         };
         poi = editor.addFeature(p, placeLayer);
 
-        expect(poi.prop()).to.deep.include({
+        expect(poi.prop()).toEqual(expect.objectContaining({
             'featureClass': 'PLACE'
-        });
+        }));
 
         poi.createRoutingPoint();
 
-        expect(poi.prop()).to.deep.include({
+        expect(poi.prop()).toEqual(expect.objectContaining({
             'routingLink': link.id+''
-        });
-        expect(poi.prop('routingPoint')).to.deep.equal([77.06959, 12.95322, 0]);
+        }));
+        expect(poi.prop('routingPoint')).toStrictEqual([77.06959, 12.95322, 0]);
     });
 
     it('drag routing point and validate again', async function() {
         poi.select();
         await drag(mapContainer, {x: 200, y: 200}, {x: 200, y: 160});
 
-        expect(poi.prop()).to.deep.include({
+        expect(poi.prop()).toEqual(expect.objectContaining({
             'routingLink': link.id+''
-        });
-        expect(poi.prop('routingPoint')).to.deep.equal([77.06959, 12.95343, 0]);
+        }));
+        expect(poi.prop('routingPoint')).toStrictEqual([77.06959, 12.95343, 0]);
 
         poi.unselect();
     });

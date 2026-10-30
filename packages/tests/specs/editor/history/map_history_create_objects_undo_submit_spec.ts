@@ -21,11 +21,9 @@ import {waitForEditorReady, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_create_objects_undo_submit_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map history create objects and undo last changes, should create just one object', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
 
@@ -59,10 +57,10 @@ describe('map history create objects and undo last changes, should create just o
         };
         let link = editor.addFeature(l);
 
-        expect(editor.info()).to.have.lengthOf(1);
-        expect(editor.get('history.current')).to.equal(1);
-        expect(editor.get('history.length')).to.equal(1);
-        expect(editor.get('changes.length')).to.equal(1);
+        expect(editor.info()).toHaveLength(1);
+        expect(editor.get('history.current')).toBe(1);
+        expect(editor.get('history.length')).toBe(1);
+        expect(editor.get('changes.length')).toBe(1);
     });
 
     it('revert objects and add link objects', async function() {
@@ -91,11 +89,11 @@ describe('map history create objects and undo last changes, should create just o
 
         let objs = editor.search(display.getViewBounds());
 
-        expect(objs).to.have.lengthOf(2);
-        expect(editor.info()).to.have.lengthOf(2);
-        expect(editor.get('history.current')).to.equal(2);
-        expect(editor.get('history.length')).to.equal(2);
-        expect(editor.get('changes.length')).to.equal(2);
+        expect(objs).toHaveLength(2);
+        expect(editor.info()).toHaveLength(2);
+        expect(editor.get('history.current')).toBe(2);
+        expect(editor.get('history.length')).toBe(2);
+        expect(editor.get('changes.length')).toBe(2);
     });
 
     it('undo once and validate', function() {
@@ -103,11 +101,11 @@ describe('map history create objects and undo last changes, should create just o
 
         let objs = editor.search(display.getViewBounds());
 
-        expect(objs).to.have.lengthOf(1);
-        expect(editor.info()).to.have.lengthOf(1);
-        expect(editor.get('history.current')).to.equal(1);
-        expect(editor.get('history.length')).to.equal(2);
-        expect(editor.get('changes.length')).to.equal(1);
+        expect(objs).toHaveLength(1);
+        expect(editor.info()).toHaveLength(1);
+        expect(editor.get('history.current')).toBe(1);
+        expect(editor.get('history.length')).toBe(2);
+        expect(editor.get('changes.length')).toBe(1);
     });
 
 
@@ -118,10 +116,10 @@ describe('map history create objects and undo last changes, should create just o
 
         let objs = editor.search(display.getViewBounds());
 
-        expect(objs).to.have.lengthOf(1);
-        expect(editor.info()).to.have.lengthOf(0);
-        expect(editor.get('history.current')).to.equal(0);
-        expect(editor.get('history.length')).to.equal(0);
-        expect(editor.get('changes.length')).to.equal(0);
+        expect(objs).toHaveLength(1);
+        expect(editor.info()).toHaveLength(0);
+        expect(editor.get('history.current')).toBe(0);
+        expect(editor.get('history.length')).toBe(0);
+        expect(editor.get('changes.length')).toBe(0);
     });
 });

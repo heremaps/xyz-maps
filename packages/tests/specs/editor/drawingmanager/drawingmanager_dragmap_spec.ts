@@ -22,11 +22,9 @@ import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_dragmap_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Create new Links by drawing manager', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -68,7 +66,7 @@ describe('Create new Links by drawing manager', function() {
             });
         });
 
-        expect(editor.getDrawingBoard().isActive()).to.be.true;
+        expect(editor.getDrawingBoard().isActive()).toBe(true);
     });
 
 
@@ -79,19 +77,19 @@ describe('Create new Links by drawing manager', function() {
         await mousemove(mapContainer, {x: 100, y: 280}, {x: 100, y: 300});
         await click(mapContainer, 100, 300);
 
-        expect(editor.getDrawingBoard().getLength()).to.be.equal(3);
+        expect(editor.getDrawingBoard().getLength()).toBe(3);
 
         await mousemove(mapContainer, {x: 100, y: 180}, {x: 150, y: 200});
         await click(mapContainer, 150, 200);
 
-        expect(editor.getDrawingBoard().getLength()).to.be.equal(4);
+        expect(editor.getDrawingBoard().getLength()).toBe(4);
     });
 
     it('drag ground, validate map is dragged', async function() {
         await waitForEditorReady(editor, async ()=>{
             await drag(mapContainer, {x: 200, y: 100}, {x: 250, y: 100});
         });
-        expect(display.getCenter().longitude).to.not.equal(76.98506);
+        expect(display.getCenter().longitude).not.toBe(76.98506);
     });
 
     it('pitch map with the secondary button while drawing', async function() {
@@ -107,17 +105,15 @@ describe('Create new Links by drawing manager', function() {
             await drag(mapContainer, {x: 250, y: 150}, {x: 250, y: 100}, 60, 2);
         });
 
-        expect(display.pitch()).to.be.greaterThan(initialPitch);
-        expect(editor.getDrawingBoard().getLength()).to.equal(initialShapeCount);
-        expect(drawingBoard._b.getFeature().geojson.geometry.coordinates.slice(-1)[0])
-            .to.deep.equal(initialPreviewPosition);
+        expect(display.pitch()).toBeGreaterThan(initialPitch);
+        expect(editor.getDrawingBoard().getLength()).toBe(initialShapeCount);
+        expect(drawingBoard._b.getFeature().geojson.geometry.coordinates.slice(-1)[0]).toEqual(initialPreviewPosition);
 
         await mousemove(mapContainer, {x: 250, y: 100}, {x: 250, y: 120});
-        expect(drawingBoard._b.getFeature().geojson.geometry.coordinates.slice(-1)[0])
-            .to.not.deep.equal(initialPreviewPosition);
+        expect(drawingBoard._b.getFeature().geojson.geometry.coordinates.slice(-1)[0]).not.toEqual(initialPreviewPosition);
 
         await click(mapContainer, 250, 100, 2);
-        expect(editor.getDrawingBoard().getLength()).to.equal(initialShapeCount);
+        expect(editor.getDrawingBoard().getLength()).toBe(initialShapeCount);
     });
 
 
@@ -128,7 +124,7 @@ describe('Create new Links by drawing manager', function() {
 
         link.prop('fc', 1);
 
-        expect(link.prop('fc')).to.equal(1);
+        expect(link.prop('fc')).toBe(1);
     });
 
 
@@ -137,9 +133,9 @@ describe('Create new Links by drawing manager', function() {
             editor.revert();
         });
 
-        expect(editor.getDrawingBoard().isActive()).to.be.false;
+        expect(editor.getDrawingBoard().isActive()).toBe(false);
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
     });
 });

@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_snap_delete_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link shape point snapping to delete link', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -65,14 +63,14 @@ describe('link shape point snapping to delete link', function() {
     });
 
     it('validate one link in viewport', function() {
-        expect(editor.info()).to.have.lengthOf(1);
+        expect(editor.info()).toHaveLength(1);
     });
 
     it('drag a link shape point to the other shape point', async function() {
         link.select();
         await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 203});
 
-        expect(editor.info()).to.have.lengthOf(0);
+        expect(editor.info()).toHaveLength(0);
     });
 
     it('undo and drag link shape point again to the other shape point with more distance', async function() {
@@ -82,6 +80,6 @@ describe('link shape point snapping to delete link', function() {
         link.select();
         await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 204});
 
-        expect(editor.info()).to.have.lengthOf(1);
+        expect(editor.info()).toHaveLength(1);
     });
 });

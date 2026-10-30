@@ -22,11 +22,9 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_click_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map click on ground and link', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
     var preparedData;
@@ -88,17 +86,17 @@ describe('map click on ground and link', function() {
 
         let results = listener.stop();
 
-        expect(results.dragStart).to.have.lengthOf(0);
-        expect(results.dragStop).to.have.lengthOf(0);
-        expect(results.pointerup).to.have.lengthOf(2);
+        expect(results.dragStart).toHaveLength(0);
+        expect(results.dragStop).toHaveLength(0);
+        expect(results.pointerup).toHaveLength(2);
 
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             mapX: 200,
             mapY: 170
-        });
-        expect(results.pointerup[1]).to.deep.include({
+        }));
+        expect(results.pointerup[1]).toEqual(expect.objectContaining({
             mapX: 160,
             mapY: 100
-        });
+        }));
     });
 });

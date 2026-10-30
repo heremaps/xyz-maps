@@ -22,11 +22,9 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_outofview_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('turn restriction test move link outside of viewport', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -66,7 +64,7 @@ describe('turn restriction test move link outside of viewport', function() {
 
         await click(mapContainer, 310, 100);
 
-        expect(link1.prop('turnRestriction')).to.deep.equal({end: [link2.id]});
+        expect(link1.prop('turnRestriction')).toEqual({end: [link2.id]});
     });
 
 
@@ -79,6 +77,6 @@ describe('turn restriction test move link outside of viewport', function() {
             await drag(mapContainer, {x: 650, y: 210}, {x: 50, y: 210});
         });
 
-        expect(link1.prop('turnRestriction')).to.deep.equal({end: [link2.id]});
+        expect(link1.prop('turnRestriction')).toEqual({end: [link2.id]});
     });
 });

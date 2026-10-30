@@ -22,11 +22,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_modify_then_undo_clear_provider_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link modify two time and undo then clear provider', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -61,19 +59,19 @@ describe('link modify two time and undo then clear provider', function() {
     it('modify link', async function() {
         link.addShape({x: 100, y: 100});
 
-        expect(link.coord()).to.have.lengthOf(3);
+        expect(link.coord()).toHaveLength(3);
     });
 
     it('modify link again', async function() {
         link.addShape({x: 400, y: 100});
 
-        expect(link.coord()).to.have.lengthOf(4);
+        expect(link.coord()).toHaveLength(4);
     });
 
     it('undo change', async function() {
         editor.undo();
         let lnk = editor.getFeature(link.id, linkLayer);
-        expect(lnk.coord()).to.have.lengthOf(3);
+        expect(lnk.coord()).toHaveLength(3);
     });
 
     it('clear provider validate again the link coordinate', async function() {
@@ -82,6 +80,6 @@ describe('link modify two time and undo then clear provider', function() {
         });
 
         let lnk = editor.getFeature(link.id, linkLayer);
-        expect(lnk.coord()).to.have.lengthOf(3);
+        expect(lnk.coord()).toHaveLength(3);
     });
 });

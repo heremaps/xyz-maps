@@ -22,10 +22,9 @@ import {prepare} from 'utils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './disable_zoomcontrol_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('ui component compass', function() {
-    const expect = chai.expect;
     const MAX_PITCH = 48;
     const INITIAL_PITCH = 10;
     let preparedData;
@@ -54,7 +53,7 @@ describe('ui component compass', function() {
     });
 
     it('validate initial pitch is set', async function() {
-        expect(display.pitch()).to.equal(INITIAL_PITCH);
+        expect(display.pitch()).toBe(INITIAL_PITCH);
     });
 
     it('validate pitch resets on click', async function() {
@@ -62,7 +61,7 @@ describe('ui component compass', function() {
             // click zoom control to zoom in
             click(mapContainer, 765, 490);
         });
-        expect(display.pitch()).to.equal(0);
+        expect(display.pitch()).toBe(0);
     });
 
     it('validate is set to maxpitch on click', async function() {
@@ -70,7 +69,7 @@ describe('ui component compass', function() {
             // click zoom control to zoom in
             click(mapContainer, 765, 490);
         });
-        expect(display.pitch()).to.equal(MAX_PITCH);
+        expect(display.pitch()).toBe(MAX_PITCH);
     });
 
     it('re-initialize display with compass disabled and validate', async function() {
@@ -92,7 +91,7 @@ describe('ui component compass', function() {
             // click the position where compass control was
             click(mapContainer, 765, 490);
         });
-        expect(display.pitch()).to.equal(INITIAL_PITCH);
+        expect(display.pitch()).toBe(INITIAL_PITCH);
     });
 
     it('re-initialize display with compass enabled, check initial rotation and pitch again', async function() {
@@ -111,8 +110,8 @@ describe('ui component compass', function() {
             pitch: INITIAL_PITCH,
             maxPitch: MAX_PITCH
         });
-        expect(display.rotate()).to.equal(45);
-        expect(display.pitch()).to.equal(INITIAL_PITCH);
+        expect(display.rotate()).toBe(45);
+        expect(display.pitch()).toBe(INITIAL_PITCH);
     });
 
     it('validate compass is active and click rests rotation and pitch', async function() {
@@ -120,8 +119,8 @@ describe('ui component compass', function() {
             click(mapContainer, 765, 490);
         });
 
-        expect(display.rotate()).to.equal(0);
-        expect(display.pitch()).to.equal(0);
+        expect(display.rotate()).toBe(0);
+        expect(display.pitch()).toBe(0);
     });
 
     it('destroy display while animation is running', async () => {
@@ -149,7 +148,7 @@ describe('ui component compass', function() {
 
             // Allow pending animation frames to expose callbacks against the destroyed map.
             await new Promise<void>((resolve) => setTimeout(resolve, 200));
-            expect(errors).to.deep.equal([]);
+            expect(errors).toStrictEqual([]);
         } finally {
             window.removeEventListener('error', onError);
             if (display.destroy) display.destroy();

@@ -22,11 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_double_connect_check_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('link connect helper connect crossing and then add new link and connect crossing again', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -60,13 +58,13 @@ describe('link connect helper connect crossing and then add new link and connect
         let c0 = crossings[0];
         let c1 = crossings[1];
 
-        expect(c0.distance).to.be.almost(0);
-        expect(c0.x).to.be.almost(200);
-        expect(c0.y).to.be.almost(200);
+        chai.expect(c0.distance).to.be.almost(0);
+        chai.expect(c0.x).to.be.almost(200);
+        chai.expect(c0.y).to.be.almost(200);
 
-        expect(c1.distance).to.be.almost(0);
-        expect(c1.x).to.be.almost(200);
-        expect(c1.y).to.be.almost(260);
+        chai.expect(c1.distance).to.be.almost(0);
+        chai.expect(c1.x).to.be.almost(200);
+        chai.expect(c1.y).to.be.almost(260);
     });
 
     it('connect a crossing', function() {
@@ -92,13 +90,13 @@ describe('link connect helper connect crossing and then add new link and connect
         let c0 = crossings[0];
         let c1 = crossings[1];
 
-        expect(c0.distance).to.be.almost(0);
-        expect(c0.x).to.be.almost(250);
-        expect(c0.y).to.be.almost(200);
+        chai.expect(c0.distance).to.be.almost(0);
+        chai.expect(c0.x).to.be.almost(250);
+        chai.expect(c0.y).to.be.almost(200);
 
-        expect(c1.distance).to.be.almost(0);
-        expect(c1.x).to.be.almost(250);
-        expect(c1.y).to.be.almost(260);
+        chai.expect(c1.distance).to.be.almost(0);
+        chai.expect(c1.x).to.be.almost(250);
+        chai.expect(c1.y).to.be.almost(260);
 
         crossings = link3.checkCrossings();
 
@@ -110,6 +108,6 @@ describe('link connect helper connect crossing and then add new link and connect
             c.connect();
         });
 
-        expect(editor.info()).to.have.lengthOf(11);
+        expect(editor.info()).toHaveLength(11);
     });
 });

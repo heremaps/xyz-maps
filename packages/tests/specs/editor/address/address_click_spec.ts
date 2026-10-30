@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './address_click_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('click on address to validate the coordinate', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let poi;
     let address;
@@ -65,29 +63,29 @@ describe('click on address to validate the coordinate', function() {
     });
 
     it('validate address coordinate with click', async function() {
-        expect(address.coord()).to.deep.almost([76.283418331, 14.125304508, 0]);
+        chai.expect(address.coord()).to.deep.almost([76.283418331, 14.125304508, 0]);
 
         // click on an address
         await click(mapContainer, 100, 200);
 
         // validate address coordinate again
-        expect(address.coord()).to.deep.almost([76.283418331, 14.125304508, 0]);
+        chai.expect(address.coord()).to.deep.almost([76.283418331, 14.125304508, 0]);
 
         // valiate object is not modified
-        expect(editor.info().length).to.equal(0);
+        expect(editor.info().length).toBe(0);
     });
 
     it('validate poi coordinate with click', async function() {
-        expect(poi.coord()).to.deep.almost([76.283954773, 14.125304508, 0]);
+        chai.expect(poi.coord()).to.deep.almost([76.283954773, 14.125304508, 0]);
 
         // click on POI
         await click(mapContainer, 300, 200);
 
         // validate POI coordinate
-        expect(poi.coord()).to.deep.almost([76.283954773, 14.125304508, 0]);
+        chai.expect(poi.coord()).to.deep.almost([76.283954773, 14.125304508, 0]);
 
         // valiate object is not modified
-        expect(editor.info().length).to.equal(0);
+        expect(editor.info().length).toBe(0);
     });
 
     it('add address object and validate its coord', async function() {
@@ -106,7 +104,7 @@ describe('click on address to validate the coordinate', function() {
         await click(mapContainer, 200, 200);
 
         // validate address coordinate
-        expect(address.coord()).to.deep.almost([76.283685558, 14.125304111, 0]);
+        chai.expect(address.coord()).to.deep.almost([76.283685558, 14.125304111, 0]);
 
         // click on ground
         await click(mapContainer, 300, 200);

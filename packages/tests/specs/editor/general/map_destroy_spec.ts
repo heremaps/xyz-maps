@@ -23,11 +23,9 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_destroy_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('destroy editor', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -65,16 +63,16 @@ describe('destroy editor', function() {
     });
 
     it('validate editor is working', async function() {
-        expect(editor.info()).to.have.lengthOf(1);
+        expect(editor.info()).toHaveLength(1);
 
-        expect(editor.get('history.current')).to.equal(1);
-        expect(editor.get('history.length')).to.equal(1);
-        expect(editor.get('changes.length')).to.equal(1);
+        expect(editor.get('history.current')).toBe(1);
+        expect(editor.get('history.length')).toBe(1);
+        expect(editor.get('changes.length')).toBe(1);
 
         await click(mapContainer, 200, 100);
         await drag(mapContainer, {x: 200, y: 100}, {x: 250, y: 100});
 
-        expect(display.getCenter()).to.deep.equal({longitude: 76.706833, latitude: 13.350071});
+        expect(display.getCenter()).toEqual({longitude: 76.706833, latitude: 13.350071});
     });
 
     it('destroy editor and validate', async function() {
@@ -85,8 +83,8 @@ describe('destroy editor', function() {
             await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
         });
 
-        expect(display.getCenter()).to.not.deep.include({longitude: 76.706833, latitude: 13.350071});
+        expect(display.getCenter()).not.toEqual(expect.objectContaining({longitude: 76.706833, latitude: 13.350071}));
 
-        expect(editor).to.deep.equal({});
+        expect(editor).toEqual({});
     });
 });

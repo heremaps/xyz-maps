@@ -26,8 +26,6 @@ import dataset from './map_container_transform_spec.json';
 import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('map container transform', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -72,12 +70,12 @@ describe('map container transform', function() {
         // move container
         await drag(mapContainer, {x: 158, y: 161}, {x: 258, y: 161});
 
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [80.475123072, 16.448270659, 0],
             [80.475176716, 16.44775617, 0]
         ]);
 
-        expect(poi.coord()).to.deep.almost([
+        chai.expect(poi.coord()).to.deep.almost([
             80.475605869, 16.447807619, 0
         ]);
     });
@@ -91,13 +89,13 @@ describe('map container transform', function() {
         // await drag(mapContainer, {x: 258, y: 159}, {x: 312, y: 159});
         await drag(mapContainer, {x: 212 - 15, y: 159}, {x: 312 - 15, y: 159});
 
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [80.475550546, 16.448270659, 0],
             [80.475556693, 16.44775617, 0]
 
         ]);
 
-        expect(poi.coord()).to.deep.almost([
+        chai.expect(poi.coord()).to.deep.almost([
             80.475605869, 16.447807619, 0
         ]);
     });

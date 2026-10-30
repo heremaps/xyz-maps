@@ -21,11 +21,9 @@ import {waitForEditorReady, clean, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_and_link_create_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('poi and link create', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -81,9 +79,9 @@ describe('poi and link create', function() {
         });
 
         let results = listener.stop();
-        expect(results.error).to.have.lengthOf(0);
+        expect(results.error).toHaveLength(0);
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 });

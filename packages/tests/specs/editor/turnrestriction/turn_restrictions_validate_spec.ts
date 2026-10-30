@@ -22,11 +22,9 @@ import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_validate_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('turn restriction validate', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -54,7 +52,7 @@ describe('turn restriction validate', function() {
         link3 = preparedData.getFeature('linkLayer', '-189236');
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
     });
 
     afterAll(async function() {
@@ -72,6 +70,6 @@ describe('turn restriction validate', function() {
 
         await mousemove(mapContainer, {x: 200, y: 100}, {x: 210, y: 110});
 
-        expect(link3.prop('turnRestriction')).to.deep.equal({end: [link1.id]});
+        expect(link3.prop('turnRestriction')).toEqual({end: [link1.id]});
     });
 });

@@ -22,11 +22,9 @@ import {mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_hover_remove_routingpoint_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('POI hover then remove routing point then disable editing', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -79,7 +77,7 @@ describe('POI hover then remove routing point then disable editing', function() 
         const place = objs[1];
 
         place.createRoutingPoint();
-        expect(place.prop('routingLink')).to.equal(objs[0].id);
+        expect(place.prop('routingLink')).toBe(objs[0].id);
 
         // resolves once the place is hovered and its routing point was removed while hovered
         const hovered = new Promise((resolve) => {
@@ -103,6 +101,6 @@ describe('POI hover then remove routing point then disable editing', function() 
 
         // mouse enters the place
         await mousemove(mapContainer, {x: 380, y: 280}, {x: 400, y: 300});
-        expect(await hovered).to.equal(null);
+        expect(await hovered).toBe(null);
     });
 });

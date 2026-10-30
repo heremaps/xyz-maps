@@ -22,11 +22,9 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_disconnect_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('edit turn restriction disconnect link, link is marked as disconnected', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -71,7 +69,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         // set turn restriction
         await click(mapContainer, 200, 115);
 
-        expect(link1.prop('turnRestriction')).to.deep.equal({end: [link2.id]});
+        expect(link1.prop('turnRestriction')).toEqual({end: [link2.id]});
     });
 
     it('deactivate turn restriction editor and disconnect shape point, validate disconnected link', async function() {
@@ -82,8 +80,8 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         let shape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
         shape.disconnect();
 
-        expect(link1.prop('disconnected')).to.be.equal('HOOK');
-        expect(link1.prop('estate')).to.be.equal('UPDATED');
+        expect(link1.prop('disconnected')).toBe('HOOK');
+        expect(link1.prop('estate')).toBe('UPDATED');
     });
 
 
@@ -92,7 +90,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
 
         link1 = editor.getFeature(link1.id, linkLayer);
         link2 = editor.getFeature(link2.id, linkLayer);
-        expect(link1.prop('turnRestriction')).to.deep.equal({end: [link2.id]});
+        expect(link1.prop('turnRestriction')).toEqual({end: [link2.id]});
     });
 
 
@@ -102,8 +100,8 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
 
         shape.disconnect();
 
-        expect(link2.prop('disconnected')).to.be.equal('HOOK');
-        expect(link2.prop('estate')).to.be.equal('UPDATED');
+        expect(link2.prop('disconnected')).toBe('HOOK');
+        expect(link2.prop('estate')).toBe('UPDATED');
     });
 
 
@@ -130,9 +128,9 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         // click to deactivate turn restriction
         await click(mapContainer, 100, 200);
 
-        expect(link1.prop('turnRestriction')).to.deep.equal({end: [link2.id]});
-        expect(link3.prop('turnRestriction')).to.deep.equal({end: [link2.id]});
-        expect(link4.prop('turnRestriction')).to.deep.equal({end: [link2.id]});
+        expect(link1.prop('turnRestriction')).toEqual({end: [link2.id]});
+        expect(link3.prop('turnRestriction')).toEqual({end: [link2.id]});
+        expect(link4.prop('turnRestriction')).toEqual({end: [link2.id]});
     });
 
     it('disconnect shape pont and validate again', async function() {
@@ -142,8 +140,8 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         let shape = <NavlinkShape>(await editorClick(editor, 300, 200)).target;
         shape.disconnect();
 
-        expect(link3.prop('disconnected')).to.be.equal('HOOK');
-        expect(link3.prop('estate')).to.be.equal('UPDATED');
+        expect(link3.prop('disconnected')).toBe('HOOK');
+        expect(link3.prop('estate')).toBe('UPDATED');
     });
 
     it('undo the disconnect and disconnect again', async function() {
@@ -159,7 +157,7 @@ describe('edit turn restriction disconnect link, link is marked as disconnected'
         link1 = editor.getFeature(link1.id, linkLayer);
         link2 = editor.getFeature(link2.id, linkLayer);
 
-        expect(link2.prop('disconnected')).to.be.equal('HOOK');
-        expect(link2.prop('estate')).to.be.equal('UPDATED');
+        expect(link2.prop('disconnected')).toBe('HOOK');
+        expect(link2.prop('estate')).toBe('UPDATED');
     });
 });

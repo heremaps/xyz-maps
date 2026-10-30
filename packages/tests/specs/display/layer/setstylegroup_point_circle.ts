@@ -22,11 +22,9 @@ import {getCanvasPixelColor, Listener, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_circle.json';
 import {click} from 'triggerEvents';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('setStyleGroup Point with circle', function() {
-    const expect = chai.expect;
-
     let paLayer;
     let display;
     let mapContainer;
@@ -77,11 +75,11 @@ describe('setStyleGroup Point with circle', function() {
             expect: ['#ff0000', '#000000', '#000000', '#000000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#000000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#000000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#000000');
     });
 
     it('style feature with offsetX and validate', async () => {
@@ -105,11 +103,11 @@ describe('setStyleGroup Point with circle', function() {
             expect: ['#ff0000', '#000000', '#ff0000', '#000000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#ff0000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#ff0000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#000000');
     });
 
     it('style feature with offsetX again and validate', async () => {
@@ -133,11 +131,11 @@ describe('setStyleGroup Point with circle', function() {
             expect: ['#ff0000', '#ff0000', '#000000', '#000000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#ff0000');
-        expect(colors[2]).to.equal('#000000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#ff0000');
+        expect(colors[2]).toBe('#000000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#000000');
     });
 
     it('style feature with offsetY and validate', async () => {
@@ -161,11 +159,11 @@ describe('setStyleGroup Point with circle', function() {
             expect: ['#ff0000', '#000000', '#000000', '#000000', '#ff0000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#000000');
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#000000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#ff0000');
     });
 
     it('style feature with offsetY again and validate', async () => {
@@ -189,11 +187,11 @@ describe('setStyleGroup Point with circle', function() {
             expect: ['#ff0000', '#000000', '#000000', '#ff0000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#000000');
-        expect(colors[2]).to.equal('#000000');
-        expect(colors[3]).to.equal('#ff0000');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#000000');
+        expect(colors[2]).toBe('#000000');
+        expect(colors[3]).toBe('#ff0000');
+        expect(colors[4]).toBe('#000000');
     });
 
     it('style feature with fill and stroke color', async () => {
@@ -218,11 +216,11 @@ describe('setStyleGroup Point with circle', function() {
             expect: ['#ff0000', '#ffff00', '#ffff00', '#ffff00', '#ffff00']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#ffff00');
-        expect(colors[2]).to.equal('#ffff00');
-        expect(colors[3]).to.equal('#ffff00');
-        expect(colors[4]).to.equal('#ffff00');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#ffff00');
+        expect(colors[2]).toBe('#ffff00');
+        expect(colors[3]).toBe('#ffff00');
+        expect(colors[4]).toBe('#ffff00');
     });
 
     it('set radius in meter', async () => {
@@ -233,7 +231,7 @@ describe('setStyleGroup Point with circle', function() {
         const colors = await getCanvasPixelColor(mapContainer, {x: 400 - 30, y: 300 - 30}, {
             expect: '#ff0000'
         });
-        expect(colors).to.equal('#ff0000');
+        expect(colors).toBe('#ff0000');
     });
 
     it('zoom in and validate radius in meter is double in size', async () => {
@@ -241,7 +239,7 @@ describe('setStyleGroup Point with circle', function() {
         const colors = await getCanvasPixelColor(mapContainer, {x: 400 - 60, y: 300 - 60}, {
             expect: '#ff0000'
         });
-        expect(colors).to.equal('#ff0000');
+        expect(colors).toBe('#ff0000');
     });
 
 
@@ -252,16 +250,16 @@ describe('setStyleGroup Point with circle', function() {
 
         const {pointerdown, pointerup} = listener.stop();
 
-        expect(pointerdown).to.have.lengthOf(1);
-        expect(pointerdown[0]).to.deep.include({
+        expect(pointerdown).toHaveLength(1);
+        expect(pointerdown[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 460,
             mapY: 360,
             type: 'pointerdown'
-        });
+        }));
 
-        expect(pointerup).to.have.lengthOf(1);
+        expect(pointerup).toHaveLength(1);
         const {geometry} = (<any>pointerup[0]).target;
-        expect(geometry).to.deep.include({type: 'Point'});
+        expect(geometry).toEqual(expect.objectContaining({type: 'Point'}));
     });
 });

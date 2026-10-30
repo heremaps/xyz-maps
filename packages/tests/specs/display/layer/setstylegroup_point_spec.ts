@@ -22,11 +22,9 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_spec.json';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('setStyleGroup Point', function() {
-    const expect = chai.expect;
-
     let paLayer: TileLayer;
     let display;
     let mapContainer;
@@ -78,8 +76,8 @@ describe('setStyleGroup Point', function() {
             expect: '#be6b65'
         });
 
-        expect(colors1[0]).to.equal('#be6b65');
-        expect(colors1[1]).to.equal('#be6b65');
+        expect(colors1[0]).toBe('#be6b65');
+        expect(colors1[1]).toBe('#be6b65');
 
         // reset style
         paLayer.setStyleGroup(
@@ -97,8 +95,8 @@ describe('setStyleGroup Point', function() {
             expect: '#ff0000'
         });
 
-        expect(colors2[0]).to.equal('#ff0000');
-        expect(colors2[1]).to.equal('#ff0000');
+        expect(colors2[0]).toBe('#ff0000');
+        expect(colors2[1]).toBe('#ff0000');
     });
 
     it('style feature with different zIndex, validate its style', async function() {
@@ -117,9 +115,9 @@ describe('setStyleGroup Point', function() {
             expect: ['#ffffff', '#be6b65', '#ffffff']
         });
 
-        expect(colors1[0]).to.equal('#ffffff');
-        expect(colors1[1]).to.equal('#be6b65');
-        expect(colors1[2]).to.equal('#ffffff');
+        expect(colors1[0]).toBe('#ffffff');
+        expect(colors1[1]).toBe('#be6b65');
+        expect(colors1[2]).toBe('#ffffff');
 
 
         // set style for the added feature
@@ -137,8 +135,8 @@ describe('setStyleGroup Point', function() {
             expect: ['#be6b65', '#be6b65', '#ffffff']
         });
 
-        expect(colors2[0]).to.equal('#be6b65');
-        expect(colors2[1]).to.equal('#be6b65');
-        expect(colors2[2]).to.equal('#ffffff');
+        expect(colors2[0]).toBe('#be6b65');
+        expect(colors2[1]).toBe('#be6b65');
+        expect(colors2[2]).toBe('#ffffff');
     });
 });

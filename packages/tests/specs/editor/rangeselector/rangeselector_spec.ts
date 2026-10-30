@@ -23,9 +23,7 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './rangeselector_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
-
-const expect = chai.expect;
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('range selector drag', () => {
     let editor;
@@ -82,12 +80,12 @@ describe('range selector drag', () => {
         });
 
         let info = editor.getRangeSelector().info();
-        expect(info[0]).to.deep.include({
+        expect(info[0]).toEqual(expect.objectContaining({
             from: 0.1,
             to: 0.4,
             side: 'B'
-        });
-        expect(info[0].style).to.deep.equal({stroke: 'blue'});
+        }));
+        expect(info[0].style).toEqual({stroke: 'blue'});
         validateSegment(info[0].segments[0], {
             from: 0,
             reversed: false,
@@ -100,11 +98,11 @@ describe('range selector drag', () => {
             to: 1
         }, link1.id);
 
-        expect(info[1]).to.deep.include({
+        expect(info[1]).toEqual(expect.objectContaining({
             from: 0.5,
             side: 'B',
             to: 0.8
-        });
+        }));
 
         validateSegment(info[1].segments[0], {
             from: 0.303092403,
@@ -123,12 +121,12 @@ describe('range selector drag', () => {
         }, link2.id);
 
         let info = editor.getRangeSelector().info();
-        expect(info[0]).to.deep.include({
+        expect(info[0]).toEqual(expect.objectContaining({
             from: 0.1,
             to: 0.4,
             side: 'B'
-        });
-        expect(info[0].style).to.deep.equal({stroke: 'blue'});
+        }));
+        expect(info[0].style).toEqual({stroke: 'blue'});
 
         validateSegment(info[0].segments[0], {
             from: 0,
@@ -143,11 +141,11 @@ describe('range selector drag', () => {
         }, link1.id);
 
 
-        expect(info[1]).to.deep.include({
+        expect(info[1]).toEqual(expect.objectContaining({
             from: 0.5,
             side: 'B',
             to: 0.8
-        });
+        }));
 
         validateSegment(info[1].segments[0], {
             from: 0.446889377,
@@ -176,7 +174,7 @@ describe('range selector drag', () => {
             await drag(mapContainer, {x: 350, y: 185}, {x: 360, y: 250});
         });
 
-        expect(display.getCenter().longitude).to.not.equal(-105.145534);
+        expect(display.getCenter().longitude).not.toBe(-105.145534);
     });
 
     it('move map to a new area and validate a link can be dragged', async () => {
@@ -189,7 +187,7 @@ describe('range selector drag', () => {
         await drag(mapContainer, {x: 451, y: 205}, {x: 501, y: 205});
 
 
-        expect(link3.coord()).to.deep.almost([
+        chai.expect(link3.coord()).to.deep.almost([
             [-105.1444, 35.37458, 0],
             [-105.143881759, 35.375047702, 0]
             // [-105.143881779, 35.37504, 0]

@@ -22,11 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './custom_style_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('custom/overwritten styles', () => {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -69,7 +67,7 @@ describe('custom/overwritten styles', () => {
         let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {
             expect: '#ff0000'
         });
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('set a custom style', async () => {
@@ -80,7 +78,7 @@ describe('custom/overwritten styles', () => {
         }]);
 
         let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {expect: '#0000ff'});
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
 
     it('set property to trigger style refresh', async () => {
@@ -89,7 +87,7 @@ describe('custom/overwritten styles', () => {
         let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {
             expect: '#0000ff'
         });
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
 
     it('clear custom style', async () => {
@@ -98,6 +96,6 @@ describe('custom/overwritten styles', () => {
         let color = await getCanvasPixelColor(mapContainer, {x: 300, y: 400}, {
             expect: '#ff0000'
         });
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 });

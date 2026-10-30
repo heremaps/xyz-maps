@@ -20,11 +20,9 @@
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './polygon_render_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('validate polygon rendering', function() {
-    const expect = chai.expect;
-
     let mapContainer;
     let layer;
     let display;
@@ -92,10 +90,10 @@ describe('validate polygon rendering', function() {
             expect: ['#0100000', '#00ffff', '#00ffff']
         });
         // validate polygon is displayed
-        expect(colors[0]).to.equal('#000000');
+        expect(colors[0]).toBe('#000000');
         // validate multipolygon is displayed
-        expect(colors[1]).to.equal('#00ffff');
+        expect(colors[1]).toBe('#00ffff');
         // validate multipolygon is displayed
-        expect(colors[2]).to.equal('#00ffff');
+        expect(colors[2]).toBe('#00ffff');
     });
 });

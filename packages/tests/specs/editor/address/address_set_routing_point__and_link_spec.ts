@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_set_routing_point__and_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('address set routing point and link manually', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var editor;
     var display;
@@ -64,10 +62,10 @@ describe('address set routing point and link manually', function() {
     });
 
     it('validate address', function() {
-        expect(address.prop()).to.deep.include({
+        expect(address.prop()).toEqual(expect.objectContaining({
             'routingLink': link1.id +'',
             'routingPoint': [76.16793, 14.15088, 0]
-        });
+        }));
     });
 
     it('set routing point and validate', function() {
@@ -76,10 +74,10 @@ describe('address set routing point and link manually', function() {
             routingPoint: [76.16814, 14.15052, 0]
         });
 
-        expect(address.prop()).to.deep.include({
+        expect(address.prop()).toEqual(expect.objectContaining({
             'routingLink': link2.id,
             'routingPoint': [76.16814, 14.15052, 0]
-        });
+        }));
     });
 
     it('undo change and validate routing point again', async function() {
@@ -88,9 +86,9 @@ describe('address set routing point and link manually', function() {
         let addr = editor.getFeature(address.id, addrLayer);
         let link = editor.getFeature(link1.id, linkLayer);
 
-        expect(addr.prop()).to.deep.include({
+        expect(addr.prop()).toEqual(expect.objectContaining({
             'routingLink': link.id +'',
             'routingPoint': [76.16793, 14.15088, 0]
-        });
+        }));
     });
 });

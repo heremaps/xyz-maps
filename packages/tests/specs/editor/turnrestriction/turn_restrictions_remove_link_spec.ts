@@ -22,11 +22,9 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_remove_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('edit turn restriction by function on link then remove the link', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -67,14 +65,14 @@ describe('edit turn restriction by function on link then remove the link', funct
 
         // deactivate turn restriction
         await click(mapContainer, 100, 200);
-        expect(link2.prop('turnRestriction')).to.deep.equal({start: [link1.id]});
+        expect(link2.prop('turnRestriction')).toEqual({start: [link1.id]});
     });
 
     it('remove link and validate', function() {
         link1.remove();
 
         let info = editor.info();
-        expect(info[1].properties['removed']).to.be.equal('HOOK');
-        expect(info[1].properties['estate']).to.be.equal('REMOVED');
+        expect(info[1].properties['removed']).toBe('HOOK');
+        expect(info[1].properties['estate']).toBe('REMOVED');
     });
 });

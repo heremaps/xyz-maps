@@ -22,11 +22,9 @@ import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './drawingmanager_high_zoomlevel_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('drawing board work at high zoomlevel', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -61,6 +59,6 @@ describe('drawing board work at high zoomlevel', function() {
         await click(mapContainer, 100, 100);
 
         let lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
-        expect(lnk).to.not.equal(undefined);
+        expect(lnk).not.toBe(undefined);
     });
 });

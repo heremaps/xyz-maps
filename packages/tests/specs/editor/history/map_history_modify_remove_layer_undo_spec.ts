@@ -22,11 +22,9 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_modify_remove_layer_undo_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('modify object and remove its layer, then undo the change', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
     var preparedData;
@@ -71,27 +69,27 @@ describe('modify object and remove its layer, then undo the change', function() 
         await drag(mapContainer, {x: 300, y: 250}, {x: 400, y: 300});
 
 
-        expect(editor.info()).to.have.lengthOf(1);
-        expect(editor.get('history.current')).to.equal(2);
+        expect(editor.info()).toHaveLength(1);
+        expect(editor.get('history.current')).toBe(2);
     });
 
 
     it('remove poi layer', function() {
         editor.removeLayer(poiLayer);
 
-        expect(editor.info()).to.have.lengthOf(1);
-        expect(editor.get('history.current')).to.equal(2);
+        expect(editor.info()).toHaveLength(1);
+        expect(editor.get('history.current')).toBe(2);
     });
 
     it('undo changes', function() {
         editor.undo();
-        expect(editor.info()).to.have.lengthOf(1);
-        expect(editor.get('history.current')).to.equal(1);
+        expect(editor.info()).toHaveLength(1);
+        expect(editor.get('history.current')).toBe(1);
     });
 
     it('remove poi layer', async function() {
         editor.addLayer(poiLayer);
-        expect(editor.info()).to.have.lengthOf(1);
-        expect(editor.get('history.current')).to.equal(1);
+        expect(editor.info()).toHaveLength(1);
+        expect(editor.get('history.current')).toBe(1);
     });
 });

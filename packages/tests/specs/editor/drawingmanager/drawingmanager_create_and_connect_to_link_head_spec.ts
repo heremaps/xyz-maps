@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_create_and_connect_to_link_head_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('Create new Links and connect to head of original link', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -74,18 +72,18 @@ describe('Create new Links and connect to head of original link', function() {
     it('get link and validate it', async function() {
         let createdLink = <Navlink>(await editorClick(editor, 400, 200)).target;
 
-        expect(createdLink.coord()).to.deep.almost([
+        chai.expect(createdLink.coord()).to.deep.almost([
             [77.000806597, 13.074550786, 0],
             [77.001343, 13.075125535, 0]
         ]);
 
         // validate shape point is connecting to another link
         let shape = <NavlinkShape>(await editorClick(editor, 300, 310)).target;
-        expect(shape.getConnectedLinks()).to.have.lengthOf(1);
+        expect(shape.getConnectedLinks()).toHaveLength(1);
     });
 
     it('validate links in viewport', function() {
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 });

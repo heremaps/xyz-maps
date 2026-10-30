@@ -20,11 +20,9 @@
 import {prepare} from 'utils';
 import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_then_cancel_at_high_level_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('get and cancel requesting with high level', function() {
-    const expect = chai.expect;
-
     var placeProvider; // placeProvider.level.length == 16
 
     var qk11;
@@ -92,10 +90,10 @@ describe('get and cancel requesting with high level', function() {
             });
         });
 
-        expect(reqs).to.equal(16);
-        expect(cbResults).to.equal(2);
+        expect(reqs).toBe(16);
+        expect(cbResults).toBe(2);
 
-        expect(cancelledRequests).to.equal(0);
+        expect(cancelledRequests).toBe(0);
     });
 
     it('get tile at level 14 and another at 15, cancel the request at 15', function() {
@@ -108,8 +106,8 @@ describe('get and cancel requesting with high level', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // 16 request(s) sent, 1 callback(s) called
-                    expect(requests.length).to.equal(16);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(16);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -118,7 +116,7 @@ describe('get and cancel requesting with high level', function() {
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -142,8 +140,8 @@ describe('get and cancel requesting with high level', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // 16 request(s) sent, 1 callback(s) called
-                    expect(requests.length).to.equal(16);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(16);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -152,7 +150,7 @@ describe('get and cancel requesting with high level', function() {
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(12);
+                    expect(cancelledRequests).toBe(12);
 
 
                     done();
@@ -175,8 +173,8 @@ describe('get and cancel requesting with high level', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // 20 request(s) sent, 2 callback(s) called
-                    expect(requests.length).to.equal(20);
-                    expect(callbackResults.length).to.equal(2);
+                    expect(requests.length).toBe(20);
+                    expect(callbackResults.length).toBe(2);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -185,7 +183,7 @@ describe('get and cancel requesting with high level', function() {
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -204,8 +202,8 @@ describe('get and cancel requesting with high level', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // 20 request(s) sent, 1 callback(s) called
-                    expect(requests.length).to.equal(20);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(20);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -214,7 +212,7 @@ describe('get and cancel requesting with high level', function() {
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(16);
+                    expect(cancelledRequests).toBe(16);
 
 
                     done();

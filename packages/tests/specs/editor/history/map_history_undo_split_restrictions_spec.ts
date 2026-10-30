@@ -22,11 +22,9 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './map_history_undo_split_restrictions_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('turn restriction with spliting the depart link and undo', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -68,7 +66,7 @@ describe('turn restriction with spliting the depart link and undo', function() {
 
         await click(mapContainer, 390, 400);
 
-        expect(link2.prop('turnRestriction')).to.deep.equal({start: [link1.id]});
+        expect(link2.prop('turnRestriction')).toEqual({start: [link1.id]});
     });
 
     it('get the shapepoint to split the link, validate link is splitted correctly', async function() {
@@ -77,10 +75,10 @@ describe('turn restriction with spliting the depart link and undo', function() {
 
         splitLinks = linkshape.splitLink();
 
-        expect(splitLinks[0].prop('originLink')).to.be.equal(link2.id);
-        expect(splitLinks[1].prop('originLink')).to.be.equal(link2.id);
-        expect(splitLinks[0].prop('parentLink')).to.be.equal(link2.id);
-        expect(splitLinks[1].prop('parentLink')).to.be.equal(link2.id);
+        expect(splitLinks[0].prop('originLink')).toBe(link2.id);
+        expect(splitLinks[1].prop('originLink')).toBe(link2.id);
+        expect(splitLinks[0].prop('parentLink')).toBe(link2.id);
+        expect(splitLinks[1].prop('parentLink')).toBe(link2.id);
     });
 
     it('undo last split, validate link turn restriction value', async function() {
@@ -89,7 +87,7 @@ describe('turn restriction with spliting the depart link and undo', function() {
         let lnk1 = editor.getFeature(link1.id, linkLayer);
         let lnk2 = editor.getFeature(link2.id, linkLayer);
 
-        expect(lnk2.prop('turnRestriction')).to.deep.equal({start: [lnk1.id]});
+        expect(lnk2.prop('turnRestriction')).toEqual({start: [lnk1.id]});
     });
 
     it('redo last split, verify splitted link', async function() {
@@ -98,9 +96,9 @@ describe('turn restriction with spliting the depart link and undo', function() {
         let splnk1 = editor.getFeature(splitLinks[0].id, linkLayer);
         let splnk2 = editor.getFeature(splitLinks[1].id, linkLayer);
 
-        expect(splnk1.prop('originLink')).to.be.equal(link2.id);
-        expect(splnk2.prop('originLink')).to.be.equal(link2.id);
-        expect(splnk1.prop('parentLink')).to.be.equal(link2.id);
-        expect(splnk2.prop('parentLink')).to.be.equal(link2.id);
+        expect(splnk1.prop('originLink')).toBe(link2.id);
+        expect(splnk2.prop('originLink')).toBe(link2.id);
+        expect(splnk1.prop('parentLink')).toBe(link2.id);
+        expect(splnk2.prop('parentLink')).toBe(link2.id);
     });
 });

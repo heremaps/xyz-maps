@@ -21,10 +21,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('StyleGroup Line geometry', () => {
-    const expect = chai.expect;
     let segment05to1 = {x: 238, y: 278};
     let segment0to05 = {x: 569, y: 326};
     let display;
@@ -76,8 +75,8 @@ describe('StyleGroup Line geometry', () => {
             expect: '#ff0000'
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#ff0000');
     });
 
     it('style line range from 0 to 0.5', async () => {
@@ -94,8 +93,8 @@ describe('StyleGroup Line geometry', () => {
         const colors = await getCanvasPixelColor(mapContainer, [segment0to05, segment05to1], {
             expect: ['#0000ff', '#ffffff']
         });
-        expect(colors[0]).to.equal('#0000ff');
-        expect(colors[1]).to.equal('#ffffff');
+        expect(colors[0]).toBe('#0000ff');
+        expect(colors[1]).toBe('#ffffff');
     });
 
     it('style line range from 0.5 to 1', async () => {
@@ -112,7 +111,7 @@ describe('StyleGroup Line geometry', () => {
         const colors = await getCanvasPixelColor(mapContainer, [segment0to05, segment05to1], {
             expect: ['#ffffff', '#00ff00']
         });
-        expect(colors[0]).to.equal('#ffffff');
-        expect(colors[1]).to.equal('#00ff00');
+        expect(colors[0]).toBe('#ffffff');
+        expect(colors[1]).toBe('#00ff00');
     });
 });

@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_automatic_snapping_remove_link_2_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('drag a link shape point to the other and removes the link automatically', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -60,13 +58,13 @@ describe('drag a link shape point to the other and removes the link automaticall
 
         await drag(mapContainer, {x: 320, y: 226}, {x: 278, y: 229});
 
-        expect(editor.info()).to.have.lengthOf(1);
+        expect(editor.info()).toHaveLength(1);
     });
 
 
     it('validate one link is in viewport', async function() {
         let objs = editor.search(display.getViewBounds());
 
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 });

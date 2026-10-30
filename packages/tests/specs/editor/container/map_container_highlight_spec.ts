@@ -22,11 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './map_container_highlight_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('map container highlight', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -68,26 +66,26 @@ describe('map container highlight', function() {
     it('validate places in container are highlighted', async function() {
         container.highlight();
 
-        expect(place1.style()[0]).to.deep.include({zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'});
-        expect(place2.style()[0]).to.deep.include({zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'});
+        expect(place1.style()[0]).toEqual(expect.objectContaining({zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'}));
+        expect(place2.style()[0]).toEqual(expect.objectContaining({zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'}));
 
         let overlay = editor.getOverlay();
         let features = overlay.search(display.getViewBounds());
         // two highlight circles
-        expect(features).to.be.lengthOf(2);
+        expect(features).toHaveLength(2);
         let h1 = editor.getOverlay().search({point: {longitude: 80.478081562, latitude: 16.476287616}, radius: 5});
-        expect(h1[0].geometry.coordinates).to.deep.almost(place1.geometry.coordinates);
+        chai.expect(h1[0].geometry.coordinates).to.deep.almost(place1.geometry.coordinates);
         let h2 = editor.getOverlay().search({point: {longitude: 80.478618003, latitude: 16.476287616}, radius: 5});
-        expect(h2[0].geometry.coordinates).to.deep.almost(place2.geometry.coordinates);
+        chai.expect(h2[0].geometry.coordinates).to.deep.almost(place2.geometry.coordinates);
     });
 
     it('places in container are unhighlighted', async function() {
         container.unhighlight();
 
-        expect(place1.style()[0]).to.deep.include({zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'});
-        expect(place2.style()[0]).to.deep.include({zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'});
+        expect(place1.style()[0]).toEqual(expect.objectContaining({zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'}));
+        expect(place2.style()[0]).toEqual(expect.objectContaining({zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'}));
 
         let overlay = editor.getOverlay();
-        expect(overlay.search(display.getViewBounds())).to.be.lengthOf(0);
+        expect(overlay.search(display.getViewBounds())).toHaveLength(0);
     });
 });

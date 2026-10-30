@@ -23,11 +23,9 @@ import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_mouseenter_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map mouseenter link when link layer is removed', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -91,8 +89,8 @@ describe('map mouseenter link when link layer is removed', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerenter).to.have.lengthOf(2);
-        expect(results.pointerleave).to.have.lengthOf(2);
+        expect(results.pointerenter).toHaveLength(2);
+        expect(results.pointerleave).toHaveLength(2);
     });
 
     it('remove link layer, validate mouse hover events', async function() {
@@ -120,8 +118,8 @@ describe('map mouseenter link when link layer is removed', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerenter).to.have.lengthOf(1);
-        expect(results.pointerleave).to.have.lengthOf(1);
+        expect(results.pointerenter).toHaveLength(1);
+        expect(results.pointerleave).toHaveLength(1);
     });
 
 
@@ -152,7 +150,7 @@ describe('map mouseenter link when link layer is removed', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerenter).to.have.lengthOf(2);
-        expect(results.pointerleave).to.have.lengthOf(2);
+        expect(results.pointerenter).toHaveLength(2);
+        expect(results.pointerleave).toHaveLength(2);
     });
 });

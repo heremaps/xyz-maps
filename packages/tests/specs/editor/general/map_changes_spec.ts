@@ -21,12 +21,10 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_changes_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 
 describe('map changes test', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
     var preparedData;
@@ -63,50 +61,50 @@ describe('map changes test', function() {
         };
         let link = editor.addFeature(l);
 
-        expect(editor.get('history.current')).to.equal(1);
-        expect(editor.get('history.length')).to.equal(1);
-        expect(editor.get('changes.length')).to.equal(1);
+        expect(editor.get('history.current')).toBe(1);
+        expect(editor.get('history.length')).toBe(1);
+        expect(editor.get('changes.length')).toBe(1);
     });
 
     it('undo changes', function() {
         editor.undo();
 
-        expect(editor.get('history.current')).to.equal(0);
-        expect(editor.get('history.length')).to.equal(1);
-        expect(editor.get('changes.length')).to.equal(0);
+        expect(editor.get('history.current')).toBe(0);
+        expect(editor.get('history.length')).toBe(1);
+        expect(editor.get('changes.length')).toBe(0);
     });
 
     it('undo changes once again', function() {
         editor.undo();
 
-        expect(editor.get('history.current')).to.equal(0);
-        expect(editor.get('history.length')).to.equal(1);
-        expect(editor.get('changes.length')).to.equal(0);
+        expect(editor.get('history.current')).toBe(0);
+        expect(editor.get('history.length')).toBe(1);
+        expect(editor.get('changes.length')).toBe(0);
     });
 
     it('undo one more time', function() {
         editor.undo();
 
-        expect(editor.get('history.current')).to.equal(0);
-        expect(editor.get('history.length')).to.equal(1);
-        expect(editor.get('changes.length')).to.equal(0);
+        expect(editor.get('history.current')).toBe(0);
+        expect(editor.get('history.length')).toBe(1);
+        expect(editor.get('changes.length')).toBe(0);
     });
 
 
     it('redo change', function() {
         editor.redo();
 
-        expect(editor.get('history.current')).to.equal(1);
-        expect(editor.get('history.length')).to.equal(1);
-        expect(editor.get('changes.length')).to.equal(1);
+        expect(editor.get('history.current')).toBe(1);
+        expect(editor.get('history.length')).toBe(1);
+        expect(editor.get('changes.length')).toBe(1);
     });
 
     it('redo change again', function() {
         editor.redo();
 
-        expect(editor.get('history.current')).to.equal(1);
-        expect(editor.get('history.length')).to.equal(1);
-        expect(editor.get('changes.length')).to.equal(1);
+        expect(editor.get('history.current')).toBe(1);
+        expect(editor.get('history.length')).toBe(1);
+        expect(editor.get('changes.length')).toBe(1);
     });
 
 
@@ -115,10 +113,10 @@ describe('map changes test', function() {
             editor.revert();
         });
 
-        expect(editor.info()).to.have.lengthOf(0);
-        expect(editor.get('history.current')).to.equal(0);
-        expect(editor.get('history.length')).to.equal(0);
-        expect(editor.get('changes.length')).to.equal(0);
+        expect(editor.info()).toHaveLength(0);
+        expect(editor.get('history.current')).toBe(0);
+        expect(editor.get('history.length')).toBe(0);
+        expect(editor.get('changes.length')).toBe(0);
     });
 
 
@@ -127,9 +125,9 @@ describe('map changes test', function() {
             editor.revert();
         });
 
-        expect(editor.info()).to.have.lengthOf(0);
-        expect(editor.get('history.current')).to.equal(0);
-        expect(editor.get('history.length')).to.equal(0);
-        expect(editor.get('changes.length')).to.equal(0);
+        expect(editor.info()).toHaveLength(0);
+        expect(editor.get('history.current')).toBe(0);
+        expect(editor.get('history.length')).toBe(0);
+        expect(editor.get('changes.length')).toBe(0);
     });
 });

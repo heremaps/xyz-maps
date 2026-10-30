@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_active_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map active observer', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -57,7 +55,7 @@ describe('map active observer', function() {
 
         let results = observer.stop();
 
-        expect(results.active).to.deep.equal([false, true]);
-        expect(results.ready).to.have.lengthOf(0);
+        expect(results.active).toStrictEqual([false, true]);
+        expect(results.ready).toHaveLength(0);
     });
 });

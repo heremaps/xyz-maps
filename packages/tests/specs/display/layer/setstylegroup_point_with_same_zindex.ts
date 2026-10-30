@@ -22,11 +22,9 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_with_same_zindex.json';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('setStyleGroup point with same zIndex', function() {
-    const expect = chai.expect;
-
     let buildingLayer: TileLayer;
     let paLayer: TileLayer;
     let display;
@@ -75,8 +73,8 @@ describe('setStyleGroup point with same zIndex', function() {
             expect: '#be6b65'
         });
 
-        expect(colors[0]).to.equal('#be6b65');
-        expect(colors[1]).to.equal('#be6b65');
+        expect(colors[0]).toBe('#be6b65');
+        expect(colors[1]).toBe('#be6b65');
     });
 
     it('style feature with different fill color, validate its style', async function() {
@@ -94,8 +92,8 @@ describe('setStyleGroup point with same zIndex', function() {
             expect: ['#be6b65', '#ffffff']
         });
 
-        expect(colors[0]).to.equal('#be6b65');
-        expect(colors[1]).to.equal('#ffffff');
+        expect(colors[0]).toBe('#be6b65');
+        expect(colors[1]).toBe('#ffffff');
     });
 
 
@@ -114,8 +112,8 @@ describe('setStyleGroup point with same zIndex', function() {
             expect: '#be6b65'
         });
 
-        expect(colors[0]).to.equal('#be6b65');
-        expect(colors[1]).to.equal('#be6b65');
+        expect(colors[0]).toBe('#be6b65');
+        expect(colors[1]).toBe('#be6b65');
     });
 
 
@@ -134,8 +132,8 @@ describe('setStyleGroup point with same zIndex', function() {
             expect: '#be6b65'
         });
 
-        expect(colors[0]).to.equal('#be6b65');
-        expect(colors[1]).to.equal('#be6b65');
+        expect(colors[0]).toBe('#be6b65');
+        expect(colors[1]).toBe('#be6b65');
     });
 
     it('style feature with same zIndex and fill and different offsetY, validate its style', async function() {
@@ -153,8 +151,8 @@ describe('setStyleGroup point with same zIndex', function() {
             expect: '#be6b65'
         });
 
-        expect(colors[0]).to.equal('#be6b65');
-        expect(colors[1]).to.equal('#be6b65');
+        expect(colors[0]).toBe('#be6b65');
+        expect(colors[1]).toBe('#be6b65');
     });
 
     it('style feature with same zIndex and fill and different offsetX, validate its style', async function() {
@@ -172,8 +170,8 @@ describe('setStyleGroup point with same zIndex', function() {
             expect: '#be6b65'
         });
 
-        expect(colors[0]).to.equal('#be6b65');
-        expect(colors[1]).to.equal('#be6b65');
+        expect(colors[0]).toBe('#be6b65');
+        expect(colors[1]).toBe('#be6b65');
     });
 
     it('style feature with same zIndex and fill and different rotation, validate its style', async function() {
@@ -191,8 +189,8 @@ describe('setStyleGroup point with same zIndex', function() {
             expect: '#be6b65'
         });
 
-        expect(colors[0]).to.equal('#be6b65');
-        expect(colors[1]).to.equal('#be6b65');
+        expect(colors[0]).toBe('#be6b65');
+        expect(colors[1]).toBe('#be6b65');
     });
 
 
@@ -211,8 +209,8 @@ describe('setStyleGroup point with same zIndex', function() {
             expect: '#be6b65'
         });
 
-        expect(colors[0]).to.equal('#be6b65');
-        expect(colors[1]).to.equal('#be6b65');
+        expect(colors[0]).toBe('#be6b65');
+        expect(colors[1]).toBe('#be6b65');
     });
 
     it('style feature with same values, opacity is 0.5, validate its style', async function() {
@@ -236,7 +234,7 @@ describe('setStyleGroup point with same zIndex', function() {
             expect: '#90514b'
         });
 
-        expect(color).to.equal('#90514b');
+        expect(color).toBe('#90514b');
     });
 
     it('style feature with different opacity, validate its style', async function() {
@@ -260,7 +258,7 @@ describe('setStyleGroup point with same zIndex', function() {
             expect: '#cccccc'
         });
 
-        expect(color).to.equal('#cccccc');
+        expect(color).toBe('#cccccc');
     });
 
     it('style feature with different zIndex and opacity, validate its style', async function() {
@@ -284,6 +282,6 @@ describe('setStyleGroup point with same zIndex', function() {
             expect: '#cccccc'
         });
 
-        expect(color).to.equal('#cccccc');
+        expect(color).toBe('#cccccc');
     });
 });

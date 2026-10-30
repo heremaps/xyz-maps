@@ -22,10 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {TileLayer} from '@here/xyz-maps-core';
 import {Editor, LineShape, NavlinkShape} from '@here/xyz-maps-editor';
 import {TestLocalProvider} from '../../../src/TestProvider';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('editor hooks test', function() {
-    const expect = chai.expect;
     let editor;
     var display;
     let localLayer: TileLayer;
@@ -88,7 +87,7 @@ describe('editor hooks test', function() {
             }
         });
 
-        expect(line.properties.coordinatesUpdateHook).to.equal(undefined);
+        expect(line.properties.coordinatesUpdateHook).toBe(undefined);
     });
 
     it('"Coordinates.update": change line geometry by dragging shape', async () => {
@@ -99,9 +98,9 @@ describe('editor hooks test', function() {
         // drag the shape
         await drag(mapDiv, {x: 200, y: 400}, {x: 100, y: 400});
 
-        expect(line.properties.coordinatesUpdateHook).to.equal(1);
+        expect(line.properties.coordinatesUpdateHook).toBe(1);
 
-        expect(line.coord()).to.deep.almost([
+        chai.expect(line.coord()).to.deep.almost([
             [76.08767968, 13.009954328],
             [76.09036188, 13.009954328]
         ]);
@@ -110,9 +109,9 @@ describe('editor hooks test', function() {
     it('"Coordinates.update": change line geometry by api', () => {
         line.coord(line.prop('previousCoordinates'));
 
-        expect(line.properties.coordinatesUpdateHook).to.equal(2);
+        expect(line.properties.coordinatesUpdateHook).toBe(2);
 
-        expect(line.coord()).to.deep.almost([
+        chai.expect(line.coord()).to.deep.almost([
             [76.08821612, 13.009954328],
             [76.09036188, 13.009954328]
         ]);
@@ -125,9 +124,9 @@ describe('editor hooks test', function() {
             [76.09036188, 13.009954328]
         ]);
 
-        expect(line.properties.coordinatesUpdateHook).to.equal(3);
+        expect(line.properties.coordinatesUpdateHook).toBe(3);
 
-        expect(line.coord()).to.deep.almost([
+        chai.expect(line.coord()).to.deep.almost([
             [76.08821612, 13.009954328],
             [76.08921612, 13.009954328],
             [76.09036188, 13.009954328]
@@ -141,9 +140,9 @@ describe('editor hooks test', function() {
 
         (<LineShape>ev.target).remove();
 
-        expect(line.properties.coordinatesUpdateHook).to.equal(4);
+        expect(line.properties.coordinatesUpdateHook).toBe(4);
 
-        expect(line.coord()).to.deep.almost([
+        chai.expect(line.coord()).to.deep.almost([
             [76.08821612, 13.009954328],
             [76.08921612, 13.009954328]
         ]);
@@ -155,9 +154,9 @@ describe('editor hooks test', function() {
 
         line = localLayer.search(line.id);
 
-        expect(line.properties.coordinatesUpdateHook).to.equal(3);
+        expect(line.properties.coordinatesUpdateHook).toBe(3);
 
-        expect(line.coord()).to.deep.almost([
+        chai.expect(line.coord()).to.deep.almost([
             [76.08821612, 13.009954328],
             [76.08921612, 13.009954328],
             [76.09036188, 13.009954328]
@@ -180,7 +179,7 @@ describe('editor hooks test', function() {
             }
         });
 
-        expect(marker.properties.coordinatesUpdateHook).to.equal(undefined);
+        expect(marker.properties.coordinatesUpdateHook).toBe(undefined);
     });
 
     it('"Coordinates.update": modify marker geometry by dragging', async () => {
@@ -189,11 +188,11 @@ describe('editor hooks test', function() {
         // drag the shape
         await drag(display.getContainer(), {x: 400, y: 400}, {x: 600, y: 400});
 
-        expect(marker.properties.coordinatesUpdateHook).to.equal(1);
+        expect(marker.properties.coordinatesUpdateHook).toBe(1);
 
-        expect(marker.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
+        chai.expect(marker.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
 
-        expect(marker.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
+        chai.expect(marker.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
     });
 
     it('"Coordinates.update": modify marker geometry by api', async () => {
@@ -201,10 +200,10 @@ describe('editor hooks test', function() {
 
         marker.coord([p1.longitude, p1.latitude]);
 
-        expect(marker.properties.coordinatesUpdateHook).to.equal(2);
+        expect(marker.properties.coordinatesUpdateHook).toBe(2);
 
-        expect(marker.coord()).to.deep.almost([p1.longitude, p1.latitude]);
-        expect(marker.properties.previousCoordinates).to.deep.almost([76.090361884, 13.009954328, 0]);
+        chai.expect(marker.coord()).to.deep.almost([p1.longitude, p1.latitude]);
+        chai.expect(marker.properties.previousCoordinates).to.deep.almost([76.090361884, 13.009954328, 0]);
     });
 
     it('"Coordinates.update": undo and validate marker', async () => {
@@ -212,10 +211,10 @@ describe('editor hooks test', function() {
 
         marker = localLayer.search(marker.id);
 
-        expect(marker.properties.coordinatesUpdateHook).to.equal(1);
+        expect(marker.properties.coordinatesUpdateHook).toBe(1);
 
-        expect(marker.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
-        expect(marker.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
+        chai.expect(marker.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
+        chai.expect(marker.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
 
         marker.remove();
     });
@@ -235,7 +234,7 @@ describe('editor hooks test', function() {
             }
         });
 
-        expect(place.properties.coordinatesUpdateHook).to.equal(undefined);
+        expect(place.properties.coordinatesUpdateHook).toBe(undefined);
     });
 
     it('"Coordinates.update": modify Place geometry by dragging', async () => {
@@ -244,10 +243,10 @@ describe('editor hooks test', function() {
         // drag the shape
         await drag(display.getContainer(), {x: 400, y: 400}, {x: 600, y: 400});
 
-        expect(place.properties.coordinatesUpdateHook).to.equal(1);
+        expect(place.properties.coordinatesUpdateHook).toBe(1);
 
-        expect(place.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
-        expect(place.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
+        chai.expect(place.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
+        chai.expect(place.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
     });
 
     it('"Coordinates.update": modify Place geometry by api', async () => {
@@ -255,10 +254,10 @@ describe('editor hooks test', function() {
 
         place.coord([p1.longitude, p1.latitude]);
 
-        expect(place.properties.coordinatesUpdateHook).to.equal(2);
+        expect(place.properties.coordinatesUpdateHook).toBe(2);
 
-        expect(place.coord()).to.deep.almost([p1.longitude, p1.latitude]);
-        expect(place.properties.previousCoordinates).to.deep.almost([76.090361884, 13.009954328, 0]);
+        chai.expect(place.coord()).to.deep.almost([p1.longitude, p1.latitude]);
+        chai.expect(place.properties.previousCoordinates).to.deep.almost([76.090361884, 13.009954328, 0]);
     });
 
     it('"Coordinates.update": undo and validate Place', async () => {
@@ -266,10 +265,10 @@ describe('editor hooks test', function() {
 
         place = localLayer.search(place.id);
 
-        expect(place.properties.coordinatesUpdateHook).to.equal(1);
+        expect(place.properties.coordinatesUpdateHook).toBe(1);
 
-        expect(place.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
-        expect(place.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
+        chai.expect(place.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
+        chai.expect(place.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
 
         place.remove();
     });
@@ -293,7 +292,7 @@ describe('editor hooks test', function() {
             }
         });
 
-        expect(navlink.properties.coordinatesUpdateHook).to.equal(undefined);
+        expect(navlink.properties.coordinatesUpdateHook).toBe(undefined);
     });
 
     it('"Coordinates.update": change Navlink geometry by dragging shape', async () => {
@@ -304,9 +303,9 @@ describe('editor hooks test', function() {
         // drag the shape
         await drag(mapDiv, {x: 200, y: 400}, {x: 100, y: 400});
 
-        expect(navlink.properties.coordinatesUpdateHook).to.equal(1);
+        expect(navlink.properties.coordinatesUpdateHook).toBe(1);
 
-        expect(navlink.coord()).to.deep.almost([
+        chai.expect(navlink.coord()).to.deep.almost([
             [76.08767968, 13.009954328, 0],
             [76.09036188, 13.009954328]
         ]);
@@ -315,9 +314,9 @@ describe('editor hooks test', function() {
     it('"Coordinates.update": change Navlink geometry by api', () => {
         navlink.coord(navlink.prop('previousCoordinates'));
 
-        expect(navlink.properties.coordinatesUpdateHook).to.equal(2);
+        expect(navlink.properties.coordinatesUpdateHook).toBe(2);
 
-        expect(navlink.coord()).to.deep.almost([
+        chai.expect(navlink.coord()).to.deep.almost([
             [76.08821612, 13.009954328, 0],
             [76.09036188, 13.009954328, 0]
         ]);
@@ -330,9 +329,9 @@ describe('editor hooks test', function() {
             [76.09036188, 13.009954328]
         ]);
 
-        expect(navlink.properties.coordinatesUpdateHook).to.equal(3);
+        expect(navlink.properties.coordinatesUpdateHook).toBe(3);
 
-        expect(navlink.coord()).to.deep.almost([
+        chai.expect(navlink.coord()).to.deep.almost([
             [76.08821612, 13.009954328, 0],
             [76.08921612, 13.009954328, 0],
             [76.09036188, 13.009954328, 0]
@@ -346,9 +345,9 @@ describe('editor hooks test', function() {
 
         (<NavlinkShape>ev.target).remove();
 
-        expect(navlink.properties.coordinatesUpdateHook).to.equal(4);
+        expect(navlink.properties.coordinatesUpdateHook).toBe(4);
 
-        expect(navlink.coord()).to.deep.almost([
+        chai.expect(navlink.coord()).to.deep.almost([
             [76.08821612, 13.009954328, 0],
             [76.08921612, 13.009954328, 0]
         ]);
@@ -360,9 +359,9 @@ describe('editor hooks test', function() {
 
         navlink = localLayer.search(navlink.id);
 
-        expect(navlink.properties.coordinatesUpdateHook).to.equal(3);
+        expect(navlink.properties.coordinatesUpdateHook).toBe(3);
 
-        expect(navlink.coord()).to.deep.almost([
+        chai.expect(navlink.coord()).to.deep.almost([
             [76.08821612, 13.009954328, 0],
             [76.08921612, 13.009954328, 0],
             [76.09036188, 13.009954328, 0]
@@ -383,7 +382,7 @@ describe('editor hooks test', function() {
             }
         });
 
-        expect(address.properties.coordinatesUpdateHook).to.equal(undefined);
+        expect(address.properties.coordinatesUpdateHook).toBe(undefined);
     });
 
     it('"Coordinates.update": modify Address geometry by dragging', async () => {
@@ -392,10 +391,10 @@ describe('editor hooks test', function() {
         // drag the shape
         await drag(display.getContainer(), {x: 400, y: 400}, {x: 600, y: 400});
 
-        expect(address.properties.coordinatesUpdateHook).to.equal(1);
+        expect(address.properties.coordinatesUpdateHook).toBe(1);
 
-        expect(address.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
-        expect(address.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
+        chai.expect(address.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
+        chai.expect(address.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
     });
 
     it('"Coordinates.update": modify Address geometry by api', async () => {
@@ -403,10 +402,10 @@ describe('editor hooks test', function() {
 
         address.coord([p1.longitude, p1.latitude]);
 
-        expect(address.properties.coordinatesUpdateHook).to.equal(2);
+        expect(address.properties.coordinatesUpdateHook).toBe(2);
 
-        expect(address.coord()).to.deep.almost([p1.longitude, p1.latitude]);
-        expect(address.properties.previousCoordinates).to.deep.almost([76.090361884, 13.009954328, 0]);
+        chai.expect(address.coord()).to.deep.almost([p1.longitude, p1.latitude]);
+        chai.expect(address.properties.previousCoordinates).to.deep.almost([76.090361884, 13.009954328, 0]);
     });
 
     it('"Coordinates.update": undo and validate Address', () => {
@@ -414,10 +413,10 @@ describe('editor hooks test', function() {
 
         address = localLayer.search(address.id);
 
-        expect(address.properties.coordinatesUpdateHook).to.equal(1);
+        expect(address.properties.coordinatesUpdateHook).toBe(1);
 
-        expect(address.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
-        expect(address.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
+        chai.expect(address.coord()).to.deep.almost([76.090361884, 13.009954328, 0]);
+        chai.expect(address.properties.previousCoordinates).to.deep.almost([76.089289, 13.0099543]);
 
         // address.remove();
     });
@@ -431,13 +430,13 @@ describe('editor hooks test', function() {
 
         address.coord([p1.longitude, p1.latitude]);
 
-        expect(address.properties.hook2).to.equal(true);
+        expect(address.properties.hook2).toBe(true);
     });
 
     it('get all hooks via editor.getHooks', () => {
         let hooks = editor.getHooks('Coordinates.update');
 
-        expect(hooks.length).to.equal(2);
+        expect(hooks.length).toBe(2);
     });
 
     it('remove additional Hook and validate', () => {
@@ -451,6 +450,6 @@ describe('editor hooks test', function() {
 
         address.coord([p1.longitude, p1.latitude]);
 
-        expect(address.properties.hook2).to.equal(null);
+        expect(address.properties.hook2).toBe(null);
     });
 });

@@ -24,11 +24,9 @@ import {Map} from '@here/xyz-maps-display';
 import dataset from './link_zlevels_spec.json';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('navlink zlevels', () => {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -60,19 +58,19 @@ describe('navlink zlevels', () => {
     });
 
     it('create a link and validate', () => {
-        expect(link.getZLevels()).to.deep.equal([1, 2, 3]);
+        expect(link.getZLevels()).toStrictEqual([1, 2, 3]);
     });
 
     it('set zlevel and validate', () => {
         link.setZLevels([1, 1, 1]);
-        expect(link.getZLevels()).to.deep.equal([1, 1, 1]);
+        expect(link.getZLevels()).toStrictEqual([1, 1, 1]);
     });
 
     it('remove shape and validate zlevels', async () => {
         link.select();
         let shape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
         shape.remove();
-        expect(link.getZLevels()).to.deep.equal([1, 1]);
+        expect(link.getZLevels()).toStrictEqual([1, 1]);
     });
 
     it('add one more shape point at head of the link and validate', () => {
@@ -81,12 +79,12 @@ describe('navlink zlevels', () => {
             y: 100
         }, 0);
 
-        expect(link.getZLevels()).to.deep.equal([0, 1, 1]);
+        expect(link.getZLevels()).toStrictEqual([0, 1, 1]);
     });
 
     it('set zlevel and validate', () => {
         link.setZLevels([1, 1, 1]);
-        expect(link.getZLevels()).to.deep.equal([1, 1, 1]);
+        expect(link.getZLevels()).toStrictEqual([1, 1, 1]);
     });
 
 
@@ -94,17 +92,17 @@ describe('navlink zlevels', () => {
         await click(mapContainer, 100, 200);
         await drag(mapContainer, {x: 400, y: 200}, {x: 200, y: 300});
 
-        expect(link.getZLevels()).to.deep.equal([1, 1, 1]);
+        expect(link.getZLevels()).toStrictEqual([1, 1, 1]);
     });
 
     it('add a shape point and validate', () => {
         link.addShape({x: 133, y: 300});
-        expect(link.getZLevels()).to.deep.equal([1, 1, 0, 1]);
+        expect(link.getZLevels()).toStrictEqual([1, 1, 0, 1]);
     });
 
     it('add one more shape point, validate zlevel', () => {
         link.addShape({x: 166, y: 300});
-        expect(link.getZLevels()).to.deep.equal([1, 1, 0, 0, 1]);
+        expect(link.getZLevels()).toStrictEqual([1, 1, 0, 0, 1]);
     });
 
     it('split link and validate', async () => {
@@ -112,8 +110,8 @@ describe('navlink zlevels', () => {
 
         let splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].getZLevels()).to.deep.equal([1, 1, 0]);
-        expect(splitLinks[1].getZLevels()).to.deep.equal([0, 0, 1]);
+        expect(splitLinks[0].getZLevels()).toStrictEqual([1, 1, 0]);
+        expect(splitLinks[1].getZLevels()).toStrictEqual([0, 0, 1]);
     });
 
     it('add shape and split Navlink and validate zlevels are set correctly', async () => {
@@ -154,10 +152,10 @@ describe('navlink zlevels', () => {
 
         const child1 = <Navlink>(await editorClick(editor, 350, 300)).target;
 
-        expect(child1.getZLevels()).to.deep.almost([1, 2]);
+        chai.expect(child1.getZLevels()).to.deep.almost([1, 2]);
 
         const child2 = <Navlink>(await editorClick(editor, 450, 300)).target;
-        expect(child2.getZLevels()).to.deep.almost([2, 3]);
+        chai.expect(child2.getZLevels()).to.deep.almost([2, 3]);
     });
 
     it('split Navlink and validate zlevels are set correctly', async () => {
@@ -198,15 +196,15 @@ describe('navlink zlevels', () => {
 
         const child1Link1 = <Navlink>(await editorClick(editor, 650, 300)).target;
 
-        expect(child1Link1.getZLevels()).to.deep.almost([1, 0]);
+        chai.expect(child1Link1.getZLevels()).to.deep.almost([1, 0]);
 
         const child2Link1 = <Navlink>(await editorClick(editor, 750, 300)).target;
-        expect(child2Link1.getZLevels()).to.deep.almost([0, 2, 3]);
+        chai.expect(child2Link1.getZLevels()).to.deep.almost([0, 2, 3]);
 
         const child1Link2 = <Navlink>(await editorClick(editor, 650, 220)).target;
-        expect(child1Link2.getZLevels()).to.deep.almost([4, 5]);
+        chai.expect(child1Link2.getZLevels()).to.deep.almost([4, 5]);
 
         const child2Link2 = <Navlink>(await editorClick(editor, 750, 180)).target;
-        expect(child2Link2.getZLevels()).to.deep.almost([5, 6]);
+        chai.expect(child2Link2.getZLevels()).to.deep.almost([5, 6]);
     });
 });

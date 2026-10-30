@@ -22,11 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_get_functions_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('Area getters return value', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
     var preparedData;
@@ -58,7 +56,7 @@ describe('Area getters return value', function() {
 
 
     it('get an area object and validate', function() {
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [-120.124076884, 41.242238, 0],
             [-120.124076884, 41.241431263, 0],
             [-120.123004, 41.241431263, 0],
@@ -66,9 +64,9 @@ describe('Area getters return value', function() {
             [-120.124076884, 41.242238, 0]
         ]]]);
 
-        expect(area.prop()).to.deep.include({
+        expect(area.prop()).toEqual(expect.objectContaining({
             type: 'building',
             name: 'test'
-        });
+        }));
     });
 });

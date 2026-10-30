@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_shapepoint_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('link shape points', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -64,16 +62,16 @@ describe('link shape points', function() {
         await click(mapContainer, 100, 200);
         shape = (await editorClick(editor, 100, 100)).target;
 
-        expect(shape.getConnectedLinks()).to.have.lengthOf(1);
-        expect(shape.getIndex()).to.equal(3);
+        expect(shape.getConnectedLinks()).toHaveLength(1);
+        expect(shape.getIndex()).toBe(3);
     });
 
     it('disconnect link at shape point and validate new coordinates', function() {
         shape.disconnect();
 
-        expect(link1.prop('disconnected')).to.be.equal('HOOK');
-        expect(link1.prop('estate')).to.be.equal('UPDATED');
-        expect(link1.coord()).to.deep.almost([
+        expect(link1.prop('disconnected')).toBe('HOOK');
+        expect(link1.prop('estate')).toBe('UPDATED');
+        chai.expect(link1.coord()).to.deep.almost([
             [77.26942, 13.082952518, 0],
             [77.268883558, 13.082952518, 0],
             [77.267810675, 13.082952518, 0],
@@ -86,7 +84,7 @@ describe('link shape points', function() {
 
         shape.remove();
 
-        expect(link1.coord()).to.deep.almost([
+        chai.expect(link1.coord()).to.deep.almost([
             [77.26942, 13.082952518, 0],
             [77.268883558, 13.082952518, 0],
             [77.267810675, 13.083448055, 0]
@@ -101,11 +99,11 @@ describe('link shape points', function() {
         // click on ground
         await click(mapContainer, 100, 500);
 
-        expect(links[0].coord()).to.deep.almost([
+        chai.expect(links[0].coord()).to.deep.almost([
             [77.26942, 13.082952518, 0],
             [77.268883558, 13.082952518, 0]
         ]);
-        expect(links[1].coord()).to.deep.almost([
+        chai.expect(links[1].coord()).to.deep.almost([
             [77.268883558, 13.082952518, 0],
             [77.267810675, 13.083448055, 0]
         ]);

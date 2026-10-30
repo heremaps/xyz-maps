@@ -21,11 +21,9 @@ import {waitForEditorReady, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './area_create_remove_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('add Area object and then remove', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
 
@@ -51,7 +49,7 @@ describe('add Area object and then remove', function() {
 
         // validate no area objects in viewport
         let objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
     });
 
     afterAll(async function() {
@@ -74,7 +72,7 @@ describe('add Area object and then remove', function() {
 
         // validate there is one area object in viewport
         let objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
 
         await waitForEditorReady(editor, async ()=>{
             idMap = await submit(editor);
@@ -82,7 +80,7 @@ describe('add Area object and then remove', function() {
 
         // validate there is one area object in viewport
         objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
     it('get area and remove it, validate area objects in viewport again', async function() {
@@ -90,12 +88,12 @@ describe('add Area object and then remove', function() {
         let areaId = idMap.permanentIDMap[area.getProvider().id][area.id];
         area = editor.getFeature(areaId, areaLayer);
         area.remove();
-        expect(area.prop('removed')).to.be.equal('HOOK');
-        expect(area.prop('estate')).to.be.equal('REMOVED');
+        expect(area.prop('removed')).toBe('HOOK');
+        expect(area.prop('estate')).toBe('REMOVED');
 
         // validate there is no area object in viewport
         let objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
 
         await waitForEditorReady(editor, async ()=>{
             await submit(editor);
@@ -103,6 +101,6 @@ describe('add Area object and then remove', function() {
 
         // validate there is no area object in viewport
         objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
     });
 });

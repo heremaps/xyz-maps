@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, Area} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_vertical_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('Area drawing manager points with same longitude', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -82,11 +80,11 @@ describe('Area drawing manager points with same longitude', function() {
 
         let area = <Area>(await editorClick(editor, 250, 150)).target;
 
-        expect(area.prop()).to.include({
+        expect(area.prop()).toEqual(expect.objectContaining({
             featureClass: 'AREA'
-        });
+        }));
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [76.081516386, 13.215360578, 0],
             [76.082052827, 13.215882813, 0],
             [76.082589269, 13.215621696, 0], // 3rd shape point

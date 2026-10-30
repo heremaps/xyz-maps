@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Line, LineShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './multiline_basics_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('basic multiline tests', () => {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -59,22 +57,22 @@ describe('basic multiline tests', () => {
     });
 
     it('validate geometry type', async () => {
-        expect(multiLine.geometry.type).to.equal('MultiLineString');
+        expect(multiLine.geometry.type).toBe('MultiLineString');
     });
 
     it('validate pointerevents', async () => {
         const target = <Line>(await editorClick(editor, 400, 300)).target;
 
-        expect(multiLine).to.equal(target);
+        expect(multiLine).toBe(target);
     });
 
 
     it('validate line geometry', async () => {
         const coordinates = multiLine.coord();
 
-        expect(coordinates.length).to.equal(1);
+        expect(coordinates.length).toBe(1);
 
-        expect(coordinates[0]).to.deep.almost([
+        chai.expect(coordinates[0]).to.deep.almost([
             [76.083125712, 13.214838342, 0],
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
@@ -85,9 +83,9 @@ describe('basic multiline tests', () => {
         await drag(mapContainer, {x: 400, y: 300}, {x: 300, y: 400});
 
         const coordinates = multiLine.coord();
-        expect(coordinates.length).to.equal(1);
+        expect(coordinates.length).toBe(1);
 
-        expect(coordinates[0]).to.deep.almost([
+        chai.expect(coordinates[0]).to.deep.almost([
             [76.082589270, 13.214316105, 0],
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
@@ -101,9 +99,9 @@ describe('basic multiline tests', () => {
         shape.remove();
 
         const coordinates = multiLine.coord();
-        expect(coordinates.length).to.equal(1);
+        expect(coordinates.length).toBe(1);
 
-        expect(coordinates[0]).to.deep.almost([
+        chai.expect(coordinates[0]).to.deep.almost([
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
         ]);
@@ -115,9 +113,9 @@ describe('basic multiline tests', () => {
         await drag(mapContainer, {x: 250, y: 250}, {x: 350, y: 350});
 
         const coordinates = multiLine.coord();
-        expect(coordinates.length).to.equal(1);
+        expect(coordinates.length).toBe(1);
 
-        expect(coordinates[0]).to.deep.almost([
+        chai.expect(coordinates[0]).to.deep.almost([
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0]
@@ -137,9 +135,9 @@ describe('basic multiline tests', () => {
 
         coordinates = multiLine.coord();
 
-        expect(coordinates.length).to.equal(2);
+        expect(coordinates.length).toBe(2);
 
-        expect(coordinates).to.deep.almost([[
+        chai.expect(coordinates).to.deep.almost([[
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0]
@@ -153,7 +151,7 @@ describe('basic multiline tests', () => {
     it('validate pointer events', async () => {
         const {target} = (await editorClick(editor, 200, 240));
 
-        expect(multiLine).to.equal(target);
+        expect(multiLine).toBe(target);
     });
 
 
@@ -162,7 +160,7 @@ describe('basic multiline tests', () => {
 
         let coordinates = multiLine.coord();
 
-        expect(coordinates).to.deep.almost([[
+        chai.expect(coordinates).to.deep.almost([[
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0],
@@ -179,7 +177,7 @@ describe('basic multiline tests', () => {
 
         let coordinates = multiLine.coord();
 
-        expect(coordinates).to.deep.almost([[
+        chai.expect(coordinates).to.deep.almost([[
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0],
@@ -200,7 +198,7 @@ describe('basic multiline tests', () => {
 
         let coordinates = multiLine.coord();
 
-        expect(coordinates).to.deep.almost([[
+        chai.expect(coordinates).to.deep.almost([[
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0]
@@ -219,7 +217,7 @@ describe('basic multiline tests', () => {
 
         let coordinates = multiLine.coord();
 
-        expect(coordinates).to.deep.almost([[
+        chai.expect(coordinates).to.deep.almost([[
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0]
@@ -238,6 +236,6 @@ describe('basic multiline tests', () => {
 
         const result = editor.search({id});
 
-        expect(result.length).to.equal(0);
+        expect(result.length).toBe(0);
     });
 });

@@ -22,11 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_1_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('link connect helper 1', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -60,9 +58,9 @@ describe('link connect helper 1', function() {
         crossings = link2.checkCrossings();
 
         let c = crossings[0];
-        expect(c.distance).to.be.equal(0);
-        expect(c.x).to.almost.equal(200);
-        expect(c.y).to.almost.equal(200);
+        expect(c.distance).toBe(0);
+        chai.expect(c.x).to.almost.equal(200);
+        chai.expect(c.y).to.almost.equal(200);
     });
 
     it('connect the crossing and validate links', async function() {
@@ -73,6 +71,6 @@ describe('link connect helper 1', function() {
         });
 
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
     });
 });

@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_create_when_link_inactive_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('add Address object when link is deactivated', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var editor;
     var display;
@@ -51,7 +49,7 @@ describe('add Address object when link is deactivated', function() {
 
     it('validate objs in viewport', function() {
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(4);
+        expect(objs).toHaveLength(4);
     });
 
     it('set zoomlevel to 19 and validate objs in viewport again', async function() {
@@ -60,7 +58,7 @@ describe('add Address object when link is deactivated', function() {
         });
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     it('add an address and validate objs in viewport ', function() {
@@ -75,7 +73,7 @@ describe('add Address object when link is deactivated', function() {
         let address = editor.addFeature(addr, preparedData.getLayers('paLayer'));
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
     });
 
     it('revert changes set zoomlevel back and validate objs in viewport again', async function() {
@@ -88,6 +86,6 @@ describe('add Address object when link is deactivated', function() {
         });
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(4);
+        expect(objs).toHaveLength(4);
     });
 });

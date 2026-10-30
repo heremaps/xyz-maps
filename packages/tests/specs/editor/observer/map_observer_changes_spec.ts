@@ -21,11 +21,9 @@ import {waitForEditorReady, clean, submit} from 'editorUtils';
 import dataset from './map_observer_changes_spec.json';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map changes observers', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let editor;
     let display;
@@ -82,7 +80,7 @@ describe('map changes observers', function() {
         });
 
         let results = observer.stop();
-        expect(results['history.current']).to.deep.equal([1, 2, 1, 2, 0]);
+        expect(results['history.current']).toStrictEqual([1, 2, 1, 2, 0]);
     });
 
     it('observe changes history with undo, revert and submit', async function() {
@@ -120,6 +118,6 @@ describe('map changes observers', function() {
         });
 
         let results = observer.stop();
-        expect(results['history.current']).to.deep.equal([1, 0, 0, 1, 0]);
+        expect(results['history.current']).toStrictEqual([1, 0, 0, 1, 0]);
     });
 });

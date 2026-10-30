@@ -22,10 +22,9 @@ import {getCanvasPixelColor, Listener} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {click} from 'triggerEvents';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Pointerevents Line 3d', () => {
-    const expect = chai.expect;
     let display;
     let mapContainer;
     let line1;
@@ -94,15 +93,15 @@ describe('Pointerevents Line 3d', () => {
         await click(mapContainer, x, y);
 
         const results = listener.stop().pointerup;
-        expect(results).to.have.lengthOf(1);
-        expect(results[0]).to.deep.include({
+        expect(results).toHaveLength(1);
+        expect(results[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: x,
             mapY: y,
             type: 'pointerup'
-        });
+        }));
 
-        expect(results[0].target).to.equal(line1);
+        expect(results[0].target).toBe(line1);
     });
 
     it('pointerup: line3d edge outside', async () => {
@@ -114,15 +113,15 @@ describe('Pointerevents Line 3d', () => {
         await click(mapContainer, x, y);
 
         const results = listener.stop().pointerup;
-        expect(results).to.have.lengthOf(1);
-        expect(results[0]).to.deep.include({
+        expect(results).toHaveLength(1);
+        expect(results[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: x,
             mapY: y,
             type: 'pointerup'
-        });
+        }));
 
-        expect(results[0].target).to.equal(undefined);
+        expect(results[0].target).toBe(undefined);
     });
 
     it('pointerup: line3d edge inside (zoom scaled)', async () => {
@@ -138,15 +137,15 @@ describe('Pointerevents Line 3d', () => {
         await click(mapContainer, x, y);
 
         const results = listener.stop().pointerup;
-        expect(results).to.have.lengthOf(1);
-        expect(results[0]).to.deep.include({
+        expect(results).toHaveLength(1);
+        expect(results[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: x,
             mapY: y,
             type: 'pointerup'
-        });
+        }));
 
-        expect(results[0].target).to.equal(line1);
+        expect(results[0].target).toBe(line1);
     });
 
     it('pointerup: line3d edge outside (zoom scaled)', async () => {
@@ -161,14 +160,14 @@ describe('Pointerevents Line 3d', () => {
         await click(mapContainer, x, y);
 
         const results = listener.stop().pointerup;
-        expect(results).to.have.lengthOf(1);
-        expect(results[0]).to.deep.include({
+        expect(results).toHaveLength(1);
+        expect(results[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: x,
             mapY: y,
             type: 'pointerup'
-        });
+        }));
 
-        expect(results[0].target).to.equal(undefined);
+        expect(results[0].target).toBe(undefined);
     });
 });

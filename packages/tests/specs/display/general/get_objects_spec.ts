@@ -21,11 +21,9 @@ import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './get_objects_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('get objects', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let display;
     let link;
@@ -55,16 +53,16 @@ describe('get objects', function() {
 
     it('validate getFeatureAt', () => {
         let o = display.getFeatureAt({x: 10, y: 10});
-        expect(o).to.equal(undefined);
+        expect(o).toBe(undefined);
     });
 
 
     it('validate getFeatureAt at a difference place', () => {
         let o = display.getFeatureAt({x: 298, y: 183});
 
-        expect(o.feature).to.deep.include({id: link.id});
-        expect(o.layer).to.deep.include({name: 'Link Layer'});
-        expect(o.features).to.have.lengthOf(1);
+        expect(o.feature).toEqual(expect.objectContaining({id: link.id}));
+        expect(o.layer).toEqual(expect.objectContaining({name: 'Link Layer'}));
+        expect(o.features).toHaveLength(1);
     });
 
 
@@ -77,8 +75,8 @@ describe('get objects', function() {
         });
 
         let o = display.getFeatureAt({x: 411, y: 316});
-        expect(o.layer).to.deep.include({name: 'Address Layer'});
-        expect(o.features).to.have.lengthOf(1);
+        expect(o.layer).toEqual(expect.objectContaining({name: 'Address Layer'}));
+        expect(o.features).toHaveLength(1);
     });
 
     it('validate drawing order Polygon', () => {
@@ -139,7 +137,7 @@ describe('get objects', function() {
 
         let o = display.getFeatureAt({x: 300, y: 300});
 
-        expect(o.feature).to.deep.include({id: 'Polygon'});
+        expect(o.feature).toEqual(expect.objectContaining({id: 'Polygon'}));
     });
 
     it('validate drawing order Point', () => {
@@ -153,7 +151,7 @@ describe('get objects', function() {
 
         let o = display.getFeatureAt({x: 300, y: 300});
 
-        expect(o.feature).to.deep.include({id: 'Point'});
+        expect(o.feature).toEqual(expect.objectContaining({id: 'Point'}));
     });
 
     it('validate drawing order Line', () => {
@@ -167,7 +165,7 @@ describe('get objects', function() {
 
         let o = display.getFeatureAt({x: 300, y: 300});
 
-        expect(o.feature).to.deep.include({id: 'Line'});
+        expect(o.feature).toEqual(expect.objectContaining({id: 'Line'}));
     });
 
     it('validate drawing order Polygon (zLayer)', () => {
@@ -182,7 +180,7 @@ describe('get objects', function() {
 
         let o = display.getFeatureAt({x: 300, y: 300});
 
-        expect(o.feature).to.deep.include({id: 'Polygon'});
+        expect(o.feature).toEqual(expect.objectContaining({id: 'Polygon'}));
     });
 
     it('validate drawing order Point (zLayer)', () => {
@@ -197,7 +195,7 @@ describe('get objects', function() {
 
         let o = display.getFeatureAt({x: 300, y: 300});
 
-        expect(o.feature).to.deep.include({id: 'Point'});
+        expect(o.feature).toEqual(expect.objectContaining({id: 'Point'}));
     });
 
     it('validate drawing order Line (zLayer)', () => {
@@ -212,6 +210,6 @@ describe('get objects', function() {
 
         let o = display.getFeatureAt({x: 300, y: 300});
 
-        expect(o.feature).to.deep.include({id: 'Line'});
+        expect(o.feature).toEqual(expect.objectContaining({id: 'Line'}));
     });
 });

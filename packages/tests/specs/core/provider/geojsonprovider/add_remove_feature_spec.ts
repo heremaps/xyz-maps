@@ -19,11 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './add_remove_feature_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('add and remove features in provider', function() {
-    const expect = chai.expect;
-
     var poiProvider;
 
     beforeAll(async function() {
@@ -38,7 +36,7 @@ describe('add and remove features in provider', function() {
             point: {longitude: 46.748524, latitude: 6.77124},
             radius: 100
         });
-        expect(obj).to.have.lengthOf(0);
+        expect(obj).toHaveLength(0);
     });
 
     it('add two features and validate', function() {
@@ -68,6 +66,6 @@ describe('add and remove features in provider', function() {
             point: {longitude: 46.748524, latitude: 6.77124},
             radius: 100
         });
-        expect(obj).to.have.lengthOf(2);
+        expect(obj).toHaveLength(2);
     });
 });

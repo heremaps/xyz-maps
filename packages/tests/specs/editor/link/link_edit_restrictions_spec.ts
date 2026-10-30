@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, EditOperation} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_edit_restrictions_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('link edit restrictions', function() {
-    const expect = chai.expect;
-
     let link1;
     let link2;
     let links;
@@ -66,7 +64,7 @@ describe('link edit restrictions', function() {
 
         await drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
 
-        expect(link1.coord()).to.deep.almost([
+        chai.expect(link1.coord()).to.deep.almost([
             [77.250049086, 13.108241071, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.107718607, 0],
@@ -78,7 +76,7 @@ describe('link edit restrictions', function() {
         link2.select();
         await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 100});
 
-        expect(link2.coord()).to.deep.almost([
+        chai.expect(link2.coord()).to.deep.almost([
             [77.250049087, 13.108763534, 0],
             [77.248439761, 13.108763534, 0]
         ]);
@@ -130,7 +128,7 @@ describe('link edit restrictions', function() {
 
         await drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 300});
 
-        expect(links[0].coord()).to.deep.almost([
+        chai.expect(links[0].coord()).to.deep.almost([
             [77.250049086, 13.108241071, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.108241071, 0],
@@ -140,13 +138,13 @@ describe('link edit restrictions', function() {
 
     it('link is not removed sucessfully', async function() {
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(4);
+        expect(objs).toHaveLength(4);
 
 
         links[1].remove();
 
         objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(4);
+        expect(objs).toHaveLength(4);
     });
 
     it('select a link and drag, validate link again', async function() {
@@ -154,7 +152,7 @@ describe('link edit restrictions', function() {
 
         await drag(mapContainer, {x: 300, y: 100}, {x: 450, y: 150});
 
-        expect(links[1].coord()).to.deep.almost([
+        chai.expect(links[1].coord()).to.deep.almost([
             [77.249512645, 13.108763534, 0],
             [77.248439761, 13.108763534, 0]
         ]);
@@ -196,7 +194,7 @@ describe('link edit restrictions', function() {
 
         await drag(mapContainer, {x: 400, y: 200}, {x: 400, y: 300});
 
-        expect(links[0].coord()).to.deep.almost([
+        chai.expect(links[0].coord()).to.deep.almost([
             [77.250049086, 13.107718607, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.108241071, 0],
@@ -251,9 +249,9 @@ describe('link edit restrictions', function() {
 
         await drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 300});
 
-        expect(coordinateContexts).to.have.length.greaterThan(0);
-        expect(coordinateContexts[0]).to.deep.equal({coordinateIndex: 1});
-        expect(coordinateIndexOneChecks).to.be.greaterThan(1);
-        expect(link.coord()).to.deep.almost(originalCoordinates);
+        expect((coordinateContexts).length).toBeGreaterThan(0);
+        expect(coordinateContexts[0]).toEqual({coordinateIndex: 1});
+        expect(coordinateIndexOneChecks).toBeGreaterThan(1);
+        chai.expect(link.coord()).to.deep.almost(originalCoordinates);
     });
 });

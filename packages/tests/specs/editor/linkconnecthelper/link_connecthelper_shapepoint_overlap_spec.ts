@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_shapepoint_overlap_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link connect helper which has overlapped shape point', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -55,7 +53,7 @@ describe('link connect helper which has overlapped shape point', function() {
 
     it('validate there are crossings found', function() {
         let crossings = link1.checkCrossings();
-        expect(crossings).to.have.lengthOf(1);
+        expect(crossings).toHaveLength(1);
     });
 
     it('get crossings and connect', async function() {
@@ -64,6 +62,6 @@ describe('link connect helper which has overlapped shape point', function() {
             c.connect();
         });
 
-        expect(editor.info()).to.have.lengthOf(6);
+        expect(editor.info()).toHaveLength(6);
     });
 });

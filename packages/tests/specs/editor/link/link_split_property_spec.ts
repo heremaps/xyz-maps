@@ -22,10 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_split_property_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('link splitting basic', function() {
-    const expect = chai.expect;
     let link;
     let link1;
     let link2;
@@ -72,8 +71,8 @@ describe('link splitting basic', function() {
 
         splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].prop()).to.deep.include({'type': 'highway'});
-        expect(splitLinks[1].prop()).to.deep.include({'type': 'highway'});
+        expect(splitLinks[0].prop()).toEqual(expect.objectContaining({'type': 'highway'}));
+        expect(splitLinks[1].prop()).toEqual(expect.objectContaining({'type': 'highway'}));
     });
 
     // link1
@@ -93,8 +92,8 @@ describe('link splitting basic', function() {
 
         splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].prop()).to.deep.include({'type': 'highway', 'name': 'A1'});
-        expect(splitLinks[1].prop()).to.deep.include({'type': 'highway', 'name': 'A1'});
+        expect(splitLinks[0].prop()).toEqual(expect.objectContaining({'type': 'highway', 'name': 'A1'}));
+        expect(splitLinks[1].prop()).toEqual(expect.objectContaining({'type': 'highway', 'name': 'A1'}));
     });
 
     // link2
@@ -114,8 +113,8 @@ describe('link splitting basic', function() {
 
         splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].prop()).to.deep.include({'turnRestrition': {'start': ['abc'], 'end': [123]}});
-        expect(splitLinks[1].prop()).to.deep.include({'turnRestrition': {'start': ['abc'], 'end': [123]}});
+        expect(splitLinks[0].prop()).toEqual(expect.objectContaining({'turnRestrition': {'start': ['abc'], 'end': [123]}}));
+        expect(splitLinks[1].prop()).toEqual(expect.objectContaining({'turnRestrition': {'start': ['abc'], 'end': [123]}}));
     });
 
     // link3
@@ -134,8 +133,8 @@ describe('link splitting basic', function() {
         shape = (await editorClick(editor, 100, 160)).target;
 
         splitLinks = shape.splitLink();
-        expect(splitLinks[0].prop()).to.deep.include({'direction': 'BOTH'});
-        expect(splitLinks[1].prop()).to.deep.include({'direction': 'BOTH'});
+        expect(splitLinks[0].prop()).toEqual(expect.objectContaining({'direction': 'BOTH'}));
+        expect(splitLinks[1].prop()).toEqual(expect.objectContaining({'direction': 'BOTH'}));
     });
 
     // link4
@@ -155,8 +154,8 @@ describe('link splitting basic', function() {
 
         splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].prop()).to.deep.include({'pedestrianOnly': true});
-        expect(splitLinks[1].prop()).to.deep.include({'pedestrianOnly': true});
+        expect(splitLinks[0].prop()).toEqual(expect.objectContaining({'pedestrianOnly': true}));
+        expect(splitLinks[1].prop()).toEqual(expect.objectContaining({'pedestrianOnly': true}));
     });
 
     // link5
@@ -176,7 +175,7 @@ describe('link splitting basic', function() {
 
         splitLinks = shape.splitLink();
 
-        expect(splitLinks[0].coord()).to.deep.almost([[77.291118974, 13.125117665, 0], [77.291118974, 13.124386264, 0]]);
-        expect(splitLinks[1].coord()).to.deep.almost([[77.291118974, 13.124386264, 0], [77.291118974, 13.124072806, 0]]);
+        chai.expect(splitLinks[0].coord()).to.deep.almost([[77.291118974, 13.125117665, 0], [77.291118974, 13.124386264, 0]]);
+        chai.expect(splitLinks[1].coord()).to.deep.almost([[77.291118974, 13.124386264, 0], [77.291118974, 13.124072806, 0]]);
     });
 });

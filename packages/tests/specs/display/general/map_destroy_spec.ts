@@ -20,13 +20,11 @@
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {drag} from 'triggerEvents';
-import {vi, describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it, expect} from 'vitest';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './map_destroy_spec.json';
 
 describe('destroy display', function() {
-    const expect = chai.expect;
-
     let display;
 
     beforeAll(async function() {
@@ -43,13 +41,13 @@ describe('destroy display', function() {
     });
 
     it('validate display is working', async function() {
-        expect(display.getCenter()).to.deep.equal({longitude: 77.852437, latitude: 13.542848});
+        expect(display.getCenter()).toEqual({longitude: 77.852437, latitude: 13.542848});
     });
 
     it('destroy display and validate', async function() {
         display.destroy();
 
-        expect(display).to.deep.equal({});
+        expect(display).toEqual({});
     });
 
     it('cancels pending hover detection when the display is destroyed', async function() {
@@ -74,7 +72,7 @@ describe('destroy display', function() {
 
             // Hover detection is deferred by 50 ms and must not run against the destroyed map.
             await new Promise<void>((resolve) => setTimeout(resolve, 200));
-            expect(errors).to.deep.equal([]);
+            expect(errors).toStrictEqual([]);
         } finally {
             window.removeEventListener('error', onError);
             if (map.destroy) map.destroy();
@@ -102,12 +100,12 @@ describe('destroy display', function() {
             await gesture;
             const callsAfterRelease = pan.mock.calls.length;
             await vi.advanceTimersToNextFrame();
-            expect(pan.mock.calls.length).to.be.greaterThan(callsAfterRelease);
+            expect(pan.mock.calls.length).toBeGreaterThan(callsAfterRelease);
             pan.mockRestore();
             map.destroy();
 
             await vi.advanceTimersByTimeAsync(600);
-            expect(errors).to.deep.equal([]);
+            expect(errors).toStrictEqual([]);
         } finally {
             window.removeEventListener('error', onError);
             if (map.destroy) {

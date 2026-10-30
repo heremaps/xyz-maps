@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_create_outside_viewport_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('create an address outside viewport, it connects to a link nearby', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let link;
     let address;
@@ -78,10 +76,10 @@ describe('create an address outside viewport, it connects to a link nearby', fun
         }, preparedData.getLayers('paLayer'));
 
         // validate address connects to correct link
-        expect(address.prop()).to.deep.include({
+        expect(address.prop()).toEqual(expect.objectContaining({
             routingLink: link.id,
             routingPoint: [75.55617, 14.02261, 0]
-        });
+        }));
     });
 });
 

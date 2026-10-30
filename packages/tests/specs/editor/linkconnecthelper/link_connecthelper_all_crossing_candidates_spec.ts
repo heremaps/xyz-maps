@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_connecthelper_all_crossing_candidates_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link connect helper connect all crossings candidates', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -54,7 +52,7 @@ describe('link connect helper connect all crossings candidates', function() {
 
     it('validate there are crossings found', function() {
         let crossings = link1.checkCrossings();
-        expect(crossings).to.have.lengthOf(3);
+        expect(crossings).toHaveLength(3);
     });
 
     it('get crossings and connect', async function() {
@@ -67,6 +65,6 @@ describe('link connect helper connect all crossings candidates', function() {
             c.connect();
         });
 
-        expect(editor.info()).to.have.lengthOf(10);
+        expect(editor.info()).toHaveLength(10);
     });
 });

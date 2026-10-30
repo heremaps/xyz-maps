@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_viewport_getobjects_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map viewport getobjects', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
     var preparedData;
@@ -61,13 +59,13 @@ describe('map viewport getobjects', function() {
     it('validate objects in viewport', function() {
         let obj = editor.search(display.getViewBounds());
 
-        expect(obj).to.have.lengthOf(3);
+        expect(obj).toHaveLength(3);
     });
 
 
     it('validate POI objects in viewport', function() {
         let obj = editor.search({rect: display.getViewBounds(), layers: [poiLayer]});
-        expect(obj).to.have.lengthOf(2);
+        expect(obj).toHaveLength(2);
     });
 
     it('get a poi object and add its navigation point', function() {
@@ -81,7 +79,7 @@ describe('map viewport getobjects', function() {
             layers: [poiLayer]
         });
 
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
 
@@ -95,7 +93,7 @@ describe('map viewport getobjects', function() {
             layers: [poiLayer]
         });
 
-        expect(obj).to.have.lengthOf(1);
+        expect(obj).toHaveLength(1);
 
         poi1.unselect();
     });

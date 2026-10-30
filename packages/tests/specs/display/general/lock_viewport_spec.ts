@@ -23,11 +23,9 @@ import {drag, mousewheel} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import chaiAlmost from 'chai-almost';
 import dataset from './lock_viewport_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('validate lockviewport function', function() {
-    const expect = chai.expect;
-
     let display;
     let mapContainer;
 
@@ -48,14 +46,14 @@ describe('validate lockviewport function', function() {
     });
 
     it('simply validate map', async function() {
-        expect(display.getCenter()).to.deep.equal({longitude: 77.79802, latitude: 12.62214});
-        expect(display.getViewBounds()).to.deep.almost({
+        expect(display.getCenter()).toEqual({longitude: 77.79802, latitude: 12.62214});
+        chai.expect(display.getViewBounds()).to.deep.almost({
             maxLat: 12.623710427048564,
             maxLon: 77.80016576721192,
             minLat: 12.620569563312458,
             minLon: 77.7958742327881
         });
-        expect(display.getZoomlevel()).to.equal(18);
+        expect(display.getZoomlevel()).toBe(18);
     });
 
     it('validate map again after locking viewport for panning and drag', async function() {
@@ -64,14 +62,14 @@ describe('validate lockviewport function', function() {
         // try dragging the map
         await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
-        expect(display.getCenter()).to.deep.equal({longitude: 77.79802, latitude: 12.62214});
-        expect(display.getViewBounds()).to.deep.almost({
+        expect(display.getCenter()).toEqual({longitude: 77.79802, latitude: 12.62214});
+        chai.expect(display.getViewBounds()).to.deep.almost({
             maxLat: 12.623710427048564,
             maxLon: 77.80016576721192,
             minLat: 12.620569563312458,
             minLon: 77.7958742327881
         });
-        expect(display.getZoomlevel()).to.equal(18);
+        expect(display.getZoomlevel()).toBe(18);
     });
 
     it('validate map is dragged after viewport for panning is unlocked', async function() {
@@ -83,9 +81,9 @@ describe('validate lockviewport function', function() {
         });
 
         // validate map center is changed
-        expect(display.getCenter().longitude).to.not.equal(77.79802);
+        expect(display.getCenter().longitude).not.toBe(77.79802);
         // validate map viewbound is changed
-        expect(display.getViewBounds().minLon).to.not.equal(77.79587423278804);
+        expect(display.getViewBounds().minLon).not.toBe(77.79587423278804);
     });
 
     it('validate zoomlevel is locked for minLevel', async function() {
@@ -99,7 +97,7 @@ describe('validate lockviewport function', function() {
         });
 
         // validate map is not zoomed
-        expect(display.getZoomlevel()).to.equal(17);
+        expect(display.getZoomlevel()).toBe(17);
     });
 
     it('validate zoomlevel is not locked', async function() {
@@ -112,7 +110,7 @@ describe('validate lockviewport function', function() {
             await mousewheel(mapContainer, 100, 110, -1);
         });
 
-        expect(display.getZoomlevel()).to.be.below(17);
+        expect(display.getZoomlevel()).toBeLessThan(17);
     });
 
     it('validate zoomlevel is locked with maxLevel to 18', async function() {
@@ -124,7 +122,7 @@ describe('validate lockviewport function', function() {
 
         await mousewheel(mapContainer, 100, 100, 1);
 
-        expect(display.getZoomlevel()).to.equal(18);
+        expect(display.getZoomlevel()).toBe(18);
     });
 
     it('validate zoomlevel is locked with maxLevel to 20', async function() {
@@ -138,7 +136,7 @@ describe('validate lockviewport function', function() {
             await mousewheel(mapContainer, 100, 100, 1);
         });
 
-        expect(display.getZoomlevel()).to.be.above(18);
+        expect(display.getZoomlevel()).toBeGreaterThan(18);
 
         display.lockViewport({minLevel: 1, maxLevel: 20});
     });

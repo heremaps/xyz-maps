@@ -20,10 +20,9 @@
 import {prepare} from 'utils';
 import {getTileOnProvider} from 'coreUtils';
 import dataset from './basic_get_cancel_tile_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('basic get and cancel tiles', function() {
-    const expect = chai.expect;
     var placeProvider; // placeProvider.level.length == 16
 
     var qk1;
@@ -92,14 +91,14 @@ describe('basic get and cancel tiles', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // one request sent one callback is called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(1);
 
                     // one request is not cancelled
-                    expect(requests[0]).to.deep.include({
+                    expect(requests[0]).toEqual(expect.objectContaining({
                         readyState: 4,
                         status: 200
-                    });
+                    }));
 
                     done();
                 }
@@ -117,14 +116,14 @@ describe('basic get and cancel tiles', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // one request sent one callback is not called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(0);
 
                     // one request is cancelled
-                    expect(requests[0]).to.deep.include({
+                    expect(requests[0]).toEqual(expect.objectContaining({
                         readyState: 4,
                         status: 0
-                    });
+                    }));
 
                     done();
                 },
@@ -147,18 +146,18 @@ describe('basic get and cancel tiles', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // two requests sent two callback are called
-                    expect(requests.length).to.equal(2);
-                    expect(callbackResults.length).to.equal(2);
+                    expect(requests.length).toBe(2);
+                    expect(callbackResults.length).toBe(2);
 
                     // two request are not cancelled
-                    expect(requests[0]).to.deep.include({
+                    expect(requests[0]).toEqual(expect.objectContaining({
                         readyState: 4,
                         status: 200
-                    });
-                    expect(requests[1]).to.deep.include({
+                    }));
+                    expect(requests[1]).toEqual(expect.objectContaining({
                         readyState: 4,
                         status: 200
-                    });
+                    }));
 
                     done();
                 }
@@ -177,21 +176,21 @@ describe('basic get and cancel tiles', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // two requests sent one callback is called
-                    expect(requests.length).to.equal(2);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(2);
+                    expect(callbackResults.length).toBe(1);
 
                     // one request is cancelled
                     let cancelledRequests = 0;
                     for (let r in requests) {
                         if (requests[r].status == 0) {
                             // qk41 is cancelled
-                            expect(requests[r].openURL.indexOf(qk41)).to.above(-1);
+                            expect(requests[r].openURL.indexOf(qk41)).toBeGreaterThan(-1);
 
                             cancelledRequests++;
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(1);
+                    expect(cancelledRequests).toBe(1);
 
                     done();
                 },
@@ -214,19 +213,19 @@ describe('basic get and cancel tiles', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // two requests sent callback is not called
-                    expect(requests.length).to.equal(2);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(2);
+                    expect(callbackResults.length).toBe(0);
 
                     // one request is cancelled
-                    expect(requests[0]).to.deep.include({
+                    expect(requests[0]).toEqual(expect.objectContaining({
                         readyState: 4,
                         status: 0
-                    });
+                    }));
 
-                    expect(requests[1]).to.deep.include({
+                    expect(requests[1]).toEqual(expect.objectContaining({
                         readyState: 4,
                         status: 0
-                    });
+                    }));
 
                     done();
                 },
@@ -250,24 +249,24 @@ describe('basic get and cancel tiles', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // three requests sent callback are called
-                    expect(requests.length).to.equal(3);
-                    expect(callbackResults.length).to.equal(3);
+                    expect(requests.length).toBe(3);
+                    expect(callbackResults.length).toBe(3);
 
                     // one request is cancelled
-                    expect(requests[0]).to.deep.include({
+                    expect(requests[0]).toEqual(expect.objectContaining({
                         readyState: 4,
                         status: 200
-                    });
+                    }));
 
-                    expect(requests[1]).to.deep.include({
+                    expect(requests[1]).toEqual(expect.objectContaining({
                         readyState: 4,
                         status: 200
-                    });
+                    }));
 
-                    expect(requests[2]).to.deep.include({
+                    expect(requests[2]).toEqual(expect.objectContaining({
                         readyState: 4,
                         status: 200
-                    });
+                    }));
 
                     done();
                 }
@@ -286,8 +285,8 @@ describe('basic get and cancel tiles', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // three requests sent callback are called
-                    expect(requests.length).to.equal(3);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(3);
+                    expect(callbackResults.length).toBe(1);
 
 
                     // two requests are cancelled
@@ -298,7 +297,7 @@ describe('basic get and cancel tiles', function() {
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(2);
+                    expect(cancelledRequests).toBe(2);
 
 
                     done();
@@ -322,8 +321,8 @@ describe('basic get and cancel tiles', function() {
                 sameCallback: false,
                 onFinish: function(requests, callbackResults) {
                     // 3 request(s) sent, 0 callback(s) called
-                    expect(requests.length).to.equal(3);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(3);
+                    expect(callbackResults.length).toBe(0);
 
                     // all requests are cancelled
                     let cancelledRequests = 0;
@@ -333,7 +332,7 @@ describe('basic get and cancel tiles', function() {
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(3);
+                    expect(cancelledRequests).toBe(3);
 
 
                     done();

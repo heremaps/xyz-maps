@@ -22,11 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './poi_create_remove_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('add POI object and then remove', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -81,11 +79,11 @@ describe('add POI object and then remove', function() {
         link1 = editor.addFeature(l, linkLayer);
         poi1 = editor.addFeature(p, placeLayer);
 
-        expect(link1.coord()).to.deep.almost([[77.23411469, 13.006752287, 0], [77.234651132, 13.005706927, 0]]);
-        expect(poi1.coord()).to.deep.almost([77.23411469, 13.005968268, 0]);
+        chai.expect(link1.coord()).to.deep.almost([[77.23411469, 13.006752287, 0], [77.234651132, 13.005706927, 0]]);
+        chai.expect(poi1.coord()).to.deep.almost([77.23411469, 13.005968268, 0]);
 
-        expect(poi1.getLink()).to.equal(null);
-        expect(poi1.prop('type')).to.equal('hotel');
+        expect(poi1.getLink()).toBe(null);
+        expect(poi1.prop('type')).toBe('hotel');
     });
 
     it('add more link and poi object and validate again coord and attributes', function() {
@@ -111,11 +109,11 @@ describe('add POI object and then remove', function() {
         link2 = obj[0];
         poi2 = obj[1];
 
-        expect(link2.coord()).to.deep.almost([[77.234919352, 13.006752287, 0], [77.235455794, 13.005706927, 0]]);
-        expect(poi2.coord()).to.deep.almost([77.234919352, 13.005968268, 0]);
+        chai.expect(link2.coord()).to.deep.almost([[77.234919352, 13.006752287, 0], [77.235455794, 13.005706927, 0]]);
+        chai.expect(poi2.coord()).to.deep.almost([77.234919352, 13.005968268, 0]);
 
-        expect(poi2.getLink().id).to.equal(link2.id);
-        expect(poi2.prop('type')).to.equal('hospital');
+        expect(poi2.getLink().id).toBe(link2.id);
+        expect(poi2.prop('type')).toBe('hospital');
     });
 
     it('add a POI for restaurant, validate its type', function() {
@@ -129,7 +127,7 @@ describe('add POI object and then remove', function() {
         };
         let poi = editor.addFeature(p, preparedData.getLayers('placeLayer'));
 
-        expect(poi.prop('type')).to.equal('restaurant');
+        expect(poi.prop('type')).toBe('restaurant');
     });
 
     it('submit created objects and validate again', async function() {
@@ -152,27 +150,27 @@ describe('add POI object and then remove', function() {
         poi2 = editor.getFeature(poi2Id, linkLayer);
         link2 = editor.getFeature(link2Id, linkLayer);
 
-        expect(poi1.getLink()).to.equal(null);
-        expect(poi2.getLink().id).to.equal(link2.id);
+        expect(poi1.getLink()).toBe(null);
+        expect(poi2.getLink().id).toBe(link2.id);
     });
 
 
     it('set navigation point for POI', function() {
         poi1.createRoutingPoint();
 
-        expect(poi1.getLink().id).to.equal(link1.id);
+        expect(poi1.getLink().id).toBe(link1.id);
     });
 
     it('remove navigation point for POI', function() {
         poi1.removeRoutingPoint();
 
-        expect(poi1.getLink()).to.equal(null);
+        expect(poi1.getLink()).toBe(null);
     });
 
 
     it('remove  POI', function() {
         poi1.remove();
-        expect(poi1.prop('removed')).to.be.equal('HOOK');
-        expect(poi1.prop('estate')).to.be.equal('REMOVED');
+        expect(poi1.prop('removed')).toBe('HOOK');
+        expect(poi1.prop('estate')).toBe('REMOVED');
     });
 });

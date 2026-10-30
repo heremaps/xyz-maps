@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_create_remove_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Create new Link then remove', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -63,8 +61,8 @@ describe('Create new Link then remove', function() {
         };
         link1 = editor.addFeature(l, linkLayer);
 
-        expect(link1.prop('type')).to.equal('residential');
-        expect(link1.style()).to.deep.equal([
+        expect(link1.prop('type')).toBe('residential');
+        expect(link1.style()).toStrictEqual([
             {zIndex: 0, type: 'Line', strokeWidth: 10, stroke: '#ff0000'}
         ]);
     });
@@ -72,7 +70,7 @@ describe('Create new Link then remove', function() {
 
     it('remove a link', function() {
         link1.remove();
-        expect(link1.prop('removed')).to.be.equal('HOOK');
-        expect(link1.prop('estate')).to.be.equal('REMOVED');
+        expect(link1.prop('removed')).toBe('HOOK');
+        expect(link1.prop('estate')).toBe('REMOVED');
     });
 });

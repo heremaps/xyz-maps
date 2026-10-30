@@ -25,8 +25,6 @@ import dataset from './disconnectshapedistance_spec.json';
 import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('set disconnectShapeDistance', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -85,7 +83,7 @@ describe('set disconnectShapeDistance', function() {
         let shape = <NavlinkShape>(await editorClick(editor, 100, 300)).target;
         shape.disconnect();
 
-        expect(links[1].coord()).to.deep.almost([[77.840920613, 17.451065932, 0], [77.840920613, 17.451487751, 0]]);
+        chai.expect(links[1].coord()).to.deep.almost([[77.840920613, 17.451065932, 0], [77.840920613, 17.451487751, 0]]);
     });
 
     it('reset disconnectShapeDistance, validate the disconnect shape distance again', async function() {
@@ -121,6 +119,6 @@ describe('set disconnectShapeDistance', function() {
         let shape = <NavlinkShape>(await editorClick(editor, 100, 300)).target;
         shape.disconnect();
 
-        expect(links[1].coord()).to.deep.almost([[77.840920613, 17.45100298, 0], [77.840920613, 17.451487751, 0]]);
+        chai.expect(links[1].coord()).to.deep.almost([[77.840920613, 17.45100298, 0], [77.840920613, 17.451487751, 0]]);
     });
 });

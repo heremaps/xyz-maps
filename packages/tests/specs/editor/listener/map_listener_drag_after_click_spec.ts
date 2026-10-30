@@ -22,11 +22,9 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_drag_after_click_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map events, click objects after dragging', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -72,33 +70,33 @@ describe('map events, click objects after dragging', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerup).to.have.lengthOf(4);
-        expect(results.pointerup[0]).to.deep.include({
+        expect(results.pointerup).toHaveLength(4);
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 165,
             mapY: 324,
             type: 'pointerup'
-        });
-        expect(results.pointerup[1]).to.deep.include({
+        }));
+        expect(results.pointerup[1]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 257,
             mapY: 337,
             type: 'pointerup'
-        });
-        expect(results.pointerup[2]).to.deep.include({
+        }));
+        expect(results.pointerup[2]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 165,
             mapY: 324,
             type: 'pointerup'
-        });
-        expect(results.pointerup[3]).to.deep.include({
+        }));
+        expect(results.pointerup[3]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 357,
             mapY: 337,
             type: 'pointerup'
-        });
+        }));
 
-        expect(results.dragStart).to.have.lengthOf(1);
-        expect(results.dragStop).to.have.lengthOf(1);
+        expect(results.dragStart).toHaveLength(1);
+        expect(results.dragStop).toHaveLength(1);
     });
 });

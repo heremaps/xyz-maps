@@ -22,12 +22,10 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './style_type_model.json';
 import {ModelStyle} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 
 describe('3d Model Styles', function() {
-    const expect = chai.expect;
-
     let modelLayer;
     let display;
     let mapContainer;
@@ -73,7 +71,7 @@ describe('3d Model Styles', function() {
             retry: 8,
             retryDelay: 50
         });
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('validate model orientation, rotate front face to top', async () => {
@@ -85,7 +83,7 @@ describe('3d Model Styles', function() {
         let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
             expect: '#0000ff'
         });
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
     it('validate model orientation, rotate back face to top', async () => {
         modelLayer.setStyleGroup(feature, [{
@@ -96,7 +94,7 @@ describe('3d Model Styles', function() {
         let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
             expect: '#ffff00'
         });
-        expect(color).to.equal('#ffff00');
+        expect(color).toBe('#ffff00');
     });
 
     it('validate model orientation, rotate bottom face to top', async () => {
@@ -108,7 +106,7 @@ describe('3d Model Styles', function() {
         let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
             expect: '#00ff00'
         });
-        expect(color).to.equal('#00ff00');
+        expect(color).toBe('#00ff00');
     });
 
     it('validate model orientation, rotate left face to top', async () => {
@@ -120,7 +118,7 @@ describe('3d Model Styles', function() {
         let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
             expect: '#00ffff'
         });
-        expect(color).to.equal('#00ffff');
+        expect(color).toBe('#00ffff');
     });
 
     it('validate model orientation, rotate right face to top', async () => {
@@ -132,7 +130,7 @@ describe('3d Model Styles', function() {
         let color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
             expect: '#ff00ff'
         });
-        expect(color).to.equal('#ff00ff');
+        expect(color).toBe('#ff00ff');
     });
 
     it('validate model orientation, scale size', async () => {
@@ -144,7 +142,7 @@ describe('3d Model Styles', function() {
         let color = await getCanvasPixelColor(mapContainer, {x: 200, y: 300}, {
             expect: '#ff0000'
         });
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('validate specular shininess', async () => {
@@ -155,6 +153,6 @@ describe('3d Model Styles', function() {
         let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}], {
             expect: '#ffffff'
         });
-        expect(colors[0]).to.equal('#ffffff');
+        expect(colors[0]).toBe('#ffffff');
     });
 });

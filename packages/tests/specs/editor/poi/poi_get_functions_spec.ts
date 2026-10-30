@@ -18,7 +18,7 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {vi, describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 import {mousemove} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
@@ -26,8 +26,6 @@ import chaiAlmost from 'chai-almost';
 import dataset from './poi_get_functions_spec.json';
 
 describe('Place get functions', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -59,41 +57,41 @@ describe('Place get functions', function() {
     });
 
     it('get editstates', async function() {
-        expect(place.editState('selected')).to.be.false;
-        expect(place.editState('hovered')).to.be.false;
+        expect(place.editState('selected')).toBe(false);
+        expect(place.editState('hovered')).toBe(false);
 
         // hover place
         await mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 300});
-        expect(place.editState('selected')).to.be.false;
+        expect(place.editState('selected')).toBe(false);
         await vi.waitFor(() => {
-            expect(place.editState('hovered')).to.be.true;
+            expect(place.editState('hovered')).toBe(true);
         }, {timeout: 2000});
 
         // select place
         place.select();
-        expect(place.editState('selected')).to.be.true;
-        expect(place.editState('hovered')).to.be.true;
+        expect(place.editState('selected')).toBe(true);
+        expect(place.editState('hovered')).toBe(true);
 
         // leave place
         await mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 280});
-        expect(place.editState('selected')).to.be.true;
+        expect(place.editState('selected')).toBe(true);
         await vi.waitFor(() => {
-            expect(place.editState('hovered')).to.be.false;
+            expect(place.editState('hovered')).toBe(false);
         }, {timeout: 2000});
 
         // unselect place
         place.unselect();
-        expect(place.editState('selected')).to.be.false;
-        expect(place.editState('hovered')).to.be.false;
+        expect(place.editState('selected')).toBe(false);
+        expect(place.editState('hovered')).toBe(false);
     });
 
     it('get correct geoCoordinates, properties', async function() {
-        expect(place.coord()).to.deep.almost([73.29398409, 19.27905288, 0]);
-        expect(place.prop()).to.deep.include({
+        chai.expect(place.coord()).to.deep.almost([73.29398409, 19.27905288, 0]);
+        expect(place.prop()).toEqual(expect.objectContaining({
             routingPoint: [78.26291, 19.20981, 0],
             routingLink: '-178821',
             name: 'test hotel',
             type: 'hotel'
-        });
+        }));
     });
 });

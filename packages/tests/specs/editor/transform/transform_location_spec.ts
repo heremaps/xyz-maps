@@ -26,8 +26,6 @@ import chaiAlmost from 'chai-almost';
 import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('transform for poi and point address', () => {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -58,8 +56,8 @@ describe('transform for poi and point address', () => {
         container.push(poi, address);
 
 
-        expect(poi.coord()).to.deep.almost([76.035206298, 13.709301163, 0]);
-        expect(address.coord()).to.deep.almost([76.035072188, 13.709170873, 0]);
+        chai.expect(poi.coord()).to.deep.almost([76.035206298, 13.709301163, 0]);
+        chai.expect(address.coord()).to.deep.almost([76.035072188, 13.709170873, 0]);
     });
 
     afterAll(async () => {
@@ -107,8 +105,8 @@ describe('transform for poi and point address', () => {
         //     }
         // }, [{zIndex: 9, type: 'Circle', fill: 'blue', radius: 4, opacity: .5}]);
 
-        expect(poi.coord()).to.deep.almost([76.035241467, 13.709301163, 0]);
-        expect(address.coord()).to.deep.almost([76.035072188, 13.709170873, 0]);
+        chai.expect(poi.coord()).to.deep.almost([76.035241467, 13.709301163, 0]);
+        chai.expect(address.coord()).to.deep.almost([76.035072188, 13.709170873, 0]);
     });
 
     it('transform left boarder', async () => {
@@ -116,8 +114,8 @@ describe('transform for poi and point address', () => {
 
         await drag(mapContainer, {x: 235, y: 250}, {x: 210, y: 250});
 
-        expect(poi.coord()).to.deep.almost([76.035241467, 13.709301163, 0]);
-        expect(address.coord()).to.deep.almost([76.035008515, 13.709170873, 0]);
+        chai.expect(poi.coord()).to.deep.almost([76.035241467, 13.709301163, 0]);
+        chai.expect(address.coord()).to.deep.almost([76.035008515, 13.709170873, 0]);
     });
 
 
@@ -126,8 +124,8 @@ describe('transform for poi and point address', () => {
 
         await drag(mapContainer, {x: 270, y: 233}, {x: 270, y: 200});
 
-        expect(poi.coord()).to.deep.almost([76.035241467, 13.709388819, 0]);
-        expect(address.coord()).to.deep.almost([76.035008515, 13.709170873, 0]);
+        chai.expect(poi.coord()).to.deep.almost([76.035241467, 13.709388819, 0]);
+        chai.expect(address.coord()).to.deep.almost([76.035008515, 13.709170873, 0]);
     });
 
     it('transform bottom boarder', async () => {
@@ -135,8 +133,8 @@ describe('transform for poi and point address', () => {
 
         await drag(mapContainer, {x: 270, y: 315}, {x: 270, y: 280});
 
-        expect(poi.coord()).to.deep.almost([76.035241467, 13.709388819, 0]);
-        expect(address.coord()).to.deep.almost([76.035008515, 13.709257493, 0]);
+        chai.expect(poi.coord()).to.deep.almost([76.035241467, 13.709388819, 0]);
+        chai.expect(address.coord()).to.deep.almost([76.035008515, 13.709257493, 0]);
     });
 
     it('move transformer', async () => {
@@ -144,8 +142,8 @@ describe('transform for poi and point address', () => {
 
         await drag(mapContainer, {x: 270, y: 240}, {x: 300, y: 280});
 
-        expect(poi.coord()).to.deep.almost([76.035321933, 13.709284587, 0]);
-        expect(address.coord()).to.deep.almost([76.035088981, 13.709153261, 0]);
+        chai.expect(poi.coord()).to.deep.almost([76.035321933, 13.709284587, 0]);
+        chai.expect(address.coord()).to.deep.almost([76.035088981, 13.709153261, 0]);
     });
 
     it('rotate transformer', async () => {
@@ -153,8 +151,8 @@ describe('transform for poi and point address', () => {
 
         await drag(mapContainer, {x: 360, y: 320}, {x: 300, y: 330});
 
-        expect(poi.coord()).to.deep.almost([76.035325452, 13.709159544, 0]);
-        expect(address.coord()).to.deep.almost([76.035085462, 13.709278304, 0]);
+        chai.expect(poi.coord()).to.deep.almost([76.035325452, 13.709159544, 0]);
+        chai.expect(address.coord()).to.deep.almost([76.035085462, 13.709278304, 0]);
     });
 
     it.skip('pan map inside container', async () => {
@@ -163,7 +161,7 @@ describe('transform for poi and point address', () => {
 
         await drag(mapContainer, {x: 330, y: 270}, {x: 340, y: 300});
 
-        expect(poi.coord()).to.deep.almost([76.035325452, 13.709159544, 0]);
-        expect(address.coord()).to.deep.almost([76.035085462, 13.709278304, 0]);
+        chai.expect(poi.coord()).to.deep.almost([76.035325452, 13.709159544, 0]);
+        chai.expect(address.coord()).to.deep.almost([76.035085462, 13.709278304, 0]);
     });
 });

@@ -19,11 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './get_functions_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('get functions', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var addrLayer;
     var results;
@@ -50,17 +48,17 @@ describe('get functions', function() {
     });
 
     it('validate object from callback function', function() {
-        expect(results.length).to.be.above(0);
+        expect(results.length).toBeGreaterThan(0);
 
-        expect(addrLayer.getCachedTile('02301023110211')).to.deep.include({
+        expect(addrLayer.getCachedTile('02301023110211')).toEqual(expect.objectContaining({
             quadkey: '02301023110211',
             z: 14,
             x: 2675,
             y: 6340
-        });
-        expect(addrLayer.getProvider()).to.deep.include({
+        }));
+        expect(addrLayer.getProvider()).toEqual(expect.objectContaining({
             name: 'Address',
             margin: 20
-        });
+        }));
     });
 });

@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_close_shapepoints_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map history for undo, redo changes to shapepoints which are close to each other', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
     var preparedData;
@@ -58,7 +56,7 @@ describe('map history for undo, redo changes to shapepoints which are close to e
     it('validate that 2 links are in viewport', function() {
         let objs = editor.search(display.getViewBounds());
 
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     it('select link and connect a shapepoint to link, undo and validate', async function() {
@@ -71,6 +69,6 @@ describe('map history for undo, redo changes to shapepoints which are close to e
 
         let objs = editor.search(display.getViewBounds());
 
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
     });
 });

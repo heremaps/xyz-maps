@@ -21,12 +21,10 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_invalid_style_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 
 describe('setStyleGroup with invalid style', function() {
-    const expect = chai.expect;
-
     let linkLayer;
     let addressLayer;
     let display;
@@ -71,7 +69,7 @@ describe('setStyleGroup with invalid style', function() {
 
         let style = linkLayer.getStyleGroup(link);
 
-        expect(style).to.be.deep.equal([
+        expect(style).toStrictEqual([
             {'zIndex': 0, 'type': 'Line', 'opacity': 1, 'stroke': '#be6b65', 'strokeWidth': 16},
             {'zIndex': 2, 'type': 'invalid', 'opacity': 1, 'stroke': '2e3b35', 'strokeWidth': 'invalid'}
         ]);
@@ -80,7 +78,7 @@ describe('setStyleGroup with invalid style', function() {
         let color2 = await getCanvasPixelColor(mapContainer, {x: 350, y: 300}, {
             expect: '#be6b65'
         }); // get link color
-        expect(color2).to.equal('#be6b65');
+        expect(color2).toBe('#be6b65');
     });
 
 
@@ -96,7 +94,7 @@ describe('setStyleGroup with invalid style', function() {
 
         let style = addressLayer.getStyleGroup(address);
 
-        expect(style).to.be.deep.equal([
+        expect(style).toStrictEqual([
             {'zIndex': 1, 'type': 'Rect', 'width': 16, 'height': 16, 'opacity': 1, 'fill': '#765432'},
             {'zIndex': 2, 'type': 'invalid', 'opacity': 1, 'stroke': '2e3b35', 'strokeWidth': 'invalid'}
         ]);
@@ -105,6 +103,6 @@ describe('setStyleGroup with invalid style', function() {
         let color2 = await getCanvasPixelColor(mapContainer, {x: 300, y: 200}, {
             expect: '#765432'
         }); // get address color
-        expect(color2).to.equal('#765432');
+        expect(color2).toBe('#765432');
     });
 });

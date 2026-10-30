@@ -19,11 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './set_style_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set features style and restore', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var buildingLayer;
     var linkLayer;
@@ -46,17 +44,23 @@ describe('set features style and restore', function() {
     });
 
     it('get style and validate', function() {
-        expect(buildingLayer.getStyle().styleGroups['MultiPolygon'][0]).to.deep.include({'zIndex': 0, 'type': 'Polygon'});
+        expect(buildingLayer.getStyle().styleGroups['MultiPolygon'][0]).toEqual(
+            expect.objectContaining({'zIndex': 0, 'type': 'Polygon'})
+        );
 
-        expect(linkLayer.getStyle().styleGroups['LineString'][0]).to.deep.include({'zIndex': 0, 'type': 'Line'});
+        expect(linkLayer.getStyle().styleGroups['LineString'][0]).toEqual(
+            expect.objectContaining({'zIndex': 0, 'type': 'Line'})
+        );
 
-        expect(placeLayer.getStyle().styleGroups['Point'][0]).to.deep.include({'zIndex': 0, 'type': 'Circle'});
+        expect(placeLayer.getStyle().styleGroups['Point'][0]).toEqual(
+            expect.objectContaining({'zIndex': 0, 'type': 'Circle'})
+        );
     });
 
     it('get address style and validate', function() {
         let styles = addrLayer.getStyle();
 
-        expect(styles.styleGroups.Point).to.deep.equal([
+        expect(styles.styleGroups.Point).toStrictEqual([
             {zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'}
         ]);
     });
@@ -67,7 +71,7 @@ describe('set features style and restore', function() {
 
         let styles = addrLayer.getStyleGroup(pa);
 
-        expect(styles).to.deep.equal([
+        expect(styles).toStrictEqual([
             {zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'}
         ]);
     });
@@ -81,7 +85,7 @@ describe('set features style and restore', function() {
 
         let styles = addrLayer.getStyleGroup(pa);
 
-        expect(styles).to.deep.equal([
+        expect(styles).toStrictEqual([
             {'zIndex': 0, 'type': 'Rect', 'fill': '#FFFFFF', 'width': 32, 'height': 32}
         ]);
     });
@@ -93,7 +97,7 @@ describe('set features style and restore', function() {
 
         let styles = addrLayer.getStyleGroup(pa);
 
-        expect(styles).to.deep.equal([
+        expect(styles).toStrictEqual([
             {zIndex: 0, type: 'Circle', radius: 6, fill: '#ff0000'}
         ]);
     });

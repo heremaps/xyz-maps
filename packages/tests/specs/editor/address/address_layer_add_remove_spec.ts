@@ -22,11 +22,9 @@ import {drag, click} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_layer_add_remove_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Address layer add and remove', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let editor;
     let display;
@@ -57,7 +55,7 @@ describe('Address layer add and remove', function() {
 
     it('validate map objects in viewport', function() {
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs.length).to.equal(4);
+        expect(objs.length).toBe(4);
     });
 
     it('remove address layer and validate', function() {
@@ -65,8 +63,8 @@ describe('Address layer add and remove', function() {
 
         let objs = editor.search({rect: display.getViewBounds()});
 
-        expect(objs.length).to.equal(3);
-        expect(editor.getLayers().length).to.equal(3);
+        expect(objs.length).toBe(3);
+        expect(editor.getLayers().length).toBe(3);
     });
 
     it('click n drag on an address, validate map is dragged', async function() {
@@ -79,7 +77,7 @@ describe('Address layer add and remove', function() {
         });
 
         let nc = display.getCenter();
-        expect(nc).to.not.deep.equal({longitude: -92.87121, latitude: 40.593582});
+        expect(nc).not.toEqual({longitude: -92.87121, latitude: 40.593582});
     });
 
     it('add address layer and validate', async function() {
@@ -90,7 +88,7 @@ describe('Address layer add and remove', function() {
         editor.addLayer(addrLayer);
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs.length).to.equal(4);
+        expect(objs.length).toBe(4);
     });
 
     it('click n drag on an address, validate map is not dragged', async function() {
@@ -101,7 +99,7 @@ describe('Address layer add and remove', function() {
         await drag(mapContainer, {x: 100, y: 200}, {x: 154, y: 237});
 
         let nc = display.getCenter();
-        expect(nc).to.deep.equal({longitude: -92.87121, latitude: 40.593582});
+        expect(nc).toEqual({longitude: -92.87121, latitude: 40.593582});
 
         // click on ground
         await click(mapContainer, 300, 200);

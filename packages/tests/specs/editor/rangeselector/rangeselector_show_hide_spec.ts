@@ -24,10 +24,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './rangeselector_show_hide_spec.json';
 import chaiAlmost from 'chai-almost';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('range selector util', function() {
-    const expect = chai.expect;
     let editor;
     let display;
     let preparedData;
@@ -73,15 +72,15 @@ describe('range selector util', function() {
 
         let info = editor.getRangeSelector().info();
 
-        expect(info[0].from).to.deep.almost(0.1);
-        expect(info[0].to).to.deep.almost(0.4);
-        expect(info[0].segments[0]).to.deep.include({
+        chai.expect(info[0].from).to.deep.almost(0.1);
+        chai.expect(info[0].to).to.deep.almost(0.4);
+        expect(info[0].segments[0]).toEqual(expect.objectContaining({
             reversed: false
-        });
+        }));
 
-        expect(info[0].segments[0].feature).to.deep.include({
+        expect(info[0].segments[0].feature).toEqual(expect.objectContaining({
             id: link1.id
-        });
+        }));
     });
 
     it('validate selected range info after dragging range selector', async function() {
@@ -101,15 +100,15 @@ describe('range selector util', function() {
 
         await drag(mapContainer, {x: 120, y: 185}, {x: 120, y: 200});
 
-        expect(range.segments[0].from).to.deep.almost(0.1);
-        expect(range.segments[0].to).to.deep.almost(0.517);
-        expect(range.segments[0]).to.deep.include({
+        chai.expect(range.segments[0].from).to.deep.almost(0.1);
+        chai.expect(range.segments[0].to).to.deep.almost(0.517);
+        expect(range.segments[0]).toEqual(expect.objectContaining({
             reversed: false
-        });
+        }));
 
-        expect(range.segments[0].feature).to.deep.include({
+        expect(range.segments[0].feature).toEqual(expect.objectContaining({
             id: link2.id
-        });
+        }));
     });
 
 
@@ -130,15 +129,15 @@ describe('range selector util', function() {
 
         await drag(mapContainer, {x: 133, y: 301}, {x: 131, y: 285});
 
-        expect(range.segments[0].from).to.deep.almost(0.1);
-        expect(range.segments[0].to).to.deep.almost(0.488);
-        expect(range.segments[0]).to.deep.include({
+        chai.expect(range.segments[0].from).to.deep.almost(0.1);
+        chai.expect(range.segments[0].to).to.deep.almost(0.488);
+        expect(range.segments[0]).toEqual(expect.objectContaining({
             reversed: false
-        });
+        }));
 
-        expect(range.segments[0].feature).to.deep.include({
+        expect(range.segments[0].feature).toEqual(expect.objectContaining({
             id: link1.id
-        });
+        }));
     });
 
     it('hide rangeselector and drag a link, validate the selected range info', async function() {
@@ -148,6 +147,6 @@ describe('range selector util', function() {
 
         await drag(mapContainer, {x: 423, y: 276}, {x: 400, y: 276});
 
-        expect(editor.info()).to.have.lengthOf(1);
+        expect(editor.info()).toHaveLength(1);
     });
 });

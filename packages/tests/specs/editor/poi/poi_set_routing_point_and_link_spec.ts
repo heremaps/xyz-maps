@@ -21,10 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_set_routing_point_and_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('poi set routing point and link manually', function() {
-    const expect = chai.expect;
     let editor;
     let display;
     let preparedData;
@@ -53,7 +52,7 @@ describe('poi set routing point and link manually', function() {
         poi = preparedData.getFeature('placeLayer', -29536);
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
     });
 
     afterAll(async function() {
@@ -65,8 +64,8 @@ describe('poi set routing point and link manually', function() {
     it('create routing point for poi and validate', function() {
         poi.createRoutingPoint();
 
-        expect(poi.prop('routingPoint')).to.deep.equal([76.32645, 14.4028, 0]);
-        expect(poi.getLink().id).to.equal(link1.id);
+        expect(poi.prop('routingPoint')).toStrictEqual([76.32645, 14.4028, 0]);
+        expect(poi.getLink().id).toBe(link1.id);
     });
 
 
@@ -76,8 +75,8 @@ describe('poi set routing point and link manually', function() {
             routingPoint: [76.32627, 14.40262, 0]
         });
 
-        expect(poi.prop('routingPoint')).to.deep.equal([76.32627, 14.40262, 0]);
-        expect(poi.getLink().id).to.equal(link2.id);
+        expect(poi.prop('routingPoint')).toStrictEqual([76.32627, 14.40262, 0]);
+        expect(poi.getLink().id).toBe(link2.id);
     });
 
 
@@ -87,7 +86,7 @@ describe('poi set routing point and link manually', function() {
         let p = editor.getFeature(poi.id, placeLayer);
         let lnk = editor.getFeature(link1.id, linkLayer);
 
-        expect(p.prop('routingPoint')).to.deep.equal([76.32645, 14.4028, 0]);
-        expect(p.getLink().id).to.equal(lnk.id);
+        expect(p.prop('routingPoint')).toStrictEqual([76.32645, 14.4028, 0]);
+        expect(p.getLink().id).toBe(lnk.id);
     });
 });

@@ -23,7 +23,7 @@ import {TileLayer} from '@here/xyz-maps-core';
 import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 
 const initTest = async (autoConnect?: boolean) => {
@@ -83,8 +83,6 @@ const initTest = async (autoConnect?: boolean) => {
 
 
 describe('global autoConnect EditorOption', function() {
-    const expect = chai.expect;
-
     describe('autoConnect: true (default)', function() {
         let editor: Editor;
         let display: Map;
@@ -105,7 +103,7 @@ describe('global autoConnect EditorOption', function() {
         });
 
         it('autoConnect defaults to true in behavior', function() {
-            expect(link2.behavior('autoConnect')).to.be.true;
+            expect(link2.behavior('autoConnect')).toBe(true);
         });
 
         it('drag shape onto another link auto-connects by default', async function() {
@@ -117,7 +115,7 @@ describe('global autoConnect EditorOption', function() {
             // after autoConnect, link1 should have been split
             const searchResult = editor.search({id: 'ac_link1'});
             // link1 was split, so original id is gone
-            expect(searchResult).to.have.lengthOf(0);
+            expect(searchResult).toHaveLength(0);
         });
     });
 
@@ -141,7 +139,7 @@ describe('global autoConnect EditorOption', function() {
         });
 
         it('autoConnect defaults to false in behavior when global option is false', function() {
-            expect(link2.behavior('autoConnect')).to.be.false;
+            expect(link2.behavior('autoConnect')).toBe(false);
         });
 
         it('drag shape onto another link does NOT auto-connect when global is false', async function() {
@@ -152,15 +150,15 @@ describe('global autoConnect EditorOption', function() {
 
             // link1 should NOT have been split (still exists)
             const searchResult = editor.search({id: 'ac_link1'});
-            expect(searchResult).to.have.lengthOf(1);
+            expect(searchResult).toHaveLength(1);
 
             // shape should be at the dragged position but NOT connected
             const shape = <NavlinkShape>(await editorClick(editor, 250, 300)).target;
-            expect(shape).to.not.be.undefined;
-            expect(shape.class).to.equal('NAVLINK_SHAPE');
+            expect(shape).not.toBeUndefined();
+            expect(shape.class).toBe('NAVLINK_SHAPE');
 
             const connectedLinks = shape.getConnectedLinks();
-            expect(connectedLinks).to.have.lengthOf(0);
+            expect(connectedLinks).toHaveLength(0);
         });
 
         it('per-feature override: behavior autoConnect=true overrides global false', async function() {
@@ -171,7 +169,7 @@ describe('global autoConnect EditorOption', function() {
 
             // override per-feature
             link2.behavior({autoConnect: true});
-            expect(link2.behavior('autoConnect')).to.be.true;
+            expect(link2.behavior('autoConnect')).toBe(true);
 
             link2.select();
 
@@ -180,7 +178,7 @@ describe('global autoConnect EditorOption', function() {
 
             // link1 should have been split (autoConnect was enabled per-feature)
             const searchResult = editor.search({id: 'ac_link1'});
-            expect(searchResult).to.have.lengthOf(0);
+            expect(searchResult).toHaveLength(0);
         });
     });
 
@@ -205,7 +203,7 @@ describe('global autoConnect EditorOption', function() {
 
         it('per-feature behavior false prevents autoConnect even with global true', async function() {
             link2.behavior({autoConnect: false});
-            expect(link2.behavior('autoConnect')).to.be.false;
+            expect(link2.behavior('autoConnect')).toBe(false);
 
             link2.select();
 
@@ -214,10 +212,10 @@ describe('global autoConnect EditorOption', function() {
 
             // link1 should NOT have been split
             const searchResult = editor.search({id: 'ac_link1'});
-            expect(searchResult).to.have.lengthOf(1);
+            expect(searchResult).toHaveLength(1);
 
             const connectedLinks = link2.getConnectedLinks(1);
-            expect(connectedLinks).to.have.lengthOf(0);
+            expect(connectedLinks).toHaveLength(0);
         });
     });
 });

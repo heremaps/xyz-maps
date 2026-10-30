@@ -20,11 +20,9 @@
 import {prepare} from 'utils';
 import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_then_cancel_at_different_level_requestagain_after_finish_with_same_callback_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('get and cancel requesting with different level with same callback', function() {
-    const expect = chai.expect;
-
     var placeProvider; // placeProvider.level.length == 16
 
 
@@ -94,8 +92,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 sameCallback: true,
                 onFinish: function(requests, callbackResults) {
                     // 4 request(s) sent, 2 callback(s) called
-                    expect(requests.length).to.equal(4);
-                    expect(callbackResults.length).to.equal(2);
+                    expect(requests.length).toBe(4);
+                    expect(callbackResults.length).toBe(2);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -104,7 +102,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -128,8 +126,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // 4 request(s) sent, 1 callback(s) called
-                    expect(requests.length).to.equal(4);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(4);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -138,7 +136,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -162,19 +160,19 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // 4 request(s) sent, 1 callback(s) called
-                    expect(requests.length).to.equal(4);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(4);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
                         if (requests[r].status == 0) {
                             cancelledRequests++;
                         } else {
-                            expect(requests[r].responseURL.indexOf(qk32)).to.above(-1);
+                            expect(requests[r].responseURL.indexOf(qk32)).toBeGreaterThan(-1);
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(3);
+                    expect(cancelledRequests).toBe(3);
 
 
                     done();
@@ -197,8 +195,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // 4 request(s) sent, 0 callback(s) called
-                    expect(requests.length).to.equal(4);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(4);
+                    expect(callbackResults.length).toBe(0);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -207,7 +205,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(4);
+                    expect(cancelledRequests).toBe(4);
 
 
                     done();
@@ -227,8 +225,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 sameCallback: true,
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 2 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(2);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(2);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -237,7 +235,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -260,8 +258,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 1 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -270,7 +268,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -294,8 +292,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 1 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -304,7 +302,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -328,8 +326,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 0 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(0);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -338,7 +336,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(1);
+                    expect(cancelledRequests).toBe(1);
 
 
                     done();
@@ -357,8 +355,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 sameCallback: true,
                 onFinish: function(requests, callbackResults) {
                     // 0 request(s) sent, 2 callback(s) called
-                    expect(requests.length).to.equal(0);
-                    expect(callbackResults.length).to.equal(2);
+                    expect(requests.length).toBe(0);
+                    expect(callbackResults.length).toBe(2);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -367,7 +365,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -390,8 +388,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // 0 request(s) sent, 2 callback(s) called
-                    expect(requests.length).to.equal(0);
-                    expect(callbackResults.length).to.equal(2);
+                    expect(requests.length).toBe(0);
+                    expect(callbackResults.length).toBe(2);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -400,7 +398,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -424,8 +422,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // 0 request(s) sent, 2 callback(s) called
-                    expect(requests.length).to.equal(0);
-                    expect(callbackResults.length).to.equal(2);
+                    expect(requests.length).toBe(0);
+                    expect(callbackResults.length).toBe(2);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -434,7 +432,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -458,8 +456,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // three requests sent callback are called
-                    expect(requests.length).to.equal(0);
-                    expect(callbackResults.length).to.equal(2);
+                    expect(requests.length).toBe(0);
+                    expect(callbackResults.length).toBe(2);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -468,7 +466,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -492,8 +490,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // 3 request(s) sent, 1 callback(s) called
-                    expect(requests.length).to.equal(3);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(3);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -502,7 +500,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(3);
+                    expect(cancelledRequests).toBe(3);
 
 
                     done();
@@ -526,8 +524,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // 3 request(s) sent, 2 callback(s) called
-                    expect(requests.length).to.equal(3);
-                    expect(callbackResults.length).to.equal(2);
+                    expect(requests.length).toBe(3);
+                    expect(callbackResults.length).toBe(2);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -536,7 +534,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -559,8 +557,8 @@ describe('get and cancel requesting with different level with same callback', fu
                 },
                 onFinish: function(requests, callbackResults) {
                     // 4 request(s) sent, 0 callback(s) called
-                    expect(requests.length).to.equal(4);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(4);
+                    expect(callbackResults.length).toBe(0);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -569,7 +567,7 @@ describe('get and cancel requesting with different level with same callback', fu
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(4);
+                    expect(cancelledRequests).toBe(4);
 
 
                     done();

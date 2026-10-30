@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Line} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './line_basics_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('basic line tests', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -78,8 +76,8 @@ describe('basic line tests', function() {
 
         let shape = <DrawingShape>(await editorClick(editor, 400, 300)).target;
 
-        expect(shape.getIndex()).to.equal(0);
-        expect(shape.getLength()).to.equal(3);
+        expect(shape.getIndex()).toBe(0);
+        expect(shape.getLength()).toBe(3);
 
         line = editor.getDrawingBoard().create({featureClass: 'LINE'});
     });
@@ -87,7 +85,7 @@ describe('basic line tests', function() {
     // 1204.25 366.7
     it('validate line geometry', async function() {
         let selected = <Line>(await editorClick(editor, 400, 300)).target;
-        expect(selected.coord()).to.deep.almost([
+        chai.expect(selected.coord()).to.deep.almost([
             [76.083125712, 13.214838342, 0],
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
@@ -97,7 +95,7 @@ describe('basic line tests', function() {
     it('modify geometry by dragging shape ', async function() {
         await drag(mapContainer, {x: 400, y: 300}, {x: 300, y: 400});
 
-        expect(line.coord()).to.deep.almost([
+        chai.expect(line.coord()).to.deep.almost([
             [76.082589270, 13.214316105, 0],
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
@@ -110,7 +108,7 @@ describe('basic line tests', function() {
 
         shape.remove();
 
-        expect(line.coord()).to.deep.almost([
+        chai.expect(line.coord()).to.deep.almost([
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
         ]);
@@ -121,7 +119,7 @@ describe('basic line tests', function() {
 
         await drag(mapContainer, {x: 250, y: 250}, {x: 350, y: 350});
 
-        expect(line.coord()).to.deep.almost([
+        chai.expect(line.coord()).to.deep.almost([
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0]
@@ -136,6 +134,6 @@ describe('basic line tests', function() {
 
         let result = editor.search({id: id});
 
-        expect(result.length).to.equal(0);
+        expect(result.length).toBe(0);
     });
 });

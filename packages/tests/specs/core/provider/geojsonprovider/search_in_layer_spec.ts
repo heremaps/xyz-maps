@@ -19,11 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './search_in_layer_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('search features in poi layer and provider', function() {
-    const expect = chai.expect;
-
     var preparedFeatures;
     var poiLayer;
     var poiProvider;
@@ -40,14 +38,14 @@ describe('search features in poi layer and provider', function() {
         // make a local search with a single id and validate the expected feature is returned
         let objs = poiLayer.search({id: '-30223'});
 
-        expect(objs).to.include({id: -30223, type: 'Feature'});
+        expect(objs).toEqual(expect.objectContaining({id: -30223, type: 'Feature'}));
     });
 
     it('search in poi layer by feature id', function() {
         // make a local search with a single id again and validate expected feature is returned
         let objs = poiLayer.search({id: '-31443'});
 
-        expect(objs).to.include({id: -31443, type: 'Feature'});
+        expect(objs).toEqual(expect.objectContaining({id: -31443, type: 'Feature'}));
     });
 
 
@@ -55,8 +53,8 @@ describe('search features in poi layer and provider', function() {
         // make a local search with two ids
         let objs = poiProvider.search({ids: ['-31366', '-30710']});
 
-        expect(objs[0]).to.include({id: -31366, type: 'Feature'});
-        expect(objs[1]).to.include({id: -30710, type: 'Feature'});
+        expect(objs[0]).toEqual(expect.objectContaining({id: -31366, type: 'Feature'}));
+        expect(objs[1]).toEqual(expect.objectContaining({id: -30710, type: 'Feature'}));
     });
 
     it('search by point and radius in poi provider', function() {
@@ -65,7 +63,7 @@ describe('search features in poi layer and provider', function() {
             radius: 80
         });
 
-        expect(objs).to.have.lengthOf(6);
+        expect(objs).toHaveLength(6);
     });
 
     it('search in provider by rect', function() {
@@ -73,14 +71,14 @@ describe('search features in poi layer and provider', function() {
             rect: {minLon: -97.2876892, maxLat: 37.675575, maxLon: -97.283927, minLat: 37.6731911}
         });
 
-        expect(objs).to.have.lengthOf(13);
+        expect(objs).toHaveLength(13);
     });
 
     it('search in provider by rect again', function() {
         let objs = poiProvider.search({
             rect: {minLon: -97.27616439, maxLat: 37.671016753895, maxLon: -97.273355940327, minLat: 37.67021945}
         });
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
     });
 
     it('search in provider by rect', function() {
@@ -88,7 +86,7 @@ describe('search features in poi layer and provider', function() {
             rect: [-97.27616439, 37.67021945, -97.273355940327, 37.671016753895]
         });
 
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
     });
 
     it('search in provider by rect again', function() {
@@ -96,6 +94,6 @@ describe('search features in poi layer and provider', function() {
             rect: [-97.2876892, 37.6731911, -97.283927, 37.675575]
         });
 
-        expect(objs).to.have.lengthOf(13);
+        expect(objs).toHaveLength(13);
     });
 });

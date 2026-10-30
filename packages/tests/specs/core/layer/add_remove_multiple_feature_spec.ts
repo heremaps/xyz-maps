@@ -19,11 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './add_remove_multiple_feature_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('add and remove multiple features in layer', function() {
-    const expect = chai.expect;
-
     var layer;
 
     beforeAll(async () => {
@@ -42,7 +40,7 @@ describe('add and remove multiple features in layer', function() {
             }
         });
 
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
     });
 
     it('add an empty FeatureCollection', async () => {
@@ -50,19 +48,19 @@ describe('add and remove multiple features in layer', function() {
             type: 'FeatureCollection',
             features: []
         });
-        expect(result).to.have.lengthOf(0);
+        expect(result).toHaveLength(0);
     });
 
     it('add invalid FeatureCollection', async () => {
         let result = layer.addFeature({
             type: 'FeatureCollection'
         });
-        expect(result).to.have.lengthOf(0);
+        expect(result).toHaveLength(0);
     });
 
     it('add an empty feature array', async () => {
         let result = layer.addFeature([]);
-        expect(result).to.have.lengthOf(0);
+        expect(result).toHaveLength(0);
     });
 
     it('add 2 address feature', async () => {
@@ -101,7 +99,7 @@ describe('add and remove multiple features in layer', function() {
             }
         });
 
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     it('remove features', async () => {
@@ -113,16 +111,16 @@ describe('add and remove multiple features in layer', function() {
         };
         let removed = layer.removeFeature(layer.search({rect: rect}));
 
-        expect(removed).to.have.lengthOf(2);
+        expect(removed).toHaveLength(2);
 
         let result = layer.search({rect: rect});
 
-        expect(result).to.have.lengthOf(0);
+        expect(result).toHaveLength(0);
     });
 
     it('remove empty feature array', async () => {
         let removed = layer.removeFeature([]);
 
-        expect(removed).to.have.lengthOf(0);
+        expect(removed).toHaveLength(0);
     });
 });

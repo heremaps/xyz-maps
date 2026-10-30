@@ -22,11 +22,9 @@ import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_featureunselected_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map featureunselected event listener', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -67,25 +65,25 @@ describe('map featureunselected event listener', function() {
 
         let results = listener.stop();
 
-        expect(results.featureUnselected).to.have.lengthOf(1);
+        expect(results.featureUnselected).toHaveLength(1);
 
-        expect(results.dragStart).to.have.lengthOf(2);
-        expect(results.dragStart[0]).to.deep.include({
+        expect(results.dragStart).toHaveLength(2);
+        expect(results.dragStart[0]).toEqual(expect.objectContaining({
             button: 0,
             type: 'dragStart'
-        });
-        expect(results.dragStop).to.have.lengthOf(2);
-        expect(results.dragStop[0]).to.deep.include({
+        }));
+        expect(results.dragStop).toHaveLength(2);
+        expect(results.dragStop[0]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 300,
             mapY: 210,
             type: 'dragStop'
-        });
-        expect(results.dragStop[1]).to.deep.include({
+        }));
+        expect(results.dragStop[1]).toEqual(expect.objectContaining({
             button: 0,
             mapX: 100,
             mapY: 200,
             type: 'dragStop'
-        });
+        }));
     });
 });

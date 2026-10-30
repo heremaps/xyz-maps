@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_history_multiple_steps_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map history for multiple steps redo and undo', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
     var preparedData;
@@ -104,42 +102,42 @@ describe('map history for multiple steps redo and undo', function() {
         editor.addFeature(poi3, preparedData.getLayers('placeLayer'));
         editor.addFeature(poi4, preparedData.getLayers('placeLayer'));
 
-        expect(editor.get('history.current')).to.equal(5);
-        expect(editor.get('history.length')).to.equal(5);
-        expect(editor.get('changes.length')).to.equal(5);
+        expect(editor.get('history.current')).toBe(5);
+        expect(editor.get('history.length')).toBe(5);
+        expect(editor.get('changes.length')).toBe(5);
     });
 
 
     it('undo again and validate', function() {
         editor.undo(2);
 
-        expect(editor.get('history.current')).to.equal(3);
-        expect(editor.get('history.length')).to.equal(5);
-        expect(editor.get('changes.length')).to.equal(3);
+        expect(editor.get('history.current')).toBe(3);
+        expect(editor.get('history.length')).toBe(5);
+        expect(editor.get('changes.length')).toBe(3);
     });
 
     it('undo and validate', function() {
         editor.undo();
 
-        expect(editor.get('history.current')).to.equal(2);
-        expect(editor.get('history.length')).to.equal(5);
-        expect(editor.get('changes.length')).to.equal(2);
+        expect(editor.get('history.current')).toBe(2);
+        expect(editor.get('history.length')).toBe(5);
+        expect(editor.get('changes.length')).toBe(2);
     });
 
     it('redo and validate', function() {
         editor.redo(2);
 
-        expect(editor.get('history.current')).to.equal(4);
-        expect(editor.get('history.length')).to.equal(5);
-        expect(editor.get('changes.length')).to.equal(4);
+        expect(editor.get('history.current')).toBe(4);
+        expect(editor.get('history.length')).toBe(5);
+        expect(editor.get('changes.length')).toBe(4);
     });
 
     it('redo again and validate', function() {
         editor.redo(3);
 
-        expect(editor.get('history.current')).to.equal(4);
-        expect(editor.get('history.length')).to.equal(5);
-        expect(editor.get('changes.length')).to.equal(4);
+        expect(editor.get('history.current')).toBe(4);
+        expect(editor.get('history.length')).toBe(5);
+        expect(editor.get('changes.length')).toBe(4);
     });
 
 
@@ -150,8 +148,8 @@ describe('map history for multiple steps redo and undo', function() {
 
         editor.redo();
 
-        expect(editor.get('history.current')).to.equal(0);
-        expect(editor.get('history.length')).to.equal(0);
-        expect(editor.get('changes.length')).to.equal(0);
+        expect(editor.get('history.current')).toBe(0);
+        expect(editor.get('history.length')).toBe(0);
+        expect(editor.get('changes.length')).toBe(0);
     });
 });

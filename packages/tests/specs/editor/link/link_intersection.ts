@@ -23,10 +23,9 @@ import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
-import {beforeAll, it, describe, afterAll, chai} from 'vitest';
+import {beforeAll, it, describe, afterAll, chai, expect} from 'vitest';
 
 
-const expect = chai.expect;
 let editor;
 let display;
 const runIntersectionTests = (customProviderOptions = {}) => {
@@ -95,9 +94,9 @@ const runIntersectionTests = (customProviderOptions = {}) => {
         let connectedLinks1Start = link1.getConnectedLinks(0);
         let connectedLinks1End = link1.getConnectedLinks(1);
 
-        expect(connectedLinks1Start).to.have.lengthOf(0);
-        expect(connectedLinks1End).to.have.lengthOf(1);
-        expect(connectedLinks1End[0].id).to.equal(link2.id);
+        expect(connectedLinks1Start).toHaveLength(0);
+        expect(connectedLinks1End).toHaveLength(1);
+        expect(connectedLinks1End[0].id).toBe(link2.id);
     });
 
 
@@ -105,9 +104,9 @@ const runIntersectionTests = (customProviderOptions = {}) => {
         let connectedLinks2Start = link2.getConnectedLinks(0);
         let connectedLinks2End = link2.getConnectedLinks(1);
 
-        expect(connectedLinks2Start).to.have.lengthOf(1);
-        expect(connectedLinks2End).to.have.lengthOf(0);
-        expect(connectedLinks2Start[0].id).to.equal(link1.id);
+        expect(connectedLinks2Start).toHaveLength(1);
+        expect(connectedLinks2End).toHaveLength(0);
+        expect(connectedLinks2Start[0].id).toBe(link1.id);
     });
 
     it('clear intersection - coordinates', async function() {
@@ -115,11 +114,11 @@ const runIntersectionTests = (customProviderOptions = {}) => {
 
         link1.coord([link1.coord()[0], [point.longitude, point.latitude]]);
 
-        expect(link1.getConnectedLinks(0)).to.have.lengthOf(0);
-        expect(link1.getConnectedLinks(1)).to.have.lengthOf(0);
+        expect(link1.getConnectedLinks(0)).toHaveLength(0);
+        expect(link1.getConnectedLinks(1)).toHaveLength(0);
 
-        expect(link2.getConnectedLinks(0)).to.have.lengthOf(0);
-        expect(link2.getConnectedLinks(1)).to.have.lengthOf(0);
+        expect(link2.getConnectedLinks(0)).toHaveLength(0);
+        expect(link2.getConnectedLinks(1)).toHaveLength(0);
     });
 
     it('recreate intersection', async () => {
@@ -129,16 +128,16 @@ const runIntersectionTests = (customProviderOptions = {}) => {
         const connectedLinks1Start = link1.getConnectedLinks(0);
         const connectedLinks1End = link1.getConnectedLinks(1);
 
-        expect(connectedLinks1Start).to.have.lengthOf(0);
-        expect(connectedLinks1End).to.have.lengthOf(1);
-        expect(connectedLinks1End[0].id).to.equal(link2.id);
+        expect(connectedLinks1Start).toHaveLength(0);
+        expect(connectedLinks1End).toHaveLength(1);
+        expect(connectedLinks1End[0].id).toBe(link2.id);
 
         const connectedLinks2Start = link2.getConnectedLinks(0);
         const connectedLinks2End = link2.getConnectedLinks(1);
 
-        expect(connectedLinks2Start).to.have.lengthOf(1);
-        expect(connectedLinks2End).to.have.lengthOf(0);
-        expect(connectedLinks2Start[0].id).to.equal(link1.id);
+        expect(connectedLinks2Start).toHaveLength(1);
+        expect(connectedLinks2End).toHaveLength(0);
+        expect(connectedLinks2Start[0].id).toBe(link1.id);
     });
 
     it('clear intersection - disconnect', async () => {
@@ -147,11 +146,11 @@ const runIntersectionTests = (customProviderOptions = {}) => {
 
         node.disconnect();
 
-        expect(link1.getConnectedLinks(0)).to.have.lengthOf(0);
-        expect(link1.getConnectedLinks(1)).to.have.lengthOf(0);
+        expect(link1.getConnectedLinks(0)).toHaveLength(0);
+        expect(link1.getConnectedLinks(1)).toHaveLength(0);
 
-        expect(link2.getConnectedLinks(0)).to.have.lengthOf(0);
-        expect(link2.getConnectedLinks(1)).to.have.lengthOf(0);
+        expect(link2.getConnectedLinks(0)).toHaveLength(0);
+        expect(link2.getConnectedLinks(1)).toHaveLength(0);
     });
 
     return {linkLayer, link1, link2};
@@ -185,7 +184,7 @@ describe('link intersections - custom mode', () => {
     });
 
     it('validate custom reader usage', async () => {
-        expect(readConnectedLinksCalls).to.be.greaterThan(0);
+        expect(readConnectedLinksCalls).toBeGreaterThan(0);
     });
 
     it('validate unknown/invalid links are ignored', async () => {
@@ -202,9 +201,9 @@ describe('link intersections - custom mode', () => {
         let connectedLinks1Start = link1.getConnectedLinks(0);
         let connectedLinks1End = link1.getConnectedLinks(1);
 
-        expect(connectedLinks1Start).to.have.lengthOf(0);
-        expect(connectedLinks1End).to.have.lengthOf(1);
-        expect(connectedLinks1End[0].id).to.equal(link2.id);
+        expect(connectedLinks1Start).toHaveLength(0);
+        expect(connectedLinks1End).toHaveLength(1);
+        expect(connectedLinks1End[0].id).toBe(link2.id);
     });
 
     afterAll(async () => {

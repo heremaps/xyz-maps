@@ -21,11 +21,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './add_remove_layer_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('get add and remove map layer', function() {
-    const expect = chai.expect;
-
     let imageLayer;
     let linkLayer;
     let display;
@@ -54,45 +52,45 @@ describe('get add and remove map layer', function() {
     });
 
     it('validate sat image layer added and validate sat image', async function() {
-        expect(display.getLayers()).to.lengthOf(2);
+        expect(display.getLayers()).toHaveLength(2);
 
         // validate map tile is displayed
         let color = await getCanvasPixelColor(mapContainer, {x: 70, y: 119}, {
             expect: (colors) => colors[0] !== '#ffffff'
         });
-        expect(color).to.not.equal('#ffffff');
+        expect(color).not.toBe('#ffffff');
     });
 
     it('remove image overlay and validate ground', async function() {
-        expect(display.getLayers()).to.lengthOf(2);
+        expect(display.getLayers()).toHaveLength(2);
 
 
         await waitForViewportReady(display, [linkLayer], () => {
             display.removeLayer(imageLayer);
         });
 
-        expect(display.getLayers()).to.lengthOf(1);
+        expect(display.getLayers()).toHaveLength(1);
 
         // validate map tile is not displayed
         let color = await getCanvasPixelColor(mapContainer, {x: 70, y: 119}, {
             expect: '#ffffff'
         });
-        expect(color).to.equal('#ffffff');
+        expect(color).toBe('#ffffff');
     });
 
     it('add image overlay and validate sat image', async function() {
-        expect(display.getLayers()).to.lengthOf(1);
+        expect(display.getLayers()).toHaveLength(1);
 
         await waitForViewportReady(display, [imageLayer, linkLayer], () => {
             display.addLayer(imageLayer, 0);
         });
 
-        expect(display.getLayers()).to.lengthOf(2);
+        expect(display.getLayers()).toHaveLength(2);
 
         // validate map tile is displayed
         let color = await getCanvasPixelColor(mapContainer, {x: 70, y: 119}, {
             expect: (colors) => colors[0] !== '#ffffff'
         });
-        expect(color).to.not.equal('#ffffff');
+        expect(color).not.toBe('#ffffff');
     });
 });

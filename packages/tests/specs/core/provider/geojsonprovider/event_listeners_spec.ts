@@ -19,10 +19,9 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('event listeners in provider layer', function() {
-    const expect = chai.expect;
     var poiProvider;
 
     beforeAll(async function() {
@@ -50,8 +49,8 @@ describe('event listeners in provider layer', function() {
 
         let evts = listener.stop();
 
-        expect(evts.featuresAdd[0].detail.features[0]).to.deep.include({id: 'abc'});
-        expect(evts.featuresRemove).to.have.lengthOf(0);
+        expect(evts.featuresAdd[0].detail.features[0]).toEqual(expect.objectContaining({id: 'abc'}));
+        expect(evts.featuresRemove).toHaveLength(0);
 
 
         let listener2 = new Listener(poiProvider, ['featuresAdd', 'featuresRemove']);
@@ -64,7 +63,7 @@ describe('event listeners in provider layer', function() {
 
         let evt = listener2.stop();
 
-        expect(evt.featuresRemove[0].detail.features[0]).to.deep.include({id: 'abc'});
-        expect(evt.featuresAdd).to.have.lengthOf(0);
+        expect(evt.featuresRemove[0].detail.features[0]).toEqual(expect.objectContaining({id: 'abc'}));
+        expect(evt.featuresAdd).toHaveLength(0);
     });
 });

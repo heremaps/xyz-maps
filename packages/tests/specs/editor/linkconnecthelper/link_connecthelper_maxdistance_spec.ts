@@ -22,11 +22,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_maxdistance_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('link connect helper with maxdistance greater than 3', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -62,22 +60,22 @@ describe('link connect helper with maxdistance greater than 3', function() {
     it('validate crossings', function() {
         crossings = link1.checkCrossings();
 
-        expect(crossings).to.have.lengthOf(0);
+        expect(crossings).toHaveLength(0);
 
         crossings = link1.checkCrossings({maxDistance: 10});
 
-        expect(crossings).to.have.lengthOf(1);
+        expect(crossings).toHaveLength(1);
     });
 
     it('connect the crossing and validate links', async function() {
         crossings = link1.checkCrossings({maxDistance: 10});
 
-        expect(crossings).to.have.lengthOf(1);
+        expect(crossings).toHaveLength(1);
 
         crossings[0].connect();
 
-        expect(link1.coord()).to.deep.almost([[77.641956337, 17.790593789, 0], [77.642417677, 17.791564285, 0]]);
-        expect(link2.coord()).to.deep.almost([[77.642417677, 17.791564285, 0], [77.643061407, 17.790644868, 0]]);
-        expect(link3.coord()).to.deep.almost([[77.641210683, 17.791400834, 0], [77.642417677, 17.791564285, 0]]);
+        chai.expect(link1.coord()).to.deep.almost([[77.641956337, 17.790593789, 0], [77.642417677, 17.791564285, 0]]);
+        chai.expect(link2.coord()).to.deep.almost([[77.642417677, 17.791564285, 0], [77.643061407, 17.790644868, 0]]);
+        chai.expect(link3.coord()).to.deep.almost([[77.641210683, 17.791400834, 0], [77.642417677, 17.791564285, 0]]);
     });
 });

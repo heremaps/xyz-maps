@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_pan_map_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('Area drawing manager and pan map', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -89,8 +87,8 @@ describe('Area drawing manager and pan map', function() {
         // click on a shape point
         shape = <DrawingShape>(await editorClick(editor, 300, 250)).target;
 
-        expect(shape.getIndex()).to.equal(1);
-        expect(shape.getLength()).to.equal(3);
+        expect(shape.getIndex()).toBe(1);
+        expect(shape.getLength()).toBe(3);
 
         // drag map to move area outside of viewport
         await waitForEditorReady(editor, async ()=>{
@@ -110,9 +108,9 @@ describe('Area drawing manager and pan map', function() {
         });
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
 
-        expect(objs[0].coord()).to.deep.almost([[[
+        chai.expect(objs[0].coord()).to.deep.almost([[[
             [76.081516385, 13.215360578, 0],
             [76.082589269, 13.215099461, 0],
             [76.083125711, 13.214577224, 0],

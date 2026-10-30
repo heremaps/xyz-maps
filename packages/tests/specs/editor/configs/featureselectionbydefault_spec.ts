@@ -22,11 +22,9 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './featureselectionbydefault_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set featureSelectionByDefault', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -87,7 +85,7 @@ describe('set featureSelectionByDefault', function() {
         await click(mapContainer, 100, 200);
 
         // validate link is not selected
-        expect(links[1].editState('selected')).to.be.false;
+        expect(links[1].editState('selected')).toBe(false);
     });
 
     it('reset everything, validate the disconnect shape distance again', async function() {
@@ -123,6 +121,6 @@ describe('set featureSelectionByDefault', function() {
         await click(mapContainer, 100, 200);
 
         // validate link is selected
-        expect(links[1].editState('selected')).to.be.true;
+        expect(links[1].editState('selected')).toBe(true);
     });
 });

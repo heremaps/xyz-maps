@@ -22,11 +22,9 @@ import {drag, click} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_routingpoint_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('routing point of address objects should always exists', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let editor;
     let display;
@@ -62,18 +60,18 @@ describe('routing point of address objects should always exists', function() {
     });
 
     it('validate created Address object connects to created link', function() {
-        expect(address.prop()).to.deep.include({
+        expect(address.prop()).toEqual(expect.objectContaining({
             'routingLink': link1.id + '',
             'routingPoint': [77.02937, 12.94356, 0]
-        });
+        }));
     });
 
     it('validate address after removing its connected link', function() {
         link1.remove();
 
-        expect(address.prop()).to.deep.include({
+        expect(address.prop()).toEqual(expect.objectContaining({
             'routingLink': link1.id + ''
-        });
+        }));
     });
 
     it('create a link object and click on the address object, address object connects to the new link', async function() {
@@ -89,29 +87,29 @@ describe('routing point of address objects should always exists', function() {
 
         await click(mapContainer, 200, 100);
 
-        expect(address.prop()).to.deep.include({
+        expect(address.prop()).toEqual(expect.objectContaining({
             'routingLink': link2.id + '',
             'routingPoint': [77.02937, 12.94304, 0]
-        });
+        }));
     });
 
 
     it('drag address navigation point, address has its routing point changed', async function() {
         await drag(mapContainer, {x: 200, y: 300}, {x: 150, y: 350});
 
-        expect(address.prop()).to.deep.include({
+        expect(address.prop()).toEqual(expect.objectContaining({
             'routingLink': link2.id + '',
             'routingPoint': [77.0291, 12.94278, 0]
-        });
+        }));
     });
 
     it('drag connected link, address has its routing point changed', async function() {
         await click(mapContainer, 200, 300);
         await drag(mapContainer, {x: 200, y: 300}, {x: 200, y: 400});
 
-        expect(address.prop()).to.deep.include({
+        expect(address.prop()).toEqual(expect.objectContaining({
             'routingLink': link2.id + '',
             'routingPoint': [77.0291, 12.94251, 0]
-        });
+        }));
     });
 });

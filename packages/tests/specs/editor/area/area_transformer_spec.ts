@@ -26,8 +26,6 @@ import dataset from './area_transformer_spec.json';
 import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('area transformer', () => {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -61,7 +59,7 @@ describe('area transformer', () => {
     });
 
     it('validate area coordinate and activate transformer', () => {
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [74.82131612, 12.901112607, 0],
             [74.82131612, 12.900589706, 0],
             [74.821852562, 12.901112607, 0],
@@ -75,7 +73,7 @@ describe('area transformer', () => {
     it('drag to scale left', async () => {
         await drag(mapContainer, {x: 185, y: 400}, {x: 200, y: 400});
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [74.82135612, 12.901112607, 0],
             [74.82135612, 12.900589706, 0],
             [74.821852562, 12.901112607, 0],
@@ -86,7 +84,7 @@ describe('area transformer', () => {
     it('drag to scale right', async () => {
         await drag(mapContainer, {x: 415, y: 400}, {x: 400, y: 400});
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [74.82135612, 12.901112607, 0],
             [74.82135612, 12.900589706, 0],
             [74.821812562, 12.901112607, 0],
@@ -98,7 +96,7 @@ describe('area transformer', () => {
     it('drag to scale up', async () => {
         await drag(mapContainer, {x: 300, y: 285}, {x: 300, y: 250});
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [74.82135612, 12.901203332, 0],
             [74.82135612, 12.900589706, 0],
             [74.821812562, 12.901203332, 0],
@@ -135,7 +133,7 @@ describe('area transformer', () => {
         //     opacity: .4
         // }]);
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [74.821355627, 12.901203664, 0],
             [74.821355627, 12.900759003, 0],
             [74.82181316, 12.901203664, 0],
@@ -145,7 +143,7 @@ describe('area transformer', () => {
 
     it('drag to move', async () => {
         await drag(mapContainer, {x: 300, y: 350}, {x: 320, y: 300});
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [74.821409272, 12.901334389, 0],
             [74.821409272, 12.900889728, 0],
             [74.821866805, 12.901334389, 0],
@@ -156,7 +154,7 @@ describe('area transformer', () => {
     it('drag to rotate', async () => {
         await drag(mapContainer, {x: 420, y: 400}, {x: 400, y: 400});
 
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [74.821435871, 12.901357663, 0],
             [74.821385474, 12.900915724, 0],
             [74.821890603, 12.901308393, 0],
@@ -169,7 +167,7 @@ describe('area transformer', () => {
         await waitForEditorReady(editor, async () => {
             await drag(mapContainer, {x: 380, y: 300}, {x: 380, y: 330});
         });
-        expect(area.coord()).to.deep.almost([[[
+        chai.expect(area.coord()).to.deep.almost([[[
             [74.821435871, 12.901357663, 0],
             [74.821385474, 12.900915724, 0],
             [74.821890603, 12.901308393, 0],

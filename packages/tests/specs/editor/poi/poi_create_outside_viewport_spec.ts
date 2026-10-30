@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_create_outside_viewport_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('create a poi outside viewport, it connects to a link nearby', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -69,6 +67,6 @@ describe('create a poi outside viewport, it connects to a link nearby', function
 
         poi.createRoutingPoint();
 
-        expect(poi.prop('routingLink')).to.deep.equal(link.id+'');
+        expect(poi.prop('routingLink')).toEqual(link.id+'');
     });
 });

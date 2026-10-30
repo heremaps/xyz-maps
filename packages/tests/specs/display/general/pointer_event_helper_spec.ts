@@ -1,5 +1,5 @@
 import {waitForPointerEvent} from 'utils';
-import {vi, describe, beforeEach, afterEach, it, chai} from 'vitest';
+import {vi, describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('pointer event helper', () => {
     let target: EventTarget;
@@ -19,9 +19,9 @@ describe('pointer event helper', () => {
         await waitForPointerEvent(target, 'pointerenter', () => {
             target.dispatchEvent(new Event('pointerenter'));
         });
-        chai.expect(remove.mock.calls).to.have.lengthOf(1);
-        chai.expect(remove.mock.calls[0][0]).to.equal('pointerenter');
-        chai.expect(vi.getTimerCount()).to.equal(0);
+        expect(remove.mock.calls).toHaveLength(1);
+        expect(remove.mock.calls[0][0]).toBe('pointerenter');
+        expect(vi.getTimerCount()).toBe(0);
     });
 
     it('waits for the action even if the event has already arrived', async () => {
@@ -33,11 +33,11 @@ describe('pointer event helper', () => {
             completed = true;
         });
         await vi.advanceTimersByTimeAsync(99);
-        chai.expect(completed).to.equal(false);
+        expect(completed).toBe(false);
         await vi.advanceTimersByTimeAsync(1);
         await pending;
-        chai.expect(completed).to.equal(true);
-        chai.expect(vi.getTimerCount()).to.equal(0);
+        expect(completed).toBe(true);
+        expect(vi.getTimerCount()).toBe(0);
     });
 
     it('reports a missing event and removes its listener', async () => {
@@ -46,9 +46,9 @@ describe('pointer event helper', () => {
             .then(() => null, (error: Error) => error);
         await vi.advanceTimersByTimeAsync(2000);
         const error = await pending;
-        chai.expect(error?.message).to.equal('Timed out waiting for pointerleave');
-        chai.expect(remove.mock.calls).to.have.lengthOf(1);
-        chai.expect(vi.getTimerCount()).to.equal(0);
+        expect(error?.message).toBe('Timed out waiting for pointerleave');
+        expect(remove.mock.calls).toHaveLength(1);
+        expect(vi.getTimerCount()).toBe(0);
     });
 
     for (const asynchronous of [false, true]) {
@@ -59,9 +59,9 @@ describe('pointer event helper', () => {
                 if (asynchronous) return Promise.reject(expected);
                 throw expected;
             }).then(() => null, (error: Error) => error);
-            chai.expect(await pending).to.equal(expected);
-            chai.expect(remove.mock.calls).to.have.lengthOf(1);
-            chai.expect(vi.getTimerCount()).to.equal(0);
+            expect(await pending).toBe(expected);
+            expect(remove.mock.calls).toHaveLength(1);
+            expect(vi.getTimerCount()).toBe(0);
         });
     }
 });

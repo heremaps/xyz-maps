@@ -19,11 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './search_locally_geojsonprovider_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('search features in geojson provider by single parameter', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var poiLayer;
 
@@ -35,41 +33,41 @@ describe('search features in geojson provider by single parameter', function() {
 
     it('search locally by rect', function() {
         let objs = poiLayer.search({rect: {minLon: -118.84209, minLat: 37.57110, maxLon: -118.83351, maxLat: 37.57621}});
-        expect(objs).to.have.lengthOf(5);
+        expect(objs).toHaveLength(5);
     });
 
     it('search locally by rect again', function() {
         let objs = poiLayer.search({rect: {minLon: -118.85709, minLat: 37.56468, maxLon: -118.82276, maxLat: 37.58508}});
-        expect(objs).to.have.lengthOf(11);
+        expect(objs).toHaveLength(11);
     });
 
     it('search locally by rect as array', function() {
         let objs = poiLayer.search({rect: [-118.84209, 37.57110, -118.83351, 37.57621]});
-        expect(objs).to.have.lengthOf(5);
+        expect(objs).toHaveLength(5);
     });
 
     it('search locally by rect again as array', function() {
         let objs = poiLayer.search({rect: [-118.85709, 37.56468, -118.82276, 37.58508]});
-        expect(objs).to.have.lengthOf(11);
+        expect(objs).toHaveLength(11);
     });
 
     it('search locally by feature id', function() {
         let objs = poiLayer.search({id: -13795});
-        expect(objs).to.deep.include({id: -13795, type: 'Feature'});
+        expect(objs).toEqual(expect.objectContaining({id: -13795, type: 'Feature'}));
     });
 
     it('search locally by feature id again', function() {
         let objs = poiLayer.search({id: -8519});
-        expect(objs).to.deep.include({id: -8519, type: 'Feature'});
+        expect(objs).toEqual(expect.objectContaining({id: -8519, type: 'Feature'}));
     });
 
     it('search in provider by two feature ids which do not exist', function() {
         let objs = poiLayer.search({id: ['-1', '-2']});
-        expect(objs).to.deep.equal([undefined, undefined]);
+        expect(objs).toStrictEqual([undefined, undefined]);
     });
 
     it('search by point and radius', function() {
         let objs = poiLayer.search({point: {longitude: -118.839925, latitude: 37.57488}, radius: 800});
-        expect(objs).to.have.lengthOf(7);
+        expect(objs).toHaveLength(7);
     });
 });

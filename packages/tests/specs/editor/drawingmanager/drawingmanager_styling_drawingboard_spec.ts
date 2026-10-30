@@ -23,11 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_styling_drawingboard_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('Styling drawingboard', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -60,7 +58,7 @@ describe('Styling drawingboard', function() {
 
     it('start drawingmanager', function() {
         editor.getDrawingBoard().start();
-        expect(editor.getDrawingBoard().isActive()).to.be.true;
+        expect(editor.getDrawingBoard().isActive()).toBe(true);
     });
 
     it('add shape point and validate drawingboard features in editor overlay', async function() {
@@ -71,12 +69,12 @@ describe('Styling drawingboard', function() {
 
         let features = layer.search(display.getViewBounds());
         // 3 features: link, link shape and floating shape below mouse
-        expect(features).to.have.lengthOf(3);
+        expect(features).toHaveLength(3);
 
         // validate position of link shape and floating shape below mouse
         features.forEach((feature)=>{
             if (feature.geometry.type == 'Point') {
-                expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.75986339, 0]);
+                chai.expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.75986339, 0]);
             }
         });
 
@@ -85,13 +83,13 @@ describe('Styling drawingboard', function() {
 
         features = layer.search(display.getViewBounds());
         // 4 features: link, 2 link shapes and float shape below mouse
-        expect(features).to.have.lengthOf(4);
+        expect(features).toHaveLength(4);
 
         // check position of added first link shape points
         features = layer.search({point: {longitude: 77.124422675, latitude: 12.75986339}, radius: 5});
         features.forEach((feature)=>{
             if (feature.geometry.type == 'Point') {
-                expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.75986339, 0]);
+                chai.expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.75986339, 0]);
             }
         });
 
@@ -99,18 +97,18 @@ describe('Styling drawingboard', function() {
         features = layer.search({point: {longitude: 77.124422675, latitude: 12.758817}, radius: 5});
         features.forEach((feature)=>{
             if (feature.geometry.type == 'Point') {
-                expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.758817, 0]);
+                chai.expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.758817, 0]);
             }
         });
 
-        expect(editor.getDrawingBoard().getLength()).to.be.equal(2);
+        expect(editor.getDrawingBoard().getLength()).toBe(2);
     });
 
     it('finish drawing the link and validate new link is created', function() {
         link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         link.prop('type', 'path');
 
-        expect(link.prop('type')).to.equal('path');
+        expect(link.prop('type')).toBe('path');
     });
 
 
@@ -123,7 +121,7 @@ describe('Styling drawingboard', function() {
                 {zIndex: 3, type: 'Circle', radius: 5, fill: '#ee9922'}
             ]
         });
-        expect(editor.getDrawingBoard().isActive()).to.be.true;
+        expect(editor.getDrawingBoard().isActive()).toBe(true);
     });
 
     it('add shape point and validate new style of drawingboard', async function() {
@@ -133,22 +131,22 @@ describe('Styling drawingboard', function() {
         await mousemove(mapContainer, {x: 200, y: 280}, {x: 200, y: 300});
         await click(mapContainer, 200, 300);
 
-        expect(editor.getDrawingBoard().getLength()).to.be.equal(2);
+        expect(editor.getDrawingBoard().getLength()).toBe(2);
 
         let colors = await getCanvasPixelColor(mapContainer, [{x: 200, y: 100}, {x: 208, y: 108}, {x: 200, y: 250}, {x: 208, y: 250}], {
             expect: ['#ee9922', '#2233ee', '#c799e8', '#aa84a4']
         });
 
-        expect(colors[0]).to.equal('#ee9922');
-        expect(colors[1]).to.equal('#2233ee');
-        expect(colors[2]).to.equal('#c799e8');
-        expect(colors[3]).to.equal('#aa84a4');
+        expect(colors[0]).toBe('#ee9922');
+        expect(colors[1]).toBe('#2233ee');
+        expect(colors[2]).toBe('#c799e8');
+        expect(colors[3]).toBe('#aa84a4');
     });
 
     it('finish drawing the link and validate link is created', function() {
         link = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         link.prop('type', 'path');
 
-        expect(link.prop('type')).to.equal('path');
+        expect(link.prop('type')).toBe('path');
     });
 });

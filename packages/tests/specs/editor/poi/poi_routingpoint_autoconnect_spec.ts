@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_routingpoint_autoconnect_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('POI routing point auto reconnect', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -79,8 +77,8 @@ describe('POI routing point auto reconnect', function() {
 
         objs[1].createRoutingPoint();
 
-        expect(objs[1].prop('routingPoint')).to.deep.equal([78.35461, 17.31375, 0]);
-        expect(objs[1].prop('routingLink')).to.equal(objs[0].id);
+        expect(objs[1].prop('routingPoint')).toStrictEqual([78.35461, 17.31375, 0]);
+        expect(objs[1].prop('routingLink')).toBe(objs[0].id);
     });
 
     it('drag map and zoom out, validate the poi always connects to the link', async function() {
@@ -88,14 +86,14 @@ describe('POI routing point auto reconnect', function() {
             await drag(mapContainer, {x: 300, y: 200}, {x: 250, y: 200});
         });
 
-        expect(objs[1].prop('routingPoint')).to.deep.equal([78.35461, 17.31375, 0]);
-        expect(objs[1].prop('routingLink')).to.equal(objs[0].id);
+        expect(objs[1].prop('routingPoint')).toStrictEqual([78.35461, 17.31375, 0]);
+        expect(objs[1].prop('routingLink')).toBe(objs[0].id);
 
         await waitForEditorReady(editor, ()=>{
             display.setZoomlevel(18);
         });
 
-        expect(objs[1].prop('routingPoint')).to.deep.equal([78.35461, 17.31375, 0]);
-        expect(objs[1].prop('routingLink')).to.equal(objs[0].id);
+        expect(objs[1].prop('routingPoint')).toStrictEqual([78.35461, 17.31375, 0]);
+        expect(objs[1].prop('routingLink')).toBe(objs[0].id);
     });
 });

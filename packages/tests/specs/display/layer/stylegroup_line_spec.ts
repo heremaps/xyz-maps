@@ -22,11 +22,9 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './stylegroup_line_spec.json';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('setStyleGroup Line', () => {
-    const {expect} = chai;
-
     let preparedData;
     let linkLayer: TileLayer;
     let display;
@@ -60,7 +58,7 @@ describe('setStyleGroup Line', () => {
             expect: '#ff0000'
         }); // get link color
         // default color is red
-        expect(color1).to.equal('#ff0000');
+        expect(color1).toBe('#ff0000');
 
         // set link style
         linkLayer.setStyleGroup(
@@ -72,7 +70,7 @@ describe('setStyleGroup Line', () => {
         let color2 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}, {
             expect: '#be6b65'
         }); // get link color
-        expect(color2).to.equal('#be6b65');
+        expect(color2).toBe('#be6b65');
 
         // reset link style
         linkLayer.setStyleGroup(
@@ -83,7 +81,7 @@ describe('setStyleGroup Line', () => {
         let color3 = await getCanvasPixelColor(mapContainer, {x: 448, y: 300}, {
             expect: '#ff0000'
         }); // get link color
-        expect(color3).to.equal('#ff0000');
+        expect(color3).toBe('#ff0000');
     });
 
     it('style feature, validate its new style', async () => {
@@ -100,8 +98,8 @@ describe('setStyleGroup Line', () => {
         let colors1 = await getCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}], {
             expect: '#ffffff'
         });
-        expect(colors1[0]).to.equal('#ffffff');
-        expect(colors1[1]).to.equal('#ffffff');
+        expect(colors1[0]).toBe('#ffffff');
+        expect(colors1[1]).toBe('#ffffff');
 
         // set link style
         linkLayer.setStyleGroup(
@@ -116,8 +114,8 @@ describe('setStyleGroup Line', () => {
         let colors2 = await getCanvasPixelColor(mapContainer, [{x: 448, y: 300}, {x: 448, y: 307}], {
             expect: ['#be6b65', '#ffffff']
         });
-        expect(colors2[0]).to.equal('#be6b65');
-        expect(colors2[1]).to.equal('#ffffff');
+        expect(colors2[0]).toBe('#be6b65');
+        expect(colors2[1]).toBe('#ffffff');
     });
 
     it('style line with text, validate its new style', async () => {
@@ -147,11 +145,11 @@ describe('setStyleGroup Line', () => {
             expect: ['#000000', '#ffffff', '#000000', '#ffffff', '#000000']
         });
 
-        expect(colors[0]).to.equal('#000000');
-        expect(colors[1]).to.equal('#ffffff');
-        expect(colors[2]).to.equal('#000000');
-        expect(colors[3]).to.equal('#ffffff');
-        expect(colors[4]).to.equal('#000000');
+        expect(colors[0]).toBe('#000000');
+        expect(colors[1]).toBe('#ffffff');
+        expect(colors[2]).toBe('#000000');
+        expect(colors[3]).toBe('#ffffff');
+        expect(colors[4]).toBe('#000000');
     });
 
     it('validate style-function support for text', async () => {
@@ -169,7 +167,7 @@ describe('setStyleGroup Line', () => {
         const color = await getCanvasPixelColor(mapContainer, {x: 431, y: 308}, {
             expect: '#ff0000'
         });
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
 
@@ -199,13 +197,13 @@ describe('setStyleGroup Line', () => {
             expect: ['#ff0000', '#ff0000', '#ff0000', '#000000', '#000000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#ff0000');
-        expect(colors[1]).to.equal('#ff0000');
-        expect(colors[2]).to.equal('#ff0000');
+        expect(colors[0]).toBe('#ff0000');
+        expect(colors[1]).toBe('#ff0000');
+        expect(colors[2]).toBe('#ff0000');
 
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
-        expect(colors[5]).to.equal('#000000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#000000');
+        expect(colors[5]).toBe('#000000');
     });
 
     it('validate line offset left', async () => {
@@ -234,12 +232,12 @@ describe('setStyleGroup Line', () => {
             expect: ['#0000ff', '#0000ff', '#0000ff', '#000000', '#000000', '#000000']
         });
 
-        expect(colors[0]).to.equal('#0000ff');
-        expect(colors[1]).to.equal('#0000ff');
-        expect(colors[2]).to.equal('#0000ff');
+        expect(colors[0]).toBe('#0000ff');
+        expect(colors[1]).toBe('#0000ff');
+        expect(colors[2]).toBe('#0000ff');
 
-        expect(colors[3]).to.equal('#000000');
-        expect(colors[4]).to.equal('#000000');
-        expect(colors[5]).to.equal('#000000');
+        expect(colors[3]).toBe('#000000');
+        expect(colors[4]).toBe('#000000');
+        expect(colors[5]).toBe('#000000');
     });
 });

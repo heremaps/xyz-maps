@@ -21,11 +21,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('stylegroup Point alignment', function() {
-    const expect = chai.expect;
-
     const FULL_BLOCK_CHAR = '\u2588';
     let FONT = 'bold 30px Arial,Helvetica,sans-serif';
 
@@ -76,7 +74,7 @@ describe('stylegroup Point alignment', function() {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('Rect: style default alignment "map"', async () => {
@@ -89,7 +87,7 @@ describe('stylegroup Point alignment', function() {
             expect: '#0000ff'
         });
 
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
 
     it('Rect: style default alignment "viewport"', async () => {
@@ -102,7 +100,7 @@ describe('stylegroup Point alignment', function() {
             expect: '#00ff00'
         });
 
-        expect(color).to.equal('#00ff00');
+        expect(color).toBe('#00ff00');
     });
 
     it('Circle: style default alignment', async () => {
@@ -115,7 +113,7 @@ describe('stylegroup Point alignment', function() {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('Circle: style default alignment "map"', async () => {
@@ -128,7 +126,7 @@ describe('stylegroup Point alignment', function() {
             expect: '#0000ff'
         });
 
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
 
     it('Circle: style default alignment "viewport"', async () => {
@@ -141,7 +139,7 @@ describe('stylegroup Point alignment', function() {
             expect: '#00ff00'
         });
 
-        expect(color).to.equal('#00ff00');
+        expect(color).toBe('#00ff00');
     });
 
     it('Image: style default alignment', async () => {
@@ -155,7 +153,7 @@ describe('stylegroup Point alignment', function() {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('Image: style default alignment "map"', async () => {
@@ -168,7 +166,7 @@ describe('stylegroup Point alignment', function() {
             expect: '#0000ff'
         });
 
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
 
     it('Image: style default alignment "viewport"', async () => {
@@ -181,7 +179,7 @@ describe('stylegroup Point alignment', function() {
             expect: '#00ff00'
         });
 
-        expect(color).to.equal('#00ff00');
+        expect(color).toBe('#00ff00');
     });
 
     it('Text: style default alignment', async () => {
@@ -194,7 +192,7 @@ describe('stylegroup Point alignment', function() {
             expect: '#ff0000'
         });
 
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('Text: style default alignment "map"', async () => {
@@ -207,7 +205,7 @@ describe('stylegroup Point alignment', function() {
             expect: '#0000ff'
         });
 
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
 
     it('Text: style default alignment "viewport"', async () => {
@@ -220,6 +218,6 @@ describe('stylegroup Point alignment', function() {
             expect: '#00ff00'
         });
 
-        expect(color).to.equal('#00ff00');
+        expect(color).toBe('#00ff00');
     });
 });

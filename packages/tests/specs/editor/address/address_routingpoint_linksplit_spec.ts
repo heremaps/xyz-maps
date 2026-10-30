@@ -21,11 +21,9 @@ import {editorClick, waitForEditorReady} from 'editorUtils';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './address_routingpoint_linksplit_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Address routing point updates by link split', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var editor;
     var display;
@@ -58,9 +56,9 @@ describe('Address routing point updates by link split', function() {
     it('select Address object and validate', async function() {
         address.select();
 
-        expect(address.getLink()).to.deep.include({
+        expect(address.getLink()).toEqual(expect.objectContaining({
             id: link.id
-        });
+        }));
 
         address.unselect();
     });
@@ -73,9 +71,9 @@ describe('Address routing point updates by link split', function() {
 
         address.select();
 
-        expect(address.prop()).to.deep.include({
+        expect(address.prop()).toEqual(expect.objectContaining({
             routingLink: newLinks[0].id
-        });
+        }));
 
         address.unselect();
     });

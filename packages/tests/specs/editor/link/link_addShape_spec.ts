@@ -25,8 +25,6 @@ import dataset from './link_addShape_spec.json';
 import {describe, beforeAll, afterAll, it, chai} from 'vitest';
 
 describe('link add shape point', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -66,7 +64,7 @@ describe('link add shape point', function() {
         };
         link = editor.addFeature(l, linkLayer);
 
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [76.99443, 12.941905632, 0],
             [76.991211349, 12.941905632, 0]
         ]);
@@ -74,7 +72,7 @@ describe('link add shape point', function() {
 
     it('add one shape point and validate', function() {
         link.addShape({x: 200, y: 50});
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [76.99443, 12.941905632, 0],
             [76.992284233, 12.943474072, 0],
             [76.991211349, 12.941905632, 0]
@@ -83,7 +81,7 @@ describe('link add shape point', function() {
 
     it('add one more shape point at head of the link and validate', function() {
         link.addShape({x: 200, y: 200, z: 1}, 0);
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [76.992284233, 12.941905632, 1],
             [76.99443, 12.941905632, 0],
             [76.992284233, 12.943474072, 0],
@@ -93,7 +91,7 @@ describe('link add shape point', function() {
 
     it('add one more shape point close to existing shape point', function() {
         link.addShape({x: 196, y: 55});
-        expect(link.coord()).to.deep.almost([
+        chai.expect(link.coord()).to.deep.almost([
             [76.992284233, 12.941905632, 1],
             [76.99443, 12.941905632, 0],
             [76.992284233, 12.943474072, 0],
@@ -106,7 +104,7 @@ describe('link add shape point', function() {
         editor.undo();
 
         let lnk = editor.getFeature(link.id, linkLayer);
-        expect(lnk.coord()).to.deep.almost([
+        chai.expect(lnk.coord()).to.deep.almost([
             [76.992284233, 12.941905632, 1],
             [76.99443, 12.941905632, 0],
             [76.992284233, 12.943474072, 0],
@@ -118,7 +116,7 @@ describe('link add shape point', function() {
         editor.undo();
 
         let lnk = editor.getFeature(link.id, linkLayer);
-        expect(lnk.coord()).to.deep.almost([
+        chai.expect(lnk.coord()).to.deep.almost([
             [76.99443, 12.941905632, 0],
             [76.992284233, 12.943474072, 0],
             [76.991211349, 12.941905632, 0]

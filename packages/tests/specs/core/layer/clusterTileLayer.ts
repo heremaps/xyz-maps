@@ -20,11 +20,9 @@
 import {prepare} from 'utils';
 import dataset from './clusterTileLayer.json';
 import {ClusterTileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('ClusterTileLayer', function() {
-    const expect = chai.expect;
-
     let dataLayer;
     let clusterLayer;
     let clusterMaxZoom = 13;
@@ -53,7 +51,7 @@ describe('ClusterTileLayer', function() {
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters).to.have.lengthOf(0);
+        expect(clusters).toHaveLength(0);
     });
 
     it('add a feature, validate cluster with clusterSize 1', async () => {
@@ -68,8 +66,8 @@ describe('ClusterTileLayer', function() {
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters).to.have.lengthOf(1);
-        expect(clusters[0].properties.clusterSize).to.equal(1);
+        expect(clusters).toHaveLength(1);
+        expect(clusters[0].properties.clusterSize).toBe(1);
     });
 
     it('add another feature, validate clusters', async () => {
@@ -84,8 +82,8 @@ describe('ClusterTileLayer', function() {
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters).to.have.lengthOf(1);
-        expect(clusters[0].properties.clusterSize).to.equal(2);
+        expect(clusters).toHaveLength(1);
+        expect(clusters[0].properties.clusterSize).toBe(2);
     });
 
     it('add another feature, validate clusters', async () => {
@@ -100,8 +98,8 @@ describe('ClusterTileLayer', function() {
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters).to.have.lengthOf(1);
-        expect(clusters[0].properties.clusterSize).to.equal(3);
+        expect(clusters).toHaveLength(1);
+        expect(clusters[0].properties.clusterSize).toBe(3);
     });
 
     it('add feature close to existing cluster and we now have 2 clusters', async () => {
@@ -116,7 +114,7 @@ describe('ClusterTileLayer', function() {
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters).to.have.lengthOf(2);
+        expect(clusters).toHaveLength(2);
     });
 
     it('validate clusters sizes', async () => {
@@ -124,8 +122,8 @@ describe('ClusterTileLayer', function() {
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters[0].properties.clusterSize).to.equal(3);
-        expect(clusters[1].properties.clusterSize).to.equal(1);
+        expect(clusters[0].properties.clusterSize).toBe(3);
+        expect(clusters[1].properties.clusterSize).toBe(1);
     });
 
     it('validate cluster in zoomlevel +1', async () => {
@@ -140,16 +138,16 @@ describe('ClusterTileLayer', function() {
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters).to.have.lengthOf(3);
+        expect(clusters).toHaveLength(3);
     });
     it('validate clusters sizes in zoomlevel +1', async () => {
         let clusters = clusterLayer.getProvider(11).search({
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters[0].properties.clusterSize).to.equal(2);
-        expect(clusters[1].properties.clusterSize).to.equal(1);
-        expect(clusters[2].properties.clusterSize).to.equal(1);
+        expect(clusters[0].properties.clusterSize).toBe(2);
+        expect(clusters[1].properties.clusterSize).toBe(1);
+        expect(clusters[2].properties.clusterSize).toBe(1);
     });
 
     it('validate cluster in zoomlevel +2', async () => {
@@ -164,17 +162,17 @@ describe('ClusterTileLayer', function() {
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters).to.have.lengthOf(4);
+        expect(clusters).toHaveLength(4);
     });
     it('validate clusters sizes in zoomlevel +2', async () => {
         let clusters = clusterLayer.getProvider(12).search({
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters[0].properties.clusterSize).to.equal(1);
-        expect(clusters[1].properties.clusterSize).to.equal(1);
-        expect(clusters[2].properties.clusterSize).to.equal(1);
-        expect(clusters[3].properties.clusterSize).to.equal(1);
+        expect(clusters[0].properties.clusterSize).toBe(1);
+        expect(clusters[1].properties.clusterSize).toBe(1);
+        expect(clusters[2].properties.clusterSize).toBe(1);
+        expect(clusters[3].properties.clusterSize).toBe(1);
     });
 
     it('validate cluster in zoomlevel -1', async () => {
@@ -182,14 +180,14 @@ describe('ClusterTileLayer', function() {
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters).to.have.lengthOf(1);
+        expect(clusters).toHaveLength(1);
     });
     it('validate clusters sizes in zoomlevel -1', async () => {
         let clusters = clusterLayer.getProvider(9).search({
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters[0].properties.clusterSize).to.equal(4);
+        expect(clusters[0].properties.clusterSize).toBe(4);
     });
 
     it('validate cluster in zoomlevel -2', async () => {
@@ -197,13 +195,13 @@ describe('ClusterTileLayer', function() {
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters).to.have.lengthOf(1);
+        expect(clusters).toHaveLength(1);
     });
     it('validate clusters sizes in zoomlevel -2', async () => {
         let clusters = clusterLayer.getProvider(8).search({
             point: {longitude: 5.595344540913686, latitude: 51.955245165606556},
             radius: 100_000
         });
-        expect(clusters[0].properties.clusterSize).to.equal(4);
+        expect(clusters[0].properties.clusterSize).toBe(4);
     });
 });

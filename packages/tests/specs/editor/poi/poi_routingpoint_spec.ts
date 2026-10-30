@@ -23,10 +23,9 @@ import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './poi_routingpoint_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('set POI routing point', function() {
-    const expect = chai.expect;
     let editor;
     let display;
     let preparedData;
@@ -58,12 +57,12 @@ describe('set POI routing point', function() {
     });
 
     it('validate routing point of poi is not created and create it', function() {
-        expect(poi.prop().routingPoint).to.equal(undefined);
+        expect(poi.prop().routingPoint).toBe(undefined);
 
         poi.createRoutingPoint();
 
-        expect(poi.prop('routingPoint')).to.deep.almost([77.21294, 12.97549, 0]);
-        expect(poi.getLink().id).to.equal(link.id);
+        chai.expect(poi.prop('routingPoint')).to.deep.almost([77.21294, 12.97549, 0]);
+        expect(poi.getLink().id).toBe(link.id);
     });
 
 
@@ -73,8 +72,8 @@ describe('set POI routing point', function() {
 
         poi.createRoutingPoint();
 
-        expect(poi.prop('routingPoint')).to.deep.almost([77.21294, 12.97497, 0]);
-        expect(poi.getLink().id).to.equal(link.id);
+        chai.expect(poi.prop('routingPoint')).to.deep.almost([77.21294, 12.97497, 0]);
+        expect(poi.getLink().id).toBe(link.id);
     });
 
     it('split link, validate poi connects to split link', async function() {
@@ -84,14 +83,14 @@ describe('set POI routing point', function() {
 
         let splitLinks = shape.splitLink();
 
-        expect(poi.prop('routingPoint')).to.deep.almost([77.21294, 12.97497, 0]);
-        expect(poi.getLink().id).to.equal(splitLinks[1].id);
+        chai.expect(poi.prop('routingPoint')).to.deep.almost([77.21294, 12.97497, 0]);
+        expect(poi.getLink().id).toBe(splitLinks[1].id);
     });
 
 
     it('validate routing point is removed', function() {
         poi.removeRoutingPoint();
 
-        expect(poi.prop().routingPoint).to.equal(null);
+        expect(poi.prop().routingPoint).toBe(null);
     });
 });

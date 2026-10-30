@@ -21,11 +21,9 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_getobjects_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map getobjects', function() {
-    const expect = chai.expect;
-
     var editor;
     var display;
 
@@ -60,63 +58,63 @@ describe('map getobjects', function() {
 
 
     it('validate viewport coordinates', function() {
-        expect(display.getCenter()).to.deep.equal({longitude: 77.435113, latitude: 15.653134});
+        expect(display.getCenter()).toEqual({longitude: 77.435113, latitude: 15.653134});
     });
 
 
     it('validate links in viewport', function() {
         let objs = editor.search(display.getViewBounds());
 
-        expect(objs).to.have.lengthOf(6);
+        expect(objs).toHaveLength(6);
     });
 
     it('validate links in viewport with boundingbox', function() {
         let objs = editor.search({rect: {minLon: 77.43435955529584, minLat: 15.652189542987028, maxLon: 77.4354324389018, maxLat: 15.652964365088488}, layers: [linkLayer]});
 
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
     it('validate links and PAs in viewport', function() {
         let objs = editor.search({rect: display.getViewBounds()});
 
-        expect(objs).to.have.lengthOf(6);
+        expect(objs).toHaveLength(6);
     });
 
 
     it('validate links and POIs in viewport with boundingbox', function() {
         let objs = editor.search({rect: {minLon: 77.43435955529584, minLat: 15.652189542987028, maxLon: 77.4354324389018, maxLat: 15.652964365088488}, layers: [placeLayer, linkLayer]});
 
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     it('validate PAs in viewport', function() {
         let objs = editor.search({rect: display.getViewBounds(), layers: [addressLayer]});
 
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     it('validate links in viewport', function() {
         let objs = editor.search({rect: display.getViewBounds(), layers: [linkLayer]});
 
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     it('validate PAs in viewport with boundingbox', function() {
         let objs = editor.search({rect: {minLon: 77.43482481562621, minLat: 15.652383991839185, maxLon: 77.43592788044107, maxLat: 15.653180609603492}, layers: [addressLayer]});
 
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
 
     it('validate links in viewport with boundingbox', function() {
         let objs = editor.search({rect: {minLon: 77.43482481562621, minLat: 15.652383991839185, maxLon: 77.43592788044107, maxLat: 15.653180609603492}, layers: [linkLayer]});
 
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
 
     it('validate other objects in viewport', async function() {
         let objs = editor.search({rect: display.getViewBounds(), layers: [placeLayer]});
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 });

@@ -22,11 +22,9 @@ import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_split_depart_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('turn restriction test split the depart link', () => {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -53,7 +51,7 @@ describe('turn restriction test split the depart link', () => {
         link2 = preparedData.getFeature('linkLayer', -189224);
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     afterAll(async function() {
@@ -71,7 +69,7 @@ describe('turn restriction test split the depart link', () => {
         // click on traffic sign
         await click(mapContainer, 215, 200);
 
-        expect(link2.prop('turnRestriction')).to.deep.equal({end: [link1.id]});
+        expect(link2.prop('turnRestriction')).toEqual({end: [link1.id]});
     });
 
     it('split the link, verify links after splitting', async function() {
@@ -79,7 +77,7 @@ describe('turn restriction test split the depart link', () => {
         let shape = <NavlinkShape>(await editorClick(editor, 200, 100)).target;
         let newLinks = shape.splitLink();
 
-        expect(newLinks[0].prop('originLink')).to.be.equal(link2.id);
-        expect(newLinks[1].prop('originLink')).to.be.equal(link2.id);
+        expect(newLinks[0].prop('originLink')).toBe(link2.id);
+        expect(newLinks[1].prop('originLink')).toBe(link2.id);
     });
 });

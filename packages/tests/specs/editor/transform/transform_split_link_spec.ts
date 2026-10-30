@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './transform_split_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('splitting link deactivates transformer of objects', function() {
-    const expect = chai.expect;
-
     let link2;
     let editor; let display;
     let preparedData;
@@ -48,7 +46,7 @@ describe('splitting link deactivates transformer of objects', function() {
 
         link2 = preparedData.getFeature('linkLayer', -189188);
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     afterAll(async function() {
@@ -63,12 +61,12 @@ describe('splitting link deactivates transformer of objects', function() {
         let crs = link2.checkCrossings();
         crs[0].connect();
 
-        expect(editor.get('history.current')).to.equal(1);
-        expect(editor.get('history.length')).to.equal(1);
-        expect(editor.get('changes.length')).to.equal(6);
+        expect(editor.get('history.current')).toBe(1);
+        expect(editor.get('history.length')).toBe(1);
+        expect(editor.get('changes.length')).toBe(6);
 
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(4);
+        expect(objs).toHaveLength(4);
     });
 
 
@@ -79,8 +77,8 @@ describe('splitting link deactivates transformer of objects', function() {
             obj = drag(display, {x: 170, y: 225}, {x: 200, y: 250});
         });
 
-        expect(editor.get('history.current')).to.equal(2);
-        expect(editor.get('history.length')).to.equal(2);
-        expect(editor.get('changes.length')).to.equal(6);
+        expect(editor.get('history.current')).toBe(2);
+        expect(editor.get('history.length')).toBe(2);
+        expect(editor.get('changes.length')).toBe(6);
     });
 });

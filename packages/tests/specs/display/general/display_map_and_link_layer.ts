@@ -21,11 +21,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_map_and_link_layer.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('display image and link layers', function() {
-    const expect = chai.expect;
-
     let imageLayer;
     let linkLayer;
     let display;
@@ -54,18 +52,18 @@ describe('display image and link layers', function() {
     });
 
     it('validate sat image link', async function() {
-        expect(display.getLayers()).to.lengthOf(2);
+        expect(display.getLayers()).toHaveLength(2);
 
         // validate map tile is displayed
         let color = await getCanvasPixelColor(mapContainer, {x: 700, y: 150}, {
             expect: (colors) => colors[0] !== '#ffffff' &&
                 colors[0] !== '#ff0000'
         });
-        expect(color).to.not.equal('#ffffff');
-        expect(color).to.not.equal('#ff0000');
+        expect(color).not.toBe('#ffffff');
+        expect(color).not.toBe('#ff0000');
 
         // validate link is displayed
         color = await getCanvasPixelColor(mapContainer, {x: 700, y: 110}, {expect: '#ff0000'});
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 });

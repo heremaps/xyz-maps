@@ -21,11 +21,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './zoom_in_20_plus.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('zoom in 20+', function() {
-    const expect = chai.expect;
-
     let imageLayer;
     let localLayer;
     let display;
@@ -59,19 +57,19 @@ describe('zoom in 20+', function() {
     afterAll(async () => display.destroy());
 
     it('validate inital zoom', async () => {
-        expect(display.getZoomlevel()).to.equal(22.7);
+        expect(display.getZoomlevel()).toBe(22.7);
     });
 
     it('validate max zoom is set', async () => {
         let lock = display.lockViewport();
-        expect(lock.maxLevel).to.equal(MAX_ZOOM);
+        expect(lock.maxLevel).toBe(MAX_ZOOM);
     });
 
     it('validate point is displayed', async () => {
         let color = await getCanvasPixelColor(mapContainer, {x: 447, y: 79}, {
             expect: '#ff0000'
         });
-        expect(color).to.equal('#ff0000');
+        expect(color).toBe('#ff0000');
     });
 
     it('check if tiles are rendered', async () => {
@@ -88,7 +86,7 @@ describe('zoom in 20+', function() {
             expect: (colors) => colors.every((color) => color !== '#ffffff')
         });
         for (let color of colors) {
-            expect(color).to.not.equal('#ffffff');
+            expect(color).not.toBe('#ffffff');
         }
     });
 
@@ -109,18 +107,18 @@ describe('zoom in 20+', function() {
         });
 
         for (let color of colors) {
-            expect(color).to.not.equal('#ffffff');
+            expect(color).not.toBe('#ffffff');
         }
     });
 
     it('set max zooom', async () => {
         display.setZoomlevel(MAX_ZOOM);
-        expect(display.getZoomlevel()).to.equal(MAX_ZOOM);
+        expect(display.getZoomlevel()).toBe(MAX_ZOOM);
     });
 
     it('set invalid max zooom', async () => {
         display.setZoomlevel(MAX_ZOOM + 1);
-        expect(display.getZoomlevel()).to.equal(MAX_ZOOM);
+        expect(display.getZoomlevel()).toBe(MAX_ZOOM);
     });
 
 
@@ -154,6 +152,6 @@ describe('zoom in 20+', function() {
         const color = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
             expect: '#0000ff'
         });
-        expect(color).to.equal('#0000ff');
+        expect(color).toBe('#0000ff');
     });
 });

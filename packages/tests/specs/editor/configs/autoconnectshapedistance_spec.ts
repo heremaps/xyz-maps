@@ -22,11 +22,9 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './autoconnectshapedistance_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set snapTolerance', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let editor;
     let display;
@@ -87,7 +85,7 @@ describe('set snapTolerance', function() {
         links[1].select();
 
         await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 265});
-        expect(editor.info()).to.have.lengthOf(1);
+        expect(editor.info()).toHaveLength(1);
 
         await waitForEditorReady(editor, ()=>{
             editor.revert();
@@ -126,10 +124,10 @@ describe('set snapTolerance', function() {
         links[1].select();
 
         await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 265});
-        expect(editor.info()).to.have.lengthOf(2);
+        expect(editor.info()).toHaveLength(2);
 
         await drag(mapContainer, {x: 100, y: 265}, {x: 100, y: 294});
-        expect(editor.info()).to.have.lengthOf(1);
+        expect(editor.info()).toHaveLength(1);
 
         await waitForEditorReady(editor, ()=>{
             editor.revert();

@@ -23,11 +23,9 @@ import {Editor} from '@here/xyz-maps-editor';
 import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_crosscandidate_spec.json';
 import {Crossing} from '@here/xyz-maps-editor';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
 
 describe('link connect helper crosscandidate', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -77,13 +75,13 @@ describe('link connect helper crosscandidate', function() {
         let c0 = crossings[0];
         let c1 = crossings[1];
 
-        expect(c0.distance).to.be.equal(0);
-        expect(c0.x).to.almost.equal(387.4074);
-        expect(c0.y).to.almost.equal(247.3506);
+        expect(c0.distance).toBe(0);
+        chai.expect(c0.x).to.almost.equal(387.4074);
+        chai.expect(c0.y).to.almost.equal(247.3506);
 
-        expect(c1.distance).to.almost.equal(6.1643);
-        expect(c1.x).to.almost.equal(539.8465);
-        expect(c1.y).to.almost.equal(242.1822);
+        chai.expect(c1.distance).to.almost.equal(6.1643);
+        chai.expect(c1.x).to.almost.equal(539.8465);
+        chai.expect(c1.y).to.almost.equal(242.1822);
     });
 
     it('show crossings and connect one of it', async function() {
@@ -95,12 +93,12 @@ describe('link connect helper crosscandidate', function() {
         const colors = await getCanvasPixelColor(mapContainer, [{x: 380, y: 247}, {x: 532, y: 240}], {
             expect: ['#ff0000', '#ff0000']
         });
-        expect(colors).to.deep.equal(['#ff0000', '#ff0000']);
+        expect(colors).toStrictEqual(['#ff0000', '#ff0000']);
 
         let crx = <Crossing>(await editorClick(editor, 536, 239)).target;
         crx.connect();
 
-        expect(editor.info()).to.have.lengthOf(4);
+        expect(editor.info()).toHaveLength(4);
     });
 
     it('add another link to map and check its crossing', async function() {
@@ -116,8 +114,8 @@ describe('link connect helper crosscandidate', function() {
 
         crossings = link1.checkCrossings();
         let c = crossings[0];
-        expect(c.distance).to.be.equal(0);
-        expect(c.x).to.almost.equal(377.1906);
-        expect(c.y).to.almost.equal(272.6514);
+        expect(c.distance).toBe(0);
+        chai.expect(c.x).to.almost.equal(377.1906);
+        chai.expect(c.y).to.almost.equal(272.6514);
     });
 });

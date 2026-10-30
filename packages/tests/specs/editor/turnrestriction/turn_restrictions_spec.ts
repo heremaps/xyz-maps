@@ -23,11 +23,9 @@ import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './turn_restrictions_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('turn restriction test basic', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -53,7 +51,7 @@ describe('turn restriction test basic', function() {
         link1 = preparedData.getFeature('linkLayer', -189221);
         link2 = preparedData.getFeature('linkLayer', -189222);
         let objs = editor.search({rect: display.getViewBounds()});
-        expect(objs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
     });
 
     afterAll(async function() {
@@ -69,7 +67,7 @@ describe('turn restriction test basic', function() {
 
         await click(mapContainer, 300, 115);
 
-        expect(link.prop('turnRestriction')).to.deep.equal({start: [link2.id]});
+        expect(link.prop('turnRestriction')).toEqual({start: [link2.id]});
     });
 
 
@@ -83,7 +81,7 @@ describe('turn restriction test basic', function() {
         let lnk1 = editor.getFeature(link1.id, linkLayer);
         let lnk2 = editor.getFeature(link2.id, linkLayer);
 
-        expect(link1.prop('turnRestriction')).to.deep.equal({start: [link2.id]});
+        expect(link1.prop('turnRestriction')).toEqual({start: [link2.id]});
     });
 
     it('edit turn restriction again and revert, after that move mouse and submit', async function() {
@@ -98,7 +96,7 @@ describe('turn restriction test basic', function() {
 
         await mousemove(mapContainer, {x: 310, y: 100}, {x: 310, y: 120}); // exception was thrown if mouse was moved after editting turn restriction
 
-        expect(editor.info()).to.lengthOf(0); // nothing is expected to be submitted
+        expect(editor.info()).toHaveLength(0); // nothing is expected to be submitted
         editor.submit();
     });
 });

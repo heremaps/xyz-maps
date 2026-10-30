@@ -22,11 +22,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_remove_clear_provider_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link remove and clear provider', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -55,7 +53,7 @@ describe('link remove and clear provider', function() {
 
     it('validate there is one link in viewport', async function() {
         let objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(1);
+        expect(objs).toHaveLength(1);
     });
 
     it('remove link and clear provider', async function() {
@@ -69,6 +67,6 @@ describe('link remove and clear provider', function() {
         });
 
         objs = editor.search(display.getViewBounds());
-        expect(objs).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
     });
 });

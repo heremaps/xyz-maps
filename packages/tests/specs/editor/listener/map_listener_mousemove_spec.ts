@@ -22,11 +22,9 @@ import {mousemove, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_listener_mousemove_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map mousemove listener', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -87,7 +85,7 @@ describe('map mousemove listener', function() {
 
         let results = listener.stop();
 
-        expect(results.pointerenter).to.have.lengthOf(2);
-        expect(results.pointerleave).to.have.lengthOf(2);
+        expect(results.pointerenter).toHaveLength(2);
+        expect(results.pointerleave).toHaveLength(2);
     });
 });

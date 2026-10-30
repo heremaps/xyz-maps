@@ -20,10 +20,9 @@
 import {prepare} from 'utils';
 import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_multiple_times_cancel_with_same_callback_requestagain_after_finish_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 describe('get one tile multiple times and cancel with same callback', function() {
-    const expect = chai.expect;
     var placeProvider; // placeProvider.level.length == 16
 
     var qk1;
@@ -52,8 +51,8 @@ describe('get one tile multiple times and cancel with same callback', function()
                 sameCallback: true,
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 1 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(1);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(1);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -62,7 +61,7 @@ describe('get one tile multiple times and cancel with same callback', function()
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -82,8 +81,8 @@ describe('get one tile multiple times and cancel with same callback', function()
                 sameCallback: true,
                 onFinish: function(requests, callbackResults) {
                     // 0 request(s) sent, 3 callback(s) called
-                    expect(requests.length).to.equal(0);
-                    expect(callbackResults.length).to.equal(3);
+                    expect(requests.length).toBe(0);
+                    expect(callbackResults.length).toBe(3);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -92,7 +91,7 @@ describe('get one tile multiple times and cancel with same callback', function()
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(0);
+                    expect(cancelledRequests).toBe(0);
 
 
                     done();
@@ -114,8 +113,8 @@ describe('get one tile multiple times and cancel with same callback', function()
                 },
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 0 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(0);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -124,7 +123,7 @@ describe('get one tile multiple times and cancel with same callback', function()
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(1);
+                    expect(cancelledRequests).toBe(1);
 
 
                     done();
@@ -148,8 +147,8 @@ describe('get one tile multiple times and cancel with same callback', function()
                 },
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 0 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(0);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -158,7 +157,7 @@ describe('get one tile multiple times and cancel with same callback', function()
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(1);
+                    expect(cancelledRequests).toBe(1);
 
 
                     done();
@@ -180,8 +179,8 @@ describe('get one tile multiple times and cancel with same callback', function()
                 },
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 0 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(0);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -190,7 +189,7 @@ describe('get one tile multiple times and cancel with same callback', function()
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(1);
+                    expect(cancelledRequests).toBe(1);
 
 
                     done();
@@ -213,8 +212,8 @@ describe('get one tile multiple times and cancel with same callback', function()
                 },
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 0 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(0);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -223,7 +222,7 @@ describe('get one tile multiple times and cancel with same callback', function()
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(1);
+                    expect(cancelledRequests).toBe(1);
 
 
                     done();
@@ -245,8 +244,8 @@ describe('get one tile multiple times and cancel with same callback', function()
                 },
                 onFinish: function(requests, callbackResults) {
                     // 1 request(s) sent, 0 callback(s) called
-                    expect(requests.length).to.equal(1);
-                    expect(callbackResults.length).to.equal(0);
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(0);
 
                     let cancelledRequests = 0;
                     for (let r in requests) {
@@ -255,7 +254,7 @@ describe('get one tile multiple times and cancel with same callback', function()
                         }
                     }
 
-                    expect(cancelledRequests).to.equal(1);
+                    expect(cancelledRequests).toBe(1);
 
 
                     done();
