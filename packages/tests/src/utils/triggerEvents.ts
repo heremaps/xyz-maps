@@ -39,20 +39,40 @@ export function dblclick(elem: HTMLElement, x: number, y: number): Promise<Mouse
     });
 }
 
-export function click(elem: HTMLElement, x: number, y: number, button: number = 0): Promise<MouseEvent> {
+/** An optional signal cancels the pending click and removes its listeners. */
+export function click(elem: HTMLElement, x: number, y: number, button: number = 0, signal?: AbortSignal): Promise<MouseEvent> {
     return new Promise((resolve, reject) => {
-        let e = getElement(elem, x, y);
-
-        function callback(evt: MouseEvent): void {
-            resolve(evt);
+        function cleanup() {
             elem.removeEventListener('click', callback);
+            signal?.removeEventListener('abort', onAbort);
         }
 
-        elem.addEventListener('click', callback);
+        function callback(evt: MouseEvent): void {
+            cleanup();
+            resolve(evt);
+        }
 
-        dispatchEvent(e, {x, y, type: 'mousedown', button});
-        dispatchEvent(e, {x, y, type: 'mouseup', button});
-        dispatchEvent(e, {x, y, type: 'click', button});
+        function onAbort() {
+            cleanup();
+            reject(signal.reason);
+        }
+
+        if (signal?.aborted) {
+            reject(signal.reason);
+            return;
+        }
+
+        try {
+            let e = getElement(elem, x, y);
+            elem.addEventListener('click', callback);
+            signal?.addEventListener('abort', onAbort, {once: true});
+            dispatchEvent(e, {x, y, type: 'mousedown', button});
+            dispatchEvent(e, {x, y, type: 'mouseup', button});
+            dispatchEvent(e, {x, y, type: 'click', button});
+        } catch (error) {
+            cleanup();
+            reject(error);
+        }
     });
 }
 

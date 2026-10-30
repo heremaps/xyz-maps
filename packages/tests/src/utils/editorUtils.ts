@@ -21,16 +21,43 @@ import {click} from './triggerEvents';
 import {Editor, EditorEvent} from '@here/xyz-maps-editor';
 import {expect} from 'vitest';
 
-export async function editorClick(editor: Editor, x: number, y: number): Promise<EditorEvent> {
-    return new Promise((resolve) => {
-        const onPointerUp = (e: EditorEvent) => {
-            editor.removeEventListener('pointerup', onPointerUp);
-            resolve(e);
-        };
-        editor.addEventListener('pointerup', onPointerUp);
+interface EditorClickTarget extends Pick<Editor, 'container'> {
+    addEventListener(type: 'pointerup', listener: (event: EditorEvent) => void): void;
+    removeEventListener(type: 'pointerup', listener: (event: EditorEvent) => void): void;
+}
 
-        click(editor.container, x, y);
+/** Waits for both the simulated click and editor pointerup, with a two-second deadline and listener cleanup. */
+export async function editorClick(editor: EditorClickTarget, x: number, y: number): Promise<EditorEvent> {
+    const controller = new AbortController();
+    const timeoutError = new Error('Timed out waiting for editor click');
+    let timer: ReturnType<typeof setTimeout>;
+    let pointerUpDone = false;
+    let clickDone = false;
+    let onPointerUp: (event: EditorEvent) => void;
+    const pointerUp = new Promise<EditorEvent>((resolve) => {
+        onPointerUp = (event) => {
+            pointerUpDone = true;
+            resolve(event);
+        };
     });
+    const timeout = new Promise<never>((resolve, reject) => {
+        timer = setTimeout(() => {
+            timeoutError.message += `: pointerup=${pointerUpDone}, click=${clickDone}`;
+            reject(timeoutError);
+        }, 2000);
+    });
+    try {
+        editor.addEventListener('pointerup', onPointerUp);
+        const simulatedClick = click(editor.container, x, y, 0, controller.signal).then(() => {
+            clickDone = true;
+        });
+        const [event] = await Promise.race([Promise.all([pointerUp, simulatedClick]), timeout]);
+        return event;
+    } finally {
+        clearTimeout(timer);
+        controller.abort();
+        editor.removeEventListener('pointerup', onPointerUp);
+    }
 }
 
 export function submit(editor: Editor): Promise<{ permanentIDMap: any }> {

@@ -133,6 +133,10 @@ editor's initial ready state alone does not complete the wait. Action failures a
 reject immediately. After ten seconds, missing readiness or an unfinished action rejects with
 the observed state. Observers, error listeners and the timeout are removed on completion or failure.
 
+`editorClick(editor, x, y)` returns the original editor `pointerup` event after both that event and
+the click simulation have completed. Simulation failures propagate; a two-second deadline covers
+both waits. Completion or failure removes the editor listener, native click listener and timer.
+
 * Do not use `done` callbacks or `this.timeout()`, Vitest does not support them. Return a promise or use `async`.
 * A spec file must not import another spec file. Put shared helpers into `src/utils`.
 * Vitest does not check types. Run `pnpm run typecheck` for specs, helpers, browser setup and setup declarations
