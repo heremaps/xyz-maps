@@ -19,11 +19,9 @@
 
 import {MonitorXHR, prepare} from 'utils';
 import dataset from './set_header_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set request header of requests that handled by provider', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var poiProvider;
     var spaceProvider;
@@ -53,9 +51,9 @@ describe('set request header of requests that handled by provider', function() {
         });
 
         let req = monitor.stop();
-        expect(req).to.have.lengthOf(1);
+        expect(req).toHaveLength(1);
         let requestHeader = req[0].requestHeader;
-        expect(requestHeader).to.deep.equal({
+        expect(requestHeader).toEqual({
             'Accept': 'application/geo+json'
         });
 
@@ -69,9 +67,9 @@ describe('set request header of requests that handled by provider', function() {
             remote: true
         });
         req = monitor.stop();
-        expect(req).to.have.lengthOf(1);
+        expect(req).toHaveLength(1);
         requestHeader = req[0].requestHeader;
-        expect(requestHeader).to.deep.equal({
+        expect(requestHeader).toEqual({
             'Accept': 'application/geo+json',
             'TEST': 'abc'
         });
@@ -86,9 +84,9 @@ describe('set request header of requests that handled by provider', function() {
         });
 
         req = monitor.stop();
-        expect(req).to.have.lengthOf(1);
+        expect(req).toHaveLength(1);
         requestHeader = req[0].requestHeader;
-        expect(requestHeader).to.deep.equal({
+        expect(requestHeader).toEqual({
             'Accept': 'application/geo+json',
             'TEST': 'abc'
         });
@@ -107,9 +105,9 @@ describe('set request header of requests that handled by provider', function() {
         });
 
         req = monitor.stop();
-        expect(req).to.have.lengthOf(1);
+        expect(req).toHaveLength(1);
         requestHeader = req[0].requestHeader;
-        expect(requestHeader).to.deep.equal({
+        expect(requestHeader).toEqual({
             'Accept': 'application/geo+json',
             'TEST': 'abc',
             'TEST1': 'abc1',
@@ -127,9 +125,9 @@ describe('set request header of requests that handled by provider', function() {
         });
 
         req = monitor.stop();
-        expect(req).to.have.lengthOf(1);
+        expect(req).toHaveLength(1);
         requestHeader = req[0].requestHeader;
-        expect(requestHeader).to.deep.equal({
+        expect(requestHeader).toEqual({
             'Accept': 'application/geo+json',
             'TEST': 'abc',
             'TEST1': 'abcnew',
@@ -149,9 +147,9 @@ describe('set request header of requests that handled by provider', function() {
         });
 
         let req = monitor.stop();
-        expect(req).to.have.lengthOf(1);
+        expect(req).toHaveLength(1);
         let requestHeader = req[0].requestHeader;
-        expect(requestHeader).to.deep.equal({
+        expect(requestHeader).toEqual({
             'Accept': 'application/geo+json'
         });
 
@@ -166,9 +164,9 @@ describe('set request header of requests that handled by provider', function() {
         });
 
         req = monitor.stop();
-        expect(req).to.have.lengthOf(1);
+        expect(req).toHaveLength(1);
         requestHeader = req[0].requestHeader;
-        expect(requestHeader).to.deep.equal({
+        expect(requestHeader).toEqual({
             'Accept': 'application/geo+json',
             'TESTSPACE': 'abcspace'
         });
@@ -183,9 +181,9 @@ describe('set request header of requests that handled by provider', function() {
         });
 
         req = monitor.stop();
-        expect(req).to.have.lengthOf(1);
+        expect(req).toHaveLength(1);
         requestHeader = req[0].requestHeader;
-        expect(requestHeader).to.deep.equal({
+        expect(requestHeader).toEqual({
             'Accept': 'application/geo+json',
             'TESTSPACE': 'abcspace'
         });
@@ -204,9 +202,9 @@ describe('set request header of requests that handled by provider', function() {
         });
 
         req = monitor.stop();
-        expect(req).to.have.lengthOf(1);
+        expect(req).toHaveLength(1);
         requestHeader = req[0].requestHeader;
-        expect(requestHeader).to.deep.equal({
+        expect(requestHeader).toEqual({
             'Accept': 'application/geo+json',
             'TESTSPACE': 'abcspace',
             'TESTSPACE1': 'abcspace1',
@@ -224,9 +222,9 @@ describe('set request header of requests that handled by provider', function() {
         });
 
         req = monitor.stop();
-        expect(req).to.have.lengthOf(1);
+        expect(req).toHaveLength(1);
         requestHeader = req[0].requestHeader;
-        expect(requestHeader).to.deep.equal({
+        expect(requestHeader).toEqual({
             'Accept': 'application/geo+json',
             'TESTSPACE': 'abcspace',
             'TESTSPACE1': 'abcspacenew',

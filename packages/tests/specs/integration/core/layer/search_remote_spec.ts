@@ -19,10 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './search_remote_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('search in layers remotely', function() {
-    const expect = chai.expect;
     var preparedData;
     var addressLayer;
 
@@ -43,14 +42,14 @@ describe('search in layers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.equal(undefined);
+            expect(objs).toBe(undefined);
         });
 
         let pa = preparedData.getFeature('addressLayer', -10462);
 
 
-        expect(results).to.have.lengthOf(1);
-        expect(results[0]).to.deep.include({id: pa.id});
+        expect(results).toHaveLength(1);
+        expect(results[0]).toEqual(expect.objectContaining({id: pa.id}));
 
         results = await new Promise<void>((resolve) => {
             let objs = addressLayer.search({
@@ -58,10 +57,10 @@ describe('search in layers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.have.lengthOf(2);
+            expect(objs).toHaveLength(2);
         });
 
-        expect(results).to.have.lengthOf(2);
+        expect(results).toHaveLength(2);
     });
 
     it('search by point and radius 3 times remotely and same area then validate no object is returned directly', async function() {
@@ -72,10 +71,10 @@ describe('search in layers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.equal(undefined);
+            expect(objs).toBe(undefined);
         });
 
-        expect(results).to.have.lengthOf(3);
+        expect(results).toHaveLength(3);
 
         results = await new Promise<void>((resolve) => {
             let objs = addressLayer.search({
@@ -84,10 +83,10 @@ describe('search in layers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.have.lengthOf(3);
+            expect(objs).toHaveLength(3);
         });
 
-        expect(results).to.have.lengthOf(3);
+        expect(results).toHaveLength(3);
 
         results = await new Promise<void>((resolve) => {
             let objs = addressLayer.search({
@@ -96,10 +95,10 @@ describe('search in layers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.have.lengthOf(4);
+            expect(objs).toHaveLength(4);
         });
 
-        expect(results).to.have.lengthOf(4);
+        expect(results).toHaveLength(4);
     });
 
 
@@ -110,10 +109,10 @@ describe('search in layers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(obj).to.equal(undefined);
+            expect(obj).toBe(undefined);
         });
 
-        expect(results).to.have.lengthOf(2);
+        expect(results).toHaveLength(2);
 
         results = await new Promise<void>((resolve) => {
             let objs = addressLayer.search({
@@ -123,6 +122,6 @@ describe('search in layers remotely', function() {
             });
         });
 
-        expect(results).to.have.lengthOf(2);
+        expect(results).toHaveLength(2);
     });
 });

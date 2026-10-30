@@ -19,11 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './settag_space_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('settag in spaceprovider', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var spaceProvider;
     var results;
@@ -47,8 +45,8 @@ describe('settag in spaceprovider', function() {
                 onload: resolve
             });
         });
-        expect(objs).to.equal(undefined);
-        expect(results).to.have.lengthOf(2);
+        expect(objs).toBe(undefined);
+        expect(results).toHaveLength(2);
 
         results = await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
@@ -57,8 +55,8 @@ describe('settag in spaceprovider', function() {
                 onload: resolve
             });
         });
-        expect(objs).to.have.lengthOf(2);
-        expect(results).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
+        expect(results).toHaveLength(2);
     });
 
     it('set tag and validate objects in a rectangle', async function() {
@@ -72,8 +70,8 @@ describe('settag in spaceprovider', function() {
                 onload: resolve
             });
         });
-        expect(objs).to.equal(undefined);
-        expect(results).to.have.lengthOf(0);
+        expect(objs).toBe(undefined);
+        expect(results).toHaveLength(0);
 
         results = await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
@@ -82,8 +80,8 @@ describe('settag in spaceprovider', function() {
                 onload: resolve
             });
         });
-        expect(objs).to.have.lengthOf(0);
-        expect(results).to.have.lengthOf(0);
+        expect(objs).toHaveLength(0);
+        expect(results).toHaveLength(0);
     });
 
     it('set another tag and validate objects in a rectangle again', async function() {
@@ -97,8 +95,8 @@ describe('settag in spaceprovider', function() {
                 onload: resolve
             });
         });
-        expect(objs).to.equal(undefined);
-        expect(results).to.have.lengthOf(2);
+        expect(objs).toBe(undefined);
+        expect(results).toHaveLength(2);
 
         results = await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
@@ -107,7 +105,7 @@ describe('settag in spaceprovider', function() {
                 onload: resolve
             });
         });
-        expect(objs).to.have.lengthOf(2);
-        expect(results).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
+        expect(results).toHaveLength(2);
     });
 });

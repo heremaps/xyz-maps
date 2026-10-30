@@ -19,10 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './add_feature_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('add feature to spaceprovider', function() {
-    const expect = chai.expect;
     var preparedData;
     var spaceLayer;
     var spaceProvider;
@@ -49,8 +48,8 @@ describe('add feature to spaceprovider', function() {
                 }
             });
         });
-        expect(objs).to.equal(undefined);
-        expect(robjs).to.have.lengthOf(2);
+        expect(objs).toBe(undefined);
+        expect(robjs).toHaveLength(2);
 
         await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
@@ -63,8 +62,8 @@ describe('add feature to spaceprovider', function() {
             });
         });
 
-        expect(objs).to.have.lengthOf(2);
-        expect(robjs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
+        expect(robjs).toHaveLength(2);
     });
 
 
@@ -85,8 +84,8 @@ describe('add feature to spaceprovider', function() {
             });
         });
 
-        expect(objs).to.equal(undefined);
-        expect(robjs).to.have.lengthOf(2);
+        expect(objs).toBe(undefined);
+        expect(robjs).toHaveLength(2);
 
         await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
@@ -99,7 +98,7 @@ describe('add feature to spaceprovider', function() {
             });
         });
 
-        expect(objs).to.have.lengthOf(2);
-        expect(robjs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
+        expect(robjs).toHaveLength(2);
     });
 });

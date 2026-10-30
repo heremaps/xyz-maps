@@ -19,11 +19,9 @@
 import {prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './map_destroy_with_space_and_copyright_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('destroy display with space layer and copyright', function() {
-    const expect = chai.expect;
-
     let display;
 
     beforeAll(async function() {
@@ -46,7 +44,7 @@ describe('destroy display with space layer and copyright', function() {
             setTimeout(()=>{
                 display.destroy();
 
-                expect(display).to.deep.equal({});
+                expect(display).toEqual({});
 
                 // wait 100ms for exception thrown asynchronously by destroy
                 setTimeout(done, 100);

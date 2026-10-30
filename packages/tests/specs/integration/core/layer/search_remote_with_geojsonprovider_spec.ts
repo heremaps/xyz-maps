@@ -19,13 +19,11 @@
 
 import {prepare} from 'utils';
 import dataset from './search_remote_with_geojsonprovider_spec.json';
-import {describe, beforeAll, it, chai} from 'vitest';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 // GeoJSonProvider actually does not support remote search......
 // search locally instead
 describe('search in geojson providers remotely', function() {
-    const expect = chai.expect;
-
     var poiLayer;
     var results;
 
@@ -44,7 +42,7 @@ describe('search in geojson providers remotely', function() {
             });
         });
 
-        expect(results).to.have.lengthOf(3);
+        expect(results).toHaveLength(3);
     });
 
 
@@ -57,20 +55,20 @@ describe('search in geojson providers remotely', function() {
                 onload: resolve
             });
 
-            expect(objs).to.equal(undefined);
+            expect(objs).toBe(undefined);
         });
 
-        expect(results).to.have.lengthOf(3);
+        expect(results).toHaveLength(3);
 
         let objs = poiLayer.search({
             point: {longitude: -99.88524449814317, latitude: 29.682423714345788},
             radius: 50,
             remote: true,
             onload: function(e) {
-                expect(e).to.have.lengthOf(3);
+                expect(e).toHaveLength(3);
             }
         });
-        expect(objs).to.have.lengthOf(3);
+        expect(objs).toHaveLength(3);
 
         results = await new Promise<void>((resolve) => {
             let objs = poiLayer.search({
@@ -80,10 +78,10 @@ describe('search in geojson providers remotely', function() {
                 onload: resolve
             });
 
-            expect(objs).to.have.lengthOf(5);
+            expect(objs).toHaveLength(5);
         });
 
-        expect(results).to.have.lengthOf(5);
+        expect(results).toHaveLength(5);
 
         results = await new Promise<void>((resolve) => {
             let objs = poiLayer.search({
@@ -92,10 +90,10 @@ describe('search in geojson providers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.have.lengthOf(7);
+            expect(objs).toHaveLength(7);
         });
 
-        expect(results).to.have.lengthOf(7);
+        expect(results).toHaveLength(7);
     });
 
 
@@ -106,10 +104,10 @@ describe('search in geojson providers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.equal(undefined);
+            expect(objs).toBe(undefined);
         });
 
-        expect(results).to.have.lengthOf(4);
+        expect(results).toHaveLength(4);
 
         results = await new Promise<void>((resolve) => {
             let objs = poiLayer.search({
@@ -117,9 +115,9 @@ describe('search in geojson providers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.have.lengthOf(4);
+            expect(objs).toHaveLength(4);
         });
 
-        expect(results).to.have.lengthOf(4);
+        expect(results).toHaveLength(4);
     });
 });

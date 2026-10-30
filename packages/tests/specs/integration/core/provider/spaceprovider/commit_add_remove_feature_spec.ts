@@ -19,11 +19,9 @@
 
 import {prepare} from 'utils';
 import dataset from './commit_add_remove_feature_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe.skip('commit add and remove feature to spaceprovider', function() {
-    const expect = chai.expect;
-
     var preparedData;
     var spaceProvider;
     var spaceLayer;
@@ -51,7 +49,7 @@ describe.skip('commit add and remove feature to spaceprovider', function() {
                 }
             });
         });
-        expect(robjs).to.have.lengthOf(0);
+        expect(robjs).toHaveLength(0);
 
         await new Promise<void>(function(resolve, reject) {
             spaceProvider.commit(
@@ -84,6 +82,6 @@ describe.skip('commit add and remove feature to spaceprovider', function() {
         });
 
         // expect search function return committed feature
-        expect(robjs).to.have.lengthOf(1);
+        expect(robjs).toHaveLength(1);
     });
 });

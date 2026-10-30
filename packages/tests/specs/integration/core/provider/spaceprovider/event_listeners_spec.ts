@@ -19,10 +19,9 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('event listeners in spaceprovider', function() {
-    const expect = chai.expect;
     var preparedData;
     var spaceLayer;
     var spaceProvider;
@@ -55,8 +54,8 @@ describe('event listeners in spaceprovider', function() {
 
         let evts = listener.stop();
 
-        expect(evts.featureAdd[0]).to.deep.include({id: 'abc'});
-        expect(evts.featureRemove).to.have.lengthOf(0);
+        expect(evts.featureAdd[0]).toEqual(expect.objectContaining({id: 'abc'}));
+        expect(evts.featureRemove).toHaveLength(0);
 
 
         let listener2 = new Listener(spaceProvider, ['featureAdd', 'featureRemove']);
@@ -68,7 +67,7 @@ describe('event listeners in spaceprovider', function() {
 
         let evt = listener2.stop();
 
-        expect(evt.featureRemove[0]).to.deep.include({id: 'abc'});
-        expect(evt.featureAdd).to.have.lengthOf(0);
+        expect(evt.featureRemove[0]).toEqual(expect.objectContaining({id: 'abc'}));
+        expect(evt.featureAdd).toHaveLength(0);
     });
 });
