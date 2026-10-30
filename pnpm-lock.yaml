@@ -455,9 +455,6 @@ importers:
       '@here/xyz-maps-editor':
         specifier: workspace:^
         version: link:../editor
-      '@types/chai':
-        specifier: ^4.3.3
-        version: 4.3.20
       '@vitest/browser-playwright':
         specifier: ^5.0.5
         version: 5.0.5(playwright@1.64.1)(vite@8.3.5(@types/node@26.6.5)(sass@1.105.1)(terser@5.51.2)(yaml@2.9.1))(vitest@5.0.5)
@@ -1540,9 +1537,6 @@ packages:
 
   '@types/argparse@1.0.38':
     resolution: {integrity: sha512-ebDJ9b0e702Yr7pWgB0jzm+CX4Srzz8RcXtLJDJB+BSccqMa36uyH/zUsSYao5+BD1ytv3k3rPYCq4mAE1hsXA==}
-
-  '@types/chai@4.3.20':
-    resolution: {integrity: sha512-/pC9HAB5I/xMlc5FP77qjCnI16ChlJfW0tGa0IUcFn38VJrTV6DeZ60NU5KZBtaOZqjdpwTWohz5HU1RrhiYxQ==}
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -5594,8 +5588,6 @@ snapshots:
       tslib: 2.8.1
 
   '@types/argparse@1.0.38': {}
-
-  '@types/chai@4.3.20': {}
 
   '@types/chai@5.2.3':
     dependencies:

@@ -27,7 +27,6 @@
     "@here/xyz-maps-core": "workspace:^",
     "@here/xyz-maps-display": "workspace:^",
     "@here/xyz-maps-editor": "workspace:^",
-    "@types/chai": "^4.3.3",
     "@vitest/browser-playwright": "^5.0.5",
     "playwright": "^1.64.1",
     "typescript": "^5.9.3",

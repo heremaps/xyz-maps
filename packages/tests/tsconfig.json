@@ -7,7 +7,7 @@
     "lib": ["es5", "ES2017", "dom"],
     "sourceMap": true,
     "allowJs": true,
-    "types" : ["chai", "@vitest/browser-playwright"],
+    "types" : ["@vitest/browser-playwright"],
     "baseUrl": ".",
     "paths": {
       "@test/*": ["src/*"],
