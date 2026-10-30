@@ -17,12 +17,12 @@
  * License-Filename: LICENSE
  */
 
-import {waitForViewportReady} from 'displayUtils';
-import {expectCanvasPixelColor, prepare} from 'utils';
-import {Map} from '@here/xyz-maps-display';
-import dataset from './setstylegroup_point_spec.json';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it} from 'vitest';
+import {expectCanvasPixelColor} from '@test/assertions/canvas';
+import {createMapFixture} from '@test/fixtures/map';
+import {waitForViewportReady} from '@test/synchronization/viewport';
+import {beforeEach, describe, it} from 'vitest';
+import dataset from './setstylegroup_point_spec.json';
 
 describe('setStyleGroup Point', function() {
     let paLayer: TileLayer;
@@ -31,17 +31,16 @@ describe('setStyleGroup Point', function() {
     let feature1;
     let feature2;
 
-    beforeAll(async function() {
-        let preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
-            // @ts-ignore
+    beforeEach(async function() {
+        const fixture = await createMapFixture(dataset, {
             renderOptions: {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 73.138138, latitude: 20.187398},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
+            zoomlevel: 18
         });
+        const {preparedData} = fixture;
+        display = fixture.display;
 
         await waitForViewportReady(display);
 
@@ -51,10 +50,6 @@ describe('setStyleGroup Point', function() {
         // get features
         feature1 = preparedData.getFeature('paLayer', '123');
         feature2 = preparedData.getFeature('paLayer', '124');
-    });
-
-    afterAll(async function() {
-        display.destroy();
     });
 
     it('style feature, validate its style', async function() {

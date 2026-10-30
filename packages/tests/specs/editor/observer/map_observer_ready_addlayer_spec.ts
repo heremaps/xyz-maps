@@ -16,41 +16,31 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Observer, prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
-import {Map} from '@here/xyz-maps-display';
+import {Observer} from '@test/observers/recorders';
+import {waitForEditorReady} from '@test/synchronization/editor';
+import {createMapFixture} from '@test/fixtures/map';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_observer_ready_addlayer_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, it, expect, onTestFinished} from 'vitest';
 
 describe('map ready observer for addlayer', function() {
-    let editor;
-    let display;
-    let preparedData;
-
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    it('emits readiness during initialization and layer addition', async function() {
+        const {preparedData, display} = await createMapFixture(dataset, {
             center: {longitude: 77.02831, latitude: 12.9356},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
+            zoomlevel: 18
+        });
+        let editor: Editor;
+        onTestFinished(() => {
+            if (editor?.destroy) editor.destroy();
         });
         editor = new Editor(display);
 
-        // validate ready event
-        let observer = new Observer(editor, 'ready');
-        await waitForEditorReady(editor);
-
-        let results = observer.stop();
-        expect(results['ready']).toStrictEqual([true]);
-    });
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-    });
-
-    it('observe ready with addlayer', async function() {
+        {
+            let observer = new Observer(editor, 'ready');
+            await waitForEditorReady(editor);
+            let results = observer.stop();
+            expect(results['ready']).toStrictEqual([true]);
+        }
         let layers = editor.getLayers();
 
         expect(layers).toHaveLength(0);

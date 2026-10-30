@@ -18,6 +18,7 @@ on:
                 default: all
                 options:
                     - all
+                    - unit
                     - common
                     - core
                     - display
@@ -54,6 +55,8 @@ jobs:
                     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             -   name: Install dependencies
                 run: pnpm install --frozen-lockfile
+            -   name: Test pure helpers before building browser bundles
+                run: pnpm --filter @here/xyz-maps-test run test:unit --sequence.seed "$GITHUB_RUN_ID"
             -   name: Build release package
                 run: pnpm run build-release
             -   name: Typecheck test specs
@@ -67,7 +70,7 @@ jobs:
                     args=()
                     case "$TEST_COMPONENT" in
                         all) ;;
-                        common|core|display|editor) args+=(--project "$TEST_COMPONENT") ;;
+                        unit|common|core|display|editor) args+=(--project "$TEST_COMPONENT") ;;
                         *) echo "Unknown test component: $TEST_COMPONENT" >&2; exit 1 ;;
                     esac
                     case "$TEST_WORKERS" in
@@ -76,3 +79,4 @@ jobs:
                         *) echo "Unknown test workers: $TEST_WORKERS" >&2; exit 1 ;;
                     esac
                     pnpm test "${args[@]}"
+                    pnpm --filter @here/xyz-maps-test run test:isolation "${args[@]}" --sequence.seed "$GITHUB_RUN_ID"

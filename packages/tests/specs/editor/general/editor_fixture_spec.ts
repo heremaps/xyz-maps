@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {createEditorFixture} from 'editorUtils';
+import {createEditorFixture} from '@test/fixtures/editor';
 import {describe, expect, it, onTestFinished, vi} from 'vitest';
 import dataset from '../marker/marker_spec.json';
 
@@ -26,13 +26,31 @@ describe('Editor fixture ownership', () => {
     it('disposes the Editor, Map and prepared data automatically', async () => {
         let fixture: Awaited<ReturnType<typeof createEditorFixture>>;
         let clear: ReturnType<typeof vi.spyOn>;
+        const order: string[] = [];
         onTestFinished(() => {
             expect(fixture.editor.destroy).toBeUndefined();
             expect(fixture.display.destroy).toBeUndefined();
             expect(clear).toHaveBeenCalledOnce();
+            expect(order).toEqual(['editor', 'map', 'data']);
         });
         fixture = await createEditorFixture(dataset, mapOptions, {featureSelectionByDefault: false});
-        clear = vi.spyOn(fixture.preparedData, 'clear');
+        const destroyEditor = fixture.editor.destroy.bind(fixture.editor);
+        const destroyMap = fixture.display.destroy.bind(fixture.display);
+        const clearData = fixture.preparedData.clear.bind(fixture.preparedData);
+        const editorDestroy = vi.spyOn(fixture.editor, 'destroy').mockImplementation(() => {
+            order.push('editor');
+            editorDestroy.mockRestore();
+            destroyEditor();
+        });
+        const mapDestroy = vi.spyOn(fixture.display, 'destroy').mockImplementation(() => {
+            order.push('map');
+            mapDestroy.mockRestore();
+            destroyMap();
+        });
+        clear = vi.spyOn(fixture.preparedData, 'clear').mockImplementation(() => {
+            order.push('data');
+            return clearData();
+        });
 
         expect(fixture.editor.config('featureSelectionByDefault')).toBe(false);
         expect(fixture.preparedData.getFeature('markerLayer', 'MyMarker')).toBeDefined();

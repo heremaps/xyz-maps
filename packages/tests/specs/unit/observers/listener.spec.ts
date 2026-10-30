@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+import {Listener} from '@test/observers/recorders';
 import {afterAll, describe, expect, it, vi} from 'vitest';
-import {Listener} from 'utils';
 
 describe('test event listener cleanup', () => {
     const automaticCleanup: {target: EventTarget, listener: Listener}[] = [];

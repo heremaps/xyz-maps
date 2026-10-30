@@ -16,13 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {createEditorFixture} from '@test/fixtures/editor';
 import {drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './map_history_info_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map history info', function() {
     var editor;
@@ -31,63 +28,53 @@ describe('map history info', function() {
 
     var link1;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 73.192904, latitude: 18.916527},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
 
         link1 = preparedData.getFeature('linkLayer', -189004);
     });
 
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
-    });
+    it('reports creation and link-edit changes, then restores the creation through undo', async () => {
+        // add a link object
+        {
+            let p = {
+                type: 'Feature',
+                properties: {featureClass: 'PLACE'},
+                geometry: {
+                    type: 'Point',
+                    coordinates: editor.toGeoJSONCoordinates({x: 100, y: 200})
+                }
+            };
+            let poi = editor.addFeature(p, preparedData.getLayers('paLayer'));
 
-    it('add a link object', function() {
-        let p = {
-            type: 'Feature',
-            properties: {featureClass: 'PLACE'},
-            geometry: {
-                type: 'Point',
-                coordinates: editor.toGeoJSONCoordinates({x: 100, y: 200})
-            }
-        };
-        let poi = editor.addFeature(p, preparedData.getLayers('paLayer'));
+            expect(editor.get('history.current')).toBe(1);
+            expect(editor.get('history.length')).toBe(1);
+            expect(editor.get('changes.length')).toBe(1);
+        }
+        // get a link and select
+        {
+            link1.select();
+            let mapContainer = display.getContainer();
+            await drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 150});
 
-        expect(editor.get('history.current')).toBe(1);
-        expect(editor.get('history.length')).toBe(1);
-        expect(editor.get('changes.length')).toBe(1);
-    });
+            expect(editor.get('history.current')).toBe(2);
+            expect(editor.get('history.length')).toBe(2);
+            expect(editor.get('changes.length')).toBe(5);
 
-    it('get a link and select', async function() {
-        link1.select();
-        let mapContainer = display.getContainer();
-        await drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 150});
+            expect(editor.info()).toHaveLength(5);
+        }
+        // undo changes
+        {
+            editor.undo();
 
-        expect(editor.get('history.current')).toBe(2);
-        expect(editor.get('history.length')).toBe(2);
-        expect(editor.get('changes.length')).toBe(5);
+            expect(editor.get('history.current')).toBe(1);
+            expect(editor.get('history.length')).toBe(2);
+            expect(editor.get('changes.length')).toBe(1);
 
-        expect(editor.info()).toHaveLength(5);
-    });
-
-    it('undo changes', async function() {
-        editor.undo();
-
-        expect(editor.get('history.current')).toBe(1);
-        expect(editor.get('history.length')).toBe(2);
-        expect(editor.get('changes.length')).toBe(1);
-
-        expect(editor.info()).toHaveLength(1);
+            expect(editor.info()).toHaveLength(1);
+        }
     });
 });

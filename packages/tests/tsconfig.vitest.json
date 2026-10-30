@@ -13,6 +13,8 @@
   "include": [
     "vitest/*.mts",
     "vitest.config.mts",
+    "vitest.isolation.config.mts",
+    "vitest.unit.config.mts",
     "vitest.integration.config.mts"
   ]
 }

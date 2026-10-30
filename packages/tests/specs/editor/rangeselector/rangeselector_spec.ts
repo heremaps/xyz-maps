@@ -16,13 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
+import {createEditorFixture} from '@test/fixtures/editor';
 import {validateSegment, waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './rangeselector_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('range selector drag', () => {
     let editor;
@@ -35,32 +33,20 @@ describe('range selector drag', () => {
     let link2;
     let link3;
 
-    beforeAll(async () => {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async () => {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: -105.145534, latitude: 35.374829},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
         mapContainer = display.getContainer();
 
         link1 = preparedData.getFeature('linkLayer', '-189231');
         link2 = preparedData.getFeature('linkLayer', '-189232');
         link3 = preparedData.getFeature('linkLayer', '-189233');
+        draggedZone = undefined;
     });
 
-    afterAll(async () => {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
-    });
-
-    it('add links to rangeselector, show and validate rangeselector info ', () => {
+    function showRanges() {
         editor.getRangeSelector().add(link1, link2);
 
         editor.getRangeSelector().show({
@@ -76,7 +62,10 @@ describe('range selector drag', () => {
                 draggedZone = e.detail.range;
             }
         });
+    }
 
+    it('add links to rangeselector, show and validate rangeselector info ', () => {
+        showRanges();
         let info = editor.getRangeSelector().info();
         expect(info[0]).toEqual(expect.objectContaining({
             from: 0.1,
@@ -110,6 +99,7 @@ describe('range selector drag', () => {
     });
 
     it('drag range selector and validate again', async () => {
+        showRanges();
         await drag(mapContainer, {x: 350, y: 217}, {x: 350, y: 250});
 
         validateSegment(draggedZone.segments[0], {
@@ -138,7 +128,6 @@ describe('range selector drag', () => {
             to: 1
         }, link1.id);
 
-
         expect(info[1]).toEqual(expect.objectContaining({
             from: 0.5,
             side: 'B',
@@ -164,8 +153,8 @@ describe('range selector drag', () => {
         // expect(info[1].segments[0].feature).to.deep.include({id: link2.id});
     });
 
-
     it('hide rangeselector, drag the map to validate the range selector is deactivated, validate map is dragged', async () => {
+        showRanges();
         editor.getRangeSelector().hide();
 
         await waitForEditorReady(editor, async () => {
@@ -183,7 +172,6 @@ describe('range selector drag', () => {
         link3.select();
 
         await drag(mapContainer, {x: 451, y: 205}, {x: 501, y: 205});
-
 
         expect(link3.coord()).toEqualWithTolerance([
             [-105.1444, 35.37458, 0],

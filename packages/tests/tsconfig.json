@@ -10,6 +10,7 @@
     "types" : ["chai", "@vitest/browser-playwright"],
     "baseUrl": ".",
     "paths": {
+      "@test/*": ["src/*"],
       "vitest/browser": ["node_modules/vitest/browser/context.d.ts"],
       "vitest/internal/browser": ["node_modules/vitest/dist/browser.d.ts"],
       "*": ["src/utils/*"],

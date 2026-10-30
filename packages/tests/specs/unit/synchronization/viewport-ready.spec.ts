@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {waitForViewportReady} from 'displayUtils';
+import {waitForViewportReady} from '@test/synchronization/viewport';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 function layer(id: string) {

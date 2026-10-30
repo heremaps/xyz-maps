@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import type {Editor} from '@here/xyz-maps-editor';
-import {waitForEditorReady} from 'editorUtils';
+import {waitForEditorReady} from '@test/synchronization/editor';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 describe('editor readiness helper', () => {

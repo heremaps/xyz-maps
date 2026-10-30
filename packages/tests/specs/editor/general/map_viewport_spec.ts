@@ -16,14 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
+import {createEditorFixture} from '@test/fixtures/editor';
 import {waitForEditorReady} from 'editorUtils';
-import {mousemove, drag} from 'triggerEvents';
+import {drag, mousemove} from 'triggerEvents';
+import {beforeEach, describe, expect, it} from 'vitest';
 import {userEvent} from 'vitest/browser';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_viewport_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map viewport lock', function() {
     let editor;
@@ -31,23 +29,12 @@ describe('map viewport lock', function() {
     let preparedData;
     let mapContainer;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 76.00056, latitude: 13.00109},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
         mapContainer = display.getContainer();
-    });
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
     });
 
     it('locked viewport is not draggable', async function() {
@@ -59,6 +46,7 @@ describe('map viewport lock', function() {
     });
 
     it('locked viewport is not draggable when drawingboard is active', async function() {
+        display.lockViewport({pan: true});
         editor.getDrawingBoard().start();
 
         await mousemove(mapContainer, {x: 80, y: 100}, {x: 100, y: 100});
@@ -69,6 +57,8 @@ describe('map viewport lock', function() {
     });
 
     it('create link with drawingboard', async function() {
+        display.lockViewport({pan: true});
+        editor.getDrawingBoard().start();
         await userEvent.click(mapContainer, {position: {x: 100, y: 100}, modifiers: ['Alt']});
 
         // try draging the map
@@ -92,15 +82,15 @@ describe('map viewport lock', function() {
         });
     });
 
-
     it('drag map not possible when viewport is locked', async function() {
+        display.lockViewport({pan: true});
         await drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
 
         expect(display.getCenter()).toEqual({longitude: 76.00056, latitude: 13.00109});
     });
 
-
     it('unblock viewport and drag viewport', async function() {
+        display.lockViewport({pan: true});
         display.lockViewport({pan: false});
 
         await waitForEditorReady(editor, async ()=>{

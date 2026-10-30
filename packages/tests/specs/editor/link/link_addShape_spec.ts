@@ -16,12 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {createEditorFixture} from '@test/fixtures/editor';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './link_addShape_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link add shape point', function() {
     let editor;
@@ -30,28 +27,12 @@ describe('link add shape point', function() {
     let link;
     let linkLayer;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {latitude: 12.94086, longitude: 76.99443},
-            zoomlevel: 17,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 17
+        }));
         linkLayer = preparedData.getLayers('linkLayer');
-    });
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
-    });
-
-    it('create a link and validate', function() {
         let l = {
             type: 'Feature',
             properties: {featureClass: 'NAVLINK'},
@@ -61,7 +42,19 @@ describe('link add shape point', function() {
             }
         };
         link = editor.addFeature(l, linkLayer);
+    });
 
+    function addHeadShape() {
+        link.addShape({x: 200, y: 50});
+        link.addShape({x: 200, y: 200, z: 1}, 0);
+    }
+
+    function addNearbyShape() {
+        addHeadShape();
+        link.addShape({x: 196, y: 55});
+    }
+
+    it('creates a link with the requested geometry', function() {
         expect(link.coord()).toEqualWithTolerance([
             [76.99443, 12.941905632, 0],
             [76.991211349, 12.941905632, 0]
@@ -78,6 +71,7 @@ describe('link add shape point', function() {
     });
 
     it('add one more shape point at head of the link and validate', function() {
+        link.addShape({x: 200, y: 50});
         link.addShape({x: 200, y: 200, z: 1}, 0);
         expect(link.coord()).toEqualWithTolerance([
             [76.992284233, 12.941905632, 1],
@@ -88,6 +82,7 @@ describe('link add shape point', function() {
     });
 
     it('add one more shape point close to existing shape point', function() {
+        addHeadShape();
         link.addShape({x: 196, y: 55});
         expect(link.coord()).toEqualWithTolerance([
             [76.992284233, 12.941905632, 1],
@@ -99,6 +94,7 @@ describe('link add shape point', function() {
     });
 
     it('undo last change', function() {
+        addNearbyShape();
         editor.undo();
 
         let lnk = editor.getFeature(link.id, linkLayer);
@@ -110,7 +106,9 @@ describe('link add shape point', function() {
         ], 1e-6);
     });
 
-    it('redo last change', async function() {
+    it('undoes head insertion after undoing the nearby shape', function() {
+        addNearbyShape();
+        editor.undo();
         editor.undo();
 
         let lnk = editor.getFeature(link.id, linkLayer);
@@ -119,5 +117,17 @@ describe('link add shape point', function() {
             [76.992284233, 12.943474072, 0],
             [76.991211349, 12.941905632, 0]
         ], 1e-6);
+    });
+
+    it('restores an undone nearby shape through redo', function() {
+        addHeadShape();
+        const before = structuredClone(link.coord());
+        link.addShape({x: 196, y: 55});
+        const inserted = structuredClone(link.coord());
+
+        editor.undo();
+        expect(editor.getFeature(link.id, linkLayer).coord()).toEqual(before);
+        editor.redo();
+        expect(editor.getFeature(link.id, linkLayer).coord()).toEqual(inserted);
     });
 });

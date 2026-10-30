@@ -17,9 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import {describe, it, expect} from 'vitest';
+import {describe, expect, it} from 'vitest';
 
-describe('absolute tolerance matcher', () => {
+describe('absolute numeric tolerance matcher', () => {
     const cases: {name: string; actual: unknown; expected: unknown; tolerance: number; pass: boolean}[] = [
         {name: 'equal numbers', actual: 1, expected: 1, tolerance: 0.125, pass: true},
         {name: 'inclusive boundary', actual: 0, expected: 0.125, tolerance: 0.125, pass: true},

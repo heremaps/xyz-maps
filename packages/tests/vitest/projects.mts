@@ -26,6 +26,29 @@ import {mapDrag, mapWheel} from './commands.mts';
 
 const src = path.join(root, 'src');
 
+const aliases = [
+    {find: /^@test\/(.*)$/, replacement: path.join(src, '$1')},
+    {find: /^utils$/, replacement: path.join(src, 'utils/utils.ts')},
+    {find: /^editorUtils$/, replacement: path.join(src, 'utils/editorUtils.ts')},
+    {find: /^displayUtils$/, replacement: path.join(src, 'utils/displayUtils.ts')},
+    {find: /^coreUtils$/, replacement: path.join(src, 'utils/coreUtils.ts')},
+    {find: /^triggerEvents$/, replacement: path.join(src, 'utils/triggerEvents.ts')},
+    {find: /^TestProviders$/, replacement: path.join(src, 'TestProvider.ts')}
+];
+
+export function unitProject(): UserWorkspaceConfig {
+    return {
+        resolve: {alias: aliases},
+        test: {
+            name: 'unit',
+            include: ['specs/unit/**/*.spec.ts'],
+            environment: 'node',
+            setupFiles: [path.join(root, 'vitest/matchers.ts')],
+            sequence: {shuffle: true}
+        }
+    };
+}
+
 // libs: UMD artifacts available to the project's module dependency graph
 // map: markup of the former statics/runner<component>.html that the specs rely on
 const COMPONENTS: Record<Component, {libs: LibraryComponent[]; include: string[]; map: MapMarkup}> = {
@@ -92,15 +115,7 @@ export function project(component: Component, mode: string): UserWorkspaceConfig
     return {
         plugins: [xyzArtifacts(libs, distOf(mode)), xyzAssets(), xyzEnvironment(component)],
         resolve: {
-            alias: [
-                // bare module names of the specs, same mapping as "paths" in tsconfig.json
-                {find: /^utils$/, replacement: path.join(src, 'utils/utils.ts')},
-                {find: /^editorUtils$/, replacement: path.join(src, 'utils/editorUtils.ts')},
-                {find: /^displayUtils$/, replacement: path.join(src, 'utils/displayUtils.ts')},
-                {find: /^coreUtils$/, replacement: path.join(src, 'utils/coreUtils.ts')},
-                {find: /^triggerEvents$/, replacement: path.join(src, 'utils/triggerEvents.ts')},
-                {find: /^TestProviders$/, replacement: path.join(src, 'TestProvider.ts')}
-            ]
+            alias: aliases
         },
         define: {
             __XYZ_COMPONENT__: JSON.stringify(component),

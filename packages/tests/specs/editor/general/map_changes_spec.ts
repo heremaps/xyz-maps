@@ -16,118 +16,108 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
+import {createEditorFixture} from '@test/fixtures/editor';
 import {waitForEditorReady} from 'editorUtils';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './map_changes_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
-
 
 describe('map changes test', function() {
     var editor;
     var display;
     var preparedData;
 
-
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 76.089289, latitude: 13.010477},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
+            zoomlevel: 18
+        }));
+    });
+
+    it('keeps repeated undo and redo at the history boundaries', async () => {
+        // add a link object
+        {
+            let l = {
+                type: 'Feature',
+                properties: {featureClass: 'NAVLINK'},
+                geometry: {
+                    type: 'LineString',
+                    coordinates: editor.toGeoJSONCoordinates([{x: 110, y: 110}, {x: 120, y: 210}])
+                }
+            };
+            let link = editor.addFeature(l);
+
+            expect(editor.get('history.current')).toBe(1);
+            expect(editor.get('history.length')).toBe(1);
+            expect(editor.get('changes.length')).toBe(1);
+        }
+        // undo changes
+        {
+            editor.undo();
+
+            expect(editor.get('history.current')).toBe(0);
+            expect(editor.get('history.length')).toBe(1);
+            expect(editor.get('changes.length')).toBe(0);
+        }
+        // undo changes once again
+        {
+            editor.undo();
+
+            expect(editor.get('history.current')).toBe(0);
+            expect(editor.get('history.length')).toBe(1);
+            expect(editor.get('changes.length')).toBe(0);
+        }
+        // undo one more time
+        {
+            editor.undo();
+
+            expect(editor.get('history.current')).toBe(0);
+            expect(editor.get('history.length')).toBe(1);
+            expect(editor.get('changes.length')).toBe(0);
+        }
+        // redo change
+        {
+            editor.redo();
+
+            expect(editor.get('history.current')).toBe(1);
+            expect(editor.get('history.length')).toBe(1);
+            expect(editor.get('changes.length')).toBe(1);
+        }
+        // redo change again
+        {
+            editor.redo();
+
+            expect(editor.get('history.current')).toBe(1);
+            expect(editor.get('history.length')).toBe(1);
+            expect(editor.get('changes.length')).toBe(1);
+        }
+    });
+
+    it('reverts pending changes and remains empty on repeated revert', async () => {
+        editor.addFeature({
+            type: 'Feature', properties: {featureClass: 'NAVLINK'},
+            geometry: {type: 'LineString', coordinates: editor.toGeoJSONCoordinates([{x: 110, y: 110}, {x: 120, y: 210}])}
         });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
+        // revert change
+        {
+            await waitForEditorReady(editor, ()=>{
+                editor.revert();
+            });
 
-        await waitForEditorReady(editor);
-    });
+            expect(editor.info()).toHaveLength(0);
+            expect(editor.get('history.current')).toBe(0);
+            expect(editor.get('history.length')).toBe(0);
+            expect(editor.get('changes.length')).toBe(0);
+        }
+        // revert change again
+        {
+            await waitForEditorReady(editor, ()=>{
+                editor.revert();
+            });
 
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-    });
-
-
-    it('add a link object', function() {
-        let l = {
-            type: 'Feature',
-            properties: {featureClass: 'NAVLINK'},
-            geometry: {
-                type: 'LineString',
-                coordinates: editor.toGeoJSONCoordinates([{x: 110, y: 110}, {x: 120, y: 210}])
-            }
-        };
-        let link = editor.addFeature(l);
-
-        expect(editor.get('history.current')).toBe(1);
-        expect(editor.get('history.length')).toBe(1);
-        expect(editor.get('changes.length')).toBe(1);
-    });
-
-    it('undo changes', function() {
-        editor.undo();
-
-        expect(editor.get('history.current')).toBe(0);
-        expect(editor.get('history.length')).toBe(1);
-        expect(editor.get('changes.length')).toBe(0);
-    });
-
-    it('undo changes once again', function() {
-        editor.undo();
-
-        expect(editor.get('history.current')).toBe(0);
-        expect(editor.get('history.length')).toBe(1);
-        expect(editor.get('changes.length')).toBe(0);
-    });
-
-    it('undo one more time', function() {
-        editor.undo();
-
-        expect(editor.get('history.current')).toBe(0);
-        expect(editor.get('history.length')).toBe(1);
-        expect(editor.get('changes.length')).toBe(0);
-    });
-
-
-    it('redo change', function() {
-        editor.redo();
-
-        expect(editor.get('history.current')).toBe(1);
-        expect(editor.get('history.length')).toBe(1);
-        expect(editor.get('changes.length')).toBe(1);
-    });
-
-    it('redo change again', function() {
-        editor.redo();
-
-        expect(editor.get('history.current')).toBe(1);
-        expect(editor.get('history.length')).toBe(1);
-        expect(editor.get('changes.length')).toBe(1);
-    });
-
-
-    it('revert change', async function() {
-        await waitForEditorReady(editor, ()=>{
-            editor.revert();
-        });
-
-        expect(editor.info()).toHaveLength(0);
-        expect(editor.get('history.current')).toBe(0);
-        expect(editor.get('history.length')).toBe(0);
-        expect(editor.get('changes.length')).toBe(0);
-    });
-
-
-    it('revert change again', async function() {
-        await waitForEditorReady(editor, ()=>{
-            editor.revert();
-        });
-
-        expect(editor.info()).toHaveLength(0);
-        expect(editor.get('history.current')).toBe(0);
-        expect(editor.get('history.length')).toBe(0);
-        expect(editor.get('changes.length')).toBe(0);
+            expect(editor.info()).toHaveLength(0);
+            expect(editor.get('history.current')).toBe(0);
+            expect(editor.get('history.length')).toBe(0);
+            expect(editor.get('changes.length')).toBe(0);
+        }
     });
 });

@@ -16,14 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {createEditorFixture} from '@test/fixtures/editor';
 import {drag} from 'triggerEvents';
+import {beforeEach, describe, expect, it} from 'vitest';
 import {userEvent} from 'vitest/browser';
-import {Editor} from '@here/xyz-maps-editor';
-import {Map} from '@here/xyz-maps-display';
 import dataset from './address_setcoordinates_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('add Address layer set coordinates', function() {
     var preparedData;
@@ -32,16 +29,11 @@ describe('add Address layer set coordinates', function() {
     let address;
     let addrLayer;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 75.573482, latitude: 12.950542},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {layers: preparedData.getLayers()});
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
 
         preparedData.getFeature('linkLayer', -188828);
         address = preparedData.getFeature('paLayer', -47939);
@@ -49,63 +41,67 @@ describe('add Address layer set coordinates', function() {
         addrLayer = preparedData.getLayers('paLayer');
     });
 
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
+    it('sets Address coordinates through the API', async () => {
+        // verify address has correct geo coordinate then modify its geo coordinate
+        {
+            expect(address.coord()).toEqualWithTolerance([
+                75.572408633, 12.951587932, 0
+            ], 1e-6);
+
+            address.coord([75.573481516, 12.950542341, 0]);
+        }
+        // verify address has correct geo coordinate
+        {
+            expect(address.coord()).toEqualWithTolerance([
+                75.573481516, 12.950542341, 0
+            ], 1e-6);
+        }
     });
 
-    it('verify address has correct geo coordinate then modify its geo coordinate', function() {
-        expect(address.coord()).toEqualWithTolerance([
-            75.572408633, 12.951587932, 0
-        ], 1e-6);
+    it('accepts coordinates at the original Address location', async () => {
+        // modify and verify address has correct geo coordinate
+        {
+            address.coord([75.572408632, 12.9515879324, 0]);
 
-        address.coord([75.573481516, 12.950542341, 0]);
+            expect(address.coord()).toEqualWithTolerance([
+                75.572408632, 12.951587932, 0
+            ], 1e-6);
+        }
     });
 
+    it('finds the Address and its link in the viewport', async () => {
+        // validate objects in viewport
+        {
+            let objs1 = editor.search({rect: display.getViewBounds(), layers: [addrLayer]});
+            let objs2 = editor.search({rect: display.getViewBounds()});
 
-    it('verify address has correct geo coordinate', function() {
-        expect(address.coord()).toEqualWithTolerance([
-            75.573481516, 12.950542341, 0
-        ], 1e-6);
+            expect(objs1).toHaveLength(1);
+            expect(objs2).toHaveLength(2);
+        }
     });
 
-    it('modify and verify address has correct geo coordinate', function() {
-        address.coord([75.572408632, 12.9515879324, 0]);
+    it('preserves a dragged Address when its layer is removed and re-added', async () => {
+        // drag the address, remove the address layer and validate modified address in viewport
+        {
+            let mapContainer = display.getContainer();
+            await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
+            await drag(mapContainer, {x: 200, y: 100}, {x: 200, y: 150});
 
-        expect(address.coord()).toEqualWithTolerance([
-            75.572408632, 12.951587932, 0
-        ], 1e-6);
-    });
+            editor.removeLayer(addrLayer);
 
+            let objs1 = editor.search({rect: display.getViewBounds(), layers: [addrLayer]});
+            let objs2 = editor.search({rect: display.getViewBounds()});
 
-    it('validate objects in viewport', function() {
-        let objs1 = editor.search({rect: display.getViewBounds(), layers: [addrLayer]});
-        let objs2 = editor.search({rect: display.getViewBounds()});
+            expect(objs1).toHaveLength(1);
+            expect(objs2).toHaveLength(1);
+        }
+        // add Address layer, verify address has correct geo coordinate
+        {
+            editor.addLayer(addrLayer);
 
-        expect(objs1).toHaveLength(1);
-        expect(objs2).toHaveLength(2);
-    });
-
-    it('drag the address, remove the address layer and validate modified address in viewport', async function() {
-        let mapContainer = display.getContainer();
-        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
-        await drag(mapContainer, {x: 200, y: 100}, {x: 200, y: 150});
-
-        editor.removeLayer(addrLayer);
-
-        let objs1 = editor.search({rect: display.getViewBounds(), layers: [addrLayer]});
-        let objs2 = editor.search({rect: display.getViewBounds()});
-
-        expect(objs1).toHaveLength(1);
-        expect(objs2).toHaveLength(1);
-    });
-
-    it('add Address layer, verify address has correct geo coordinate', async function() {
-        editor.addLayer(addrLayer);
-
-        expect(address.coord()).toEqualWithTolerance([
-            75.572408633, 12.951326536, 0
-        ], 1e-6);
+            expect(address.coord()).toEqualWithTolerance([
+                75.572408633, 12.951326536, 0
+            ], 1e-6);
+        }
     });
 });

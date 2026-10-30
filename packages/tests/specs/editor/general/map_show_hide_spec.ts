@@ -16,13 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {createEditorFixture} from '@test/fixtures/editor';
 import {drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './map_show_hide_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map activate and deactivate', function() {
     let editor;
@@ -31,28 +28,15 @@ describe('map activate and deactivate', function() {
     let mapContainer;
     let link;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 75.5553, latitude: 13.99646},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
 
         mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -188912);
-    });
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
     });
 
     it('drag link shape point, validate link shape point', async function() {
@@ -72,16 +56,20 @@ describe('map activate and deactivate', function() {
         expect(editor.active()).toBe(false);
     });
 
-
     it('activate editor', function() {
+        editor.active(false);
         editor.active(true);
+        expect(editor.active()).toBe(true);
 
         let objs = editor.search({rect: display.getViewBounds()});
         expect(objs).toHaveLength(1);
     });
 
-
-    it('drag link shape', async function() {
+    it('resumes shape editing after reactivation', async function() {
+        link.select();
+        await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
+        editor.active(false);
+        editor.active(true);
         link.select();
         await drag(mapContainer, {x: 150, y: 100}, {x: 100, y: 100});
 

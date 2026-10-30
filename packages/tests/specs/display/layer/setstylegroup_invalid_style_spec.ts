@@ -17,11 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {waitForViewportReady} from 'displayUtils';
-import {expectCanvasPixelColor, prepare} from 'utils';
-import {Map} from '@here/xyz-maps-display';
+import {expectCanvasPixelColor} from '@test/assertions/canvas';
+import {createMapFixture} from '@test/fixtures/map';
+import {waitForViewportReady} from '@test/synchronization/viewport';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './setstylegroup_invalid_style_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 
 describe('setStyleGroup with invalid style', function() {
@@ -32,18 +32,16 @@ describe('setStyleGroup with invalid style', function() {
     let link;
     let address;
 
-    beforeAll(async function() {
-        let preparedData = await prepare(dataset);
-
-        display = new Map(document.getElementById('map'), {
-            // @ts-ignore
+    beforeEach(async function() {
+        const fixture = await createMapFixture(dataset, {
             renderOptions: {
                 preserveDrawingBuffer: true
             },
             center: {longitude: 78.06609, latitude: 17.459677},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
+            zoomlevel: 18
         });
+        const {preparedData} = fixture;
+        display = fixture.display;
         await waitForViewportReady(display);
         mapContainer = display.getContainer();
         linkLayer = preparedData.getLayers('linkLayer');
@@ -51,10 +49,6 @@ describe('setStyleGroup with invalid style', function() {
 
         link = preparedData.getFeature('linkLayer', '123');
         address = preparedData.getFeature('paLayer', '123');
-    });
-
-    afterAll(async function() {
-        display.destroy();
     });
 
     it('style link, validate its new style with invalid value', async function() {
