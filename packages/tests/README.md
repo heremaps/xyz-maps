@@ -57,6 +57,10 @@ CI checks pure helpers before building the bundles. After the regular suite, it 
 `vitest/isolated.mts`, plus all Node unit tests. The GitHub run ID is the reproducible shuffle seed.
 No automatic test retries are enabled.
 
+CI also runs `pnpm --filter @here/xyz-maps-test run lint` for specs, helpers and Vitest
+configuration. Regular and isolation runs write separate JSON reports under `dist/vitest/`;
+CI uploads available reports even when a test fails.
+
 ### Select tests
 
 Everything after `pnpm run test` is passed to Vitest, see `vitest run --help`.

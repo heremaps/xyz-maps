@@ -24,6 +24,7 @@ import {GeoJSONFeature, ClusterTileLayer, TileLayer, FeatureProvider} from '@her
 import * as XYZMapsCore from '@here/xyz-maps-core';
 import {TestLocalProvider, TestProvider} from '../TestProvider';
 import {spacePool} from './spacePool';
+import prepareFeatures from '../network/prepare-features';
 
 const createProvider = (name:string, options): FeatureProvider =>{
     const Provider = XYZMapsCore[name] || {
@@ -74,33 +75,6 @@ async function prepareProviderConfig(config: ProviderSetup, ts) {
     return {options, spaceId};
 }
 
-
-function prepareFeatures(dataset): Promise<{ [key: string]: object[] }> {
-    let xhrs = [];
-    let layers = [];
-
-    for (let layer in dataset) {
-        let features = dataset[layer].data;
-        let provider = dataset[layer].provider;
-
-        if (features.length) {
-            xhrs.push(new Promise((resolve, reject) => {
-                provider.commit({'put': features}, (e) => {
-                    resolve(e.inserted);
-                }, reject);
-            }));
-            layers.push(layer);
-        }
-    }
-    return new Promise(async function(resolve) {
-        let res = await Promise.all(xhrs);
-        let response = {};
-        for (let i in res) {
-            response[layers[i]] = res[i];
-        }
-        resolve(response);
-    });
-}
 
 type ProviderSetup = {
     id?: string;
@@ -290,7 +264,7 @@ export class TestData {
         this.layers.push(layer);
     };
 
-    addFeature(features: { [key: string]: object[] }, location: string): void {
+    addFeature(features: { [key: string]: (object | string | number)[] }, location: string): void {
         for (let layer in features) {
             this.features[layer] = {};
             this.features[layer][location] = features[layer];

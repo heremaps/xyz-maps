@@ -97,14 +97,16 @@ describe('Map destruction', function() {
         window.addEventListener('error', onError);
         try {
             await waitForViewportReady(map);
+            // Native input latency must not exceed the gesture's 25 ms kinetic-start threshold.
+            vi.useFakeTimers({toFake: ['Date', 'requestAnimationFrame', 'cancelAnimationFrame']});
             await drag(map.getContainer(), {x: 300, y: 300}, {x: 400, y: 300});
             const callsAfterRelease = pan.mock.calls.length;
-            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+            await vi.advanceTimersByTimeAsync(16);
             expect(pan.mock.calls.length).toBeGreaterThan(callsAfterRelease);
             pan.mockRestore();
             map.destroy();
 
-            await new Promise<void>((resolve) => setTimeout(resolve, 600));
+            await vi.advanceTimersByTimeAsync(600);
             expect(errors).toStrictEqual([]);
         } finally {
             window.removeEventListener('error', onError);
@@ -112,6 +114,7 @@ describe('Map destruction', function() {
                 pan.mockRestore();
                 map.destroy();
             }
+            vi.useRealTimers();
         }
     });
 

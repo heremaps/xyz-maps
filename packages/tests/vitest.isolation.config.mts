@@ -30,6 +30,7 @@ export default defineConfig(({mode}) => ({
     test: {
         silent: 'passed-only',
         maxWorkers: 4,
+        reporters: ['default', ['json', {outputFile: 'dist/vitest/report-isolation.json'}]],
         projects: [
             unitProject(),
             ...(['common', 'core', 'display', 'editor'] as const).map((component) => {

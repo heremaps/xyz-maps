@@ -57,6 +57,8 @@ jobs:
                 run: pnpm install --frozen-lockfile
             -   name: Test pure helpers before building browser bundles
                 run: pnpm --filter @here/xyz-maps-test run test:unit --sequence.seed "$GITHUB_RUN_ID"
+            -   name: Lint test specs and infrastructure
+                run: pnpm --filter @here/xyz-maps-test run lint
             -   name: Build release package
                 run: pnpm run build-release
             -   name: Typecheck test specs
@@ -80,3 +82,12 @@ jobs:
                     esac
                     pnpm test "${args[@]}"
                     pnpm --filter @here/xyz-maps-test run test:isolation "${args[@]}" --sequence.seed "$GITHUB_RUN_ID"
+            -   name: Upload test reports
+                if: always()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: test-reports-${{ matrix.os }}
+                    path: |
+                        packages/tests/dist/vitest/report.json
+                        packages/tests/dist/vitest/report-isolation.json
+                    if-no-files-found: warn
