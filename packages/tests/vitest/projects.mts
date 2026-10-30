@@ -1,12 +1,15 @@
 import path from 'node:path';
 import {playwright} from '@vitest/browser-playwright';
+import type {UserWorkspaceConfig} from 'vitest/config';
+import type {BrowserConfigOptions} from 'vitest/node';
+import type {LibraryComponent, MapMarkup} from './types.ts';
 import {type Component, distOf, root, xyzAssets, xyzEnvironment, xyzGlobals, xyzLibs} from './plugins.mts';
 
 const src = path.join(root, 'src');
 
 // libs: bundles that are loaded for the component, in this order
 // map: markup of the former statics/runner<component>.html that the specs rely on
-const COMPONENTS: { [name in Component]: { libs: string[]; include: string[]; map: 'none' | 'plain' | 'sized' } } = {
+const COMPONENTS: Record<Component, {libs: LibraryComponent[]; include: string[]; map: MapMarkup}> = {
     common: {
         libs: ['common'],
         include: ['specs/common/*/*.ts'],
@@ -40,13 +43,13 @@ const COMPONENTS: { [name in Component]: { libs: string[]; include: string[]; ma
 };
 
 // XYZ_BROWSER: chrome (default, the installed Google Chrome), chromium or firefox (see "playwright install")
-function browser() {
+function browser(): Pick<BrowserConfigOptions, 'provider' | 'instances'> {
     const name = process.env.XYZ_BROWSER || 'chrome';
     const softwareRendering = process.env.XYZ_SOFTWARE_RENDERING === '1';
     if (softwareRendering && name === 'firefox') {
         throw new Error('XYZ_SOFTWARE_RENDERING=1 requires XYZ_BROWSER=chrome or chromium.');
     }
-    if (name == 'firefox') return {provider: playwright(), instances: [{browser: <const>'firefox'}]};
+    if (name == 'firefox') return {provider: playwright(), instances: [{browser: 'firefox'}]};
     if (name == 'chrome' || name == 'chromium') {
         return {
             provider: playwright({
@@ -57,14 +60,14 @@ function browser() {
                     } : {})
                 }
             }),
-            instances: [{browser: <const>'chromium'}]
+            instances: [{browser: 'chromium'}]
         };
     }
     throw new Error(`Unknown XYZ_BROWSER "${name}". Use chrome, chromium or firefox.`);
 }
 
 // mode: the vitest mode, see distOf() in plugins.mts
-export function project(component: Component, mode: string) {
+export function project(component: Component, mode: string): UserWorkspaceConfig {
     const {libs, include, map} = COMPONENTS[component];
 
     return {

@@ -1,19 +1,13 @@
 import {afterAll, chai} from 'vitest';
 import chaiAlmost from 'chai-almost';
-// @ts-ignore: provided by vitest/plugins.mts
 import libs from 'virtual:xyz-libs';
+import type {LibraryComponent} from './types';
 
-// defined per project in vitest/projects.mts
-declare const __XYZ_COMPONENT__: string;
-declare const __XYZ_MAP__: 'none' | 'plain' | 'sized';
-
-const g = <any>globalThis;
-
-const libraryChecks: Record<string, () => boolean> = {
-    common: () => typeof g.here?.xyz?.maps?.common?.JSUtils?.extend === 'function',
-    core: () => typeof g.here?.xyz?.maps?.TileLayer === 'function',
-    display: () => typeof g.here?.xyz?.maps?.Map === 'function',
-    editor: () => typeof g.here?.xyz?.maps?.editor?.Editor === 'function'
+const libraryChecks: Record<LibraryComponent, () => boolean> = {
+    common: () => typeof globalThis.here?.xyz?.maps?.common?.JSUtils?.extend === 'function',
+    core: () => typeof globalThis.here?.xyz?.maps?.TileLayer === 'function',
+    display: () => typeof globalThis.here?.xyz?.maps?.Map === 'function',
+    editor: () => typeof globalThis.here?.xyz?.maps?.editor?.Editor === 'function'
 };
 
 // The libraries are UMD builds. Run them as classic scripts in the same order as karma did.
@@ -48,7 +42,7 @@ for (const lib of libs) {
 chai.use(chaiAlmost());
 
 // Lowers the mapviewchangeend trigger delay to speed up tests.
-g.__XYZTST_MVCEDelayMs = 10;
+globalThis.__XYZTST_MVCEDelayMs = 10;
 
 // Markup of the former statics/runner<component>.html. The specs and src/utils/triggerEvents.ts rely on #map.
 if (__XYZ_MAP__ != 'none' && !document.getElementById('map')) {

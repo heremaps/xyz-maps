@@ -1,10 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import type {Plugin} from 'vitest/config';
+import type {LibraryBundle, LibraryComponent, Component} from './types.ts';
 
 export const root = path.resolve(import.meta.dirname, '..');
 const assetsDir = path.join(root, 'assets');
 
-export type Component = 'common' | 'core' | 'display' | 'editor' | 'integration';
+export type {Component} from './types.ts';
 
 export type Dist = 'min' | 'dev';
 
@@ -42,7 +44,7 @@ const LIBS_ID = 'virtual:xyz-libs';
  * dist 'dev' uses dist/xyz-maps-<name>.js instead of the minified dist/xyz-maps-<name>.min.js, see distOf().
  * XYZ_<NAME>_SRC=<path> uses a different file for a single component, e.g. XYZ_EDITOR_SRC=../editor/dist/xyz-maps-editor.js
  */
-export function xyzLibs(components: string[], dist: Dist): any {
+export function xyzLibs(components: LibraryComponent[], dist: Dist): Plugin {
     return {
         name: 'xyz-libs',
         enforce: 'pre',
@@ -52,7 +54,7 @@ export function xyzLibs(components: string[], dist: Dist): any {
         load(id: string) {
             if (id !== '\0' + LIBS_ID) return;
 
-            const libs = components.map((name) => {
+            const libs: LibraryBundle[] = components.map((name) => {
                 const custom = process.env[`XYZ_${name.toUpperCase()}_SRC`];
                 const file = custom
                     ? path.resolve(process.cwd(), custom)
@@ -76,7 +78,7 @@ export function xyzLibs(components: string[], dist: Dist): any {
  * Rewrites `import {A} from '@here/xyz-maps-core'` of the specs and helpers of this package to
  * `const {A} = globalThis.here.xyz.maps`, which is what the UMD externals of the former rollup build did.
  */
-export function xyzGlobals(): any {
+export function xyzGlobals(): Plugin {
     return {
         name: 'xyz-globals',
         // after the typescript transform, so that imports that are only used as types are already gone
@@ -118,11 +120,11 @@ export function xyzGlobals(): any {
  * Serves packages/tests/assets under /base/tests/assets/, the path karma used for them.
  * The spec data refers to it both as "base/tests/assets/..." and as "{LOCALHOST}/base/tests/assets/...".
  */
-export function xyzAssets(): any {
+export function xyzAssets(): Plugin {
     return {
         name: 'xyz-assets',
-        configureServer(server: any) {
-            server.middlewares.use((req: any, res: any, next: () => void) => {
+        configureServer(server) {
+            server.middlewares.use((req, res, next) => {
                 const match = /\/base\/tests\/assets\/([^?#]*)/.exec(req.url || '');
                 if (!match) return next();
 
@@ -138,11 +140,19 @@ export function xyzAssets(): any {
     };
 }
 
-function readJson(file: string): { [key: string]: any } {
+function isJsonObject(data: unknown): data is Record<string, unknown> {
+    return typeof data === 'object' && data !== null && !Array.isArray(data);
+}
+
+function readJson(file: string): Record<string, unknown> {
     try {
-        return JSON.parse(fs.readFileSync(file, 'utf8'));
-    } catch (e) {
-        if (e.code == 'ENOENT') return {};
+        const data: unknown = JSON.parse(fs.readFileSync(file, 'utf8'));
+        if (!isJsonObject(data)) {
+            throw new Error(`Expected a JSON object in "${file}".`);
+        }
+        return data;
+    } catch (e: unknown) {
+        if (e instanceof Error && 'code' in e && e.code == 'ENOENT') return {};
         throw e;
     }
 }
@@ -152,7 +162,7 @@ function readJson(file: string): { [key: string]: any } {
  * Environments: environments.json (XYZ_ENVIRONMENTS=<path>), overridable with XYZ_HUB_URL and XYZ_IMAGE_URL.
  * Credentials: credentials.json (XYZ_CREDENTIALS=<path>) or XYZ_ACCESS_TOKEN. Only the integration tests get them.
  */
-export function xyzEnvironment(component: Component): any {
+export function xyzEnvironment(component: Component): Plugin {
     const modules: { [id: string]: () => object } = {
         environments: () => {
             const environments = readJson(path.resolve(root, process.env.XYZ_ENVIRONMENTS || 'environments.json'));

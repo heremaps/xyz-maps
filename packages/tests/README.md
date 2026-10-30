@@ -3,9 +3,9 @@
 The tests run in a real browser with [Vitest browser mode](https://vitest.dev/guide/browser/) and Playwright.
 Specs explicitly import test APIs from `vitest` (`describe`, `it`, `beforeAll`, `afterAll`, etc.).
 Use `it.skip` or `describe.skip` for skipped tests. Test API globals are disabled.
-Common and Core specs use native `expect` from `vitest`. Display and Editor also use native matchers,
+Common and Core specs use native `expect` from `vitest`. Display, Editor and Integration also use native matchers,
 except for approximate comparisons that explicitly use `chai.expect` to preserve their tolerances.
-Integration specs still use explicit Chai imports. No Chai assertion globals are installed.
+No Chai assertion globals are installed.
 `vitest/setup.ts` registers `chai-almost` for approximate comparisons.
 
 ### Build XYZ Maps JS
@@ -63,6 +63,8 @@ pnpm run watch                                  # rerun on changes (in packages/
 Example: `XYZ_BROWSER=firefox pnpm run test --project display`
 
 The specs load data from `assets/` through the path `/base/tests/assets/`.
+Environment and credentials files must contain JSON objects. Missing optional files default to an empty object;
+invalid JSON or other file errors are reported.
 
 ### Integration tests
 
@@ -91,5 +93,6 @@ Run them with `pnpm run test:integration`.
 
 * Do not use `done` callbacks or `this.timeout()`, Vitest does not support them. Return a promise or use `async`.
 * A spec file must not import another spec file. Put shared helpers into `src/utils`.
-* Vitest does not check types. Run `pnpm run typecheck` for that.
+* Vitest does not check types. Run `pnpm run typecheck` for specs, helpers, browser setup and virtual module declarations
+  (`tsconfig.json`), plus strict checking of Node-side plugins, projects and both Vitest configs (`tsconfig.vitest.json`).
 * The imports `utils`, `editorUtils`, `displayUtils`, `coreUtils`, `triggerEvents` and `TestProviders` refer to `src/utils` and `src/TestProvider.ts`, see `vitest/projects.mts`.

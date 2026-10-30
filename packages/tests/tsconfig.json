@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
+    "module": "ESNext",
     "rootDir": "..",
     "outDir": "dist",
     "lib": ["es5", "ES2017", "dom"],
@@ -17,7 +18,7 @@
     "esModuleInterop": true
   },
   "include": [
-    "specs/**/*", "src/**/*"
+    "specs/**/*", "src/**/*", "vitest/setup.ts", "vitest/env.d.ts"
   ],
   "exclude": [
     "node_modules",
