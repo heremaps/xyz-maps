@@ -1884,6 +1884,8 @@ export class Map {
      */
     destroy() {
         const mapEl = this._el;
+        this._zoomAnimator.stop();
+        this._flightAnimator.stop();
         this.ui.destroy();
 
 
