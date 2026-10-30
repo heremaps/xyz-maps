@@ -88,8 +88,8 @@ describe('map container transform', function() {
         await drag(mapContainer, {x: 212 - 15, y: 159}, {x: 312 - 15, y: 159});
 
         expect(link.coord()).toEqualWithTolerance([
-            [80.475550546, 16.448270659, 0],
-            [80.475556693, 16.44775617, 0]
+            [80.475659591, 16.448270659, 0],
+            [80.475653632, 16.44775617, 0]
 
         ], 1e-6);
 

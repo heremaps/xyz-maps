@@ -64,8 +64,6 @@ export const mapDrag: BrowserCommand<[string, MapPosition, MapPosition, MapDragO
                     const remaining = started + options.duration * step / steps - performance.now();
                     if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
                 }
-                // Preserve the legacy gesture's final rounded move before releasing the button.
-                await mouse.move(box.x + Math.floor(to.x), box.y + Math.floor(to.y));
             } finally {
                 await mouse.up({button: options.button});
             }

@@ -87,10 +87,7 @@ describe('native coordinate interaction helpers', () => {
                 expect.objectContaining({isTrusted: true, clientX: 140, clientY: 160, buttons: button === 0 ? 1 : 2})
             ]));
             const pressedMoves = moves.filter((event) => event.buttons !== 0);
-            expect(pressedMoves.slice(-2)).toEqual([
-                expect.objectContaining({clientX: 140, clientY: 160}),
-                expect.objectContaining({clientX: 140, clientY: 160})
-            ]);
+            expect(pressedMoves.filter((event) => event.clientX === 140 && event.clientY === 160)).toHaveLength(1);
             await userEvent.hover(container, {position: {x: 80, y: 80}});
             expect(moves[moves.length - 1]).toEqual(expect.objectContaining({altKey: false, ctrlKey: false, buttons: 0}));
         });

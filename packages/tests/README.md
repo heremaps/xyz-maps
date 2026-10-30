@@ -127,6 +127,14 @@ to it; non-numeric fields and structure use native equality with strict key chec
 decimal precision like `toBeCloseTo`. The matcher does not change ordinary equality or configure
 shared tolerance state.
 
+`waitForViewportReady(display, layers?, action?)` waits for action completion, a settled
+`mapviewchangeend` and a fresh `viewportReady` from every selected layer. A new
+`mapviewchangestart` or `mapviewchange` invalidates the previous end and all earlier layer
+readiness. The existing 10 ms end-event settling window is retained; it is not a rendering
+completion substitute. A ten-second deadline reports the pending layer IDs and action/view
+state. Action, registration and cleanup failures reject, and all subscriptions are removed
+on settlement, including after partial registration.
+
 `waitForEditorReady(editor, action?)` waits for both action completion and a fresh `ready=true`
 notification. Signals received during the action count unless followed by `ready=false`; the
 editor's initial ready state alone does not complete the wait. Action failures and editor errors
@@ -149,7 +157,8 @@ and retains its existing 75 ms processing allowance. Positive hover transitions 
 `waitForPointerEvent`, since browser-action completion does not guarantee feature picking is finished.
 Coordinate drags and anchored wheel input use typed Vitest browser commands backed by Playwright:
 the public drag-and-drop/wheel APIs do not cover the existing duration, secondary button and wheel anchor.
-Drags retain their duration, interpolated positions, final rounded move, buttons and modifiers.
+Drags retain their duration, interpolated positions, buttons and modifiers, and send their exact
+endpoint once before releasing the button. Transformer scaling must not depend on repeated endpoints.
 Wheel input retains its coordinate anchor, `-100 * d` pixel delta and 20 ms processing allowance;
 the helper also waits for delivery of the native wheel event.
 The low-level synthetic `click` helper and manually dispatched events are retained only for deliberate

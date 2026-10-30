@@ -18,16 +18,23 @@
  */
 
 import {TileLayer} from '@here/xyz-maps-core';
-import Map from '@here/xyz-maps-display';
 
 
 type VpReadyCallback = () => unknown;
+type ViewportLayer = Pick<TileLayer, 'id' | 'addEventListener' | 'removeEventListener'>;
+interface ViewportReadyTarget {
+    getLayers(): ViewportLayer[];
+    addEventListener(type: string, listener: () => void): unknown;
+    removeEventListener(type: string, listener: () => void): unknown;
+}
 
 /**
  * Waits for the action to complete, a settled mapview end and viewport readiness of the selected layers.
  * Listeners are registered before the action. Missing signals are reported after ten seconds.
  */
-export function waitForViewportReady(display: Map, mapLayers?: TileLayer[] | VpReadyCallback, fn?: VpReadyCallback): Promise<Map> {
+export function waitForViewportReady<T extends ViewportReadyTarget>(
+    display: T, mapLayers?: ViewportLayer[] | VpReadyCallback, fn?: VpReadyCallback
+): Promise<T> {
     const action = typeof mapLayers === 'function' ? mapLayers : fn;
     const selectedLayers = Array.isArray(mapLayers) ? mapLayers : display.getLayers();
     const layers = selectedLayers.filter((layer, index) => selectedLayers.findIndex((other) => other.id === layer.id) === index);
@@ -42,44 +49,74 @@ export function waitForViewportReady(display: Map, mapLayers?: TileLayer[] | VpR
         let readyTimer: ReturnType<typeof setTimeout>;
         let viewEnded = false;
         let layersReady = layers.length === 0;
+        const timeoutError = new Error('Timed out waiting for viewport readiness');
 
         function cleanup() {
             clearTimeout(timeout);
             clearTimeout(readyTimer);
-            layers.forEach((layer) => layer.removeEventListener('viewportReady', onLayerReady));
-            display.removeEventListener('mapviewchangestart', onViewStart);
-            display.removeEventListener('mapviewchangeend', onViewEnd);
+            const removals = [
+                ...layers.map((layer) => () => layer.removeEventListener('viewportReady', onLayerReady)),
+                () => display.removeEventListener('mapviewchangestart', onViewStart),
+                () => display.removeEventListener('mapviewchange', onViewChange),
+                () => display.removeEventListener('mapviewchangeend', onViewEnd)
+            ];
+            const errors: unknown[] = [];
+            for (const remove of removals) {
+                try {
+                    remove();
+                } catch (error) {
+                    errors.push(error);
+                }
+            }
+            if (errors.length) throw errors[0];
+        }
+
+        function settle(finish: () => void) {
+            if (settled) return;
+            settled = true;
+            try {
+                cleanup();
+            } catch (error) {
+                reject(error);
+                return;
+            }
+            finish();
         }
 
         function complete() {
             if (!settled && actionDone && viewEnded && layersReady) {
-                settled = true;
-                cleanup();
-                resolve(display);
+                settle(() => resolve(display));
             }
         }
 
         function fail(error: unknown) {
-            if (settled) return;
-            settled = true;
-            cleanup();
-            reject(error);
+            settle(() => reject(error));
         }
 
-        function onLayerReady(event: CustomEvent<{layer: TileLayer}>) {
+        function onLayerReady(event: CustomEvent<{layer: ViewportLayer}>) {
+            if (settled) return;
             pendingLayers.delete(event.detail.layer);
             layersReady = pendingLayers.size === 0;
             complete();
         }
 
         function onViewStart() {
+            if (settled) return;
             starts++;
+            onViewChange();
+        }
+
+        function onViewChange() {
+            if (settled) return;
+            pendingLayers.clear();
+            layers.forEach((layer) => pendingLayers.add(layer));
             layersReady = layers.length === 0;
             viewEnded = false;
             clearTimeout(readyTimer);
         }
 
         function onViewEnd() {
+            if (settled) return;
             ends++;
             // A new mapview start within the settling period invalidates this end event.
             clearTimeout(readyTimer);
@@ -89,20 +126,24 @@ export function waitForViewportReady(display: Map, mapLayers?: TileLayer[] | VpR
             }, 10);
         }
 
-        display.addEventListener('mapviewchangestart', onViewStart);
-        display.addEventListener('mapviewchangeend', onViewEnd);
-        layers.forEach((layer) => layer.addEventListener('viewportReady', onLayerReady));
         timeout = setTimeout(() => {
-            fail(new Error(
-                `Timed out waiting for viewport readiness: actionDone=${actionDone}, ` +
+            timeoutError.message += `: actionDone=${actionDone}, ` +
                 `mapviewchangeend=${viewEnded}, mapviewready=${layersReady}, ` +
-                `starts=${starts}, ends=${ends}, pendingLayers=${JSON.stringify([...pendingLayers].map((layer) => layer.id))}`
-            ));
+                `starts=${starts}, ends=${ends}, pendingLayers=${JSON.stringify([...pendingLayers].map((layer) => layer.id))}`;
+            fail(timeoutError);
         }, 10000);
 
-        Promise.resolve().then(() => action?.()).then(() => {
-            actionDone = true;
-            complete();
-        }).catch(fail);
+        try {
+            display.addEventListener('mapviewchangestart', onViewStart);
+            display.addEventListener('mapviewchange', onViewChange);
+            display.addEventListener('mapviewchangeend', onViewEnd);
+            layers.forEach((layer) => layer.addEventListener('viewportReady', onLayerReady));
+            Promise.resolve().then(() => action?.()).then(() => {
+                actionDone = true;
+                complete();
+            }).catch(fail);
+        } catch (error) {
+            fail(error);
+        }
     });
 }

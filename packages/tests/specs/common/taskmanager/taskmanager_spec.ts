@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright (C) 2019-2022 HERE Europe B.V.
  *

@@ -88,38 +88,38 @@ describe('transform objects', () => {
 
     it('drag left bar of transformer to scale', async () => {
         await drag(mapContainer, {x: 92 - 5, y: 280}, {x: 120 - 5, y: 280});
-        expect(link.coord()).toEqualWithTolerance([[77.813993244, 12.651573696, 0], [77.812812677, 12.651416671, 0]], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([77.81340296, 12.651311987, 0], 1e-6);
+        expect(link.coord()).toEqualWithTolerance([[77.813993987, 12.651573696, 0], [77.812803088, 12.651416671, 0]], 1e-6);
+        expect(address.coord()).toEqualWithTolerance([77.813398537, 12.651311987, 0], 1e-6);
     });
 
     it('drag top bar of transformer to scale', async () => {
         await drag(mapContainer, {x: 200, y: 241 - 8}, {x: 200, y: 220 - 8});
-        expect(link.coord()).toEqualWithTolerance([[77.813993244, 12.65168597, 0], [77.812812677, 12.65146158, 0]], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([77.81340296, 12.651311987, 0], 1e-6);
+        expect(link.coord()).toEqualWithTolerance([[77.813993987, 12.651683614, 0], [77.812803088, 12.651460638, 0]], 1e-6);
+        expect(address.coord()).toEqualWithTolerance([77.813398537, 12.651311987, 0], 1e-6);
     });
 
     it('drag bottom bar of transformer to scale', async () => {
         await drag(mapContainer, {x: 200, y: 306 + 10}, {x: 200, y: 280 + 10});
-        expect(link.coord()).toEqualWithTolerance([[77.813993244, 12.65168597, 0], [77.812812677, 12.651533949, 0]], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([77.81340296, 12.651432603, 0], 1e-6);
+        expect(link.coord()).toEqualWithTolerance([[77.813993987, 12.651683614, 0], [77.812803088, 12.651542291, 0]], 1e-6);
+        expect(address.coord()).toEqualWithTolerance([77.813398537, 12.651448075, 0], 1e-6);
     });
 
     it('drag the transformer to move the link and address', async () => {
         await drag(mapContainer, {x: 235 + 8, y: 250 + 8}, {x: 250 + 8, y: 280 + 8});
-        expect(link.coord()).toEqualWithTolerance([[77.814073766, 12.651528907, 0], [77.812893162, 12.651376881, 0]], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([77.813483463, 12.651275532, 0], 1e-6);
+        expect(link.coord()).toEqualWithTolerance([[77.814074455, 12.651526574, 0], [77.812883572, 12.651385253, 0]], 1e-6);
+        expect(address.coord()).toEqualWithTolerance([77.813479012, 12.651291038, 0], 1e-6);
     });
 
     it('drag the transformer to rotate the link and address', async () => {
         await drag(mapContainer, {x: 370 + 8, y: 310 + 8}, {x: 300 + 8, y: 320 + 8});
-        expect(link.coord()).toEqualWithTolerance([[77.814074622, 12.651279385, 0], [77.812935261, 12.65161733, 0]], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([77.81342977, 12.651286872, 0], 1e-6);
+        expect(link.coord()).toEqualWithTolerance([[77.814071297, 12.651276749, 0], [77.812926512, 12.651626708, 0]], 1e-6);
+        expect(address.coord()).toEqualWithTolerance([77.813429285, 12.651301499, 0], 1e-6);
     });
 
     it('scale and keep aspect ration', async () => {
         await drag(mapContainer, {x: 155, y: 195}, {x: 120, y: 160});
-        expect(link.coord()).toEqualWithTolerance([[77.814305863, 12.651231337, 0], [77.812720823, 12.651701475, 0]], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([77.813408767, 12.651241751, 0], 1e-6);
+        expect(link.coord()).toEqualWithTolerance([[77.814286785, 12.651228703, 0], [77.812725497, 12.651705987, 0]], 1e-6);
+        expect(address.coord()).toEqualWithTolerance([77.813411193, 12.651262458, 0], 1e-6);
     });
 
     it('after transforming link validate it is not selected', async function() {
