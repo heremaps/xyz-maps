@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Line, LineShape} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './multiline_basics_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('basic multiline tests', () => {
     let editor;
@@ -33,7 +32,6 @@ describe('basic multiline tests', () => {
     let multiLine;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},
@@ -72,11 +70,11 @@ describe('basic multiline tests', () => {
 
         expect(coordinates.length).toBe(1);
 
-        chai.expect(coordinates[0]).to.deep.almost([
+        expect(coordinates[0]).toEqualWithTolerance([
             [76.083125712, 13.214838342, 0],
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('modify geometry by dragging shape ', async () => {
@@ -85,11 +83,11 @@ describe('basic multiline tests', () => {
         const coordinates = multiLine.coord();
         expect(coordinates.length).toBe(1);
 
-        chai.expect(coordinates[0]).to.deep.almost([
+        expect(coordinates[0]).toEqualWithTolerance([
             [76.082589270, 13.214316105, 0],
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
-        ]);
+        ], 1e-6);
     });
 
 
@@ -101,10 +99,10 @@ describe('basic multiline tests', () => {
         const coordinates = multiLine.coord();
         expect(coordinates.length).toBe(1);
 
-        chai.expect(coordinates[0]).to.deep.almost([
+        expect(coordinates[0]).toEqualWithTolerance([
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('modify geometry by dragging virtual shape', async () => {
@@ -115,11 +113,11 @@ describe('basic multiline tests', () => {
         const coordinates = multiLine.coord();
         expect(coordinates.length).toBe(1);
 
-        chai.expect(coordinates[0]).to.deep.almost([
+        expect(coordinates[0]).toEqualWithTolerance([
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('add linestring geometry', async () => {
@@ -137,7 +135,7 @@ describe('basic multiline tests', () => {
 
         expect(coordinates.length).toBe(2);
 
-        chai.expect(coordinates).to.deep.almost([[
+        expect(coordinates).toEqualWithTolerance([[
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0]
@@ -145,7 +143,7 @@ describe('basic multiline tests', () => {
             [76.082589269, 13.2155, 0],
             [76.081157490, 13.2146, 0],
             [76.082052827, 13.2149, 0]
-        ]]);
+        ]], 1e-6);
     });
 
     it('validate pointer events', async () => {
@@ -160,7 +158,7 @@ describe('basic multiline tests', () => {
 
         let coordinates = multiLine.coord();
 
-        chai.expect(coordinates).to.deep.almost([[
+        expect(coordinates).toEqualWithTolerance([[
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0],
@@ -169,7 +167,7 @@ describe('basic multiline tests', () => {
             [76.082589269, 13.2155, 0],
             [76.081157490, 13.2146, 0],
             [76.082052827, 13.2149, 0]
-        ]]);
+        ]], 1e-6);
     });
 
     it('add Shape to second linestring', async () => {
@@ -177,7 +175,7 @@ describe('basic multiline tests', () => {
 
         let coordinates = multiLine.coord();
 
-        chai.expect(coordinates).to.deep.almost([[
+        expect(coordinates).toEqualWithTolerance([[
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0],
@@ -187,7 +185,7 @@ describe('basic multiline tests', () => {
             [76.082052827, 13.2158828, 0],
             [76.081157490, 13.2146, 0],
             [76.082052827, 13.2149, 0]
-        ]]);
+        ]], 1e-6);
     });
 
 
@@ -198,7 +196,7 @@ describe('basic multiline tests', () => {
 
         let coordinates = multiLine.coord();
 
-        chai.expect(coordinates).to.deep.almost([[
+        expect(coordinates).toEqualWithTolerance([[
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0]
@@ -207,7 +205,7 @@ describe('basic multiline tests', () => {
             [76.082052827, 13.2158828, 0],
             [76.081157490, 13.2146, 0],
             [76.082052827, 13.2149, 0]
-        ]]);
+        ]], 1e-6);
     });
 
     it('remove shape of LineString 2', async () => {
@@ -217,7 +215,7 @@ describe('basic multiline tests', () => {
 
         let coordinates = multiLine.coord();
 
-        chai.expect(coordinates).to.deep.almost([[
+        expect(coordinates).toEqualWithTolerance([[
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0]
@@ -225,7 +223,7 @@ describe('basic multiline tests', () => {
             [76.082589269, 13.2155, 0],
             [76.081157490, 13.2146, 0],
             [76.082052827, 13.2149, 0]
-        ]]);
+        ]], 1e-6);
     });
 
     it('remove multiline', async () => {

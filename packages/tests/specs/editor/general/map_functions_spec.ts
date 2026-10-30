@@ -21,10 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './map_functions_spec.json';
-import chaiAlmost from 'chai-almost';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
-chai.use(chaiAlmost(1e-5));
 
 describe('convert pixel and geo coordinates', () => {
     var editor;
@@ -55,7 +53,7 @@ describe('convert pixel and geo coordinates', () => {
     });
 
     it('validate pixelToGeo function', () => {
-        chai.expect(editor.pixelToGeo({x: 400, y: 300})).to.deep.almost({longitude: 77.79802, latitude: 12.62214});
+        expect(editor.pixelToGeo({x: 400, y: 300})).toEqualWithTolerance({longitude: 77.79802, latitude: 12.62214}, 1e-5);
     });
 
     it('move map to a new area', async () => {
@@ -66,6 +64,6 @@ describe('convert pixel and geo coordinates', () => {
 
     it('validate geotopixel function after dragging', () => {
         expect(editor.geoToPixel({longitude: 8.71902, latitude: 50.1109})).toEqual({x: 400, y: 300});
-        chai.expect(editor.pixelToGeo({x: 400, y: 300})).to.deep.almost({longitude: 8.71902, latitude: 50.1109});
+        expect(editor.pixelToGeo({x: 400, y: 300})).toEqualWithTolerance({longitude: 8.71902, latitude: 50.1109}, 1e-5);
     });
 });

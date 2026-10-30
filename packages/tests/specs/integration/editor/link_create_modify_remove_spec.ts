@@ -21,9 +21,8 @@ import {waitForEditorReady, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {drag} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_create_modify_remove_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Validate submit of creating new link, modifying and removing link', function() {
     let editor;
@@ -34,7 +33,6 @@ describe('Validate submit of creating new link, modifying and removing link', fu
     let linkLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.98506, latitude: 12.88776},
@@ -66,10 +64,10 @@ describe('Validate submit of creating new link, modifying and removing link', fu
         };
         link = editor.addFeature(l);
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [76.983450675, 12.888805854, 0],
             [76.984791779, 12.887498536, 0]
-        ]);
+        ], 1e-6);
 
         let monitor = new MonitorXHR();
         monitor.start({method: 'post'});
@@ -85,10 +83,10 @@ describe('Validate submit of creating new link, modifying and removing link', fu
 
         link = editor.getFeature(linkId, linkLayer);
 
-        chai.expect(payload.features[0].geometry.coordinates).to.deep.almost([
+        expect(payload.features[0].geometry.coordinates).toEqualWithTolerance([
             [76.983450675, 12.888805854, 0],
             [76.984791779, 12.887498536, 0]
-        ]);
+        ], 1e-6);
         expect(payload.features[0].properties).toEqual(expect.objectContaining({
             'featureClass': 'NAVLINK'
         }));
@@ -99,10 +97,10 @@ describe('Validate submit of creating new link, modifying and removing link', fu
 
         await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 150});
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [76.983718921, 12.888544437, 0],
             [76.9847918, 12.8874985, 0]
-        ]);
+        ], 1e-6);
 
         let monitor = new MonitorXHR();
         monitor.start({method: 'post'});
@@ -117,10 +115,10 @@ describe('Validate submit of creating new link, modifying and removing link', fu
 
         link = editor.getFeature(link.id, linkLayer);
 
-        chai.expect(payload.features[0].geometry.coordinates).to.deep.almost([
+        expect(payload.features[0].geometry.coordinates).toEqualWithTolerance([
             [76.983718921, 12.888544437, 0],
             [76.9847918, 12.8874985, 0]
-        ]);
+        ], 1e-6);
         expect(payload.features[0].properties).toEqual(expect.objectContaining({
             'featureClass': 'NAVLINK'
         }));

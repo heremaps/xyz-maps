@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Area} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Area drawing manager without panning the map', () => {
     let editor: Editor;
@@ -32,7 +31,6 @@ describe('Area drawing manager without panning the map', () => {
     let mapContainer;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},
@@ -71,9 +69,9 @@ describe('Area drawing manager without panning the map', () => {
         const geometry = editor.getDrawingBoard().getGeometry();
 
 
-        chai.expect(geometry.coordinates).to.deep.almost([[[
+        expect(geometry.coordinates).toEqualWithTolerance([[[
             [76.081516385, 13.215360578, 0], [76.082052827, 13.215882813, 0], [76.082589269, 13.215360578, 0], [76.081516385, 13.215360578, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 
     it('remove 1 shape and make sure 2 points are not valid geometry', async () => {
@@ -92,12 +90,12 @@ describe('Area drawing manager without panning the map', () => {
 
         const geometry = editor.getDrawingBoard().getGeometry();
 
-        chai.expect(geometry.coordinates).to.deep.almost([[[
+        expect(geometry.coordinates).toEqualWithTolerance([[[
             [76.081516385, 13.215360578, 0],
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0],
             [76.081516385, 13.215360578, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 
     it('drag the shape', async () => {
@@ -105,12 +103,12 @@ describe('Area drawing manager without panning the map', () => {
 
         const geometry = editor.getDrawingBoard().getGeometry();
 
-        chai.expect(geometry.coordinates).to.deep.almost([[[
+        expect(geometry.coordinates).toEqualWithTolerance([[[
             [76.08312571, 13.214838342, 0],
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0],
             [76.08312571, 13.214838342, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 
     it('validate pointerevents', async () => {
@@ -127,11 +125,11 @@ describe('Area drawing manager without panning the map', () => {
 
         let area = <Area>(await editorClick(editor, 271, 266)).target;
 
-        chai.expect(area.coord()).to.deep.almost([[[
+        expect(area.coord()).toEqualWithTolerance([[[
             [76.08312571, 13.214838342, 0],
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0],
             [76.08312571, 13.214838342, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 });

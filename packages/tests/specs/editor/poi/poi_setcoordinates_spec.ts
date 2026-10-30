@@ -20,9 +20,8 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './poi_setcoordinates_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set POI coordinates', function() {
     let editor;
@@ -32,7 +31,6 @@ describe('set POI coordinates', function() {
     let poiLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.283773, latitude: 13.1006019},
@@ -56,10 +54,10 @@ describe('set POI coordinates', function() {
     });
 
     it('validate POI coordinate, set coordinate by geocoordinate and validate again', function() {
-        chai.expect(poi.coord()).to.deep.almost([77.282700116, 13.1006019, 0]);
+        expect(poi.coord()).toEqualWithTolerance([77.282700116, 13.1006019, 0], 1e-6);
 
         poi.coord([77.282701, 13.1006119, 0]);
-        chai.expect(poi.coord()).to.deep.almost([77.282701, 13.1006119, 0]);
+        expect(poi.coord()).toEqualWithTolerance([77.282701, 13.1006119, 0], 1e-6);
     });
 
     it('remove POI layer and validate objects in viewport', async function() {

@@ -21,16 +21,14 @@ import {waitForViewportReady} from 'displayUtils';
 import {prepare} from 'utils';
 import {drag, mousewheel} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './set_get_behavior_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set and get behavior', function() {
     let display;
     let mapContainer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -48,12 +46,12 @@ describe('set and get behavior', function() {
         expect(display.getCenter()).toEqual({
             longitude: 77.79802, latitude: 12.62214
         });
-        chai.expect(display.getViewBounds()).to.deep.almost({
+        expect(display.getViewBounds()).toEqualWithTolerance({
             maxLat: 12.623710427048564,
             maxLon: 77.80016576721192,
             minLat: 12.620569563312458,
             minLon: 77.7958742327881
-        });
+        }, 1e-7);
         expect(display.getZoomlevel()).toBe(18);
     });
 
@@ -65,12 +63,12 @@ describe('set and get behavior', function() {
         expect(display.getCenter()).toEqual({
             longitude: 77.79802, latitude: 12.62214
         });
-        chai.expect(display.getViewBounds()).to.deep.almost({
+        expect(display.getViewBounds()).toEqualWithTolerance({
             maxLat: 12.623710427048564,
             maxLon: 77.80016576721192,
             minLat: 12.620569563312458,
             minLon: 77.7958742327881
-        });
+        }, 1e-7);
         expect(display.getZoomlevel()).toBe(18);
         expect(display.getBehavior()).toEqual(expect.objectContaining({zoom: true, drag: false}));
     });

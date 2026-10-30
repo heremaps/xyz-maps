@@ -20,15 +20,13 @@
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './coordinates_convert_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('converts coordinates between pixel and geo', function() {
     let display;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost(1e-4));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -45,10 +43,10 @@ describe('converts coordinates between pixel and geo', function() {
 
 
     it('convert from pixel to geo coordinate', function() {
-        chai.expect(display.pixelToGeo(300, 300)).to.be.deep.almost({
+        expect(display.pixelToGeo(300, 300)).toEqualWithTolerance({
             longitude: 77.79748355819703,
             latitude: 12.622140000000016
-        });
+        }, 1e-4);
 
         expect(display.geoToPixel(77.79802, 12.62214)).toEqual({
             x: 400, y: 300
@@ -61,12 +59,12 @@ describe('converts coordinates between pixel and geo', function() {
             display.setCenter({longitude: 77.801566, latitude: 12.623742});
         });
 
-        chai.expect(display.pixelToGeo(300, 300)).to.be.deep.almost({
+        expect(display.pixelToGeo(300, 300)).toEqualWithTolerance({
             longitude: 77.8010295581011,
             latitude: 12.623742
-        });
-        chai.expect(display.geoToPixel(77.8010295581011, 12.623742)).to.be.deep.almost({
+        }, 1e-4);
+        expect(display.geoToPixel(77.8010295581011, 12.623742)).toEqualWithTolerance({
             x: 300, y: 300
-        });
+        }, 1e-4);
     });
 });

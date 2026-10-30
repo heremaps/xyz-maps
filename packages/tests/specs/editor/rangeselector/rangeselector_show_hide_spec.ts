@@ -23,8 +23,7 @@ import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
 import dataset from './rangeselector_show_hide_spec.json';
-import chaiAlmost from 'chai-almost';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('range selector util', function() {
     let editor;
@@ -36,7 +35,6 @@ describe('range selector util', function() {
     let link4;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost(0.001));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -107.791617, latitude: 37.247926},
@@ -72,8 +70,8 @@ describe('range selector util', function() {
 
         let info = editor.getRangeSelector().info();
 
-        chai.expect(info[0].from).to.deep.almost(0.1);
-        chai.expect(info[0].to).to.deep.almost(0.4);
+        expect(info[0].from).toEqualWithTolerance(0.1, 0.001);
+        expect(info[0].to).toEqualWithTolerance(0.4, 0.001);
         expect(info[0].segments[0]).toEqual(expect.objectContaining({
             reversed: false
         }));
@@ -100,8 +98,8 @@ describe('range selector util', function() {
 
         await drag(mapContainer, {x: 120, y: 185}, {x: 120, y: 200});
 
-        chai.expect(range.segments[0].from).to.deep.almost(0.1);
-        chai.expect(range.segments[0].to).to.deep.almost(0.517);
+        expect(range.segments[0].from).toEqualWithTolerance(0.1, 0.001);
+        expect(range.segments[0].to).toEqualWithTolerance(0.517, 0.001);
         expect(range.segments[0]).toEqual(expect.objectContaining({
             reversed: false
         }));
@@ -129,8 +127,8 @@ describe('range selector util', function() {
 
         await drag(mapContainer, {x: 133, y: 301}, {x: 131, y: 285});
 
-        chai.expect(range.segments[0].from).to.deep.almost(0.1);
-        chai.expect(range.segments[0].to).to.deep.almost(0.488);
+        expect(range.segments[0].from).toEqualWithTolerance(0.1, 0.001);
+        expect(range.segments[0].to).toEqualWithTolerance(0.488, 0.001);
         expect(range.segments[0]).toEqual(expect.objectContaining({
             reversed: false
         }));

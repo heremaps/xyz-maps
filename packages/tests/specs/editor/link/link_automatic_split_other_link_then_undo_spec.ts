@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_split_other_link_then_undo_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('drag a link shape point to the other link and then undo', function() {
     let editor;
@@ -35,7 +34,6 @@ describe('drag a link shape point to the other link and then undo', function() {
     let linkLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.30624, latitude: 15.141013},
@@ -86,10 +84,10 @@ describe('drag a link shape point to the other link and then undo', function() {
 
         link2 = editor.getFeature(link2.id, linkLayer);
         let coords = link2.coord();
-        chai.expect(coords).to.deep.almost([
+        expect(coords).toEqualWithTolerance([
             [76.304630721, 15.141012974, 0],
             [76.305703604, 15.141012974, 0],
             [76.306240046, 15.141012974, 0]
-        ]);
+        ], 1e-6);
     });
 });

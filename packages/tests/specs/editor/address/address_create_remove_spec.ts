@@ -20,9 +20,8 @@ import {prepare} from 'utils';
 import {waitForEditorReady, submit} from 'editorUtils';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './address_create_remove_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('add Address object and then remove', function() {
     var preparedData;
@@ -34,7 +33,6 @@ describe('add Address object and then remove', function() {
     var paLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
 
         display = new Map(document.getElementById('map'), {

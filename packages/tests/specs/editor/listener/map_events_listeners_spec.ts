@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './map_events_listeners_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map event system', function() {
     let link; let address; let poi; let area;
@@ -34,7 +33,6 @@ describe('map event system', function() {
     let mapContainer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 8.573258087408306, latitude: 50.03670252050714},
@@ -85,13 +83,13 @@ describe('map event system', function() {
             type: 'dragStop'
         }));
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [8.571648762, 50.037391625, 0],
             [8.572185204, 50.037391625, 0],
             // [8.571863339, 50.037477763, 0],
             [8.571916983, 50.037477763, 0],
             [8.572185204, 50.0375639, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('validate pointup, dragStart and dragStop events on address', async function() {
@@ -140,7 +138,7 @@ describe('map event system', function() {
             type: 'dragStop'
         }));
 
-        chai.expect(address.coord()).to.deep.almost([8.571380542, 50.03721935, 0]);
+        expect(address.coord()).toEqualWithTolerance([8.571380542, 50.03721935, 0], 1e-6);
     });
 
 
@@ -177,7 +175,7 @@ describe('map event system', function() {
             type: 'dragStop'
         }));
 
-        chai.expect(poi.coord()).to.deep.almost([8.571756051, 50.03721935, 0]);
+        expect(poi.coord()).toEqualWithTolerance([8.571756051, 50.03721935, 0], 1e-6);
     });
 
 
@@ -212,13 +210,13 @@ describe('map event system', function() {
             type: 'dragStop'
         }));
 
-        chai.expect(area.coord()).to.deep.almost([[[
+        expect(area.coord()).toEqualWithTolerance([[[
             [8.571916983, 50.037115985, 0],
             [8.572185204, 50.037047074, 0],
             [8.571916983, 50.036978164, 0],
             [8.571648762, 50.037047074, 0],
             [8.571916983, 50.037115985, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 
     it('validate pointup, dragStart and dragStop events on the ground', async function() {

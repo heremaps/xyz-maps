@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './address_setcoordinates_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('add Address layer set coordinates', function() {
     var preparedData;
@@ -33,7 +32,6 @@ describe('add Address layer set coordinates', function() {
     let addrLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.573482, latitude: 12.950542},
@@ -57,26 +55,26 @@ describe('add Address layer set coordinates', function() {
     });
 
     it('verify address has correct geo coordinate then modify its geo coordinate', function() {
-        chai.expect(address.coord()).to.deep.almost([
+        expect(address.coord()).toEqualWithTolerance([
             75.572408633, 12.951587932, 0
-        ]);
+        ], 1e-6);
 
         address.coord([75.573481516, 12.950542341, 0]);
     });
 
 
     it('verify address has correct geo coordinate', function() {
-        chai.expect(address.coord()).to.deep.almost([
+        expect(address.coord()).toEqualWithTolerance([
             75.573481516, 12.950542341, 0
-        ]);
+        ], 1e-6);
     });
 
     it('modify and verify address has correct geo coordinate', function() {
         address.coord([75.572408632, 12.9515879324, 0]);
 
-        chai.expect(address.coord()).to.deep.almost([
+        expect(address.coord()).toEqualWithTolerance([
             75.572408632, 12.951587932, 0
-        ]);
+        ], 1e-6);
     });
 
 
@@ -105,8 +103,8 @@ describe('add Address layer set coordinates', function() {
     it('add Address layer, verify address has correct geo coordinate', async function() {
         editor.addLayer(addrLayer);
 
-        chai.expect(address.coord()).to.deep.almost([
+        expect(address.coord()).toEqualWithTolerance([
             75.572408633, 12.951326536, 0
-        ]);
+        ], 1e-6);
     });
 });

@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_setcoordinates_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set link coordinates', () => {
     let editor;
@@ -33,7 +32,6 @@ describe('set link coordinates', () => {
     let link;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.179447, latitude: 13.404587},
@@ -62,10 +60,10 @@ describe('set link coordinates', () => {
             [77.17784, 13.40511, 0]
         ]);
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [77.178976179, 13.403983932, 0],
             [77.17784, 13.40511, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('set coordinate, click and drag the link', async () => {
@@ -77,11 +75,11 @@ describe('set link coordinates', () => {
         await click(mapContainer, 200, 100);
         await drag(mapContainer, {x: 200, y: 100}, {x: 100, y: 200});
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [77.177837674, 13.405108827, 0],
             // [77.177837405, 13.405109998, 0],
             [77.178910288, 13.40406441, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('drag the map and validate the created link', async () => {
@@ -89,10 +87,10 @@ describe('set link coordinates', () => {
             await drag(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
         });
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [77.177837674, 13.405108827, 0],
             // [77.177837405, 13.405109998, 0],
             [77.178910288, 13.40406441, 0]
-        ]);
+        ], 1e-6);
     });
 });

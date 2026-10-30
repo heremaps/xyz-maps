@@ -24,7 +24,7 @@ import {Map} from '@here/xyz-maps-display';
 import dataset from './link_zlevels_spec.json';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('navlink zlevels', () => {
     let editor;
@@ -152,10 +152,10 @@ describe('navlink zlevels', () => {
 
         const child1 = <Navlink>(await editorClick(editor, 350, 300)).target;
 
-        chai.expect(child1.getZLevels()).to.deep.almost([1, 2]);
+        expect(child1.getZLevels()).toEqualWithTolerance([1, 2], 1e-6);
 
         const child2 = <Navlink>(await editorClick(editor, 450, 300)).target;
-        chai.expect(child2.getZLevels()).to.deep.almost([2, 3]);
+        expect(child2.getZLevels()).toEqualWithTolerance([2, 3], 1e-6);
     });
 
     it('split Navlink and validate zlevels are set correctly', async () => {
@@ -196,15 +196,15 @@ describe('navlink zlevels', () => {
 
         const child1Link1 = <Navlink>(await editorClick(editor, 650, 300)).target;
 
-        chai.expect(child1Link1.getZLevels()).to.deep.almost([1, 0]);
+        expect(child1Link1.getZLevels()).toEqualWithTolerance([1, 0], 1e-6);
 
         const child2Link1 = <Navlink>(await editorClick(editor, 750, 300)).target;
-        chai.expect(child2Link1.getZLevels()).to.deep.almost([0, 2, 3]);
+        expect(child2Link1.getZLevels()).toEqualWithTolerance([0, 2, 3], 1e-6);
 
         const child1Link2 = <Navlink>(await editorClick(editor, 650, 220)).target;
-        chai.expect(child1Link2.getZLevels()).to.deep.almost([4, 5]);
+        expect(child1Link2.getZLevels()).toEqualWithTolerance([4, 5], 1e-6);
 
         const child2Link2 = <Navlink>(await editorClick(editor, 750, 180)).target;
-        chai.expect(child2Link2.getZLevels()).to.deep.almost([5, 6]);
+        expect(child2Link2.getZLevels()).toEqualWithTolerance([5, 6], 1e-6);
     });
 });

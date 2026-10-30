@@ -20,9 +20,8 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_1_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link connect helper 1', function() {
     let editor;
@@ -32,7 +31,6 @@ describe('link connect helper 1', function() {
     let crossings;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost(1e-1));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.58758879566193, latitude: 16.564128450446262},
@@ -59,8 +57,8 @@ describe('link connect helper 1', function() {
 
         let c = crossings[0];
         expect(c.distance).toBe(0);
-        chai.expect(c.x).to.almost.equal(200);
-        chai.expect(c.y).to.almost.equal(200);
+        expect(c.x).toEqualWithTolerance(200, 1e-1);
+        expect(c.y).toEqualWithTolerance(200, 1e-1);
     });
 
     it('connect the crossing and validate links', async function() {

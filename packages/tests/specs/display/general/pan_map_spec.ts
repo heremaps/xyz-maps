@@ -20,15 +20,13 @@
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './pan_map_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('pan the map', () => {
     let display;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.99026323, latitude: 12.13576713},
@@ -49,15 +47,15 @@ describe('pan the map', () => {
         await waitForViewportReady(display, () => {
             display.pan(100, 100, 0, 0);
         });
-        chai.expect(display.getCenter()).to.deep.almost({latitude: 12.13629159, longitude: 77.9897267});
+        expect(display.getCenter()).toEqualWithTolerance({latitude: 12.13629159, longitude: 77.9897267}, 1e-7);
         expect(display.getHeight()).toBe(600);
         expect(display.getWidth()).toBe(800);
-        chai.expect(display.getViewBounds()).to.deep.almost({
+        expect(display.getViewBounds()).toEqualWithTolerance({
             maxLat: 12.13786494,
             maxLon: 77.99187255,
             minLat: 12.13471822,
             minLon: 77.98758102
-        });
+        }, 1e-7);
         expect(display.getZoomlevel()).toBe(18);
     });
 
@@ -69,7 +67,7 @@ describe('pan the map', () => {
             display.flyTo(center, {duration: 100});
         });
 
-        chai.expect(display.getCenter()).to.deep.almost(center);
+        expect(display.getCenter()).toEqualWithTolerance(center, 1e-7);
         expect(display.getZoomlevel()).toBe(zoom);
     });
 
@@ -81,7 +79,7 @@ describe('pan the map', () => {
             display.flyTo(center, {duration: 100});
         });
 
-        chai.expect(display.getCenter()).to.deep.almost(center);
+        expect(display.getCenter()).toEqualWithTolerance(center, 1e-7);
         expect(display.getZoomlevel()).toBe(zoom);
     });
 });

@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_layer_add_remove_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Link layer add and remove', function() {
     let editor;
@@ -35,7 +34,6 @@ describe('Link layer add and remove', function() {
     let linkLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.33726, latitude: 14.029014},
@@ -79,7 +77,7 @@ describe('Link layer add and remove', function() {
         await click(mapContainer, 200, 250);
         await drag(mapContainer, {x: 200, y: 250}, {x: 200, y: 280});
 
-        chai.expect(poi.coord()).to.deep.almost([75.336187116, 14.029118089, 0]);
+        expect(poi.coord()).toEqualWithTolerance([75.336187116, 14.029118089, 0], 1e-6);
     });
 
     it('drag link shape and valdidate map is dragged', async function() {

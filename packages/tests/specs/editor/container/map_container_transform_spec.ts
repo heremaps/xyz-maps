@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './map_container_transform_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map container transform', function() {
     let editor;
@@ -35,7 +34,6 @@ describe('map container transform', function() {
     let link;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.47614231309831, latitude: 16.44729312879116},
@@ -70,14 +68,14 @@ describe('map container transform', function() {
         // move container
         await drag(mapContainer, {x: 158, y: 161}, {x: 258, y: 161});
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [80.475123072, 16.448270659, 0],
             [80.475176716, 16.44775617, 0]
-        ]);
+        ], 1e-6);
 
-        chai.expect(poi.coord()).to.deep.almost([
+        expect(poi.coord()).toEqualWithTolerance([
             80.475605869, 16.447807619, 0
-        ]);
+        ], 1e-6);
     });
 
     it('pop one object from container and transform rest feature in container', async function() {
@@ -89,14 +87,14 @@ describe('map container transform', function() {
         // await drag(mapContainer, {x: 258, y: 159}, {x: 312, y: 159});
         await drag(mapContainer, {x: 212 - 15, y: 159}, {x: 312 - 15, y: 159});
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [80.475550546, 16.448270659, 0],
             [80.475556693, 16.44775617, 0]
 
-        ]);
+        ], 1e-6);
 
-        chai.expect(poi.coord()).to.deep.almost([
+        expect(poi.coord()).toEqualWithTolerance([
             80.475605869, 16.447807619, 0
-        ]);
+        ], 1e-6);
     });
 });

@@ -20,9 +20,8 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './area_get_functions_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Area getters return value', function() {
     var editor;
@@ -31,7 +30,6 @@ describe('Area getters return value', function() {
     var area;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -120.123004, latitude: 41.242238},
@@ -56,13 +54,13 @@ describe('Area getters return value', function() {
 
 
     it('get an area object and validate', function() {
-        chai.expect(area.coord()).to.deep.almost([[[
+        expect(area.coord()).toEqualWithTolerance([[[
             [-120.124076884, 41.242238, 0],
             [-120.124076884, 41.241431263, 0],
             [-120.123004, 41.241431263, 0],
             [-120.123004, 41.242238, 0],
             [-120.124076884, 41.242238, 0]
-        ]]]);
+        ]]], 1e-6);
 
         expect(area.prop()).toEqual(expect.objectContaining({
             type: 'building',

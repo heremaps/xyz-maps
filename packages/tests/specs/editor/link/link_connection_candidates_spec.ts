@@ -23,8 +23,7 @@ import {TileLayer} from '@here/xyz-maps-core';
 import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 
 describe('link connection candidates', function() {
@@ -37,8 +36,6 @@ describe('link connection candidates', function() {
     let mapContainer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
-
         linkLayer = new TileLayer({
             name: 'linkLayer',
             min: 14, max: 20,
@@ -235,5 +232,4 @@ describe('link connection candidates', function() {
         expect(link2.behavior('autoConnect')).toBe(true);
     });
 });
-
 

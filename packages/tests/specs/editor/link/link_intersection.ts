@@ -22,8 +22,7 @@ import {TileLayer} from '@here/xyz-maps-core';
 import {TestLocalProvider} from 'TestProviders';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
-import {beforeAll, it, describe, afterAll, chai, expect} from 'vitest';
+import {beforeAll, it, describe, afterAll, expect} from 'vitest';
 
 
 let editor;
@@ -34,8 +33,6 @@ const runIntersectionTests = (customProviderOptions = {}) => {
     let link2;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
-
         linkLayer = new TileLayer({
             name: 'linkLayer',
             min: 14, max: 20,
@@ -211,4 +208,3 @@ describe('link intersections - custom mode', () => {
         display.destroy();
     });
 });
-

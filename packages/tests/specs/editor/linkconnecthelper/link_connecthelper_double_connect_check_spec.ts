@@ -20,9 +20,8 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_double_connect_check_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link connect helper connect crossing and then add new link and connect crossing again', function() {
     let editor;
@@ -31,7 +30,6 @@ describe('link connect helper connect crossing and then add new link and connect
     let link2;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost(1e-1));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.5752066315913, latitude: 16.51980167657008},
@@ -58,13 +56,13 @@ describe('link connect helper connect crossing and then add new link and connect
         let c0 = crossings[0];
         let c1 = crossings[1];
 
-        chai.expect(c0.distance).to.be.almost(0);
-        chai.expect(c0.x).to.be.almost(200);
-        chai.expect(c0.y).to.be.almost(200);
+        expect(c0.distance).toEqualWithTolerance(0, 1e-1);
+        expect(c0.x).toEqualWithTolerance(200, 1e-1);
+        expect(c0.y).toEqualWithTolerance(200, 1e-1);
 
-        chai.expect(c1.distance).to.be.almost(0);
-        chai.expect(c1.x).to.be.almost(200);
-        chai.expect(c1.y).to.be.almost(260);
+        expect(c1.distance).toEqualWithTolerance(0, 1e-1);
+        expect(c1.x).toEqualWithTolerance(200, 1e-1);
+        expect(c1.y).toEqualWithTolerance(260, 1e-1);
     });
 
     it('connect a crossing', function() {
@@ -90,13 +88,13 @@ describe('link connect helper connect crossing and then add new link and connect
         let c0 = crossings[0];
         let c1 = crossings[1];
 
-        chai.expect(c0.distance).to.be.almost(0);
-        chai.expect(c0.x).to.be.almost(250);
-        chai.expect(c0.y).to.be.almost(200);
+        expect(c0.distance).toEqualWithTolerance(0, 1e-1);
+        expect(c0.x).toEqualWithTolerance(250, 1e-1);
+        expect(c0.y).toEqualWithTolerance(200, 1e-1);
 
-        chai.expect(c1.distance).to.be.almost(0);
-        chai.expect(c1.x).to.be.almost(250);
-        chai.expect(c1.y).to.be.almost(260);
+        expect(c1.distance).toEqualWithTolerance(0, 1e-1);
+        expect(c1.x).toEqualWithTolerance(250, 1e-1);
+        expect(c1.y).toEqualWithTolerance(260, 1e-1);
 
         crossings = link3.checkCrossings();
 

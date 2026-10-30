@@ -3,10 +3,11 @@
 The tests run in a real browser with [Vitest browser mode](https://vitest.dev/guide/browser/) and Playwright.
 Specs explicitly import test APIs from `vitest` (`describe`, `it`, `beforeAll`, `afterAll`, etc.).
 Use `it.skip` or `describe.skip` for skipped tests. Test API globals are disabled.
-Common and Core specs use native `expect` from `vitest`. Display, Editor and Integration also use native matchers,
-except for approximate comparisons that explicitly use `chai.expect` to preserve their tolerances.
+Specs use native `expect` from `vitest`. Approximate comparisons use `toEqualWithTolerance` with
+explicit absolute tolerances. Inclusive range checks use `toBeGreaterThanOrEqual` and
+`toBeLessThanOrEqual`.
 No Chai assertion globals are installed.
-`vitest/setup.ts` registers `chai-almost` for approximate comparisons.
+`vitest/setup.ts` registers the typed tolerance matcher; no Chai plugin or shared tolerance state is used.
 
 ### Build XYZ Maps JS
 
@@ -95,6 +96,17 @@ Create `credentials.json` in `packages/tests` with your credentials. The file is
 Run them with `pnpm run test:integration`.
 
 ### Write specs
+
+Use the registered matcher for absolute numeric tolerances, including nested coordinates:
+
+```typescript
+expect(actual).toEqualWithTolerance(expected, 1e-7);
+```
+
+The tolerance is explicit, finite and non-negative. Each numeric difference must be less than or equal
+to it; non-numeric fields and structure use native equality with strict key checking. This is not
+decimal precision like `toBeCloseTo`. The matcher does not change ordinary equality or configure
+shared tolerance state.
 
 * Do not use `done` callbacks or `this.timeout()`, Vitest does not support them. Return a promise or use `async`.
 * A spec file must not import another spec file. Put shared helpers into `src/utils`.

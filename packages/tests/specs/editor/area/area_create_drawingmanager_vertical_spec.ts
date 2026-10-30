@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Area} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_vertical_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Area drawing manager points with same longitude', function() {
     let editor;
@@ -32,7 +31,6 @@ describe('Area drawing manager points with same longitude', function() {
     let mapContainer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},
@@ -84,13 +82,13 @@ describe('Area drawing manager points with same longitude', function() {
             featureClass: 'AREA'
         }));
 
-        chai.expect(area.coord()).to.deep.almost([[[
+        expect(area.coord()).toEqualWithTolerance([[[
             [76.081516386, 13.215360578, 0],
             [76.082052827, 13.215882813, 0],
             [76.082589269, 13.215621696, 0], // 3rd shape point
             [76.082589269, 13.215517249, 0], // 4th shape point
             [76.082052827, 13.215360578, 0],
             [76.081516386, 13.215360578, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 });

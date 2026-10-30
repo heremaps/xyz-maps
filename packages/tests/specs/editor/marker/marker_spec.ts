@@ -18,11 +18,10 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {vi, describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it, expect} from 'vitest';
 import {mousemove} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './marker_spec.json';
 
 describe('Basic Marker tests', () => {
@@ -33,7 +32,6 @@ describe('Basic Marker tests', () => {
     let mapContainer;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.29398409, latitude: 19.27905288},
@@ -92,7 +90,7 @@ describe('Basic Marker tests', () => {
     });
 
     it('get correct geo coordinates', async () => {
-        chai.expect(marker.coord()).to.deep.almost([73.29398409, 19.27905288, 0]);
+        expect(marker.coord()).toEqualWithTolerance([73.29398409, 19.27905288, 0], 1e-6);
     });
 
     it('update feature and validate editState', async () => {

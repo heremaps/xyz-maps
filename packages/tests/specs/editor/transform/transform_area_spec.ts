@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './transform_area_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('transform area objects', () => {
     let editor;
@@ -33,7 +32,6 @@ describe('transform area objects', () => {
     let area;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -59,33 +57,33 @@ describe('transform area objects', () => {
 
         await drag(mapContainer, {x: 307 + 6, y: 260}, {x: 347 + 6, y: 260});
 
-        chai.expect(area.coord()).to.deep.almost([[[
+        expect(area.coord()).toEqualWithTolerance([[[
             [77.797686602, 12.622401739, 0],
             [77.796410675, 12.622244695, 0],
             [77.797048639, 12.621878261, 0],
             [77.797686602, 12.622401739, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 
     it('move area with transformer and validate its coordinates', async () => {
         await drag(mapContainer, {x: 220, y: 300}, {x: 240, y: 350});
 
-        chai.expect(area.coord()).to.deep.almost([[[
+        expect(area.coord()).toEqualWithTolerance([[[
             [77.797793893, 12.622139999, 0],
             [77.796517966, 12.621982955, 0],
             [77.79715593, 12.621616521, 0],
             [77.797793893, 12.622139999, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 
     it('rotate area with transformer and validate its coordinates', async () => {
         await drag(mapContainer, {x: 370, y: 410}, {x: 300, y: 450});
 
-        chai.expect(area.coord()).to.deep.almost([[[
+        expect(area.coord()).toEqualWithTolerance([[[
             [77.797834836, 12.62174725, 0],
             [77.796686946, 12.622313097, 0],
             [77.797005983, 12.621661241, 0],
             [77.797834836, 12.62174725, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 });

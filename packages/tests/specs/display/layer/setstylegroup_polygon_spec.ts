@@ -21,9 +21,8 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_polygon_spec.json';
-import chaiAlmost from 'chai-almost';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 const IMG_SRC_RED = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mP8z8AARLgB48hQAAAdEw/5itjcFgAAAABJRU5ErkJggg==';
 const IMG_SRC_BLUE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mNkYPj/nwEPYBwZCgANIw/5um5PVwAAAABJRU5ErkJggg==';
@@ -38,7 +37,6 @@ describe('setStyleGroup Polygon', () => {
     let feature;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -123,7 +121,7 @@ describe('setStyleGroup Polygon', () => {
             display.setViewBounds(feature);
         });
 
-        chai.expect(display.getCenter()).to.deep.almost({longitude: -74.012120162, latitude: 40.705173879});
+        expect(display.getCenter()).toEqualWithTolerance({longitude: -74.012120162, latitude: 40.705173879}, 1e-7);
         expect(display.getZoomlevel()).toBe(16);
     });
 

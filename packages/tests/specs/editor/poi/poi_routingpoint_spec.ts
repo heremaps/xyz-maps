@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './poi_routingpoint_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set POI routing point', function() {
     let editor;
@@ -34,7 +33,6 @@ describe('set POI routing point', function() {
     let link;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost(1e-4));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.21454522937796, latitude: 12.975487274218025},
@@ -61,7 +59,7 @@ describe('set POI routing point', function() {
 
         poi.createRoutingPoint();
 
-        chai.expect(poi.prop('routingPoint')).to.deep.almost([77.21294, 12.97549, 0]);
+        expect(poi.prop('routingPoint')).toEqualWithTolerance([77.21294, 12.97549, 0], 1e-4);
         expect(poi.getLink().id).toBe(link.id);
     });
 
@@ -72,7 +70,7 @@ describe('set POI routing point', function() {
 
         poi.createRoutingPoint();
 
-        chai.expect(poi.prop('routingPoint')).to.deep.almost([77.21294, 12.97497, 0]);
+        expect(poi.prop('routingPoint')).toEqualWithTolerance([77.21294, 12.97497, 0], 1e-4);
         expect(poi.getLink().id).toBe(link.id);
     });
 
@@ -83,7 +81,7 @@ describe('set POI routing point', function() {
 
         let splitLinks = shape.splitLink();
 
-        chai.expect(poi.prop('routingPoint')).to.deep.almost([77.21294, 12.97497, 0]);
+        expect(poi.prop('routingPoint')).toEqualWithTolerance([77.21294, 12.97497, 0], 1e-4);
         expect(poi.getLink().id).toBe(splitLinks[1].id);
     });
 

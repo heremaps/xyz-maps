@@ -20,15 +20,13 @@
 import {waitForViewportReady} from 'displayUtils';
 import {Observer, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './display_observer_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map observer', function() {
     let display;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.003685005, latitude: 20.272390425},
@@ -59,8 +57,8 @@ describe('map observer', function() {
         });
 
         let results = observer.stop();
-        chai.expect(results.center[0]).to.deep.almost({longitude: 80.241128629, latitude: 15.6931352023});
-        chai.expect(results.center[1]).to.deep.almost({longitude: 80.042093977, latitude: 15.494536519});
+        expect(results.center[0]).toEqualWithTolerance({longitude: 80.241128629, latitude: 15.6931352023}, 1e-7);
+        expect(results.center[1]).toEqualWithTolerance({longitude: 80.042093977, latitude: 15.494536519}, 1e-7);
     });
 
     it('set map center with same coord and validate observer again', async function() {

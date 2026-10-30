@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick, submit} from 'editorUtils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_create_and_connect_to_original_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Create new Links and connect to original link', function() {
     let editor;
@@ -33,7 +32,6 @@ describe('Create new Links and connect to original link', function() {
     let link;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.221332, latitude: 13.151157},
@@ -70,10 +68,10 @@ describe('Create new Links and connect to original link', function() {
             lnk = editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
         });
 
-        chai.expect(lnk.coord()).to.deep.almost([
+        expect(lnk.coord()).toEqualWithTolerance([
             [77.220259106, 13.152202639, 0],
             [77.220259116, 13.151679372, 0]
-        ]);
+        ], 1e-6);
     });
 
 

@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './map_show_hide_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map activate and deactivate', function() {
     let editor;
@@ -33,7 +32,6 @@ describe('map activate and deactivate', function() {
     let link;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 75.5553, latitude: 13.99646},
@@ -61,11 +59,11 @@ describe('map activate and deactivate', function() {
         link.select();
         await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [75.553958896, 13.997501028, 0],
             [75.554227116, 13.997501028, 0],
             [75.554227116, 13.997761284, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('deactivate editor', function() {
@@ -87,10 +85,10 @@ describe('map activate and deactivate', function() {
         link.select();
         await drag(mapContainer, {x: 150, y: 100}, {x: 100, y: 100});
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [75.553690675, 13.997501028, 0],
             [75.554227116, 13.997501028, 0],
             [75.554227116, 13.997761284, 0]
-        ]);
+        ], 1e-6);
     });
 });

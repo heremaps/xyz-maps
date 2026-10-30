@@ -20,15 +20,13 @@
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './pixel_geo_coordinates_convert_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('convert pixel and geo coordinates', function() {
     var display;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost(1e-4));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -42,17 +40,17 @@ describe('convert pixel and geo coordinates', function() {
     });
 
     it('validate geotopixel function', function() {
-        chai.expect(display.geoToPixel({longitude: 77.79802, latitude: 12.62214})).to.deep.almost({x: 400, y: 300});
+        expect(display.geoToPixel({longitude: 77.79802, latitude: 12.62214})).toEqualWithTolerance({x: 400, y: 300}, 1e-4);
         let center = display.getCenter();
-        chai.expect(display.geoToPixel(center)).to.deep.almost({x: 400, y: 300});
+        expect(display.geoToPixel(center)).toEqualWithTolerance({x: 400, y: 300}, 1e-4);
         let vb = display.getViewBounds();
-        chai.expect(display.geoToPixel({longitude: vb.minLon, latitude: vb.minLat})).to.deep.almost({x: 0, y: 600});
-        chai.expect(display.geoToPixel({longitude: vb.maxLon, latitude: vb.maxLat})).to.deep.almost({x: 800, y: 0});
+        expect(display.geoToPixel({longitude: vb.minLon, latitude: vb.minLat})).toEqualWithTolerance({x: 0, y: 600}, 1e-4);
+        expect(display.geoToPixel({longitude: vb.maxLon, latitude: vb.maxLat})).toEqualWithTolerance({x: 800, y: 0}, 1e-4);
     });
 
     it('validate pixelToGeo function', function() {
         let coord = display.pixelToGeo({x: 400, y: 300});
-        chai.expect(coord).to.be.deep.almost({longitude: 77.79802, latitude: 12.62214});
+        expect(coord).toEqualWithTolerance({longitude: 77.79802, latitude: 12.62214}, 1e-4);
     });
 
     it('get display configures and then validate again', async function() {
@@ -60,19 +58,19 @@ describe('convert pixel and geo coordinates', function() {
             display.setCenter({longitude: 8.71902, latitude: 50.1109});
         });
 
-        chai.expect(display.geoToPixel({longitude: 8.71902, latitude: 50.1109})).to.deep.almost({x: 400, y: 300});
+        expect(display.geoToPixel({longitude: 8.71902, latitude: 50.1109})).toEqualWithTolerance({x: 400, y: 300}, 1e-4);
         let coord = display.pixelToGeo({x: 400, y: 300});
-        chai.expect(coord).to.be.deep.almost({longitude: 8.71902, latitude: 50.1109});
+        expect(coord).toEqualWithTolerance({longitude: 8.71902, latitude: 50.1109}, 1e-4);
 
 
         let center = display.getCenter();
-        chai.expect(display.geoToPixel(center)).to.deep.almost({x: 400, y: 300});
+        expect(display.geoToPixel(center)).toEqualWithTolerance({x: 400, y: 300}, 1e-4);
         let vb = display.getViewBounds();
         let pixel = display.geoToPixel({longitude: vb.minLon, latitude: vb.minLat});
-        chai.expect(pixel).to.be.deep.almost({x: 0, y: 600});
+        expect(pixel).toEqualWithTolerance({x: 0, y: 600}, 1e-4);
 
         pixel = display.geoToPixel({longitude: vb.maxLon, latitude: vb.maxLat});
-        chai.expect(pixel).to.be.deep.almost({x: 800, y: 0});
+        expect(pixel).toEqualWithTolerance({x: 800, y: 0}, 1e-4);
     });
 
     it('validate pixelToGeo works at boarder', async function() {
@@ -84,21 +82,21 @@ describe('convert pixel and geo coordinates', function() {
         });
 
         let pixel = display.geoToPixel(-180, -90);
-        chai.expect(pixel).to.be.deep.almost({x: -112, y: 812});
+        expect(pixel).toEqualWithTolerance({x: -112, y: 812}, 1e-4);
 
         pixel = display.geoToPixel(-120, -90);
-        chai.expect(pixel).to.be.deep.almost({x: 58.66666666666663, y: 812});
+        expect(pixel).toEqualWithTolerance({x: 58.66666666666663, y: 812}, 1e-4);
 
         pixel = display.geoToPixel(180, -90);
-        chai.expect(pixel).to.be.deep.almost({x: 912, y: 812});
+        expect(pixel).toEqualWithTolerance({x: 912, y: 812}, 1e-4);
 
         pixel = display.geoToPixel(-180, 90);
-        chai.expect(pixel).to.be.deep.almost({x: -112, y: -212});
+        expect(pixel).toEqualWithTolerance({x: -112, y: -212}, 1e-4);
 
         pixel = display.geoToPixel(-120, 90);
-        chai.expect(pixel).to.be.deep.almost({x: 58.66666666666663, y: -212});
+        expect(pixel).toEqualWithTolerance({x: 58.66666666666663, y: -212}, 1e-4);
 
         pixel = display.geoToPixel(180, 90);
-        chai.expect(pixel).to.be.deep.almost({x: 912, y: -212});
+        expect(pixel).toEqualWithTolerance({x: 912, y: -212}, 1e-4);
     });
 });

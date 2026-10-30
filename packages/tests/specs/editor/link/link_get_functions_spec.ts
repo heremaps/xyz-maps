@@ -20,9 +20,8 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_get_functions_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Link getters return correct value', function() {
     let editor;
@@ -31,7 +30,6 @@ describe('Link getters return correct value', function() {
     let link;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 8.528291, latitude: 49.909723},
@@ -53,10 +51,10 @@ describe('Link getters return correct value', function() {
     });
 
     it('get a link in viewport and validate', function() {
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [8.527619957, 49.909971348, 0],
             [8.527861356, 49.909978257, 0]
-        ]);
+        ], 1e-6);
 
         expect(link.prop()).toEqual(expect.objectContaining({
             featureClass: 'NAVLINK',

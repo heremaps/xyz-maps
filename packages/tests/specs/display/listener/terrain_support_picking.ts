@@ -23,7 +23,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {Listener} from 'utils';
 import {click} from 'triggerEvents';
 import {createPickingTerrain, terrainFixtureUrl, terrainScreenshot} from '../../../src/utils/terrainPicking';
-import {describe, beforeAll, afterAll, beforeEach, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, beforeEach, it, expect} from 'vitest';
 
 describe.skip('Terrain support picking', () => {
     let map: Map;
@@ -89,11 +89,12 @@ describe.skip('Terrain support picking', () => {
             for (let x = 0; x < 512; x++) {
                 const height = elevation(x, y);
                 maximum = Math.max(maximum, height);
-                chai.expect(height).to.be.within(1000, 1300);
+                expect(height).toBeGreaterThanOrEqual(1000);
+                expect(height).toBeLessThanOrEqual(1300);
                 if (x < 16 || y < 16 || x >= 496 || y >= 496) expect(height).toBe(1000);
             }
         }
-        chai.expect(maximum).to.be.closeTo(1300, 0.1);
+        expect(maximum).toEqualWithTolerance(1300, 0.1);
         expect(Math.abs(elevation(150, 245) - elevation(290, 245))).toBeGreaterThan(10);
         const heights = pixels.map((pixel) => map.getTerrainPointAt(pixel)?.altitude);
         expect(Math.min(...heights)).toBeGreaterThan(1000);
@@ -206,10 +207,12 @@ describe.skip('Terrain support picking', () => {
                 expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).toBe(rear.id);
             }
             await waitForViewportReady(map, () => map.pitch(75));
-            chai.expect(map.pitch()).to.be.closeTo(75, 1e-6);
+            expect(map.pitch()).toEqualWithTolerance(75, 1e-6);
             const projected = map.geoToPixel(0.00472, 0.0083, 1180);
-            chai.expect(projected.x).to.be.within(20, map.getContainer().clientWidth - 20);
-            chai.expect(projected.y).to.be.within(20, map.getContainer().clientHeight - 20);
+            expect(projected.x).toBeGreaterThanOrEqual(20);
+            expect(projected.x).toBeLessThanOrEqual(map.getContainer().clientWidth - 20);
+            expect(projected.y).toBeGreaterThanOrEqual(20);
+            expect(projected.y).toBeLessThanOrEqual(map.getContainer().clientHeight - 20);
             expect((await terrainScreenshot(map)).redPixels, 'hidden by the hill crest').toBe(0);
             for (const enabled of [false, true]) {
                 terrain.pointerEvents(enabled);

@@ -83,9 +83,6 @@ export function project(component: Component, mode: string): UserWorkspaceConfig
                 {find: /^TestProviders$/, replacement: path.join(src, 'TestProvider.ts')}
             ]
         },
-        optimizeDeps: {
-            include: ['chai-almost']
-        },
         define: {
             __XYZ_COMPONENT__: JSON.stringify(component),
             __XYZ_MAP__: JSON.stringify(map)

@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_autosplit_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link auto split', function() {
     let editor: Editor;
@@ -33,7 +32,6 @@ describe('link auto split', function() {
     let link1; let link2; let link3; let link4; let link5; let link6; let link7;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.97791, latitude: 12.93834},
@@ -89,11 +87,11 @@ describe('link auto split', function() {
         await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 200});
 
 
-        chai.expect(link2.coord()).to.deep.almost([
+        expect(link2.coord()).toEqualWithTolerance([
             [76.976568895, 12.938862822, 0],
             [76.976837116, 12.938862822, 0],
             [76.978446442, 12.938862822, 0]
-        ]);
+        ], 1e-6);
 
         link2.remove();
     });
@@ -115,15 +113,15 @@ describe('link auto split', function() {
         let objs = editor.search(display.getViewBounds());
         expect(objs).toHaveLength(2);
 
-        chai.expect(objs[0].coord()).to.deep.almost([
+        expect(objs[0].coord()).toEqualWithTolerance([
             [76.976837116, 12.939124232, 0],
             [76.977105337, 12.93907195, 0]
-        ]);
-        chai.expect(objs[1].coord()).to.deep.almost([
+        ], 1e-6);
+        expect(objs[1].coord()).toEqualWithTolerance([
             [76.977105337, 12.93907195, 0],
             [76.976568895, 12.939385643, 0],
             [76.976837116, 12.939124232, 0]
-        ]);
+        ], 1e-6);
 
         await waitForEditorReady(editor, ()=>{
             editor.revert();
@@ -175,11 +173,11 @@ describe('link auto split', function() {
 
         await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 200});
 
-        chai.expect(link6.coord()).to.deep.almost([
+        expect(link6.coord()).toEqualWithTolerance([
             [76.976837117, 12.938862822, 0],
             [76.976837116, 12.939385643, 0],
             [76.976837116, 12.938862822, 1]
-        ]);
+        ], 1e-6);
     });
 
     it('add link object, drag a shape point to connect to the other one, validate link is split automatically', async function() {
@@ -198,9 +196,9 @@ describe('link auto split', function() {
 
         await drag(mapContainer, {x: 100, y: 300}, {x: 200, y: 400});
 
-        chai.expect(link7.coord()).to.deep.almost([
+        expect(link7.coord()).toEqualWithTolerance([
             [76.976837116, 12.93834, 0],
             [76.976837116, 12.937817177, 1]
-        ]);
+        ], 1e-6);
     });
 });

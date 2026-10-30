@@ -20,9 +20,8 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './disconnectshapedistance_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set disconnectShapeDistance', function() {
     let editor;
@@ -30,7 +29,6 @@ describe('set disconnectShapeDistance', function() {
     let preparedData;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.84172527566523, latitude: 17.450976000022266},
@@ -83,7 +81,7 @@ describe('set disconnectShapeDistance', function() {
         let shape = <NavlinkShape>(await editorClick(editor, 100, 300)).target;
         shape.disconnect();
 
-        chai.expect(links[1].coord()).to.deep.almost([[77.840920613, 17.451065932, 0], [77.840920613, 17.451487751, 0]]);
+        expect(links[1].coord()).toEqualWithTolerance([[77.840920613, 17.451065932, 0], [77.840920613, 17.451487751, 0]], 1e-6);
     });
 
     it('reset disconnectShapeDistance, validate the disconnect shape distance again', async function() {
@@ -119,6 +117,6 @@ describe('set disconnectShapeDistance', function() {
         let shape = <NavlinkShape>(await editorClick(editor, 100, 300)).target;
         shape.disconnect();
 
-        chai.expect(links[1].coord()).to.deep.almost([[77.840920613, 17.45100298, 0], [77.840920613, 17.451487751, 0]]);
+        expect(links[1].coord()).toEqualWithTolerance([[77.840920613, 17.45100298, 0], [77.840920613, 17.451487751, 0]], 1e-6);
     });
 });

@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_split_hide_turn_restrictions_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link splitting hides the turn restrictions edit', function() {
     let editor;
@@ -33,7 +32,6 @@ describe('link splitting hides the turn restrictions edit', function() {
     let link1; let link2; let link3;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.775492, latitude: 13.344394},
@@ -77,10 +75,10 @@ describe('link splitting hides the turn restrictions edit', function() {
         // link is clicked, not turn restriction editor
         let link = (await editorClick(editor, 110, 100)).target;
 
-        chai.expect(link.geometry.coordinates).to.deep.almost([
+        expect(link.geometry.coordinates).toEqualWithTolerance([
             [77.773883099, 13.345438764, 0],
             [77.774419541, 13.345438764, 0],
             [77.774419541, 13.344393992, 0]
-        ]);
+        ], 1e-6);
     });
 });

@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_shapepoint_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link shape points', function() {
     let editor;
@@ -35,7 +34,6 @@ describe('link shape points', function() {
     let shape;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.26942, latitude: 13.08243},
@@ -71,12 +69,12 @@ describe('link shape points', function() {
 
         expect(link1.prop('disconnected')).toBe('HOOK');
         expect(link1.prop('estate')).toBe('UPDATED');
-        chai.expect(link1.coord()).to.deep.almost([
+        expect(link1.coord()).toEqualWithTolerance([
             [77.26942, 13.082952518, 0],
             [77.268883558, 13.082952518, 0],
             [77.267810675, 13.082952518, 0],
             [77.267810675, 13.083448055, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('remove a link shape point and validate coordinates again', async function() {
@@ -84,11 +82,11 @@ describe('link shape points', function() {
 
         shape.remove();
 
-        chai.expect(link1.coord()).to.deep.almost([
+        expect(link1.coord()).toEqualWithTolerance([
             [77.26942, 13.082952518, 0],
             [77.268883558, 13.082952518, 0],
             [77.267810675, 13.083448055, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('split link and validate the new links', async function() {
@@ -99,13 +97,13 @@ describe('link shape points', function() {
         // click on ground
         await click(mapContainer, 100, 500);
 
-        chai.expect(links[0].coord()).to.deep.almost([
+        expect(links[0].coord()).toEqualWithTolerance([
             [77.26942, 13.082952518, 0],
             [77.268883558, 13.082952518, 0]
-        ]);
-        chai.expect(links[1].coord()).to.deep.almost([
+        ], 1e-6);
+        expect(links[1].coord()).toEqualWithTolerance([
             [77.268883558, 13.082952518, 0],
             [77.267810675, 13.083448055, 0]
-        ]);
+        ], 1e-6);
     });
 });

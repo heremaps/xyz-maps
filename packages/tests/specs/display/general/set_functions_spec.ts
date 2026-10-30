@@ -20,15 +20,13 @@
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './set_functions_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set functions', function() {
     let display;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -43,16 +41,16 @@ describe('set functions', function() {
     });
 
     it('validate map display is initialized correctly', function() {
-        chai.expect(display.getCenter()).to.deep.almost({longitude: 77.79802, latitude: 12.62214});
+        expect(display.getCenter()).toEqualWithTolerance({longitude: 77.79802, latitude: 12.62214}, 1e-7);
         expect(display.getHeight()).toBe(600);
         expect(display.getWidth()).toBe(800);
         expect(display.getLayers()).toHaveLength(4);
-        chai.expect(display.getViewBounds()).to.deep.almost({
+        expect(display.getViewBounds()).toEqualWithTolerance({
             minLon: 77.79587423,
             minLat: 12.62056956,
             maxLon: 77.80016576,
             maxLat: 12.62371043
-        });
+        }, 1e-7);
         expect(display.getZoomlevel()).toBe(18);
     });
 
@@ -61,7 +59,7 @@ describe('set functions', function() {
             display.setCenter(77.75143322, 12.62290951);
         });
 
-        chai.expect(display.getCenter()).to.deep.almost({longitude: 77.75143322, latitude: 12.62290951});
+        expect(display.getCenter()).toEqualWithTolerance({longitude: 77.75143322, latitude: 12.62290951}, 1e-7);
     });
 
     it('set zoom and validate', async function() {
@@ -79,9 +77,9 @@ describe('set functions', function() {
 
         expect(display.getZoomlevel()).toBe(17.5);
 
-        chai.expect(display.getCenter()).to.deep.almost({
+        expect(display.getCenter()).toEqualWithTolerance({
             longitude: 77.75143322, latitude: 12.62290951
-        });
+        }, 1e-7);
 
         expect(display.getLayers()).toHaveLength(4);
     });
@@ -93,12 +91,12 @@ describe('set functions', function() {
 
     it('validate viewport', function() {
         const viewBounds = display.getViewBounds();
-        chai.expect(viewBounds).to.deep.almost({
+        expect(viewBounds).toEqualWithTolerance({
             minLon: 77.74839865,
             minLat: 12.62068858,
             maxLon: 77.75446779,
             maxLat: 12.6251304
-        });
+        }, 1e-7);
     });
 
     it('set zoom 22.5 and validate viewbounds', async function() {
@@ -110,12 +108,12 @@ describe('set functions', function() {
 
         const viewBounds = display.getViewBounds();
 
-        chai.expect(viewBounds).to.deep.almost({
+        expect(viewBounds).toEqualWithTolerance({
             minLon: 77.75133839,
             minLat: 12.62284011,
             maxLon: 77.75152805,
             maxLat: 12.62297891
-        });
+        }, 1e-7);
     });
 
     it('try to set invalid maxzoom', async function() {

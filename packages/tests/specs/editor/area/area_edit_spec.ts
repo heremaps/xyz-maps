@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick, submit} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './area_edit_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('modify area geometry', () => {
     let editor;
@@ -35,7 +34,6 @@ describe('modify area geometry', () => {
     let areashp;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -111.717195, latitude: 40.211738},
@@ -71,40 +69,40 @@ describe('modify area geometry', () => {
 
         await drag(mapContainer, {x: 300, y: 300}, {x: 300, y: 250});
 
-        chai.expect(area.coord()).to.deep.almost([[[
+        expect(area.coord()).toEqualWithTolerance([[[
             [-111.718267489, 40.211738323, 0],
             [-111.718267489, 40.210918996, 0],
             [-111.717194605, 40.210918996, 0],
             [-111.717194605, 40.211738323, 0],
             [-111.717731047, 40.211943153, 0],
             [-111.718267489, 40.211738323, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 
     it('click to remove a shape point and validate', async () => {
         areashp = (await editorClick(editor, 200, 500)).target;
         areashp.remove();
 
-        chai.expect(area.coord()).to.deep.almost([[[
+        expect(area.coord()).toEqualWithTolerance([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
             [-111.717194605, 40.211738323, 0],
             [-111.717731047, 40.211943153, 0],
             [-111.718267489, 40.211738323, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 
     it('drag middle point to add shape point again', async () => {
         await drag(mapContainer, {x: 400, y: 400}, {x: 450, y: 400});
 
-        chai.expect(area.coord()).to.deep.almost([[[
+        expect(area.coord()).toEqualWithTolerance([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
             [-111.716926385, 40.21132866, 0],
             [-111.717194605, 40.211738323, 0],
             [-111.717731047, 40.211943153, 0],
             [-111.718267489, 40.211738323, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 
     it('submit and validate coord', async () => {
@@ -114,20 +112,20 @@ describe('modify area geometry', () => {
 
         let a = editor.getFeature(area.id, areaLayer);
 
-        chai.expect(a.coord()).to.deep.almost([[[
+        expect(a.coord()).toEqualWithTolerance([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
             [-111.716926385, 40.21132866, 0],
             [-111.717194605, 40.211738323, 0],
             [-111.717731047, 40.211943153, 0],
             [-111.718267489, 40.211738323, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 
     it('add a hole', async () => {
         area.addHole({x: 360, y: 370});
 
-        chai.expect(area.coord()).to.deep.almost([[[
+        expect(area.coord()).toEqualWithTolerance([[[
             [-111.718267489, 40.211738323, 0],
             [-111.717194605, 40.210918996, 0],
             [-111.716926385, 40.21132866, 0],
@@ -140,7 +138,7 @@ describe('modify area geometry', () => {
             [-111.717243279, 40.211578232, 0],
             [-111.717243279, 40.211324241, 0],
             [-111.717575873, 40.211324241, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 
     it('fire geometryValidation on blocked topologyViolation shape drag', async () => {

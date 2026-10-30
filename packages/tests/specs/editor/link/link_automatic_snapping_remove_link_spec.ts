@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_snapping_remove_link_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link auto remove link', function() {
     let editor;
@@ -37,7 +36,6 @@ describe('link auto remove link', function() {
     let linkLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.05628448207847, latitude: 12.971348085003669},
@@ -69,20 +67,20 @@ describe('link auto remove link', function() {
 
         await drag(mapContainer, {x: 300, y: 150}, {x: 250, y: 150});
 
-        chai.expect(link4.coord()).to.deep.almost([
+        expect(link4.coord()).toEqualWithTolerance([
             [77.055479819, 12.972132213, 0],
             [77.056284482, 12.971609461, 0]
-        ]);
+        ], 1e-6);
 
-        chai.expect(link3.coord()).to.deep.almost([
+        expect(link3.coord()).toEqualWithTolerance([
             [77.055479819, 12.972132213, 0],
             [77.056016261, 12.972393589, 0]
-        ]);
+        ], 1e-6);
 
-        chai.expect(link2.coord()).to.deep.almost([
+        expect(link2.coord()).toEqualWithTolerance([
             [77.055211598, 12.972393589, 0],
             [77.055479819, 12.972132213, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('drag link shape point which is too far away from the other shape point', async function() {
@@ -105,14 +103,14 @@ describe('link auto remove link', function() {
         let objs = editor.search(display.getViewBounds());
         expect(objs).toHaveLength(3);
 
-        chai.expect(lnk3.coord()).to.deep.almost([
+        expect(lnk3.coord()).toEqualWithTolerance([
             [77.055211598, 12.972393589, 0],
             [77.056016261, 12.972393589, 0]
-        ]);
+        ], 1e-6);
 
-        chai.expect(lnk4.coord()).to.deep.almost([
+        expect(lnk4.coord()).toEqualWithTolerance([
             [77.055211598, 12.972393589, 0],
             [77.056284482, 12.971609461, 0]
-        ]);
+        ], 1e-6);
     });
 });

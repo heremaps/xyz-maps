@@ -20,9 +20,8 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_addShape_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link add shape point', function() {
     let editor;
@@ -32,7 +31,6 @@ describe('link add shape point', function() {
     let linkLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 12.94086, longitude: 76.99443},
@@ -64,62 +62,62 @@ describe('link add shape point', function() {
         };
         link = editor.addFeature(l, linkLayer);
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [76.99443, 12.941905632, 0],
             [76.991211349, 12.941905632, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('add one shape point and validate', function() {
         link.addShape({x: 200, y: 50});
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [76.99443, 12.941905632, 0],
             [76.992284233, 12.943474072, 0],
             [76.991211349, 12.941905632, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('add one more shape point at head of the link and validate', function() {
         link.addShape({x: 200, y: 200, z: 1}, 0);
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [76.992284233, 12.941905632, 1],
             [76.99443, 12.941905632, 0],
             [76.992284233, 12.943474072, 0],
             [76.991211349, 12.941905632, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('add one more shape point close to existing shape point', function() {
         link.addShape({x: 196, y: 55});
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [76.992284233, 12.941905632, 1],
             [76.99443, 12.941905632, 0],
             [76.992284233, 12.943474072, 0],
             [76.992241317, 12.943421791, 0],
             [76.991211349, 12.941905632, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('undo last change', function() {
         editor.undo();
 
         let lnk = editor.getFeature(link.id, linkLayer);
-        chai.expect(lnk.coord()).to.deep.almost([
+        expect(lnk.coord()).toEqualWithTolerance([
             [76.992284233, 12.941905632, 1],
             [76.99443, 12.941905632, 0],
             [76.992284233, 12.943474072, 0],
             [76.991211349, 12.941905632, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('redo last change', async function() {
         editor.undo();
 
         let lnk = editor.getFeature(link.id, linkLayer);
-        chai.expect(lnk.coord()).to.deep.almost([
+        expect(lnk.coord()).toEqualWithTolerance([
             [76.99443, 12.941905632, 0],
             [76.992284233, 12.943474072, 0],
             [76.991211349, 12.941905632, 0]
-        ]);
+        ], 1e-6);
     });
 });

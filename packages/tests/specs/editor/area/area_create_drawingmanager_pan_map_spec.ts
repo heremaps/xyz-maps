@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag, click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './area_create_drawingmanager_pan_map_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Area drawing manager and pan map', function() {
     let editor;
@@ -32,7 +31,6 @@ describe('Area drawing manager and pan map', function() {
     let mapContainer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},
@@ -110,11 +108,11 @@ describe('Area drawing manager and pan map', function() {
         let objs = editor.search({rect: display.getViewBounds()});
         expect(objs).toHaveLength(1);
 
-        chai.expect(objs[0].coord()).to.deep.almost([[[
+        expect(objs[0].coord()).toEqualWithTolerance([[[
             [76.081516385, 13.215360578, 0],
             [76.082589269, 13.215099461, 0],
             [76.083125711, 13.214577224, 0],
             [76.081516385, 13.215360578, 0]
-        ]]]);
+        ]]], 1e-6);
     });
 });

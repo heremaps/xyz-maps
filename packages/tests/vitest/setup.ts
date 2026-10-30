@@ -1,9 +1,5 @@
-import {afterAll, chai} from 'vitest';
-import chaiAlmost from 'chai-almost';
-// Karma ran all specs in one page, so a spec could rely on a chai-almost registration made by an earlier spec.
-// editor_hooks_spec.ts and link_zlevels_spec.ts use .almost without registering the plugin themselves.
-// Specs that call chai.use(chaiAlmost(tolerance)) still override this default.
-chai.use(chaiAlmost());
+import {afterAll} from 'vitest';
+import './matchers';
 
 // Lowers the mapviewchangeend trigger delay to speed up tests.
 globalThis.__XYZTST_MVCEDelayMs = 10;

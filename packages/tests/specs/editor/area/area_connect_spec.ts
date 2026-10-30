@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './area_connected_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('modify connected areas', () => {
     let editor;
@@ -35,7 +34,6 @@ describe('modify connected areas', () => {
     let area2;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -74.01036517786105, latitude: 40.705206924491875},
@@ -72,12 +70,12 @@ describe('modify connected areas', () => {
 
         await drag(mapContainer, {x: 270, y: 298}, {x: 276, y: 378});
 
-        chai.expect(area1.coord()).to.deep.almost([[
+        expect(area1.coord()).toEqualWithTolerance([[
             [-74.01302593, 40.703938124],
             [-74.0088631419824, 40.70520692619138],
             [-74.01100890908656, 40.70195354163019],
             [-74.01302593, 40.703938124]
-        ]]);
+        ]], 1e-6);
     });
 
     it('drag "connected shape" and validate geometries', async () => {
@@ -85,19 +83,19 @@ describe('modify connected areas', () => {
 
         await drag(mapContainer, {x: 469, y: 301}, {x: 511, y: 349});
 
-        chai.expect(area1.coord()).to.deep.almost([[
+        expect(area1.coord()).toEqualWithTolerance([[
             [-74.01302593, 40.703938124],
             [-74.007983378, 40.70440986],
             [-74.01100890908656, 40.70195354163019],
             [-74.01302593, 40.703938124]
-        ]]);
+        ]], 1e-6);
 
-        chai.expect(area2.coord()).to.deep.almost([[
+        expect(area2.coord()).toEqualWithTolerance([[
             [-74.007983378, 40.70440986],
             [-74.00457160777405, 40.70520692619138],
             [-74.00671737487824, 40.70195354163019],
             [-74.007983378, 40.70440986]
-        ]]);
+        ]], 1e-6);
     });
 
     it('validate history', () => {

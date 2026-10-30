@@ -20,10 +20,9 @@ import {getCanvasPixelColor, prepare} from 'utils';
 import {waitForEditorReady, editorClick} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_connecthelper_crosscandidate_spec.json';
 import {Crossing} from '@here/xyz-maps-editor';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link connect helper crosscandidate', function() {
     let editor;
@@ -35,7 +34,6 @@ describe('link connect helper crosscandidate', function() {
     let linkLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost(1e-1));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -76,12 +74,12 @@ describe('link connect helper crosscandidate', function() {
         let c1 = crossings[1];
 
         expect(c0.distance).toBe(0);
-        chai.expect(c0.x).to.almost.equal(387.4074);
-        chai.expect(c0.y).to.almost.equal(247.3506);
+        expect(c0.x).toEqualWithTolerance(387.4074, 1e-1);
+        expect(c0.y).toEqualWithTolerance(247.3506, 1e-1);
 
-        chai.expect(c1.distance).to.almost.equal(6.1643);
-        chai.expect(c1.x).to.almost.equal(539.8465);
-        chai.expect(c1.y).to.almost.equal(242.1822);
+        expect(c1.distance).toEqualWithTolerance(6.1643, 1e-1);
+        expect(c1.x).toEqualWithTolerance(539.8465, 1e-1);
+        expect(c1.y).toEqualWithTolerance(242.1822, 1e-1);
     });
 
     it('show crossings and connect one of it', async function() {
@@ -115,7 +113,7 @@ describe('link connect helper crosscandidate', function() {
         crossings = link1.checkCrossings();
         let c = crossings[0];
         expect(c.distance).toBe(0);
-        chai.expect(c.x).to.almost.equal(377.1906);
-        chai.expect(c.y).to.almost.equal(272.6514);
+        expect(c.x).toEqualWithTolerance(377.1906, 1e-1);
+        expect(c.y).toEqualWithTolerance(272.6514, 1e-1);
     });
 });

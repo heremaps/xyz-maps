@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_autoconnect_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link auto connect', function() {
     let editor;
@@ -35,7 +34,6 @@ describe('link auto connect', function() {
     let linkLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.35174, latitude: 11.8725},
@@ -64,15 +62,15 @@ describe('link auto connect', function() {
         link2.select();
         await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 300});
 
-        chai.expect(link1.coord()).to.deep.almost([
+        expect(link1.coord()).toEqualWithTolerance([
             [77.350130675, 11.87354993, 0],
             [77.351203558, 11.87354993, 0],
             [77.351203558, 11.8725, 0]
-        ]);
-        chai.expect(link2.coord()).to.deep.almost([
+        ], 1e-6);
+        expect(link2.coord()).toEqualWithTolerance([
             [77.350130675, 11.8725, 0],
             [77.351203558, 11.8725, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('undo the last connect and drag link shape point to connect again', async function() {
@@ -84,15 +82,15 @@ describe('link auto connect', function() {
 
         await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 297});
 
-        chai.expect(lnk1.coord()).to.deep.almost([
+        expect(lnk1.coord()).toEqualWithTolerance([
             [77.350130675, 11.87354993, 0],
             [77.351203558, 11.87354993, 0],
             [77.351203558, 11.8725, 0]
-        ]);
-        chai.expect(lnk2.coord()).to.deep.almost([
+        ], 1e-6);
+        expect(lnk2.coord()).toEqualWithTolerance([
             [77.350130675, 11.8725, 0],
             [77.351203558, 11.8725, 0]
-        ]);
+        ], 1e-6);
     });
 
 
@@ -105,15 +103,15 @@ describe('link auto connect', function() {
 
         await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 303});
 
-        chai.expect(lnk1.coord()).to.deep.almost([
+        expect(lnk1.coord()).toEqualWithTolerance([
             [77.350130675, 11.87354993, 0],
             [77.351203558, 11.87354993, 0],
             [77.351203558, 11.8725, 0]
-        ]);
-        chai.expect(lnk2.coord()).to.deep.almost([
+        ], 1e-6);
+        expect(lnk2.coord()).toEqualWithTolerance([
             [77.350130675, 11.8725, 0],
             [77.351203558, 11.8725, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('undo last connect and drag link shape point to connect again', async function() {
@@ -136,10 +134,10 @@ describe('link auto connect', function() {
 
         await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 108});
 
-        chai.expect(lnk.coord()).to.deep.almost([
+        expect(lnk.coord()).toEqualWithTolerance([
             [77.350130675, 11.8725, 0],
             [77.351203558, 11.873507933, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('undo last connect, drag link shape point to connect, split automatically snap to shape point', async function() {
@@ -150,9 +148,9 @@ describe('link auto connect', function() {
 
         await drag(mapContainer, {x: 200, y: 300}, {x: 300, y: 103});
 
-        chai.expect(lnk.coord()).to.deep.almost([
+        expect(lnk.coord()).toEqualWithTolerance([
             [77.350130675, 11.8725, 0],
             [77.351203558, 11.87354993, 0]
-        ]);
+        ], 1e-6);
     });
 });

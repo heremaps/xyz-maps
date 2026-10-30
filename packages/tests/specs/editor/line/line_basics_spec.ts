@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, DrawingShape, Line} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './line_basics_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('basic line tests', function() {
     let editor;
@@ -33,7 +32,6 @@ describe('basic line tests', function() {
     let line;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},
@@ -85,21 +83,21 @@ describe('basic line tests', function() {
     // 1204.25 366.7
     it('validate line geometry', async function() {
         let selected = <Line>(await editorClick(editor, 400, 300)).target;
-        chai.expect(selected.coord()).to.deep.almost([
+        expect(selected.coord()).toEqualWithTolerance([
             [76.083125712, 13.214838342, 0],
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('modify geometry by dragging shape ', async function() {
         await drag(mapContainer, {x: 400, y: 300}, {x: 300, y: 400});
 
-        chai.expect(line.coord()).to.deep.almost([
+        expect(line.coord()).toEqualWithTolerance([
             [76.082589270, 13.214316105, 0],
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
-        ]);
+        ], 1e-6);
     });
 
 
@@ -108,10 +106,10 @@ describe('basic line tests', function() {
 
         shape.remove();
 
-        chai.expect(line.coord()).to.deep.almost([
+        expect(line.coord()).toEqualWithTolerance([
             [76.082589269, 13.215360578, 0],
             [76.082052827, 13.214838342, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('modify geometry by dragging virtual shape', async function() {
@@ -119,11 +117,11 @@ describe('basic line tests', function() {
 
         await drag(mapContainer, {x: 250, y: 250}, {x: 350, y: 350});
 
-        chai.expect(line.coord()).to.deep.almost([
+        expect(line.coord()).toEqualWithTolerance([
             [76.082589269, 13.215360578, 0],
             [76.082857490, 13.214577223, 0],
             [76.082052827, 13.214838342, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('remove line', async function() {

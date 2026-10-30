@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {click, drag, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_create_and_split_original_outofview_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Create new Link and drag it outside of viewport before splitting the original link', function() {
     let editor;
@@ -32,7 +31,6 @@ describe('Create new Link and drag it outside of viewport before splitting the o
     let link;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 79.26345, latitude: 13.04889},
@@ -89,20 +87,20 @@ describe('Create new Link and drag it outside of viewport before splitting the o
         let lnk1 = editor.info()[1];
         let lnk2 = editor.info()[2];
 
-        chai.expect(lnk1.geometry.coordinates).to.deep.almost([
+        expect(lnk1.geometry.coordinates).toEqualWithTolerance([
             [79.262377116, 13.049935177, 0],
             [79.262071345, 13.049935177, 0]
-        ]);
+        ], 1e-6);
 
-        chai.expect(lnk2.geometry.coordinates).to.deep.almost([
+        expect(lnk2.geometry.coordinates).toEqualWithTolerance([
             [79.262071345, 13.049935177, 0],
             [79.261840675, 13.049935177, 0]
-        ]);
+        ], 1e-6);
 
-        chai.expect(lnk.coord()).to.deep.almost([
+        expect(lnk.coord()).toEqualWithTolerance([
             [79.262071345, 13.049935177, 0],
             [79.262377116, 13.049412589, 0],
             [79.262377116, 13.053488746, 0]
-        ]);
+        ], 1e-6);
     });
 });

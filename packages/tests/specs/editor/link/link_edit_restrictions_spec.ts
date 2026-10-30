@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, EditOperation} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_edit_restrictions_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link edit restrictions', function() {
     let link1;
@@ -35,7 +34,6 @@ describe('link edit restrictions', function() {
     let mapContainer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.25004908649441, latitude: 13.107718606505642},
@@ -64,22 +62,22 @@ describe('link edit restrictions', function() {
 
         await drag(mapContainer, {x: 100, y: 200}, {x: 100, y: 300});
 
-        chai.expect(link1.coord()).to.deep.almost([
+        expect(link1.coord()).toEqualWithTolerance([
             [77.250049086, 13.108241071, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.107718607, 0],
             [77.248439761, 13.108763534, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('select a link and drag the shape point', async function() {
         link2.select();
         await drag(mapContainer, {x: 300, y: 100}, {x: 400, y: 100});
 
-        chai.expect(link2.coord()).to.deep.almost([
+        expect(link2.coord()).toEqualWithTolerance([
             [77.250049087, 13.108763534, 0],
             [77.248439761, 13.108763534, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('re-initialize editor and editrestrictions return true, select a link and drag, validate link again', async function() {
@@ -128,12 +126,12 @@ describe('link edit restrictions', function() {
 
         await drag(mapContainer, {x: 300, y: 200}, {x: 300, y: 300});
 
-        chai.expect(links[0].coord()).to.deep.almost([
+        expect(links[0].coord()).toEqualWithTolerance([
             [77.250049086, 13.108241071, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.108241071, 0],
             [77.248439761, 13.108763534, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('link is not removed sucessfully', async function() {
@@ -152,10 +150,10 @@ describe('link edit restrictions', function() {
 
         await drag(mapContainer, {x: 300, y: 100}, {x: 450, y: 150});
 
-        chai.expect(links[1].coord()).to.deep.almost([
+        expect(links[1].coord()).toEqualWithTolerance([
             [77.249512645, 13.108763534, 0],
             [77.248439761, 13.108763534, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('re-initialize editor again, editrestrictions return false, select a link and drag, validate link again', async function() {
@@ -194,12 +192,12 @@ describe('link edit restrictions', function() {
 
         await drag(mapContainer, {x: 400, y: 200}, {x: 400, y: 300});
 
-        chai.expect(links[0].coord()).to.deep.almost([
+        expect(links[0].coord()).toEqualWithTolerance([
             [77.250049086, 13.107718607, 0],
             [77.249512645, 13.108241071, 0],
             [77.248439761, 13.108241071, 0],
             [77.248439761, 13.108763534, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('passes the affected coordinate index and blocks the corresponding geometry change', async function() {
@@ -252,6 +250,6 @@ describe('link edit restrictions', function() {
         expect((coordinateContexts).length).toBeGreaterThan(0);
         expect(coordinateContexts[0]).toEqual({coordinateIndex: 1});
         expect(coordinateIndexOneChecks).toBeGreaterThan(1);
-        chai.expect(link.coord()).to.deep.almost(originalCoordinates);
+        expect(link.coord()).toEqualWithTolerance(originalCoordinates, 1e-6);
     });
 });

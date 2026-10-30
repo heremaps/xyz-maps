@@ -458,15 +458,9 @@ importers:
       '@types/chai':
         specifier: ^4.3.3
         version: 4.3.20
-      '@types/chai-almost':
-        specifier: ^1.0.1
-        version: 1.0.3
       '@vitest/browser-playwright':
         specifier: ^5.0.5
         version: 5.0.5(playwright@1.64.1)(vite@8.3.5(@types/node@26.6.5)(sass@1.105.1)(terser@5.51.2)(yaml@2.9.1))(vitest@5.0.5)
-      chai-almost:
-        specifier: ^1.0.1
-        version: 1.0.1
       playwright:
         specifier: ^1.64.1
         version: 1.64.1
@@ -1547,9 +1541,6 @@ packages:
   '@types/argparse@1.0.38':
     resolution: {integrity: sha512-ebDJ9b0e702Yr7pWgB0jzm+CX4Srzz8RcXtLJDJB+BSccqMa36uyH/zUsSYao5+BD1ytv3k3rPYCq4mAE1hsXA==}
 
-  '@types/chai-almost@1.0.3':
-    resolution: {integrity: sha512-NMLjvnFjgxS0Z36whNuoma2p/2Fu6m+dV8eddO8tRAztMAqTqYxFYGyJNsAsOlwx89siUMfxQ1Wdqew2xXsiEg==}
-
   '@types/chai@4.3.20':
     resolution: {integrity: sha512-/pC9HAB5I/xMlc5FP77qjCnI16ChlJfW0tGa0IUcFn38VJrTV6DeZ60NU5KZBtaOZqjdpwTWohz5HU1RrhiYxQ==}
 
@@ -1871,9 +1862,6 @@ packages:
   caniuse-lite@1.0.30001815:
     resolution: {integrity: sha512-uDybUEyfgbyJJ93J1vikTylBX31AkdVYeVPeffMQpf8XN7hSfr0oZOn4VFOIMNvtU5+rHvC5Udg2TgtJKHm23Q==}
 
-  chai-almost@1.0.1:
-    resolution: {integrity: sha512-UrNSx5f2B1/ESrOz0a4iLpDnQvDnK/3O0ZE/KGYQ+NcndKy0VQkMkv8yoGIHNSbjzKBid3EAMdDMA5wb9CxvSA==}
-
   chai@6.3.0:
     resolution: {integrity: sha512-XWAtwJ6OHO+tj0EKCs0Y2UamnyOxseZWltU4x2U2wh8g4AigdjwvtUjvLP2tqkA/avxHEtzxNaqGq/YGNwckKg==}
     engines: {node: '>=18'}
@@ -2126,10 +2114,6 @@ packages:
     peerDependenciesMeta:
       babel-plugin-macros:
         optional: true
-
-  deep-eql@2.0.2:
-    resolution: {integrity: sha512-uts3fF4HnV1bcNx8K5c9NMjXXKtLOf1obUMq04uEuMaF8i1m0SfugbpDMd59cYfodQcMqeUISvL4Pmx5NZ7lcw==}
-    engines: {node: '>=0.12'}
 
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
@@ -4320,13 +4304,6 @@ packages:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
 
-  type-detect@3.0.0:
-    resolution: {integrity: sha512-pwZo7l1T0a8wmTMDc4FtXuHseRaqa9nyaUArp4xHaBMUlRzr72PvgF6ouXIIj5rjbVWqo8pZu6vw74jDKg4Dvw==}
-
-  type-detect@4.1.0:
-    resolution: {integrity: sha512-Acylog8/luQ8L7il+geoSxhEkazvkslg7PSNKOX59mbB9cOveP5aq9h74Y7YU8yDpJwetzQQrfIwtf4Wp4LKcw==}
-    engines: {node: '>=4'}
-
   type-fest@0.20.2:
     resolution: {integrity: sha512-Ne+eE4r0/iWnpAxD852z3A+N0Bt5RN//NjJwRd2VFHEmrywxf5vsZlh4R6lixl6B+wz/8d+maTSAkN1FIkI3LQ==}
     engines: {node: '>=10'}
@@ -5618,10 +5595,6 @@ snapshots:
 
   '@types/argparse@1.0.38': {}
 
-  '@types/chai-almost@1.0.3':
-    dependencies:
-      '@types/chai': 4.3.20
-
   '@types/chai@4.3.20': {}
 
   '@types/chai@5.2.3':
@@ -5973,11 +5946,6 @@ snapshots:
 
   caniuse-lite@1.0.30001815: {}
 
-  chai-almost@1.0.1:
-    dependencies:
-      deep-eql: 2.0.2
-      type-detect: 4.1.0
-
   chai@6.3.0: {}
 
   chalk@4.1.2:
@@ -6230,10 +6198,6 @@ snapshots:
   decode-uri-component@0.2.2: {}
 
   dedent@1.7.2: {}
-
-  deep-eql@2.0.2:
-    dependencies:
-      type-detect: 3.0.0
 
   deep-is@0.1.4: {}
 
@@ -8650,10 +8614,6 @@ snapshots:
   type-check@0.4.0:
     dependencies:
       prelude-ls: 1.2.1
-
-  type-detect@3.0.0: {}
-
-  type-detect@4.1.0: {}
 
   type-fest@0.20.2: {}
 

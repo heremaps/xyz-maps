@@ -20,15 +20,13 @@
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './set_get_viewbounds_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set and get viewbounds', () => {
     let display;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost(1e-7));
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -42,12 +40,12 @@ describe('set and get viewbounds', () => {
     });
 
     it('validate viewbounds', () => {
-        chai.expect(display.getViewBounds()).to.deep.almost({
+        expect(display.getViewBounds()).toEqualWithTolerance({
             minLon: 77.7958742327881,
             minLat: 12.620569563312458,
             maxLon: 77.80016576721192,
             maxLat: 12.623710427048564
-        });
+        }, 1e-7);
     });
 
     it('set new viewbounds and validate', async () => {
@@ -59,12 +57,12 @@ describe('set and get viewbounds', () => {
                 maxLat: 12.623485323
             });
         });
-        chai.expect(display.getViewBounds()).to.deep.almost({
+        expect(display.getViewBounds()).toEqualWithTolerance({
             minLon: 77.793739194,
             minLat: 12.620344457,
             maxLon: 77.798030729,
             maxLat: 12.623485323
-        });
+        }, 1e-7);
     });
 
     it('set viewbounds (GeoRect) and validate map center and zoomlevel', async () => {
@@ -73,7 +71,7 @@ describe('set and get viewbounds', () => {
             // display.setViewBounds({minLon: 77.596065467, maxLat: 12.7210192045, maxLon: 77.598211234, minLat: 12.719449377});
         });
 
-        chai.expect(display.getCenter()).to.deep.almost({longitude: 77.5971383505, latitude: 12.72023429075});
+        expect(display.getCenter()).toEqualWithTolerance({longitude: 77.5971383505, latitude: 12.72023429075}, 1e-7);
         expect(display.getZoomlevel()).toBe(19);
     });
 
@@ -93,7 +91,7 @@ describe('set and get viewbounds', () => {
             display.setViewBounds(feature);
         });
 
-        chai.expect(display.getCenter()).to.deep.almost({longitude: 76.4822664345, latitude: 14.15299275945});
+        expect(display.getCenter()).toEqualWithTolerance({longitude: 76.4822664345, latitude: 14.15299275945}, 1e-7);
         expect(display.getZoomlevel()).toBe(14);
     });
 
@@ -118,7 +116,7 @@ describe('set and get viewbounds', () => {
         });
 
 
-        chai.expect(display.getCenter()).to.deep.almost({longitude: 76.4769698145, latitude: 14.2003882165});
+        expect(display.getCenter()).toEqualWithTolerance({longitude: 76.4769698145, latitude: 14.2003882165}, 1e-7);
         expect(display.getZoomlevel()).toBe(19);
     });
 
@@ -142,7 +140,7 @@ describe('set and get viewbounds', () => {
             display.setViewBounds({type: 'FeatureCollection', features: features});
         });
 
-        chai.expect(display.getCenter()).to.deep.almost({longitude: 76.4822664345, latitude: 14.15299275945});
+        expect(display.getCenter()).toEqualWithTolerance({longitude: 76.4822664345, latitude: 14.15299275945}, 1e-7);
         expect(display.getZoomlevel()).toBe(14);
     });
 
@@ -155,11 +153,11 @@ describe('set and get viewbounds', () => {
                 maxLat: 12.623485323
             }, {duration: 100});
         });
-        chai.expect(display.getViewBounds()).to.deep.almost({
+        expect(display.getViewBounds()).toEqualWithTolerance({
             minLon: 77.793739194,
             minLat: 12.620344457,
             maxLon: 77.798030729,
             maxLat: 12.623485323
-        });
+        }, 1e-7);
     });
 });

@@ -20,9 +20,8 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './map_container_highlight_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map container highlight', function() {
     let editor;
@@ -33,7 +32,6 @@ describe('map container highlight', function() {
     let place2;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -74,9 +72,9 @@ describe('map container highlight', function() {
         // two highlight circles
         expect(features).toHaveLength(2);
         let h1 = editor.getOverlay().search({point: {longitude: 80.478081562, latitude: 16.476287616}, radius: 5});
-        chai.expect(h1[0].geometry.coordinates).to.deep.almost(place1.geometry.coordinates);
+        expect(h1[0].geometry.coordinates).toEqualWithTolerance(place1.geometry.coordinates, 1e-6);
         let h2 = editor.getOverlay().search({point: {longitude: 80.478618003, latitude: 16.476287616}, radius: 5});
-        chai.expect(h2[0].geometry.coordinates).to.deep.almost(place2.geometry.coordinates);
+        expect(h2[0].geometry.coordinates).toEqualWithTolerance(place2.geometry.coordinates, 1e-6);
     });
 
     it('places in container are unhighlighted', async function() {

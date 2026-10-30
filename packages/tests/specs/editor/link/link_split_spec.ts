@@ -20,11 +20,10 @@ import {prepare} from 'utils';
 import {waitForEditorReady, editorClick, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_split_spec.json';
 import {Navlink, NavlinkShape} from '@here/xyz-maps-editor';
 import {drag} from 'triggerEvents';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link splitting and set its properties correctly', function() {
     let editor;
@@ -33,7 +32,6 @@ describe('link splitting and set its properties correctly', function() {
     let linkLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.47053701721183, latitude: 13.211750283939665},
@@ -111,16 +109,14 @@ describe('link splitting and set its properties correctly', function() {
         let splitLinks = shape.splitLink();
 
         expect(splitLinks[0].prop().turnRestrition).toEqual({start: ['abc'], end: 'efg'});
-        chai.expect(splitLinks[0].coord()).to.deep.almost([
+        expect(splitLinks[0].coord()).toEqualWithTolerance([
             [77.468927692, 13.212794768, 0],
-            [77.468927692, 13.212272527, 0]]
-        );
+            [77.468927692, 13.212272527, 0]], 1e-6);
 
         expect(splitLinks[1].prop().turnRestrition).toEqual({start: ['abc'], end: 'efg'});
-        chai.expect(splitLinks[1].coord()).to.deep.almost([
+        expect(splitLinks[1].coord()).toEqualWithTolerance([
             [77.468927692, 13.212272527, 0],
-            [77.469464134, 13.212272527, 0]]
-        );
+            [77.469464134, 13.212272527, 0]], 1e-6);
     });
 
     // origin link
@@ -260,20 +256,20 @@ describe('link splitting and set its properties correctly', function() {
 
         await drag(display.getContainer(), {x: 200, y: 200}, {x: 400, y: 400});
 
-        chai.expect(link.coord()).to.be.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [77.468927698, 13.212794768, 100],
             [77.468927698, 13.212272527, 200],
             [77.470537021, 13.211228043, 449.9999767]
         ], 1e-6);
 
         const child1 = <Navlink>(await editorClick(editor, 350, 350)).target;
-        chai.expect(child1.coord()).to.deep.almost([
+        expect(child1.coord()).toEqualWithTolerance([
             [77.47000058, 13.211750285, 400],
             [77.470537021, 13.211228043, 449.9999767]
         ], 1e-6);
 
         const child2 = <Navlink>(await editorClick(editor, 450, 450)).target;
-        chai.expect(child2.coord()).to.deep.almost([
+        expect(child2.coord()).toEqualWithTolerance([
             [77.470537021, 13.211228043, 449.9999767],
             [77.471073462, 13.210705799, 500]
         ], 1e-6);

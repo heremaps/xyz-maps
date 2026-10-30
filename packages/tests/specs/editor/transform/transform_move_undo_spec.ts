@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './transform_move_undo_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('undo the link transforming, link should connect to its connected links', function() {
     let editor;
@@ -33,7 +32,6 @@ describe('undo the link transforming, link should connect to its connected links
     let linkLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 78.19335420161838, latitude: 12.548568361911578},
@@ -61,7 +59,7 @@ describe('undo the link transforming, link should connect to its connected links
 
         expect(shp.getConnectedLinks()).toHaveLength(2);
 
-        chai.expect(link1.coord()).to.deep.almost([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]]);
+        expect(link1.coord()).toEqualWithTolerance([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]], 1e-6);
     });
 
     it('transform the link and validate', async function() {
@@ -69,10 +67,10 @@ describe('undo the link transforming, link should connect to its connected links
         let mapContainer = display.getContainer();
         await drag(mapContainer, {x: 150, y: 200}, {x: 150, y: 250});
 
-        chai.expect(link1.coord()).to.deep.almost([
+        expect(link1.coord()).toEqualWithTolerance([
             [78.192281318, 12.548830174, 0],
             [78.191744876, 12.548830174, 0]
-        ]);
+        ], 1e-6);
     });
 
 
@@ -84,6 +82,6 @@ describe('undo the link transforming, link should connect to its connected links
 
         expect(shp.getConnectedLinks()).toHaveLength(2);
 
-        chai.expect(lnk.coord()).to.deep.almost([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]]);
+        expect(lnk.coord()).toEqualWithTolerance([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]], 1e-6);
     });
 });

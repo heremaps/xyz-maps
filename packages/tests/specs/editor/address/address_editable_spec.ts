@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './address_editable_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('address editable', function() {
     let editor;
@@ -34,7 +33,6 @@ describe('address editable', function() {
     let address;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.537329, latitude: 16.481374},
@@ -59,7 +57,7 @@ describe('address editable', function() {
 
 
     it('get point address object and validate the point address object coordinates', function() {
-        chai.expect(address.coord()).to.deep.almost([80.535719317, 16.481374142, 0]);
+        expect(address.coord()).toEqualWithTolerance([80.535719317, 16.481374142, 0], 1e-6);
     });
 
     it('drag the point address, validate the address is not dragged', async function() {
@@ -70,7 +68,7 @@ describe('address editable', function() {
             await drag(mapContainer, {x: 100, y: 300}, {x: 324, y: 303});
         });
 
-        chai.expect(address.coord()).to.deep.almost([80.535719317, 16.481374142, 0]);
+        expect(address.coord()).toEqualWithTolerance([80.535719317, 16.481374142, 0], 1e-6);
     });
 
     it('move the map back and set the address editable then drag the address', async function() {
@@ -84,7 +82,7 @@ describe('address editable', function() {
         await click(mapContainer, 100, 300);
         await drag(mapContainer, {x: 100, y: 300}, {x: 324, y: 303});
 
-        chai.expect(address.coord()).to.deep.almost([80.536920945, 16.48135871, 0]);
+        expect(address.coord()).toEqualWithTolerance([80.536920945, 16.48135871, 0], 1e-6);
 
         // click to unselect address
         await click(mapContainer, 200, 300);

@@ -18,11 +18,10 @@
  */
 import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
-import {vi, describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {vi, describe, beforeAll, afterAll, it, expect} from 'vitest';
 import {mousemove} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
 import {Map} from '@here/xyz-maps-display';
-import chaiAlmost from 'chai-almost';
 import dataset from './poi_get_functions_spec.json';
 
 describe('Place get functions', function() {
@@ -33,7 +32,6 @@ describe('Place get functions', function() {
     let mapContainer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.29398409, latitude: 19.27905288},
@@ -86,7 +84,7 @@ describe('Place get functions', function() {
     });
 
     it('get correct geoCoordinates, properties', async function() {
-        chai.expect(place.coord()).to.deep.almost([73.29398409, 19.27905288, 0]);
+        expect(place.coord()).toEqualWithTolerance([73.29398409, 19.27905288, 0], 1e-6);
         expect(place.prop()).toEqual(expect.objectContaining({
             routingPoint: [78.26291, 19.20981, 0],
             routingLink: '-178821',

@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_editable_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link editable', function() {
     let link;
@@ -34,7 +33,6 @@ describe('link editable', function() {
     let linkLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.14459, latitude: 17.96039},
@@ -61,11 +59,11 @@ describe('link editable', function() {
     it('set link to not editable', function() {
         link.editable(false);
 
-        chai.expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.144053558, 17.96039, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('click on link and try drag again', async function() {
@@ -80,11 +78,11 @@ describe('link editable', function() {
         let lnk = editor.getFeature(link.id, linkLayer);
 
         // link geometry is not changed
-        chai.expect(lnk.coord()).to.deep.almost([
+        expect(lnk.coord()).toEqualWithTolerance([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.144053558, 17.96039, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('set link to editable and drag it', async function() {
@@ -104,10 +102,10 @@ describe('link editable', function() {
         lnk = editor.getFeature(link.id, linkLayer);
 
         // link geometry is changed
-        chai.expect(lnk.coord()).to.deep.almost([
+        expect(lnk.coord()).toEqualWithTolerance([
             [80.142980675, 17.961410599, 0],
             [80.144053558, 17.961410599, 0],
             [80.14459, 17.96039, 0]
-        ]);
+        ], 1e-6);
     });
 });

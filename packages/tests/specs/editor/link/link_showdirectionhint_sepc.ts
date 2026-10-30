@@ -20,9 +20,8 @@ import {prepare} from 'utils';
 import {waitForEditorReady} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_showdirectionhint_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('show link direction hint', function() {
     let editor;
@@ -36,7 +35,6 @@ describe('show link direction hint', function() {
     let link3;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 80.407689, latitude: 19.640012},
@@ -102,19 +100,19 @@ describe('show link direction hint', function() {
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.640517232}, radius: 5});
         expect(hint).toHaveLength(1);
         expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_2WAY'}));
-        chai.expect(hint[0].properties.bearing).to.almost.equal(-0.0001803074);
+        expect(hint[0].properties.bearing).toEqualWithTolerance(-0.0001803074, 1e-6);
 
         // direction hint on link2
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.640012}, radius: 5});
         expect(hint).toHaveLength(1);
         expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_1WAY'}));
-        chai.expect(hint[0].properties.bearing).to.almost.equal(-0.0001803031);
+        expect(hint[0].properties.bearing).toEqualWithTolerance(-0.0001803031, 1e-6);
 
         // direction hin on link3
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.639506766}, radius: 5});
         expect(hint).toHaveLength(1);
         expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_1WAY'}));
-        chai.expect(hint[0].properties.bearing).to.almost.equal(179.999819701);
+        expect(hint[0].properties.bearing).toEqualWithTolerance(179.999819701, 1e-6);
     });
 
     it('hide direction hint and validate', async function() {
@@ -159,18 +157,18 @@ describe('show link direction hint', function() {
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.640517232}, radius: 5});
         expect(hint).toHaveLength(1);
         expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_2WAY'}));
-        chai.expect(hint[0].properties.bearing).to.almost.equal(-0.0001803074);
+        expect(hint[0].properties.bearing).toEqualWithTolerance(-0.0001803074, 1e-6);
 
         // direction hint on link2
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.640012}, radius: 5});
         expect(hint).toHaveLength(1);
         expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_1WAY'}));
-        chai.expect(hint[0].properties.bearing).to.almost.equal(-0.0001803031);
+        expect(hint[0].properties.bearing).toEqualWithTolerance(-0.0001803031, 1e-6);
 
         // direction hin on link3
         hint = editor.getOverlay().search({point: {longitude: 80.4066161165, latitude: 19.639506766}, radius: 5});
         expect(hint).toHaveLength(1);
         expect(hint[0].properties).toEqual(expect.objectContaining({type: 'NAVLINK_DIRECTION_HINT_1WAY'}));
-        chai.expect(hint[0].properties.bearing).to.almost.equal(179.999819701);
+        expect(hint[0].properties.bearing).toEqualWithTolerance(179.999819701, 1e-6);
     });
 });

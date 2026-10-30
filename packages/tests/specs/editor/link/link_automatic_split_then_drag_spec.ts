@@ -21,10 +21,9 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {drag, click} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_automatic_split_then_drag_spec.json';
 import {Navlink} from '@here/xyz-maps-editor';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('drag a link shape point to the other one to split itself and then drag it crossing', () => {
     let editor;
@@ -34,7 +33,6 @@ describe('drag a link shape point to the other one to split itself and then drag
     let link2;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.31624, latitude: 15.841013},
@@ -86,26 +84,26 @@ describe('drag a link shape point to the other one to split itself and then drag
         // click to get dragged link
         let link1 = <Navlink>(await editorClick(editor, 200, 125)).target;
         let coords1 = link1.coord();
-        chai.expect(coords1).to.be.deep.almost([[76.314630721, 15.84204812, 0], [76.316776442, 15.841529069, 0]]);
-        // expect(coords1).to.be.deep.almost([[76.314630721, 15.84204812, 0], [76.316776488, 15.841532053, 0]]);
+        expect(coords1).toEqualWithTolerance([[76.314630721, 15.84204812, 0], [76.316776442, 15.841529069, 0]], 1e-6);
+        // expect(coords1).toEqualWithTolerance([[76.314630721, 15.84204812, 0], [76.316776488, 15.841532053, 0]], 1e-6);
 
         // click to get dragged link
         let link2 = <Navlink>(await editorClick(editor, 423, 125)).target;
         let coords2 = link2.coord();
-        chai.expect(coords2).to.be.deep.almost([[76.316776442, 15.841529069, 0], [76.316240046, 15.84204812, 0]]);
-        // expect(coords2).to.be.deep.almost([[76.316776488, 15.841532053, 0], [76.316240046, 15.84204812, 0]]);
+        expect(coords2).toEqualWithTolerance([[76.316776442, 15.841529069, 0], [76.316240046, 15.84204812, 0]], 1e-6);
+        // expect(coords2).toEqualWithTolerance([[76.316776488, 15.841532053, 0], [76.316240046, 15.84204812, 0]], 1e-6);
 
         // click to get dragged link
         let link3 = <Navlink>(await editorClick(editor, 200, 275)).target;
         let coords3 = link3.coord();
-        chai.expect(coords3).to.be.deep.almost([[76.314630721, 15.841012974, 0], [76.316776442, 15.841529069, 0]]);
-        // expect(coords3).to.be.deep.almost([[76.314630721, 15.841012974, 0], [76.316776488, 15.841532053, 0]]);
+        expect(coords3).toEqualWithTolerance([[76.314630721, 15.841012974, 0], [76.316776442, 15.841529069, 0]], 1e-6);
+        // expect(coords3).toEqualWithTolerance([[76.314630721, 15.841012974, 0], [76.316776488, 15.841532053, 0]], 1e-6);
 
         // click to get dragged link
         let link4 = <Navlink>(await editorClick(editor, 425, 275)).target;
 
         let coords4 = link4.coord();
-        chai.expect(coords4).to.be.deep.almost([[76.316776442, 15.841529069, 0], [76.316240046, 15.841012974, 0]]);
-        // expect(coords4).to.be.deep.almost([[76.316776488, 15.841532053, 0], [76.316240046, 15.841012974, 0]]);
+        expect(coords4).toEqualWithTolerance([[76.316776442, 15.841529069, 0], [76.316240046, 15.841012974, 0]], 1e-6);
+        // expect(coords4).toEqualWithTolerance([[76.316776488, 15.841532053, 0], [76.316240046, 15.841012974, 0]], 1e-6);
     });
 });

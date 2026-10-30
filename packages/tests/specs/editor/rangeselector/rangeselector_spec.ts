@@ -21,9 +21,8 @@ import {validateSegment, waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './rangeselector_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('range selector drag', () => {
     let editor;
@@ -37,7 +36,6 @@ describe('range selector drag', () => {
     let link3;
 
     beforeAll(async () => {
-        chai.use(chaiAlmost(1e-8));
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: -105.145534, latitude: 35.374829},
@@ -157,7 +155,7 @@ describe('range selector drag', () => {
         //     from: info[1].segments[0].from,
         //     to: info[1].segments[0].to,
         //     reversed: info[1].segments[0].reversed
-        // }).to.deep.almost({
+        // }).toEqualWithTolerance({
         //     from: 0.446889377,
         //     to: 0.721236961,
         //     reversed: false
@@ -187,10 +185,10 @@ describe('range selector drag', () => {
         await drag(mapContainer, {x: 451, y: 205}, {x: 501, y: 205});
 
 
-        chai.expect(link3.coord()).to.deep.almost([
+        expect(link3.coord()).toEqualWithTolerance([
             [-105.1444, 35.37458, 0],
             [-105.143881759, 35.375047702, 0]
             // [-105.143881779, 35.37504, 0]
-        ]);
+        ], 1e-8);
     });
 });

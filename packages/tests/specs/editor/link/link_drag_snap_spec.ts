@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_drag_snap_spec.json';
-import {describe, beforeAll, afterAll, it, chai} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link shape point drag to snapping to other links', function() {
     let editor;
@@ -34,7 +33,6 @@ describe('link shape point drag to snapping to other links', function() {
     let linkLayer;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {latitude: 16.324926, longitude: 75.290762},
@@ -63,9 +61,9 @@ describe('link shape point drag to snapping to other links', function() {
 
         await drag(mapContainer, {x: 150, y: 150}, {x: 294, y: 100});
 
-        chai.expect(link2.coord()).to.deep.almost([
+        expect(link2.coord()).toEqualWithTolerance([
             [75.290493779, 16.325440813, 0], [75.289957337, 16.32531211, 0]
-        ]);
+        ], 1e-6);
     });
 
     it('select the second link again and drag the shape point to connect to the other shape point of the link', async function() {
@@ -75,8 +73,8 @@ describe('link shape point drag to snapping to other links', function() {
 
         await drag(mapContainer, {x: 150, y: 150}, {x: 294, y: 200});
 
-        chai.expect(lnk.coord()).to.deep.almost([
+        expect(lnk.coord()).toEqualWithTolerance([
             [75.290493779, 16.325183407, 0], [75.289957337, 16.32531211, 0]
-        ]);
+        ], 1e-6);
     });
 });

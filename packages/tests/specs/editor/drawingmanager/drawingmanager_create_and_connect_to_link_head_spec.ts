@@ -21,9 +21,8 @@ import {waitForEditorReady, editorClick} from 'editorUtils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor, Navlink, NavlinkShape} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_create_and_connect_to_link_head_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Create new Links and connect to head of original link', function() {
     let editor;
@@ -33,7 +32,6 @@ describe('Create new Links and connect to head of original link', function() {
     let link;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.001343, latitude: 13.074603},
@@ -72,10 +70,10 @@ describe('Create new Links and connect to head of original link', function() {
     it('get link and validate it', async function() {
         let createdLink = <Navlink>(await editorClick(editor, 400, 200)).target;
 
-        chai.expect(createdLink.coord()).to.deep.almost([
+        expect(createdLink.coord()).toEqualWithTolerance([
             [77.000806597, 13.074550786, 0],
             [77.001343, 13.075125535, 0]
-        ]);
+        ], 1e-6);
 
         // validate shape point is connecting to another link
         let shape = <NavlinkShape>(await editorClick(editor, 300, 310)).target;

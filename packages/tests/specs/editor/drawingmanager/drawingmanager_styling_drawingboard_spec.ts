@@ -21,9 +21,8 @@ import {waitForEditorReady} from 'editorUtils';
 import {click, mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './drawingmanager_styling_drawingboard_spec.json';
-import {describe, beforeAll, afterAll, it, chai, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Styling drawingboard', function() {
     let editor;
@@ -33,7 +32,6 @@ describe('Styling drawingboard', function() {
     let link;
 
     beforeAll(async function() {
-        chai.use(chaiAlmost());
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -74,7 +72,7 @@ describe('Styling drawingboard', function() {
         // validate position of link shape and floating shape below mouse
         features.forEach((feature)=>{
             if (feature.geometry.type == 'Point') {
-                chai.expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.75986339, 0]);
+                expect(feature.geometry.coordinates).toEqualWithTolerance([77.124422675, 12.75986339, 0], 1e-6);
             }
         });
 
@@ -89,7 +87,7 @@ describe('Styling drawingboard', function() {
         features = layer.search({point: {longitude: 77.124422675, latitude: 12.75986339}, radius: 5});
         features.forEach((feature)=>{
             if (feature.geometry.type == 'Point') {
-                chai.expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.75986339, 0]);
+                expect(feature.geometry.coordinates).toEqualWithTolerance([77.124422675, 12.75986339, 0], 1e-6);
             }
         });
 
@@ -97,7 +95,7 @@ describe('Styling drawingboard', function() {
         features = layer.search({point: {longitude: 77.124422675, latitude: 12.758817}, radius: 5});
         features.forEach((feature)=>{
             if (feature.geometry.type == 'Point') {
-                chai.expect(feature.geometry.coordinates).to.deep.almost([77.124422675, 12.758817, 0]);
+                expect(feature.geometry.coordinates).toEqualWithTolerance([77.124422675, 12.758817, 0], 1e-6);
             }
         });
 
