@@ -20,11 +20,9 @@
  */
 
 import {TaskManager} from '@here/xyz-maps-common';
-import {describe, it, chai} from 'vitest';
+import {describe, it, expect} from 'vitest';
 
 describe('task manager', function() {
-    const expect = chai.expect;
-
     let taskmanager = TaskManager.getInstance( 5 );
 
     it('task manager is created and running', async function() {
@@ -67,9 +65,9 @@ describe('task manager', function() {
         });
 
 
-        expect(results1).to.be.deep.equal([0, 'INIT', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 'DONE', 11]);
-        expect(results2).to.be.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-        expect(results3).to.be.deep.equal([2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
-        expect(taskmanager).to.be.an('object');
+        expect(results1).toStrictEqual([0, 'INIT', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 'DONE', 11]);
+        expect(results2).toStrictEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        expect(results3).toStrictEqual([2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
+        expect(Object.prototype.toString.call(taskmanager)).toBe('[object Object]');
     });
 });

@@ -3,7 +3,8 @@
 The tests run in a real browser with [Vitest browser mode](https://vitest.dev/guide/browser/) and Playwright.
 Specs explicitly import test APIs from `vitest` (`describe`, `it`, `beforeAll`, `afterAll`, etc.).
 Use `it.skip` or `describe.skip` for skipped tests. Test API globals are disabled.
-Existing assertions explicitly import `chai` from `vitest`; no Chai assertion globals are installed.
+Common specs use native `expect` from `vitest`. Other existing assertions explicitly import `chai`
+from `vitest`; no Chai assertion globals are installed.
 `vitest/setup.ts` registers `chai-almost` for approximate comparisons.
 
 ### Build XYZ Maps JS

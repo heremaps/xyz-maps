@@ -18,15 +18,13 @@
  */
 
 import {Def, ExpressionMode, ExpressionParser} from '@here/xyz-maps-common';
-import {describe, it, chai} from 'vitest';
+import {describe, it, expect} from 'vitest';
 
 describe('Expressions', function() {
-    const {expect} = chai;
-
     function expectExpression(type: string, exp: any) {
-        expect(exp).to.be.an('object');
-        expect(exp.json).to.be.an('array');
-        expect(exp.json[0]).equals(type);
+        expect(Object.prototype.toString.call(exp)).toBe('[object Object]');
+        expect(exp.json).toBeInstanceOf(Array);
+        expect(exp.json[0]).toBe(type);
     }
 
 
@@ -50,27 +48,27 @@ describe('Expressions', function() {
 
     it('evaluate simple min expression', async () => {
         const result = evalExpression(['min', 1, 2, 0.1, 4]);
-        expect(result).to.equal(0.1);
+        expect(result).toBe(0.1);
     });
 
     it('evaluate simple max expression', async () => {
         const result = evalExpression(['max', 1, 2, 0.1, 4]);
-        expect(result).to.equal(4);
+        expect(result).toBe(4);
     });
 
     it('evaluate simple sum expression', async () => {
         const result = evalExpression(['+', 1, 2]);
-        expect(result).to.equal(3);
+        expect(result).toBe(3);
     });
 
     it('evaluate sum expression, expression operand', async () => {
         const result = evalExpression(['+', 1, ['get', 'aNumber']]);
-        expect(result).to.equal(124);
+        expect(result).toBe(124);
     });
 
     it('evaluate sum expression, dynamic expression operand', async () => {
         const result = evalExpression(['+', 1, ['zoom']]);
-        expect(result).to.equal(15.5);
+        expect(result).toBe(15.5);
     });
 
     it('(dynamic) evaluate sum expression, dynamic expression operand', async () => {
@@ -80,37 +78,37 @@ describe('Expressions', function() {
 
     it('evaluate simple subtract expression', async () => {
         const result = evalExpression(['-', 3, 1]);
-        expect(result).to.equal(2);
+        expect(result).toBe(2);
     });
 
     it('evaluate simple get', async () => {
         const result = evalExpression(['get', 'aName']);
-        expect(result).to.equal('testName');
+        expect(result).toBe('testName');
     });
 
     it('evaluate get environment variable', async () => {
         const result = evalExpression(['get', '$zoom']);
-        expect(result).to.equal(environment.$zoom);
+        expect(result).toBe(environment.$zoom);
     });
 
     it('evaluate get custom object variable', async () => {
         const result = evalExpression(['get', 'prop', ['ref', 'object']]);
-        expect(result).to.equal('value');
+        expect(result).toBe('value');
     });
 
     it('evaluate case expression: condition 1', async () => {
         const result = evalExpression(['case', ['==', 2, 2], 111, ['==', 2, 2], ['zoom'], 0]);
-        expect(result).to.equal(111);
+        expect(result).toBe(111);
     });
 
     it('evaluate case expression: condition 2', async () => {
         const result = evalExpression(['case', ['==', 1, 2], 111, ['==', 2, 2], 222, 0]);
-        expect(result).to.equal(222);
+        expect(result).toBe(222);
     });
 
     it('evaluate case expression: condition 2, evaluated expr result', async () => {
         const result = evalExpression(['case', ['==', 1, 2], 111, ['==', 2, 2], ['get', 'aNumber'], 0]);
-        expect(result).to.equal(context.aNumber);
+        expect(result).toBe(context.aNumber);
     });
 
     it('(dynamic) evaluate case expression: dynamic condition', async () => {
@@ -120,7 +118,7 @@ describe('Expressions', function() {
 
     it('evaluate case expression: dynamic expression result', async () => {
         const result = evalExpression(['case', ['==', 1, 2], 111, ['==', 2, 2], ['zoom'], 0]);
-        expect(result).to.equal(environment.zoom);
+        expect(result).toBe(environment.zoom);
     });
 
     it('(dynamic) evaluate case expression: dynamic expression result', async () => {
@@ -135,7 +133,7 @@ describe('Expressions', function() {
             'case1Fallback'
         ];
         const result = evalExpression(jsonExp);
-        expect(result).to.equal('case2Fallback');
+        expect(result).toBe('case2Fallback');
     });
 
     it('(dynamic) evaluate nested case expressions', async () => {
@@ -146,7 +144,7 @@ describe('Expressions', function() {
         ];
         const result = evalExpression(jsonExp, ExpressionMode.dynamic);
         expectExpression('case', result);
-        expect(result.json[result.json.length - 1]).to.equal('case1Fallback');
+        expect(result.json[result.json.length - 1]).toBe('case1Fallback');
     });
 
     it('(dynamic) evaluate nested case expressions, partial result', async () => {
@@ -157,25 +155,25 @@ describe('Expressions', function() {
         ];
         const result = evalExpression(jsonExp, ExpressionMode.dynamic);
         expectExpression('case', result);
-        expect(result.json[result.json.length - 1]).to.equal('case2Fallback');
+        expect(result.json[result.json.length - 1]).toBe('case2Fallback');
     });
 
     it('evaluate interpolate expression', async () => {
         const value = 18;
         const result = evalExpression(['interpolate', ['linear'], value, 3, 0, 3, 10, 3, 4, 5, 5, 17, 64, 19, 19, 22, 22]);
-        expect(result).to.equal(41.5);
+        expect(result).toBe(41.5);
     });
 
     it('evaluate interpolate expression with expression value', async () => {
         const value = ['zoom'];
         const result = evalExpression(['interpolate', ['linear'], value, 3, 0, 3, 10, 3, 4, 5, 1, 17, 64, 19, 19, 22, 22]);
-        expect(result).to.equal(50.875);
+        expect(result).toBe(50.875);
     });
 
     it('(dynamic) evaluate interpolate', async () => {
         const value = 18;
         const result = evalExpression(['interpolate', ['linear'], value, 3, 0, 3, 10, 3, 4, 5, 5, 17, 64, 19, 19, 22, 22], ExpressionMode.dynamic);
-        expect(result).to.equal(41.5);
+        expect(result).toBe(41.5);
     });
 
     it('(dynamic) evaluate interpolate expression with expression value', async () => {
@@ -193,7 +191,7 @@ describe('Expressions', function() {
         const result = evalExpression(exp, ExpressionMode.dynamic, {prop: true});
         console.log(result);
         expectExpression('zoom', result);
-        // expect(result).to.equal(666);
+        // expect(result).toBe(666);
     });
 
     it('(dynamic) evaluate nested partially case expression', async () => {
@@ -248,7 +246,7 @@ describe('Expressions', function() {
     it('(dynamic) evaluate case expressions with unreachable condition', async () => {
         const exp = ['case', false, ['zoom'], null];
         const result = evalExpression(exp, ExpressionMode.dynamic);
-        expect(result).to.equal(null);
+        expect(result).toBe(null);
     });
 
     it('(dynamic) evaluate case expressions with unreachable condition and dynamic fallback', async () => {
@@ -276,7 +274,7 @@ describe('Expressions', function() {
     it('step expression', async () => {
         const exp = ['step', 15, 1, 10, 2, 100, 0];
         const result = evalExpression(exp);
-        expect(result).to.equal(2);
+        expect(result).toBe(2);
     });
 
     it('(dynamic) step expression', async () => {
@@ -293,7 +291,7 @@ describe('Expressions', function() {
             'fallback'
         ];
         const result = evalExpression(exp);
-        expect(result).to.equal('result2');
+        expect(result).toBe('result2');
     });
 
     it('match expression fallback', async () => {
@@ -303,7 +301,7 @@ describe('Expressions', function() {
             'fallback'
         ];
         const result = evalExpression(exp);
-        expect(result).to.equal('fallback');
+        expect(result).toBe('fallback');
     });
 
     it('(dynamic) match expression dynamic value', async () => {
@@ -334,7 +332,7 @@ describe('Expressions', function() {
             null
         ];
         const result = evalExpression(exp, ExpressionMode.dynamic);
-        expect(result).to.equal(555);
+        expect(result).toBe(555);
     });
     it('(dynamic) case expression simple operands only, positive condition number', async () => {
         const exp = ['case',
@@ -343,7 +341,7 @@ describe('Expressions', function() {
             null
         ];
         const result = evalExpression(exp, ExpressionMode.dynamic);
-        expect(result).to.equal(555);
+        expect(result).toBe(555);
     });
 
     it('(dynamic) dynamic case where first branch is unreachable', async () => {
@@ -386,8 +384,8 @@ describe('Expressions', function() {
         const exp = ['+', ['case', ['get', 'prop'], 3, ['zoom']], 1];
         const result = evalExpression(exp, ExpressionMode.dynamic, {prop: true});
         expectExpression('+', result);
-        expect(result.json[1]).to.equal(3);
-        expect(result.json[2]).to.equal(1);
+        expect(result.json[1]).toBe(3);
+        expect(result.json[2]).toBe(1);
     });
 
     it('(dynamic) partial evaluated expression with dynamic result', async () => {
@@ -395,6 +393,6 @@ describe('Expressions', function() {
         const result = evalExpression(exp, ExpressionMode.dynamic, {prop: false});
         expectExpression('+', result);
         expectExpression('zoom', result.json[1]);
-        expect(result.json[2]).to.equal(1);
+        expect(result.json[2]).toBe(1);
     });
 });

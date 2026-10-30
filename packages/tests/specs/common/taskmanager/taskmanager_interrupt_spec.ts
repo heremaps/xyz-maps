@@ -18,7 +18,7 @@
  */
 
 import {TaskManager} from '@here/xyz-maps-common';
-import {afterAll, describe, it, chai} from 'vitest';
+import {afterAll, describe, it, expect} from 'vitest';
 
 describe('task manager: interrupts', function() {
     const taskmanager = TaskManager.getInstance();
@@ -64,10 +64,10 @@ describe('task manager: interrupts', function() {
             // queueMicrotask(() => timeline.push('Timer'));
         });
 
-        chai.expect(timeline.indexOf('Timer')).be.greaterThan(0);
-        chai.expect(timeline.indexOf('Timer')).be.lessThan(timeline.length - 1);
-        chai.expect(timeline.length).equal(7);
-        chai.expect(timeline.indexOf('Timer')).not.equal(-1);
+        expect(timeline.indexOf('Timer')).toBeGreaterThan(0);
+        expect(timeline.indexOf('Timer')).toBeLessThan(timeline.length - 1);
+        expect(timeline.length).toBe(7);
+        expect(timeline.indexOf('Timer')).not.toBe(-1);
     });
 
     it('should not interrupt long-running tasks within allowed task time', async () => {
@@ -107,8 +107,8 @@ describe('task manager: interrupts', function() {
             task.start();
             // queueMicrotask(() => timeline.push('Timer'));
         });
-        chai.expect(timeline.indexOf('Timer')).equal(timeline.length - 1);
-        chai.expect(timeline.length).equal(7);
+        expect(timeline.indexOf('Timer')).toBe(timeline.length - 1);
+        expect(timeline.length).toBe(7);
     });
 
     it('should interrupt long-running tasks that exceed TaskManager frame time, even if within task time', async () => {
@@ -149,9 +149,9 @@ describe('task manager: interrupts', function() {
             // queueMicrotask(() => timeline.push('Timer'));
         });
 
-        chai.expect(timeline.indexOf('Timer')).be.greaterThan(0);
-        chai.expect(timeline.indexOf('Timer')).be.lessThan(timeline.length - 1);
-        chai.expect(timeline.length).equal(10);
+        expect(timeline.indexOf('Timer')).toBeGreaterThan(0);
+        expect(timeline.indexOf('Timer')).toBeLessThan(timeline.length - 1);
+        expect(timeline.length).toBe(10);
     });
 
 
@@ -216,15 +216,15 @@ describe('task manager: interrupts', function() {
             // queueMicrotask(() => timeline.push('Timer'));
         });
 
-        chai.expect(timeline.indexOf('Timer')).be.greaterThan(0);
-        chai.expect(timeline.indexOf('Timer')).be.lessThan(timeline.length - 1);
+        expect(timeline.indexOf('Timer')).toBeGreaterThan(0);
+        expect(timeline.indexOf('Timer')).toBeLessThan(timeline.length - 1);
 
         const task1DoneIdx = timeline.indexOf('task1-done');
-        chai.expect(timeline.indexOf('Timer')).be.lessThan(task1DoneIdx);
+        expect(timeline.indexOf('Timer')).toBeLessThan(task1DoneIdx);
 
         const task2DoneIdx = timeline.indexOf('task2-done');
-        chai.expect(task1DoneIdx).be.lessThan(task2DoneIdx);
+        expect(task1DoneIdx).toBeLessThan(task2DoneIdx);
 
-        chai.expect(timeline.length).equal(13);
+        expect(timeline.length).toBe(13);
     });
 });

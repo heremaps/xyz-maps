@@ -18,11 +18,9 @@
  */
 
 import {Task, TaskManager, TaskSequence} from '@here/xyz-maps-common';
-import {beforeAll, describe, it, chai} from 'vitest';
+import {beforeAll, describe, it, expect} from 'vitest';
 
 describe('task sequence', function() {
-    const expect = chai.expect;
-
     let taskManager = TaskManager.getInstance(5);
 
     let tasks = [];
@@ -69,8 +67,8 @@ describe('task sequence', function() {
             taskSequence.start('startSequenceTest');
         });
 
-        expect(result).to.have.lengthOf(3);
-        expect(result).to.be.deep.equal([
+        expect(result).toHaveLength(3);
+        expect(result).toStrictEqual([
             'result1:exec1(init1(startSequenceTest))@1',
             'result2:exec2(init2(result1:exec1(init1(startSequenceTest))@1))@3',
             'result3:exec3(init3(result2:exec2(init2(result1:exec1(init1(startSequenceTest))@1))@3))@5'
@@ -119,8 +117,8 @@ describe('task sequence', function() {
             interruptTask.start();
         });
 
-        expect(result).to.have.lengthOf(4);
-        expect(result).to.be.deep.equal([
+        expect(result).toHaveLength(4);
+        expect(result).toStrictEqual([
             'seq1@1',
             'interruptTask1@3',
             'seq2@5',
@@ -173,8 +171,8 @@ describe('task sequence', function() {
 
         console.log(result);
 
-        expect(result).to.have.lengthOf(4);
-        expect(result).to.be.deep.equal([
+        expect(result).toHaveLength(4);
+        expect(result).toStrictEqual([
             'seq1@3',
             'seq2@3',
             'sequenceDone',

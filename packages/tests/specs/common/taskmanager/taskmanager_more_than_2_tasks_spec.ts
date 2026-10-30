@@ -17,11 +17,9 @@
  * License-Filename: LICENSE
  */
 import {TaskManager} from '@here/xyz-maps-common';
-import {describe, it, chai} from 'vitest';
+import {describe, it, expect} from 'vitest';
 
 describe('task manager run more than 2 tasks', function() {
-    const expect = chai.expect;
-
     let taskmanager = TaskManager.getInstance( 5 );
 
     it('one task start other same priority tasks', async function() {
@@ -141,8 +139,8 @@ describe('task manager run more than 2 tasks', function() {
         });
 
 
-        expect(results1).to.be.deep.equal([0, 'INIT1', 1, 2, 3, 4, 5, 6, 'DONE1', 7, 8, 'INIT2', 9, 10, 11, 12, 13, 14, 'DONE2', 15, 16, 'INIT3', 17, 18, 19, 20, 21, 22, 'DONE3', 23]);
-        expect(results2).to.be.deep.equal([1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 25, 26]);
+        expect(results1).toStrictEqual([0, 'INIT1', 1, 2, 3, 4, 5, 6, 'DONE1', 7, 8, 'INIT2', 9, 10, 11, 12, 13, 14, 'DONE2', 15, 16, 'INIT3', 17, 18, 19, 20, 21, 22, 'DONE3', 23]);
+        expect(results2).toStrictEqual([1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 25, 26]);
     });
 
 
@@ -263,8 +261,8 @@ describe('task manager run more than 2 tasks', function() {
             task1.start();
         });
 
-        expect(results1).to.be.deep.equal([0, 'INIT1', 1, 2, 'INIT2', 3, 4, 'INIT3', 5, 6, 7, 8, 9, 10, 'DONE3', 11, 12, 13, 14, 15, 16, 'DONE2', 17, 18, 19, 20, 21, 22, 'DONE1', 23]);
-        expect(results2).to.be.deep.equal([1, 11, 21, 22, 23, 24, 25, 26, 12, 13, 14, 15, 16, 2, 3, 4, 5, 6]);
+        expect(results1).toStrictEqual([0, 'INIT1', 1, 2, 'INIT2', 3, 4, 'INIT3', 5, 6, 7, 8, 9, 10, 'DONE3', 11, 12, 13, 14, 15, 16, 'DONE2', 17, 18, 19, 20, 21, 22, 'DONE1', 23]);
+        expect(results2).toStrictEqual([1, 11, 21, 22, 23, 24, 25, 26, 12, 13, 14, 15, 16, 2, 3, 4, 5, 6]);
     });
 
 
@@ -385,7 +383,7 @@ describe('task manager run more than 2 tasks', function() {
             task1.start();
         });
 
-        expect(results1).to.be.deep.equal([0, 'INIT1', 1, 2, 'INIT2', 3, 4, 5, 6, 7, 8, 'DONE2', 9, 10, 11, 12, 13, 14, 'DONE1', 15, 16, 'INIT3', 17, 18, 19, 20, 21, 22, 'DONE3', 23]);
-        expect(results2).to.be.deep.equal([1, 11, 12, 13, 14, 15, 16, 2, 3, 4, 5, 6, 21, 22, 23, 24, 25, 26]);
+        expect(results1).toStrictEqual([0, 'INIT1', 1, 2, 'INIT2', 3, 4, 5, 6, 7, 8, 'DONE2', 9, 10, 11, 12, 13, 14, 'DONE1', 15, 16, 'INIT3', 17, 18, 19, 20, 21, 22, 'DONE3', 23]);
+        expect(results2).toStrictEqual([1, 11, 12, 13, 14, 15, 16, 2, 3, 4, 5, 6, 21, 22, 23, 24, 25, 26]);
     });
 });

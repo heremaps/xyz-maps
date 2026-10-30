@@ -18,11 +18,9 @@
  */
 
 import {TaskManager} from '@here/xyz-maps-common';
-import {describe, it, chai} from 'vitest';
+import {describe, it, expect} from 'vitest';
 
 describe('task manager pause&resume', function() {
-    const expect = chai.expect;
-
     let taskmanager = TaskManager.getInstance( 5 );
     let runSequence = [];
     let task1;
@@ -69,7 +67,7 @@ describe('task manager pause&resume', function() {
 
     it('basic pause&resume test', async ()=>{
         const result1 = await runTask1();
-        expect(result1).to.be.deep.equal([
+        expect(result1).toStrictEqual([
             'T1-INIT', 'T1-0', 'T1-1', 'T1-2', 'T1-3', 'T1-4', 'T1-5', 'T1-6', 'T1-7', 'T1-8', 'T1-9', 'T1-DONE'
         ]);
     });
@@ -77,11 +75,11 @@ describe('task manager pause&resume', function() {
 
     it('re-run task', async ()=> {
         const result1 = await runTask1();
-        expect(result1).to.be.deep.equal([
+        expect(result1).toStrictEqual([
             'T1-INIT', 'T1-0', 'T1-1', 'T1-2', 'T1-3', 'T1-4', 'T1-5', 'T1-6', 'T1-7', 'T1-8', 'T1-9', 'T1-DONE'
         ]);
 
-        expect(runSequence).to.be.deep.equal([
+        expect(runSequence).toStrictEqual([
             'T1-INIT', 'T1-0', 'T1-1', 'T1-2', 'T1-3', 'T1-4', 'T1-5', 'T1-6', 'T1-7', 'T1-8', 'T1-9', 'T1-DONE',
             'T1-INIT', 'T1-0', 'T1-1', 'T1-2', 'T1-3', 'T1-4', 'T1-5', 'T1-6', 'T1-7', 'T1-8', 'T1-9', 'T1-DONE'
         ]);
@@ -98,14 +96,14 @@ describe('task manager pause&resume', function() {
             })
         ]);
 
-        expect(result1).to.be.deep.equal([
+        expect(result1).toStrictEqual([
             'T1-INIT', 'T1-0', 'T1-1', 'T1-2', 'T1-3', 'T1-4', 'T1-5', 'T1-6', 'T1-7', 'T1-8', 'T1-9', 'T1-DONE'
         ]);
-        expect(result2).to.be.deep.equal([
+        expect(result2).toStrictEqual([
             'T2-INIT', 'T2-0', 'T2-1', 'T2-2', 'T2-3', 'T2-4', 'T2-5', 'T2-6', 'T2-7', 'T2-8', 'T2-9', 'T2-DONE'
         ]);
 
-        expect(runSequence).to.be.deep.equal([
+        expect(runSequence).toStrictEqual([
             'T1-INIT', 'T1-0', 'T1-1', 'T1-2', 'T1-3', 'T1-4',
             'T2-INIT', 'T2-0', 'T2-1', 'T2-2', 'T2-3', 'T2-4', 'T2-5', 'T2-6', 'T2-7', 'T2-8', 'T2-9', 'T2-DONE',
             'T1-5', 'T1-6', 'T1-7', 'T1-8', 'T1-9', 'T1-DONE'
@@ -124,13 +122,13 @@ describe('task manager pause&resume', function() {
             })
         ]);
 
-        expect(result1).to.be.deep.equal([
+        expect(result1).toStrictEqual([
             'T1-INIT', 'T1-0', 'T1-1', 'T1-2', 'T1-3', 'T1-4', 'T1-5', 'T1-6', 'T1-7', 'T1-8', 'T1-9', 'T1-DONE'
         ]);
-        expect(result2).to.be.deep.equal([
+        expect(result2).toStrictEqual([
             'T2-INIT', 'T2-0', 'T2-1', 'T2-2', 'T2-3', 'T2-4', 'T2-5', 'T2-6', 'T2-7', 'T2-8', 'T2-9', 'T2-DONE'
         ]);
-        expect(runSequence).to.be.deep.equal([
+        expect(runSequence).toStrictEqual([
             'T1-INIT', 'T1-0', 'T1-1', 'T1-2', 'T1-3', 'T1-4',
             'T2-INIT', 'T2-0',
             'T1-5', 'T1-6', 'T1-7', 'T1-8', 'T1-9', 'T1-DONE',

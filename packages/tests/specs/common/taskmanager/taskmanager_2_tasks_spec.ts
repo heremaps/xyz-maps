@@ -18,11 +18,9 @@
  */
 
 import {TaskManager} from '@here/xyz-maps-common';
-import {describe, it, chai} from 'vitest';
+import {describe, it, expect} from 'vitest';
 
 describe('task manager run 2 tasks', function() {
-    const expect = chai.expect;
-
     let taskmanager = TaskManager.getInstance( 5 );
 
     it('one task start another same priority task', async function() {
@@ -105,8 +103,8 @@ describe('task manager run 2 tasks', function() {
         });
 
 
-        expect(results1).to.be.deep.equal([0, 'INIT1', 1, 2, 3, 4, 5, 6, 'DONE1', 7, 8, 'INIT2', 9, 10, 11, 12, 13, 14, 'DONE2', 15]);
-        expect(results2).to.be.deep.equal([1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16]);
+        expect(results1).toStrictEqual([0, 'INIT1', 1, 2, 3, 4, 5, 6, 'DONE1', 7, 8, 'INIT2', 9, 10, 11, 12, 13, 14, 'DONE2', 15]);
+        expect(results2).toStrictEqual([1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16]);
     });
 
     it('one task starts another higher priority task', async function() {
@@ -188,8 +186,8 @@ describe('task manager run 2 tasks', function() {
             task1.start();
         });
 
-        expect(results1).to.be.deep.equal([0, 'INIT1', 1, 2, 'INIT2', 3, 4, 5, 6, 7, 8, 9, 'DONE2', 10, 11, 12, 13, 14, 15, 'DONE1']);
-        expect(results2).to.be.deep.equal([1, 11, 12, 13, 14, 15, 16, 2, 3, 4, 5, 6]);
+        expect(results1).toStrictEqual([0, 'INIT1', 1, 2, 'INIT2', 3, 4, 5, 6, 7, 8, 9, 'DONE2', 10, 11, 12, 13, 14, 15, 'DONE1']);
+        expect(results2).toStrictEqual([1, 11, 12, 13, 14, 15, 16, 2, 3, 4, 5, 6]);
     });
 
     it('one task start another lower priority task', async function() {
@@ -271,8 +269,8 @@ describe('task manager run 2 tasks', function() {
             task1.start();
         });
 
-        expect(results1).to.be.deep.equal([0, 'INIT1', 1, 2, 3, 4, 5, 6, 7, 'DONE1', 8, 'INIT2', 9, 10, 11, 12, 13, 14, 15, 'DONE2']);
-        expect(results2).to.be.deep.equal([1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16]);
+        expect(results1).toStrictEqual([0, 'INIT1', 1, 2, 3, 4, 5, 6, 7, 'DONE1', 8, 'INIT2', 9, 10, 11, 12, 13, 14, 15, 'DONE2']);
+        expect(results2).toStrictEqual([1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16]);
     });
 
 
@@ -351,8 +349,8 @@ describe('task manager run 2 tasks', function() {
         });
 
 
-        expect(results1).to.be.deep.equal([0, 'INIT1', 1, 2, 3, 4, 5, 6, 7, 'DONE1', 8, 'INIT2', 9, 10, 11, 12, 13, 14, 15, 'DONE2']);
-        expect(results2).to.be.deep.equal([1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16]);
+        expect(results1).toStrictEqual([0, 'INIT1', 1, 2, 3, 4, 5, 6, 7, 'DONE1', 8, 'INIT2', 9, 10, 11, 12, 13, 14, 15, 'DONE2']);
+        expect(results2).toStrictEqual([1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16]);
     });
 
 
@@ -430,8 +428,8 @@ describe('task manager run 2 tasks', function() {
             task2.start();
         });
 
-        expect(results1).to.be.deep.equal([0, 'INIT2', 1, 2, 3, 4, 5, 6, 7, 'DONE2', 8, 'INIT1', 9, 10, 11, 12, 13, 14, 15, 'DONE1']);
-        expect(results2).to.be.deep.equal([11, 12, 13, 14, 15, 16, 1, 2, 3, 4, 5, 6]);
+        expect(results1).toStrictEqual([0, 'INIT2', 1, 2, 3, 4, 5, 6, 7, 'DONE2', 8, 'INIT1', 9, 10, 11, 12, 13, 14, 15, 'DONE1']);
+        expect(results2).toStrictEqual([11, 12, 13, 14, 15, 16, 1, 2, 3, 4, 5, 6]);
     });
 
 
@@ -509,7 +507,7 @@ describe('task manager run 2 tasks', function() {
             task2.start();
         });
 
-        expect(results1).to.be.deep.equal([0, 'INIT1', 1, 2, 3, 4, 5, 6, 7, 'DONE1', 8, 'INIT2', 9, 10, 11, 12, 13, 14, 15, 'DONE2']);
-        expect(results2).to.be.deep.equal([1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16]);
+        expect(results1).toStrictEqual([0, 'INIT1', 1, 2, 3, 4, 5, 6, 7, 'DONE1', 8, 'INIT2', 9, 10, 11, 12, 13, 14, 15, 'DONE2']);
+        expect(results2).toStrictEqual([1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16]);
     });
 });
