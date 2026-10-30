@@ -5,6 +5,7 @@ on:
         branches:
             - master
             - tests
+            - chore/vitest-migration
     pull_request:
         branches:
             - '*'
@@ -24,7 +25,7 @@ on:
             workers:
                 description: Test workers (serial disables file parallelism)
                 type: choice
-                default: serial
+                default: '4'
                 options:
                     - serial
                     - '4'
@@ -60,7 +61,7 @@ jobs:
             -   name: Run tests
                 env:
                     TEST_COMPONENT: ${{ github.event_name == 'workflow_dispatch' && inputs.component || 'all' }}
-                    TEST_WORKERS: ${{ github.event_name == 'workflow_dispatch' && inputs.workers || 'serial' }}
+                    TEST_WORKERS: ${{ github.event_name == 'workflow_dispatch' && inputs.workers || '4' }}
                 shell: bash
                 run: |
                     args=()

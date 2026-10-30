@@ -29,6 +29,10 @@ pnpm run test
 
 This runs `common`, `core`, `display` and `editor`. Each of them is a Vitest project.
 
+CI runs these projects with file parallelism and four workers. Manual workflow dispatch can select
+a component and serial, four-worker or twelve-worker execution; the default is all components with four workers.
+Local runs remain serial unless overridden with `--fileParallelism --maxWorkers 4`.
+
 ### Select tests
 
 Everything after `pnpm run test` is passed to Vitest, see `vitest run --help`.
