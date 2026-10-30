@@ -817,6 +817,14 @@ abstract class Display {
         }
     }
 
+    protected flushPendingRender() {
+        if (this.renderFrameId !== null) {
+            cancelAnimationFrame(this.renderFrameId);
+            this.renderFrameId = null;
+            this.viewport();
+        }
+    }
+
     setBGColor(color: Color = '#ffffff') {
         const displ = this;
         const {render} = displ;

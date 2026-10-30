@@ -1158,6 +1158,8 @@ class WebGlDisplay extends BasicDisplay {
     }
 
     getRenderedFeatureAt(x: number, y: number, layers?: TileLayer[]): RendereFeatureResult {
+        // Picking needs current buffers, but an unchanged scene must not be redrawn per query.
+        this.flushPendingRender();
         // measureStart('raycast');
         this.rayCaster.beginPick(x, y, this.w, this.h, this.s, 1 / this.groundResolution, this.terrainExaggeration,
             this.render.supportsTerrainOcclusion()
@@ -1228,7 +1230,6 @@ class WebGlDisplay extends BasicDisplay {
         const result = <RendereFeatureResult><unknown> this.rayCaster.getIntersectionTop();
         result.layer = intersectLayer?.layer as TileLayer;
         // measureEnd('raycast');
-        this.viewport(true);
         return result;
     }
 
