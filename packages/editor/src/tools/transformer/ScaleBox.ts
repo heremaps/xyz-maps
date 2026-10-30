@@ -21,7 +21,7 @@ import {Feature, GeoJSONCoordinate, Style} from '@here/xyz-maps-core';
 import Overlay from '../../features/Overlay';
 import InternalEditor from '../../IEditor';
 import Transformer, {Corner} from './Transformer';
-import {getClosestPntOnLine, rotate} from '../../geometry';
+import {rotate} from '../../geometry';
 
 export const createRectGeometry = (minLon: number, minLat: number, maxLon: number, maxLat: number) => {
     return [
@@ -39,15 +39,12 @@ class ScaleBox {
     private transformer: Transformer;
     private buffer: number;
 
-    private flipped: boolean;
-
     constructor(
         transformer: Transformer,
         buffer: number,
         internalEditor: InternalEditor,
         overlay: Overlay
     ) {
-        const scaleBox = this;
         const {map} = internalEditor;
         let skip = false;
         let scaled;
@@ -76,97 +73,56 @@ class ScaleBox {
         }
 
 
-        let initialDirection;
-        let flipped = false;
+        let initialSize: number;
+        let initialPosition: number;
+        let previousScale: number;
+        let scaleCenter: GeoJSONCoordinate;
+        let rotationCenter: number[];
+        let rotation: number;
 
-        function dragMove(e, dx, dy) {// move //h -> dy
+        function dragMove(e) {
             if (skip) return;
 
-            const {index, vertical} = this.properties;
+            const {vertical} = this.properties;
+            const position = rotate([e.mapX, e.mapY, 0], rotation, rotationCenter);
+            const scale = 1 + (position[vertical ? 0 : 1] - initialPosition) / initialSize;
 
-            let i: Corner = index == Corner.topLeft ? Corner.bottomLeft : index - 1;
-            let line = selectors[i + 1].geometry.coordinates as GeoJSONCoordinate[];
-            // const [line0, line1] = transformer.getRotatedBoundingBox(true)[i];
+            // Keep the geometry invertible while crossing the fixed opposite edge.
+            if (Math.abs(initialSize * scale) < 6 || scale === previousScale) return;
 
-            if (flipped) {
-                line = line.reverse();
-                if (vertical) {
-                    i = i == Corner.bottomRight ? Corner.bottomLeft : Corner.bottomRight;
-                } else {
-                    i = i == Corner.bottomLeft ? Corner.topRight : Corner.bottomRight;
-                }
-            }
-
-            const [line0, line1] = line;
-            const center = transformer.getCenter();
-            const rotation = transformer.rotation;
-            let centerpx = map.getPixelCoord(center);
-            let line0px = map.getPixelCoord(line0);
-            let line1px = map.getPixelCoord(line1);
-            let position = getClosestPntOnLine(line0px, line1px, [e.mapX, e.mapY, 0]);
-
-            line0px = rotate(line0px, rotation, centerpx);
-            line1px = rotate(line1px, rotation, centerpx);
-            position = rotate(position, rotation, centerpx);
-
-            let sx = 1;
-            let sy = 1;
-            let delta;
-
-            if (vertical) {
-                const _dx = line1px[0] - line0px[0];
-                delta = position[0] - line0px[0];
-                sx = delta / _dx;
-            } else {
-                const _dy = line1px[1] - line0px[1];
-                delta = position[1] - line0px[1];
-                sy = delta / _dy;
-            }
-
-
-            if (initialDirection != delta > 0) {
-                initialDirection = !initialDirection;
-                flipped = !flipped;
-            }
-
-            if (Math.abs(delta) > scaleBox.buffer + 6) {
-                transformer.scale(sx, sy, transformer.getCorner(i));
-                scaled = true;
-            }
+            const deltaScale = scale / previousScale;
+            transformer.scale(vertical ? deltaScale : 1, vertical ? 1 : deltaScale, scaleCenter);
+            previousScale = scale;
+            scaled = true;
         }
 
-        let scaleCenter;
-
-        function dragStart() {
+        function dragStart(e) {
             const items = transformer.getFeatures();
             // scale is not possible if it's just a single location (POI/ADDRESS/MARKER)
             skip = items.length == 1 && items[0].geometry.type == 'Point';
 
             scaled = false;
-            scaleCenter = null;
+            previousScale = 1;
 
             const {index, vertical} = this.properties;
             const i: Corner = index == Corner.topLeft ? Corner.bottomLeft : index - 1;
-            const [line0, line1] = selectors[i + 1].geometry.coordinates as GeoJSONCoordinate[];
-            //  [line0, line1] = transformer.getRotatedBoundingBox(true)[i];
+            // Use the unbuffered drag-start geometry, not the changing selection frame.
+            const [line0, line1] = transformer.getRotatedBoundingBox(true)[i] as GeoJSONCoordinate[];
 
             let line0px = map.getPixelCoord(line0);
             let line1px = map.getPixelCoord(line1);
 
             const center = transformer.getCenter();
-            const rotation = transformer.rotation;
-            let centerpx = map.getPixelCoord(center);
-            line0px = rotate(line0px, rotation, centerpx);
-            line1px = rotate(line1px, rotation, centerpx);
+            rotation = transformer.rotation;
+            rotationCenter = map.getPixelCoord(center);
+            line0px = rotate(line0px, rotation, rotationCenter);
+            line1px = rotate(line1px, rotation, rotationCenter);
 
-            if (vertical) {
-                initialDirection = (line1px[0] - line0px[0]) > 0;
-            } else {
-                initialDirection = (line1px[1] - line0px[1]) > 0;
-            }
-
-
-            flipped = false;
+            const axis = vertical ? 0 : 1;
+            initialSize = line1px[axis] - line0px[axis];
+            initialPosition = rotate([e.mapX, e.mapY, 0], rotation, rotationCenter)[axis];
+            scaleCenter = transformer.getCorner(i).slice();
+            skip = skip || initialSize === 0;
         }
 
         function dragStop() {
