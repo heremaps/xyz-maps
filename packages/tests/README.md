@@ -116,6 +116,12 @@ on each attempt. Failure reports the positions and the final actual/expected col
 Both helpers reject empty position lists, missing canvases and unavailable rendering contexts.
 Do not add an outer `expect.poll()` loop. Keep `getCanvasPixelColor` for raw samples or custom predicates.
 
+The test `Listener` automatically detaches through `onTestFinished`, including when a test fails.
+Construct it inside a running test, not in `beforeAll` or at module scope. Keep explicit
+`listener.stop()` calls at the intended end of event recording. Restore temporary settings in `finally`
+so failed assertions cannot bypass their cleanup; preserve state transitions that intentionally connect
+workflow tests.
+
 The tolerance is explicit, finite and non-negative. Each numeric difference must be less than or equal
 to it; non-numeric fields and structure use native equality with strict key checking. This is not
 decimal precision like `toBeCloseTo`. The matcher does not change ordinary equality or configure

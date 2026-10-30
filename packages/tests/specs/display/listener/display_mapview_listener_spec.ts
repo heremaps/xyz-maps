@@ -120,15 +120,16 @@ describe('mapview change listener', function() {
 
     it('lock viewport for panning then validate mapview events after dragging map', async function() {
         display.lockViewport({pan: true});
-        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        try {
+            let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
-        await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
+            await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
-        let results = listener.stop();
-
-        expect(results.mapviewchangestart).toHaveLength(0);
-        expect(results.mapviewchangeend).toHaveLength(0);
-
-        display.lockViewport({pan: false});
+            let results = listener.stop();
+            expect(results.mapviewchangestart).toHaveLength(0);
+            expect(results.mapviewchangeend).toHaveLength(0);
+        } finally {
+            display.lockViewport({pan: false});
+        }
     });
 });

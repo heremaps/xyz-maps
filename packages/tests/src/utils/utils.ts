@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import prepare, {TestData} from './prepareData';
-import {expect} from 'vitest';
+import {expect, onTestFinished} from 'vitest';
 
 declare global {
     interface XMLHttpRequest {
@@ -203,6 +203,10 @@ export class Observer {
 
 type Events = any;
 
+/**
+ * Records events until stop() and automatically detaches when the current test finishes.
+ * Requires an active test context; do not construct in beforeAll or at module scope.
+ */
 export class Listener {
     private results: { [key: string]: Events[] };
     private cbs: { [key: string]: (ev: Events) => void };
@@ -216,6 +220,10 @@ export class Listener {
         that.cbs = {};
         that.obj = obj;
 
+        onTestFinished(() => {
+            this.stop();
+        });
+
         evts.forEach(function(evt) {
             that.results[evt] = [];
             (function() {
@@ -228,9 +236,14 @@ export class Listener {
         });
     }
 
+    /**
+     * Detaches subscriptions and returns the recorded events.
+     * Repeated calls return the same results without removing subscriptions again.
+     */
     stop(): { [key: string]: Events[] } {
         for (let o in this.cbs) {
             this.obj.removeEventListener(o, this.cbs[o]);
+            delete this.cbs[o];
         }
 
         return this.results;
