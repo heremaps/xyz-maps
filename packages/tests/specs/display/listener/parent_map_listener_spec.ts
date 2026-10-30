@@ -22,13 +22,15 @@ import {Listener, prepare} from 'utils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './parent_map_listener_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('display event listener', function() {
     let display;
     let mapContainer;
+    let listener: Listener;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
+        listener = undefined;
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.00368500489765, latitude: 20.27239042522672},
@@ -40,12 +42,13 @@ describe('display event listener', function() {
         mapContainer = display.getContainer();
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
+        listener?.stop();
         display.destroy();
     });
 
     it('validate mapviewchange start and end events', async function() {
-        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
         await waitForViewportReady(display, async ()=>{
             await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
@@ -61,7 +64,7 @@ describe('display event listener', function() {
     });
 
     it('validate mapviewchange start and end events with setting map center', async function() {
-        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
         await waitForViewportReady(display, async ()=>{
             await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 100});
@@ -80,7 +83,7 @@ describe('display event listener', function() {
     it('lock viewport and validate mapviewchange start and end events', async function() {
         display.setBehavior('drag', false);
 
-        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
         await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 
@@ -90,9 +93,10 @@ describe('display event listener', function() {
     });
 
     it('unlock viewport and validate mapviewchange start and end events', async function() {
+        display.setBehavior('drag', false);
         display.setBehavior('drag', true);
 
-        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
         await waitForViewportReady(display, async ()=>{
             await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});

@@ -16,14 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {createEditorFixture, waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
+import {beforeEach, describe, expect, it} from 'vitest';
 import {userEvent} from 'vitest/browser';
-import {Editor} from '@here/xyz-maps-editor';
-import {Map} from '@here/xyz-maps-display';
 import dataset from './address_editable_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('address editable', function() {
     let editor;
@@ -33,29 +30,16 @@ describe('address editable', function() {
     let mapContainer;
     let address;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 80.537329, latitude: 16.481374},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {layers: preparedData.getLayers()});
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
 
         mapContainer = display.getContainer();
 
         address = preparedData.getFeature('paLayer', -47934);
     });
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-
-        await preparedData.clear();
-    });
-
 
     it('get point address object and validate the point address object coordinates', function() {
         expect(address.coord()).toEqualWithTolerance([80.535719317, 16.481374142, 0], 1e-6);
@@ -73,6 +57,7 @@ describe('address editable', function() {
     });
 
     it('move the map back and set the address editable then drag the address', async function() {
+        address.editable(false);
         await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 80.53732864215854, latitude: 16.481374141548827});
         });

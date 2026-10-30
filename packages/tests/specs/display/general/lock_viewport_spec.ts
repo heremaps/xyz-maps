@@ -22,13 +22,13 @@ import {prepare} from 'utils';
 import {drag, mousewheel} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './lock_viewport_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('validate lockviewport function', function() {
     let display;
     let mapContainer;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -39,7 +39,7 @@ describe('validate lockviewport function', function() {
         display.setBehavior('zoom', 'fixed');
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
         display.destroy();
     });
 
@@ -71,6 +71,7 @@ describe('validate lockviewport function', function() {
     });
 
     it('validate map is dragged after viewport for panning is unlocked', async function() {
+        display.lockViewport({pan: true});
         display.lockViewport({pan: false});
 
         // drag map

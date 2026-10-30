@@ -22,7 +22,7 @@ import {prepare} from 'utils';
 import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './disable_zoomcontrol_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('ui component compass', function() {
     const MAX_PITCH = 48;
@@ -31,7 +31,7 @@ describe('ui component compass', function() {
     let display;
     let mapContainer;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
         preparedData = await prepare(dataset);
         mapContainer = document.getElementById('map');
         display = new Map(mapContainer, {
@@ -46,7 +46,7 @@ describe('ui component compass', function() {
         });
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
         if (display.destroy) {
             display.destroy();
         }
@@ -65,6 +65,7 @@ describe('ui component compass', function() {
     });
 
     it('validate is set to maxpitch on click', async function() {
+        await waitForViewportReady(display, () => display.pitch(0));
         await waitForViewportReady(display, async () => {
             // click zoom control to zoom in
             await userEvent.click(mapContainer, {position: {x: 765, y: 490}, modifiers: ['Alt']});
@@ -115,6 +116,7 @@ describe('ui component compass', function() {
     });
 
     it('validate compass is active and click rests rotation and pitch', async function() {
+        await waitForViewportReady(display, () => display.rotate(45));
         await waitForViewportReady(display, async () => {
             await userEvent.click(mapContainer, {position: {x: 765, y: 490}, modifiers: ['Alt']});
         });
@@ -129,6 +131,7 @@ describe('ui component compass', function() {
     });
 
     it('stops compass animations after repeated clicks when destroyed', async () => {
+        display.destroy();
         display = new Map(mapContainer, {
             ui: {Compass: true},
             zoomlevel: 18,

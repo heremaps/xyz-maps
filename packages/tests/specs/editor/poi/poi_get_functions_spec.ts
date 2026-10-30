@@ -16,12 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
-import {vi, describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {createEditorFixture} from 'editorUtils';
 import {mousemove} from 'triggerEvents';
-import {Editor} from '@here/xyz-maps-editor';
-import {Map} from '@here/xyz-maps-display';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 import dataset from './poi_get_functions_spec.json';
 
 describe('Place get functions', function() {
@@ -31,27 +28,15 @@ describe('Place get functions', function() {
     let place;
     let mapContainer;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 73.29398409, latitude: 19.27905288},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {layers: preparedData.getLayers()});
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
 
         mapContainer = display.getContainer();
 
         place = preparedData.getFeature('placeLayer', -48135);
-    });
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-
-        await preparedData.clear();
     });
 
     it('get editstates', async function() {

@@ -21,12 +21,12 @@ import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './set_functions_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('set functions', function() {
     let display;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -36,7 +36,7 @@ describe('set functions', function() {
         });
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
         display.destroy();
     });
 
@@ -72,6 +72,7 @@ describe('set functions', function() {
 
     it('set zoom again and validate', async function() {
         await waitForViewportReady(display, () => {
+            display.setCenter(77.75143322, 12.62290951);
             display.setZoomlevel(17.5);
         });
 
@@ -89,7 +90,11 @@ describe('set functions', function() {
         expect(display.getWidth()).toBe(800);
     });
 
-    it('validate viewport', function() {
+    it('validate viewport after changing center and zoom', async function() {
+        await waitForViewportReady(display, () => {
+            display.setCenter(77.75143322, 12.62290951);
+            display.setZoomlevel(17.5);
+        });
         const viewBounds = display.getViewBounds();
         expect(viewBounds).toEqualWithTolerance({
             minLon: 77.74839865,
@@ -101,6 +106,7 @@ describe('set functions', function() {
 
     it('set zoom 22.5 and validate viewbounds', async function() {
         await waitForViewportReady(display, () => {
+            display.setCenter(77.75143322, 12.62290951);
             display.setZoomlevel(22.5);
         });
 

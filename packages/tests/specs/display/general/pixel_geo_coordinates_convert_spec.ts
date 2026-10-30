@@ -21,12 +21,12 @@ import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pixel_geo_coordinates_convert_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('convert pixel and geo coordinates', function() {
     var display;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -35,7 +35,7 @@ describe('convert pixel and geo coordinates', function() {
         });
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
         display.destroy();
     });
 

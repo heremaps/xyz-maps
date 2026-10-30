@@ -16,13 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {createEditorFixture} from 'editorUtils';
 import {drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './transform_area_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('transform area objects', () => {
     let editor;
@@ -31,59 +28,52 @@ describe('transform area objects', () => {
     let mapContainer;
     let area;
 
-    beforeAll(async () => {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async () => {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 77.79802, latitude: 12.62214},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
         mapContainer = display.getContainer();
         area = preparedData.getFeature('buildingLayer', '-9084');
     });
 
-    afterAll(async () => {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
-    });
+    it('scales, moves and rotates an area with the transformer', async () => {
+        // scale area with transformer and validate its coordinates
+        {
+            area.transform();
 
-    it('scale area with transformer and validate its coordinates', async () => {
-        area.transform();
+            await drag(mapContainer, {x: 307 + 6, y: 260}, {x: 347 + 6, y: 260});
 
-        await drag(mapContainer, {x: 307 + 6, y: 260}, {x: 347 + 6, y: 260});
+            expect(area.coord()).toEqualWithTolerance([[[
+                [77.797698134, 12.622401739, 0],
+                [77.796410675, 12.622244695, 0],
+                [77.797054404, 12.621878261, 0],
+                [77.797698134, 12.622401739, 0]
+            ]]], 1e-6);
+        }
 
-        expect(area.coord()).toEqualWithTolerance([[[
-            [77.797698134, 12.622401739, 0],
-            [77.796410675, 12.622244695, 0],
-            [77.797054404, 12.621878261, 0],
-            [77.797698134, 12.622401739, 0]
-        ]]], 1e-6);
-    });
+        // move area with transformer and validate its coordinates
+        {
+            await drag(mapContainer, {x: 220, y: 300}, {x: 240, y: 350});
 
-    it('move area with transformer and validate its coordinates', async () => {
-        await drag(mapContainer, {x: 220, y: 300}, {x: 240, y: 350});
+            expect(area.coord()).toEqualWithTolerance([[[
+                [77.797805424, 12.622140021, 0],
+                [77.796517995, 12.621982981, 0],
+                [77.797161709, 12.621616554, 0],
+                [77.797805424, 12.622140021, 0]
+            ]]], 1e-6);
+        }
 
-        expect(area.coord()).toEqualWithTolerance([[[
-            [77.797805424, 12.622140021, 0],
-            [77.796517995, 12.621982981, 0],
-            [77.797161709, 12.621616554, 0],
-            [77.797805424, 12.622140021, 0]
-        ]]], 1e-6);
-    });
+        // rotate area with transformer and validate its coordinates
+        {
+            await drag(mapContainer, {x: 370, y: 410}, {x: 300, y: 450});
 
-    it('rotate area with transformer and validate its coordinates', async () => {
-        await drag(mapContainer, {x: 370, y: 410}, {x: 300, y: 450});
-
-        expect(area.coord()).toEqualWithTolerance([[[
-            [77.797844723, 12.621740971, 0],
-            [77.796690092, 12.622318449, 0],
-            [77.797010712, 12.62166197, 0],
-            [77.797844723, 12.621740971, 0]
-        ]]], 1e-6);
+            expect(area.coord()).toEqualWithTolerance([[[
+                [77.797844723, 12.621740971, 0],
+                [77.796690092, 12.622318449, 0],
+                [77.797010712, 12.62166197, 0],
+                [77.797844723, 12.621740971, 0]
+            ]]], 1e-6);
+        }
     });
 });

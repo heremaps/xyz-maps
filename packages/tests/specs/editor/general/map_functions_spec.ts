@@ -16,36 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {createEditorFixture, waitForEditorReady} from 'editorUtils';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './map_functions_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
-
 
 describe('convert pixel and geo coordinates', () => {
     var editor;
     var display;
     var preparedData;
 
-    beforeAll(async () => {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async () => {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 77.79802, latitude: 12.62214},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
-    });
-
-    afterAll(async () => {
-        editor.destroy();
-        display.destroy();
+            zoomlevel: 18
+        }));
     });
 
     it('validate geotopixel function', () => {
@@ -56,13 +40,10 @@ describe('convert pixel and geo coordinates', () => {
         expect(editor.pixelToGeo({x: 400, y: 300})).toEqualWithTolerance({longitude: 77.79802, latitude: 12.62214}, 1e-5);
     });
 
-    it('move map to a new area', async () => {
+    it('validate coordinate conversion after moving the map', async () => {
         await waitForEditorReady(editor, () => {
             display.setCenter({longitude: 8.71902, latitude: 50.1109});
         });
-    });
-
-    it('validate geotopixel function after dragging', () => {
         expect(editor.geoToPixel({longitude: 8.71902, latitude: 50.1109})).toEqual({x: 400, y: 300});
         expect(editor.pixelToGeo({x: 400, y: 300})).toEqualWithTolerance({longitude: 8.71902, latitude: 50.1109}, 1e-5);
     });

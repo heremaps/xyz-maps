@@ -21,12 +21,14 @@ import {waitForViewportReady} from 'displayUtils';
 import {Observer, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_observer_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('map observer', function() {
     let display;
+    let observer: Observer;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
+        observer = undefined;
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.003685005, latitude: 20.272390425},
@@ -35,12 +37,16 @@ describe('map observer', function() {
         });
     });
 
-    afterAll(async function() {
-        display.destroy();
+    afterEach(async function() {
+        try {
+            observer?.stop();
+        } finally {
+            display.destroy();
+        }
     });
 
     it('set map center and validate observer', async function() {
-        let observer = new Observer(display, 'center');
+        observer = new Observer(display, 'center');
 
         await waitForViewportReady(display, ()=>{
             display.setCenter({
@@ -67,7 +73,7 @@ describe('map observer', function() {
             latitude: 15.4945365192
         });
 
-        let observer = new Observer(display, 'center');
+        observer = new Observer(display, 'center');
 
         display.setCenter({
             longitude: 80.0420939774,
@@ -80,7 +86,7 @@ describe('map observer', function() {
 
 
     it('set zoomlevel and validate observer', async function() {
-        let observer = new Observer(display, 'zoomlevel');
+        observer = new Observer(display, 'zoomlevel');
 
         await waitForViewportReady(display, ()=>{
             display.setZoomlevel(19);

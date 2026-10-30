@@ -16,12 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
-import {vi, describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {createEditorFixture} from 'editorUtils';
 import {mousemove} from 'triggerEvents';
-import {Editor} from '@here/xyz-maps-editor';
-import {Map} from '@here/xyz-maps-display';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 import dataset from './marker_spec.json';
 
 describe('Basic Marker tests', () => {
@@ -31,27 +28,15 @@ describe('Basic Marker tests', () => {
     let marker;
     let mapContainer;
 
-    beforeAll(async () => {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async () => {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 73.29398409, latitude: 19.27905288},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {layers: preparedData.getLayers()});
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
 
         mapContainer = display.getContainer();
 
         marker = preparedData.getFeature('markerLayer', 'MyMarker');
-    });
-
-    afterAll(async () => {
-        editor.destroy();
-        display.destroy();
-
-        await preparedData.clear();
     });
 
     it('test default editStates', async () => {
@@ -69,12 +54,21 @@ describe('Basic Marker tests', () => {
     });
 
     it('test selected editStates', async () => {
+        await mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 300});
+        await vi.waitFor(() => {
+            expect(marker.editState('hovered')).toBe(true);
+        }, {timeout: 2000});
         marker.select();
         expect(marker.editState('selected')).toBe(true);
         expect(marker.editState('hovered')).toBe(true);
     });
 
     it('unhover and validate editStates', async () => {
+        marker.select();
+        await mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 300});
+        await vi.waitFor(() => {
+            expect(marker.editState('hovered')).toBe(true);
+        }, {timeout: 2000});
         await mousemove(mapContainer, {x: 380, y: 300}, {x: 400, y: 280});
         expect(marker.editState('selected')).toBe(true);
         // Wait for hover detection to process the pointer leaving the marker.
@@ -84,6 +78,7 @@ describe('Basic Marker tests', () => {
     });
 
     it('unselect and validate editStates', async () => {
+        marker.select();
         marker.unselect();
         expect(marker.editState('selected')).toBe(false);
         expect(marker.editState('hovered')).toBe(false);

@@ -22,15 +22,17 @@ import {Listener} from 'utils';
 import {TileLayer, LocalProvider} from '@here/xyz-maps-core';
 import {Map} from '@here/xyz-maps-display';
 import {userEvent} from 'vitest/browser';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('Pointerevents Line 3d', () => {
     let display;
     let mapContainer;
     let line1;
     let layer;
+    let listener: Listener;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
+        listener = undefined;
         layer = new TileLayer({
             min: 2,
             max: 20,
@@ -82,10 +84,13 @@ describe('Pointerevents Line 3d', () => {
         mapContainer = display.getContainer();
     });
 
-    afterAll(async () => display.destroy());
+    afterEach(() => {
+        listener?.stop();
+        display.destroy();
+    });
 
     it('pointerup: line3d edge inside', async () => {
-        const listener = new Listener(display, ['pointerup']);
+        listener = new Listener(display, ['pointerup']);
 
         const x = 200 - 16 + 2;
         const y = 300;
@@ -105,7 +110,7 @@ describe('Pointerevents Line 3d', () => {
     });
 
     it('pointerup: line3d edge outside', async () => {
-        const listener = new Listener(display, ['pointerup']);
+        listener = new Listener(display, ['pointerup']);
 
         const x = 200 - 16 - 2;
         const y = 300;
@@ -129,7 +134,7 @@ describe('Pointerevents Line 3d', () => {
         await waitForViewportReady(display);
 
 
-        const listener = new Listener(display, ['pointerup']);
+        listener = new Listener(display, ['pointerup']);
 
         const x = 200 - 16 + 2;
         const y = 300;
@@ -152,7 +157,7 @@ describe('Pointerevents Line 3d', () => {
         display.setZoomlevel(19.99);
         await waitForViewportReady(display);
 
-        const listener = new Listener(display, ['pointerup']);
+        listener = new Listener(display, ['pointerup']);
 
         const x = 200 - 16 - 2;
         const y = 300;

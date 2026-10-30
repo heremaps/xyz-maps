@@ -17,9 +17,11 @@
  * License-Filename: LICENSE
  */
 
-import {userEvent} from 'vitest/browser';
+import {Map} from '@here/xyz-maps-display';
 import {Editor, EditorEvent} from '@here/xyz-maps-editor';
-import {expect} from 'vitest';
+import {expect, onTestFinished} from 'vitest';
+import {userEvent} from 'vitest/browser';
+import prepare from './prepareData';
 
 interface EditorClickTarget extends Pick<Editor, 'container'> {
     addEventListener(type: 'pointerup', listener: (event: EditorEvent) => void): void;
@@ -143,6 +145,37 @@ export function waitForEditorReady<T extends EditorReadyTarget>(editor: T, fn?: 
             fail(error);
         }
     });
+}
+
+/**
+ * Creates a fresh per-test editor and owns its map and dataset until the test finishes.
+ * Register cleanup before construction/readiness so failed setup cannot leave a live map.
+ * Call from a test or beforeEach, never beforeAll.
+ */
+export async function createEditorFixture(
+    dataset: Parameters<typeof prepare>[0],
+    mapOptions: Omit<ConstructorParameters<typeof Map>[1], 'layers'> & {renderOptions?: WebGLContextAttributes},
+    editorOptions: Omit<ConstructorParameters<typeof Editor>[1], 'layers'> = {}
+) {
+    const preparedData = await prepare(dataset);
+    let display: Map;
+    let editor: Editor;
+    onTestFinished(async () => {
+        try {
+            if (editor?.destroy) editor.destroy();
+        } finally {
+            try {
+                if (display?.destroy) display.destroy();
+            } finally {
+                await preparedData.clear();
+            }
+        }
+    });
+    const layers = preparedData.getLayers();
+    display = new Map(document.getElementById('map'), {...mapOptions, layers});
+    editor = new Editor(display, {...editorOptions, layers});
+    await waitForEditorReady(editor);
+    return {preparedData, display, editor};
 }
 
 const getProviderById = (provId: string, editor: Editor) => {

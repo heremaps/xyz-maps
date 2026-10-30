@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@
  */
 
 import {TaskManager} from '@here/xyz-maps-common';
-import {afterAll, describe, it, expect} from 'vitest';
+import {afterEach, describe, it, expect} from 'vitest';
 
 describe('task manager: interrupts', function() {
     const taskmanager = TaskManager.getInstance();
     const taskMangerDefaultTime = taskmanager.time;
 
-    afterAll(() => {
+    afterEach(() => {
         taskmanager.time = taskMangerDefaultTime;
     });
 

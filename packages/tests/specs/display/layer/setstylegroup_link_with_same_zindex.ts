@@ -22,7 +22,7 @@ import {getCanvasPixelColor, expectCanvasPixelColor, Listener, prepare} from 'ut
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_link_with_same_zindex.json';
 import {userEvent} from 'vitest/browser';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('setStyleGroup link with same zIndex', () => {
     let linkLayer;
@@ -31,8 +31,10 @@ describe('setStyleGroup link with same zIndex', () => {
     let mapContainer;
     let feature;
     let building;
+    let listener: Listener;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
+        listener = undefined;
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -54,7 +56,8 @@ describe('setStyleGroup link with same zIndex', () => {
         building = preparedData.getFeature('buildingLayer', '123');
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
+        listener?.stop();
         display.destroy();
     });
 
@@ -151,6 +154,9 @@ describe('setStyleGroup link with same zIndex', () => {
     });
 
     it('style feature with different zIndex and style, validate its style', async () => {
+        buildingLayer.setStyleGroup(building, [{
+            zIndex: 0, type: 'Polygon', fill: '#000000', stroke: '#000000'
+        }]);
         // set style for the added feature with same zIndex and color
         linkLayer.setStyleGroup(
             feature, [
@@ -164,6 +170,9 @@ describe('setStyleGroup link with same zIndex', () => {
     });
 
     it('style feature with same zIndex 1 and style, validate its style', async () => {
+        buildingLayer.setStyleGroup(building, [{
+            zIndex: 0, type: 'Polygon', fill: '#000000', stroke: '#000000'
+        }]);
         // set style for the added feature with same zIndex and color
         linkLayer.setStyleGroup(
             feature, [
@@ -187,13 +196,22 @@ describe('setStyleGroup link with same zIndex', () => {
     });
 
     it('zoom in and validate strokeWidth in meter is double in size', async () => {
+        linkLayer.setStyleGroup(feature, [
+            {zIndex: 3, type: 'Line', stroke: 'blue', strokeWidth: 2},
+            {zIndex: 1, type: 'Line', stroke: '#ff0000', strokeWidth: '50m'}
+        ]);
         await waitForViewportReady(display, () => display.setZoomlevel(display.getZoomlevel() + 1));
         await expectCanvasPixelColor(mapContainer, {x: 500, y: 300 - 80}, '#ff0000');
     });
 
 
     it('validate pointer-events for meter width', async () => {
-        const listener = new Listener(display, ['pointerdown', 'pointerup']);
+        linkLayer.setStyleGroup(feature, [
+            {zIndex: 3, type: 'Line', stroke: 'blue', strokeWidth: 2},
+            {zIndex: 1, type: 'Line', stroke: '#ff0000', strokeWidth: '50m'}
+        ]);
+        await waitForViewportReady(display, () => display.setZoomlevel(19));
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 500, y: 220}, modifiers: ['Alt']});
 
@@ -214,7 +232,11 @@ describe('setStyleGroup link with same zIndex', () => {
 
 
     it('validate pointer-events for meter width, zoom>20', async () => {
-        const listener = new Listener(display, ['pointerdown', 'pointerup']);
+        linkLayer.setStyleGroup(feature, [
+            {zIndex: 3, type: 'Line', stroke: 'blue', strokeWidth: 2},
+            {zIndex: 1, type: 'Line', stroke: '#ff0000', strokeWidth: '50m'}
+        ]);
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await waitForViewportReady(display, () => display.setZoomlevel(21));
         await userEvent.click(mapContainer, {position: {x: 500, y: 599}, modifiers: ['Alt']});

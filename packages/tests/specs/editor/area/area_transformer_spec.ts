@@ -16,13 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {createEditorFixture, waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './area_transformer_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('area transformer', () => {
     let editor;
@@ -31,145 +28,138 @@ describe('area transformer', () => {
     let mapContainer;
     let area;
 
-    beforeAll(async () => {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async () => {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 74.82185256187489, latitude: 12.901112606690091},
-            zoomlevel: 19,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 19
+        }));
 
         mapContainer = display.getContainer();
 
         area = preparedData.getFeature('buildingLayer', -9078);
     });
 
-    afterAll(async () => {
-        editor.destroy();
-        display.destroy();
+    it('scales, moves and rotates an area while preserving non-handle drags', async () => {
+        // validate area coordinate and activate transformer
+        {
+            expect(area.coord()).toEqualWithTolerance([[[
+                [74.82131612, 12.901112607, 0],
+                [74.82131612, 12.900589706, 0],
+                [74.821852562, 12.901112607, 0],
+                [74.82131612, 12.901112607, 0]
+            ]]], 1e-6);
 
-        await preparedData.clear();
-    });
+            area.transform();
+        }
 
-    it('validate area coordinate and activate transformer', () => {
-        expect(area.coord()).toEqualWithTolerance([[[
-            [74.82131612, 12.901112607, 0],
-            [74.82131612, 12.900589706, 0],
-            [74.821852562, 12.901112607, 0],
-            [74.82131612, 12.901112607, 0]
-        ]]], 1e-6);
+        // drag to scale left
+        {
+            await drag(mapContainer, {x: 185, y: 400}, {x: 200, y: 400});
 
-        area.transform();
-    });
+            expect(area.coord()).toEqualWithTolerance([[[
+                [74.82135612, 12.901112607, 0],
+                [74.82135612, 12.900589706, 0],
+                [74.821852562, 12.901112607, 0],
+                [74.82135612, 12.901112607, 0]
+            ]]], 1e-6);
+        }
 
+        // drag to scale right
+        {
+            await drag(mapContainer, {x: 415, y: 400}, {x: 400, y: 400});
 
-    it('drag to scale left', async () => {
-        await drag(mapContainer, {x: 185, y: 400}, {x: 200, y: 400});
+            expect(area.coord()).toEqualWithTolerance([[[
+                [74.82135612, 12.901112607, 0],
+                [74.82135612, 12.900589706, 0],
+                [74.821812562, 12.901112607, 0],
+                [74.82135612, 12.901112607, 0]
+            ]]], 1e-6);
+        }
 
-        expect(area.coord()).toEqualWithTolerance([[[
-            [74.82135612, 12.901112607, 0],
-            [74.82135612, 12.900589706, 0],
-            [74.821852562, 12.901112607, 0],
-            [74.82135612, 12.901112607, 0]
-        ]]], 1e-6);
-    });
+        // drag to scale up
+        {
+            await drag(mapContainer, {x: 300, y: 285}, {x: 300, y: 250});
 
-    it('drag to scale right', async () => {
-        await drag(mapContainer, {x: 415, y: 400}, {x: 400, y: 400});
+            expect(area.coord()).toEqualWithTolerance([[[
+                [74.82135612, 12.901203332, 0],
+                [74.82135612, 12.900589706, 0],
+                [74.821812562, 12.901203332, 0],
+                [74.82135612, 12.901203332, 0]
+            ]]], 1e-6);
+        }
 
-        expect(area.coord()).toEqualWithTolerance([[[
-            [74.82135612, 12.901112607, 0],
-            [74.82135612, 12.900589706, 0],
-            [74.821812562, 12.901112607, 0],
-            [74.82135612, 12.901112607, 0]
-        ]]], 1e-6);
-    });
+        // drag to scale down
+        {
+            await drag(mapContainer, {x: 300, y: 515}, {x: 300, y: 450});
 
+            // console.log(area.coord());
+            //
+            //
+            // preparedData.getLayers('buildingLayer').addFeature({
+            //     'type': 'Feature',
+            //     'properties': {
+            //         'featureClass': 'AREA',
+            //         'type': 'building'
+            //     },
+            //     'geometry': {
+            //         'type': 'MultiPolygon',
+            //         'coordinates': [[[
+            //             [74.82135612, 12.901203332, 0],
+            //             [74.82135612, 12.900760431, 0],
+            //             [74.821812562, 12.901203332, 0],
+            //             [74.82135612, 12.901203332, 0]
+            //         ]]]
+            //     }
+            // }, [{
+            //     type: 'Polygon',
+            //     zIndex: 9,
+            //     fill: 'blue',
+            //     opacity: .4
+            // }]);
 
-    it('drag to scale up', async () => {
-        await drag(mapContainer, {x: 300, y: 285}, {x: 300, y: 250});
+            expect(area.coord()).toEqualWithTolerance([[[
+                [74.821355627, 12.901203664, 0],
+                [74.821355627, 12.900759003, 0],
+                [74.82181316, 12.901203664, 0],
+                [74.821355627, 12.901203664, 0]
+            ]]], 1e-6);
+        }
 
-        expect(area.coord()).toEqualWithTolerance([[[
-            [74.82135612, 12.901203332, 0],
-            [74.82135612, 12.900589706, 0],
-            [74.821812562, 12.901203332, 0],
-            [74.82135612, 12.901203332, 0]
-        ]]], 1e-6);
-    });
+        // drag to move
+        {
+            await drag(mapContainer, {x: 300, y: 350}, {x: 320, y: 300});
+            expect(area.coord()).toEqualWithTolerance([[[
+                [74.821409272, 12.901334389, 0],
+                [74.821409272, 12.900889728, 0],
+                [74.821866805, 12.901334389, 0],
+                [74.821409272, 12.901334389, 0]
+            ]]], 1e-6);
+        }
 
+        // drag to rotate
+        {
+            await drag(mapContainer, {x: 420, y: 400}, {x: 400, y: 400});
 
-    it('drag to scale down', async () => {
-        await drag(mapContainer, {x: 300, y: 515}, {x: 300, y: 450});
+            expect(area.coord()).toEqualWithTolerance([[[
+                [74.821435871, 12.901357663, 0],
+                [74.821385474, 12.900915724, 0],
+                [74.821890603, 12.901308393, 0],
+                [74.821435871, 12.901357663, 0]
+            ]]], 1e-6);
+        }
 
-        // console.log(area.coord());
-        //
-        //
-        // preparedData.getLayers('buildingLayer').addFeature({
-        //     'type': 'Feature',
-        //     'properties': {
-        //         'featureClass': 'AREA',
-        //         'type': 'building'
-        //     },
-        //     'geometry': {
-        //         'type': 'MultiPolygon',
-        //         'coordinates': [[[
-        //             [74.82135612, 12.901203332, 0],
-        //             [74.82135612, 12.900760431, 0],
-        //             [74.821812562, 12.901203332, 0],
-        //             [74.82135612, 12.901203332, 0]
-        //         ]]]
-        //     }
-        // }, [{
-        //     type: 'Polygon',
-        //     zIndex: 9,
-        //     fill: 'blue',
-        //     opacity: .4
-        // }]);
-
-        expect(area.coord()).toEqualWithTolerance([[[
-            [74.821355627, 12.901203664, 0],
-            [74.821355627, 12.900759003, 0],
-            [74.82181316, 12.901203664, 0],
-            [74.821355627, 12.901203664, 0]
-        ]]], 1e-6);
-    });
-
-    it('drag to move', async () => {
-        await drag(mapContainer, {x: 300, y: 350}, {x: 320, y: 300});
-        expect(area.coord()).toEqualWithTolerance([[[
-            [74.821409272, 12.901334389, 0],
-            [74.821409272, 12.900889728, 0],
-            [74.821866805, 12.901334389, 0],
-            [74.821409272, 12.901334389, 0]
-        ]]], 1e-6);
-    });
-
-    it('drag to rotate', async () => {
-        await drag(mapContainer, {x: 420, y: 400}, {x: 400, y: 400});
-
-        expect(area.coord()).toEqualWithTolerance([[[
-            [74.821435871, 12.901357663, 0],
-            [74.821385474, 12.900915724, 0],
-            [74.821890603, 12.901308393, 0],
-            [74.821435871, 12.901357663, 0]
-        ]]], 1e-6);
-    });
-
-    it('drag blank area, validate area is not transformed', async () => {
+        // drag blank area, validate area is not transformed
+        {
         // drag inside transformer also transforms area
-        await waitForEditorReady(editor, async () => {
-            await drag(mapContainer, {x: 380, y: 300}, {x: 380, y: 330});
-        });
-        expect(area.coord()).toEqualWithTolerance([[[
-            [74.821435871, 12.901357663, 0],
-            [74.821385474, 12.900915724, 0],
-            [74.821890603, 12.901308393, 0],
-            [74.821435871, 12.901357663, 0]
-        ]]], 1e-6);
+            await waitForEditorReady(editor, async () => {
+                await drag(mapContainer, {x: 380, y: 300}, {x: 380, y: 330});
+            });
+            expect(area.coord()).toEqualWithTolerance([[[
+                [74.821435871, 12.901357663, 0],
+                [74.821385474, 12.900915724, 0],
+                [74.821890603, 12.901308393, 0],
+                [74.821435871, 12.901357663, 0]
+            ]]], 1e-6);
+        }
     });
 });

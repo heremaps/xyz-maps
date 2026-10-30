@@ -21,12 +21,12 @@ import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './set_get_viewbounds_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('set and get viewbounds', () => {
     let display;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -35,7 +35,7 @@ describe('set and get viewbounds', () => {
         });
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
         display.destroy();
     });
 

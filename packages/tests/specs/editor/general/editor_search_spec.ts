@@ -16,12 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {createEditorFixture} from 'editorUtils';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './editor_search_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('editor search function', function() {
     var preparedData;
@@ -36,18 +33,11 @@ describe('editor search function', function() {
     var placeLayer;
     var buildingLayer;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 76.904889, latitude: 16.410735},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
 
         link1 = preparedData.getFeature('linkLayer', 'link1');
         link2 = preparedData.getFeature('linkLayer', 'link2');
@@ -57,15 +47,6 @@ describe('editor search function', function() {
         placeLayer = preparedData.getLayers('placeLayer');
         buildingLayer = preparedData.getLayers('buildingLayer');
     });
-
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-
-        await preparedData.clear();
-    });
-
 
     it('search with id', function() {
         let objs = editor.search({id: link1.id, layers: [linkLayer]});
@@ -80,15 +61,9 @@ describe('editor search function', function() {
     });
 
     it('search with point', function() {
-        // let objs = editor.search({point: {longitude: 76.904889, latitude: 16.410735}, radius: 50});
-        // expect(objs).to.have.lengthOf(3);
-
-        // objs = editor.search({point: {longitude: 76.904889, latitude: 16.410735}, radius: 50, layers: [placeLayer]});
-        // expect(objs).to.have.lengthOf(3);
-
-
-        // objs = editor.search({point: {longitude: 76.904889, latitude: 16.410735}, radius: 50, layers: [buildingLayer, linkLayer, paLayer]});
-        // expect(objs).to.have.lengthOf(0);
+        const [longitude, latitude] = link1.coord()[0];
+        const objects = editor.search({point: {longitude, latitude}, radius: 1, layers: [linkLayer]});
+        expect(objects.map((feature) => feature.id)).toContain(link1.id);
     });
 
     it('search with rect', function() {
@@ -100,7 +75,6 @@ describe('editor search function', function() {
 
         objs = editor.search({rect: {minLon: 76.904027, minLat: 16.410843, maxLon: 76.906172, maxLat: 16.412387}, layers: [linkLayer]});
         expect(objs).toHaveLength(1);
-
 
         objs = editor.search({rect: {minLon: 76.904027, minLat: 16.410843, maxLon: 76.906172, maxLat: 16.412387}, layers: [buildingLayer, paLayer]});
         expect(objs).toHaveLength(0);

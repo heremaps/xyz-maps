@@ -25,6 +25,7 @@ import {project} from './vitest/projects.mts';
 export default defineConfig(({mode}) => ({
     test: {
         silent: 'passed-only',
+        maxWorkers: 4,
         projects: [project('common', mode), project('core', mode), project('display', mode), project('editor', mode)],
         reporters: ['default', ['json', {outputFile: 'dist/vitest/report.json'}]]
     }

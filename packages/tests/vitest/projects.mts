@@ -113,8 +113,8 @@ export function project(component: Component, mode: string): UserWorkspaceConfig
             // the timeout of the mocha settings in the former build.js
             testTimeout: 20000,
             hookTimeout: 20000,
-            // one spec file after another by default; the CLI can enable parallel browser specs.
-            fileParallelism: false,
+            // Local files have isolated browser contexts; Hub integration remains serial.
+            fileParallelism: component !== 'integration',
             browser: {
                 enabled: true,
                 headless: true,

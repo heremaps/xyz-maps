@@ -23,15 +23,17 @@ import {mousemove} from 'triggerEvents';
 import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_pointer_events_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('validate pointer events', function() {
     let preparedData;
     let display;
     let mapContainer;
     let pa;
+    let listener: Listener;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
+        listener = undefined;
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.01133868832176, latitude: 20.284701029331405},
@@ -45,7 +47,8 @@ describe('validate pointer events', function() {
         pa = preparedData.getFeature('paLayer', -10791);
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
+        listener?.stop();
         display.destroy();
 
         await preparedData.clear();
@@ -54,7 +57,7 @@ describe('validate pointer events', function() {
     it('validate pointenter and pointerleave events', async function() {
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 540, y: 300});
 
-        let listener = new Listener(display, ['pointerenter', 'pointerleave']);
+        listener = new Listener(display, ['pointerenter', 'pointerleave']);
 
         await waitForPointerEvent(display, 'pointerenter', () =>
             mousemove(mapContainer, {x: 540, y: 300}, {x: 483, y: 352}));
@@ -68,8 +71,7 @@ describe('validate pointer events', function() {
     });
 
     it('validate pointdown and pointerup events', async function() {
-        let result = display.getFeatureAt({x: 456, y: 352});
-        let listener = new Listener(display, ['pointerdown', 'pointerup']);
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 456, y: 352}, modifiers: ['Alt']});
 
@@ -97,8 +99,8 @@ describe('validate pointer events', function() {
         }));
     });
 
-    it('validate pointenter and pointerleave again', async function() {
-        let listener = new Listener(display, ['pointerdown', 'pointerup']);
+    it('dispatch pointer down and up on empty map ground', async function() {
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 788, y: 352}, modifiers: ['Alt']});
 
@@ -106,5 +108,7 @@ describe('validate pointer events', function() {
 
         expect(results.pointerdown).toHaveLength(1);
         expect(results.pointerup).toHaveLength(1);
+        expect(results.pointerdown[0].target).toBeUndefined();
+        expect(results.pointerup[0].target).toBeUndefined();
     });
 });

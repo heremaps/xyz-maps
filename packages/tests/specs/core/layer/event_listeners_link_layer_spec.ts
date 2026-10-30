@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_link_layer_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('event listeners in link layer', function() {
     var preparedData;
@@ -28,7 +28,7 @@ describe('event listeners in link layer', function() {
     var link1;
     var link2;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
         preparedData = await prepare(dataset);
         linkLayer = preparedData.getLayers('linkLayer');
         linkProvider = linkLayer.getProvider();
@@ -43,8 +43,8 @@ describe('event listeners in link layer', function() {
         link2 = preparedData.getFeature('linkLayer', -9124);
     });
 
-    afterAll(async function() {
-        await preparedData.clear();
+    afterEach(async function() {
+        await preparedData?.clear();
     });
 
     it('validate an link feature exists', function() {

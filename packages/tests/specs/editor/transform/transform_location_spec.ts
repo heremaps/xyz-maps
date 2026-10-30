@@ -16,13 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {createEditorFixture} from 'editorUtils';
 import {drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './transform_location_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('transform for poi and point address', () => {
     let editor;
@@ -33,18 +30,11 @@ describe('transform for poi and point address', () => {
     let address;
     let container;
 
-    beforeAll(async () => {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async () => {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 76.03547451898947, latitude: 13.709170873282702},
-            zoomlevel: 19,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 19
+        }));
         mapContainer = display.getContainer();
 
         poi = preparedData.getFeature('placeLayer', '-29538');
@@ -53,113 +43,112 @@ describe('transform for poi and point address', () => {
         container = editor.createFeatureContainer();
         container.push(poi, address);
 
-
         expect(poi.coord()).toEqualWithTolerance([76.035206298, 13.709301163, 0], 1e-6);
         expect(address.coord()).toEqualWithTolerance([76.035072188, 13.709170873, 0], 1e-6);
     });
 
-    afterAll(async () => {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
-    });
+    it('transforms locations and preserves them when panning outside the handles', async () => {
+        // transform right boarder
+        {
+            container.transform();
 
-    it('transform right boarder', async () => {
-        container.transform();
+            // console.log(JSON.stringify(area.coord()));
+            await drag(mapContainer, {x: 313, y: 250}, {x: 330, y: 250});
 
+            // preparedData.getLayers('paLayer').addFeature({
+            //     'type': 'Feature',
+            //     'properties': {},
+            //     'geometry': {
+            //         'type': 'Point',
+            //         'coordinates': ((x,y)=>[
+            //             display.pixelToGeo(x,y).longitude,
+            //             display.pixelToGeo(x,y).latitude
+            //         ])(155,195)
+            //     }
+            // });console.log(JSON.stringify(link.coord()));
+            //         console.log(JSON.stringify(address.coord()));
 
-        // console.log(JSON.stringify(area.coord()));
-        await drag(mapContainer, {x: 313, y: 250}, {x: 330, y: 250});
+            // preparedData.getLayers('placeLayer').addFeature({
+            //     'type': 'Feature',
+            //     'properties': {},
+            //     'geometry': {
+            //         'type': 'Point',
+            //         'coordinates': [76.035246764, 13.709301163, 0]
+            //     }
+            // }, [{zIndex: 9, type: 'Circle', fill: 'blue', radius: 4, opacity: .5}]);
+            //
+            // preparedData.getLayers('placeLayer').addFeature({
+            //     'type': 'Feature',
+            //     'properties': {},
+            //     'geometry': {
+            //         'type': 'Point',
+            //         'coordinates': [76.035072188, 13.709170873, 0]
+            //     }
+            // }, [{zIndex: 9, type: 'Circle', fill: 'blue', radius: 4, opacity: .5}]);
 
+            expect(poi.coord()).toEqualWithTolerance([76.035251896, 13.709301163, 0], 1e-6);
+            expect(address.coord()).toEqualWithTolerance([76.035072188, 13.709170873, 0], 1e-6);
+        }
 
-        // preparedData.getLayers('paLayer').addFeature({
-        //     'type': 'Feature',
-        //     'properties': {},
-        //     'geometry': {
-        //         'type': 'Point',
-        //         'coordinates': ((x,y)=>[
-        //             display.pixelToGeo(x,y).longitude,
-        //             display.pixelToGeo(x,y).latitude
-        //         ])(155,195)
-        //     }
-        // });console.log(JSON.stringify(link.coord()));
-        //         console.log(JSON.stringify(address.coord()));
+        // transform left boarder
+        {
+            container.transform();
 
-        // preparedData.getLayers('placeLayer').addFeature({
-        //     'type': 'Feature',
-        //     'properties': {},
-        //     'geometry': {
-        //         'type': 'Point',
-        //         'coordinates': [76.035246764, 13.709301163, 0]
-        //     }
-        // }, [{zIndex: 9, type: 'Circle', fill: 'blue', radius: 4, opacity: .5}]);
-        //
-        // preparedData.getLayers('placeLayer').addFeature({
-        //     'type': 'Feature',
-        //     'properties': {},
-        //     'geometry': {
-        //         'type': 'Point',
-        //         'coordinates': [76.035072188, 13.709170873, 0]
-        //     }
-        // }, [{zIndex: 9, type: 'Circle', fill: 'blue', radius: 4, opacity: .5}]);
+            await drag(mapContainer, {x: 235, y: 250}, {x: 210, y: 250});
 
-        expect(poi.coord()).toEqualWithTolerance([76.035251896, 13.709301163, 0], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([76.035072188, 13.709170873, 0], 1e-6);
-    });
+            expect(poi.coord()).toEqualWithTolerance([76.035251896, 13.709301163, 0], 1e-6);
+            expect(address.coord()).toEqualWithTolerance([76.035005132, 13.709170873, 0], 1e-6);
+        }
 
-    it('transform left boarder', async () => {
-        container.transform();
+        // transform top boarder
+        {
+            container.transform();
 
-        await drag(mapContainer, {x: 235, y: 250}, {x: 210, y: 250});
+            await drag(mapContainer, {x: 270, y: 233}, {x: 270, y: 200});
 
-        expect(poi.coord()).toEqualWithTolerance([76.035251896, 13.709301163, 0], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([76.035005132, 13.709170873, 0], 1e-6);
-    });
+            expect(poi.coord()).toEqualWithTolerance([76.035251896, 13.709387155, 0], 1e-6);
+            expect(address.coord()).toEqualWithTolerance([76.035005132, 13.709170873, 0], 1e-6);
+        }
 
+        // transform bottom boarder
+        {
+            container.transform();
 
-    it('transform top boarder', async () => {
-        container.transform();
+            await drag(mapContainer, {x: 270, y: 315}, {x: 270, y: 280});
 
-        await drag(mapContainer, {x: 270, y: 233}, {x: 270, y: 200});
+            expect(poi.coord()).toEqualWithTolerance([76.035251896, 13.709387155, 0], 1e-6);
+            expect(address.coord()).toEqualWithTolerance([76.035005132, 13.709262076, 0], 1e-6);
+        }
 
-        expect(poi.coord()).toEqualWithTolerance([76.035251896, 13.709387155, 0], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([76.035005132, 13.709170873, 0], 1e-6);
-    });
+        // move transformer
+        {
+            container.transform();
 
-    it('transform bottom boarder', async () => {
-        container.transform();
+            await drag(mapContainer, {x: 270, y: 240}, {x: 300, y: 280});
 
-        await drag(mapContainer, {x: 270, y: 315}, {x: 270, y: 280});
+            expect(poi.coord()).toEqualWithTolerance([76.035332364, 13.709282931, 0], 1e-6);
+            expect(address.coord()).toEqualWithTolerance([76.0350856, 13.709157852, 0], 1e-6);
+        }
 
-        expect(poi.coord()).toEqualWithTolerance([76.035251896, 13.709387155, 0], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([76.035005132, 13.709262076, 0], 1e-6);
-    });
+        // rotate transformer
+        {
+            container.transform();
 
-    it('move transformer', async () => {
-        container.transform();
+            await drag(mapContainer, {x: 360, y: 320}, {x: 300, y: 330});
 
-        await drag(mapContainer, {x: 270, y: 240}, {x: 300, y: 280});
+            expect(poi.coord()).toEqualWithTolerance([76.03532932, 13.709152485, 0], 1e-6);
+            expect(address.coord()).toEqualWithTolerance([76.035088644, 13.709288298, 0], 1e-6);
+        }
 
-        expect(poi.coord()).toEqualWithTolerance([76.035332364, 13.709282931, 0], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([76.0350856, 13.709157852, 0], 1e-6);
-    });
-
-    it('rotate transformer', async () => {
-        container.transform();
-
-        await drag(mapContainer, {x: 360, y: 320}, {x: 300, y: 330});
-
-        expect(poi.coord()).toEqualWithTolerance([76.03532932, 13.709152485, 0], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([76.035088644, 13.709288298, 0], 1e-6);
-    });
-
-    it('pan map inside container', async () => {
+        // pan map inside container
+        {
         // expect transformer not to transform when dragging inside transformer
-        container.transform();
+            container.transform();
 
-        await drag(mapContainer, {x: 330, y: 270}, {x: 340, y: 300});
+            await drag(mapContainer, {x: 330, y: 270}, {x: 340, y: 300});
 
-        expect(poi.coord()).toEqualWithTolerance([76.03532932, 13.709152485, 0], 1e-6);
-        expect(address.coord()).toEqualWithTolerance([76.035088644, 13.709288298, 0], 1e-6);
+            expect(poi.coord()).toEqualWithTolerance([76.03532932, 13.709152485, 0], 1e-6);
+            expect(address.coord()).toEqualWithTolerance([76.035088644, 13.709288298, 0], 1e-6);
+        }
     });
 });

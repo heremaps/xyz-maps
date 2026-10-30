@@ -22,15 +22,17 @@ import {Listener, prepare} from 'utils';
 import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_down_up_listener_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('pointer down and pointer up listener', () => {
     let preparedData;
     let display;
     let mapContainer;
+    let listener: Listener;
 
 
-    beforeAll(async () => {
+    beforeEach(async () => {
+        listener = undefined;
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.02278439898076, latitude: 20.273712610318146},
@@ -42,13 +44,14 @@ describe('pointer down and pointer up listener', () => {
         mapContainer = display.getContainer();
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
+        listener?.stop();
         display.destroy();
         await preparedData.clear();
     });
 
     it('validate pointer down and up events on line', async () => {
-        let listener = new Listener(display, ['pointerdown', 'pointerup']);
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 554, y: 243}, modifiers: ['Alt']});
 
@@ -77,7 +80,7 @@ describe('pointer down and pointer up listener', () => {
     });
 
     it('validate pointer down and up events on point', async () => {
-        let listener = new Listener(display, ['pointerdown', 'pointerup']);
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 616, y: 240}, modifiers: ['Alt']});
 
@@ -105,7 +108,7 @@ describe('pointer down and pointer up listener', () => {
 
 
     it('validate pointer down and up events on the ground', async () => {
-        let listener = new Listener(display, ['pointerdown', 'pointerup']);
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 253, y: 204}, modifiers: ['Alt']});
 
@@ -121,7 +124,7 @@ describe('pointer down and pointer up listener', () => {
             display.setZoomlevel(16);
         });
 
-        let listener = new Listener(display, ['pointerup']);
+        listener = new Listener(display, ['pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 430, y: 300}, modifiers: ['Alt']});
 
@@ -141,7 +144,11 @@ describe('pointer down and pointer up listener', () => {
     });
 
     it('validate pointer event target on polygon with hole', async () => {
-        let listener = new Listener(display, ['pointerup']);
+        await waitForViewportReady(display, () => {
+            display.setCenter(-74.0067173729875, 40.70065214195145);
+            display.setZoomlevel(16);
+        });
+        listener = new Listener(display, ['pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 400, y: 280}, modifiers: ['Alt']});
 
@@ -160,7 +167,11 @@ describe('pointer down and pointer up listener', () => {
     });
 
     it('validate pointer event target on linestring "inside" a polygon hole', async () => {
-        let listener = new Listener(display, ['pointerup']);
+        await waitForViewportReady(display, () => {
+            display.setCenter(-74.0067173729875, 40.70065214195145);
+            display.setZoomlevel(16);
+        });
+        listener = new Listener(display, ['pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 400, y: 300}, modifiers: ['Alt']});
 
@@ -181,7 +192,11 @@ describe('pointer down and pointer up listener', () => {
 
 
     it('validate pointer-events on linestring with strokeWidth <1', async () => {
-        let listener = new Listener(display, ['pointerup']);
+        await waitForViewportReady(display, () => {
+            display.setCenter(-74.0067173729875, 40.70065214195145);
+            display.setZoomlevel(16);
+        });
+        listener = new Listener(display, ['pointerup']);
         let layer = display.getLayers(0);
 
         layer.setStyleGroup(layer.search('testLine'), [{type: 'Line', zIndex: 12, stroke: 'red', strokeWidth: .9}]);
@@ -213,7 +228,7 @@ describe('pointer down and pointer up listener', () => {
             display.setZoomlevel(16);
         });
 
-        let listener = new Listener(display, ['pointerup']);
+        listener = new Listener(display, ['pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 430, y: 300}, modifiers: ['Alt']});
 
@@ -232,4 +247,3 @@ describe('pointer down and pointer up listener', () => {
         }));
     });
 });
-

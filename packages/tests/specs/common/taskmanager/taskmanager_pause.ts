@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,17 @@
  */
 
 import {TaskManager} from '@here/xyz-maps-common';
-import {describe, it, expect} from 'vitest';
+import {beforeEach, describe, it, expect} from 'vitest';
 
 describe('task manager pause&resume', function() {
     let taskmanager = TaskManager.getInstance( 5 );
     let runSequence = [];
     let task1;
+    beforeEach(() => {
+        runSequence = [];
+        task1 = undefined;
+    });
+
     const createTask = (name: string, priority: number, pause?: number)=>{
         return taskmanager.create({name, priority, time: 2,
             init: function() {
@@ -65,17 +70,13 @@ describe('task manager pause&resume', function() {
     };
 
 
-    it('basic pause&resume test', async ()=>{
+    it('pauses, resumes and re-runs the same task', async ()=>{
         const result1 = await runTask1();
         expect(result1).toStrictEqual([
             'T1-INIT', 'T1-0', 'T1-1', 'T1-2', 'T1-3', 'T1-4', 'T1-5', 'T1-6', 'T1-7', 'T1-8', 'T1-9', 'T1-DONE'
         ]);
-    });
-
-
-    it('re-run task', async ()=> {
-        const result1 = await runTask1();
-        expect(result1).toStrictEqual([
+        const result2 = await runTask1();
+        expect(result2).toStrictEqual([
             'T1-INIT', 'T1-0', 'T1-1', 'T1-2', 'T1-3', 'T1-4', 'T1-5', 'T1-6', 'T1-7', 'T1-8', 'T1-9', 'T1-DONE'
         ]);
 

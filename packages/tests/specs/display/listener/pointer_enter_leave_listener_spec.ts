@@ -22,15 +22,17 @@ import {Listener, prepare, waitForPointerEvent} from 'utils';
 import {mousemove} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_enter_leave_listener_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('pointer enter and leave feature listener', function() {
     let preparedData;
     let linkLayer;
     let display;
     let mapContainer;
+    let listener: Listener;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
+        listener = undefined;
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.02278439898076, latitude: 20.273712610318146},
@@ -43,7 +45,8 @@ describe('pointer enter and leave feature listener', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
+        listener?.stop();
         display.destroy();
         await preparedData.clear();
     });
@@ -51,7 +54,7 @@ describe('pointer enter and leave feature listener', function() {
     it('validate pointerenter and leave event for hoving POI', async function() {
         await mousemove(mapContainer, {x: 100, y: 200}, {x: 357, y: 274});
 
-        let listener = new Listener(display, ['pointerenter', 'pointerleave']);
+        listener = new Listener(display, ['pointerenter', 'pointerleave']);
 
         await waitForPointerEvent(display, 'pointerenter', () =>
             mousemove(mapContainer, {x: 357, y: 274}, {x: 376, y: 246}));
@@ -77,7 +80,7 @@ describe('pointer enter and leave feature listener', function() {
     });
 
     it('validate pointerenter and leave event for hoving link', async function() {
-        let listener = new Listener(display, ['pointerenter', 'pointerleave']);
+        listener = new Listener(display, ['pointerenter', 'pointerleave']);
 
         await waitForPointerEvent(display, 'pointerenter', () =>
             mousemove(mapContainer, {x: 374, y: 358}, {x: 389, y: 390}));
@@ -106,7 +109,7 @@ describe('pointer enter and leave feature listener', function() {
     it('disable events and validate', async function() {
         linkLayer.pointerEvents(false);
 
-        let listener = new Listener(display, ['pointerenter', 'pointerleave']);
+        listener = new Listener(display, ['pointerenter', 'pointerleave']);
 
         await mousemove(mapContainer, {x: 338, y: 267}, {x: 323, y: 288});
         await mousemove(mapContainer, {x: 323, y: 288}, {x: 338, y: 274});
@@ -117,9 +120,10 @@ describe('pointer enter and leave feature listener', function() {
     });
 
     it('enable events and validate again', async function() {
+        linkLayer.pointerEvents(false);
         linkLayer.pointerEvents(true);
 
-        let listener = new Listener(display, ['pointerenter', 'pointerleave']);
+        listener = new Listener(display, ['pointerenter', 'pointerleave']);
 
         await waitForPointerEvent(display, 'pointerenter', () =>
             mousemove(mapContainer, {x: 338, y: 274}, {x: 323, y: 288}));

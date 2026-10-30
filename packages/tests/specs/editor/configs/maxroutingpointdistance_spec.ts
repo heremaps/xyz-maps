@@ -16,50 +16,29 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {createEditorFixture, waitForEditorReady} from 'editorUtils';
+import {describe, expect, it} from 'vitest';
 import dataset from './maxroutingpointdistance_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set maxRoutingPointDistance', function() {
     let editor;
     let display;
     let preparedData;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    async function setup(options: Parameters<typeof createEditorFixture>[2] = {}) {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 77.84172527566523, latitude: 17.450976000022266},
-            zoomlevel: 19,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
-    });
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-    });
-
+            zoomlevel: 19
+        }, options));
+    }
 
     it('set maxRoutingPointDistance, validate if a PA is created', async function() {
-        editor.destroy();
-        editor = editor = new Editor(display, {
-            layers: preparedData.getLayers(),
-            maxRoutingPointDistance: 10
-        });
+        await setup({maxRoutingPointDistance: 10});
 
         await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
-
 
         let l1 = {
             type: 'Feature',
@@ -98,17 +77,12 @@ describe('set maxRoutingPointDistance', function() {
     });
 
     it('reset maxRoutingPointDistance, validate if a PA is created', async function() {
-        editor.destroy();
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
+        await setup({});
 
         await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
             display.setZoomlevel(19);
         });
-
 
         let l1 = {
             type: 'Feature',

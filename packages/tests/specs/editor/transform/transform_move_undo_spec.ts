@@ -16,13 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady, editorClick} from 'editorUtils';
+import {NavlinkShape} from '@here/xyz-maps-editor';
+import {createEditorFixture, editorClick} from 'editorUtils';
 import {drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-display';
-import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './transform_move_undo_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('undo the link transforming, link should connect to its connected links', function() {
     let editor;
@@ -31,57 +29,48 @@ describe('undo the link transforming, link should connect to its connected links
     let link1;
     let linkLayer;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 78.19335420161838, latitude: 12.548568361911578},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
         link1 = preparedData.getFeature('linkLayer', '-189183');
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
-    });
+    it('restores transformed features through undo', async () => {
+        // validate connected links on the shape point
+        {
+            link1.select();
+            let shp = <NavlinkShape>(await editorClick(editor, 200, 200)).target;
 
-    it('validate connected links on the shape point', async function() {
-        link1.select();
-        let shp = <NavlinkShape>(await editorClick(editor, 200, 200)).target;
+            expect(shp.getConnectedLinks()).toHaveLength(2);
 
-        expect(shp.getConnectedLinks()).toHaveLength(2);
+            expect(link1.coord()).toEqualWithTolerance([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]], 1e-6);
+        }
 
-        expect(link1.coord()).toEqualWithTolerance([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]], 1e-6);
-    });
+        // transform the link and validate
+        {
+            link1.transform();
+            let mapContainer = display.getContainer();
+            await drag(mapContainer, {x: 150, y: 200}, {x: 150, y: 250});
 
-    it('transform the link and validate', async function() {
-        link1.transform();
-        let mapContainer = display.getContainer();
-        await drag(mapContainer, {x: 150, y: 200}, {x: 150, y: 250});
+            expect(link1.coord()).toEqualWithTolerance([
+                [78.192281318, 12.548830174, 0],
+                [78.191744876, 12.548830174, 0]
+            ], 1e-6);
+        }
 
-        expect(link1.coord()).toEqualWithTolerance([
-            [78.192281318, 12.548830174, 0],
-            [78.191744876, 12.548830174, 0]
-        ], 1e-6);
-    });
+        // undo the change and validate the link still connects to other links
+        {
+            editor.undo();
+            let lnk = editor.getFeature(link1.id, linkLayer);
+            lnk.select();
+            let shp = <NavlinkShape>(await editorClick(editor, 200, 200)).target;
 
+            expect(shp.getConnectedLinks()).toHaveLength(2);
 
-    it('undo the change and validate the link still connects to other links', async function() {
-        editor.undo();
-        let lnk = editor.getFeature(link1.id, linkLayer);
-        lnk.select();
-        let shp = <NavlinkShape>(await editorClick(editor, 200, 200)).target;
-
-        expect(shp.getConnectedLinks()).toHaveLength(2);
-
-        expect(lnk.coord()).toEqualWithTolerance([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]], 1e-6);
+            expect(lnk.coord()).toEqualWithTolerance([[78.192281318, 12.549091989, 0], [78.191744876, 12.549091989, 0]], 1e-6);
+        }
     });
 });

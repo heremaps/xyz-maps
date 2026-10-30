@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './set_style_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('set features style and restore', function() {
     var preparedData;
@@ -29,7 +29,7 @@ describe('set features style and restore', function() {
     var addrLayer;
     var addrProvider;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
         preparedData = await prepare(dataset);
 
         buildingLayer = preparedData.getLayers('buildingLayer');
@@ -39,8 +39,8 @@ describe('set features style and restore', function() {
         addrProvider = addrLayer.getProvider();
     });
 
-    afterAll(async function() {
-        await preparedData.clear();
+    afterEach(async function() {
+        await preparedData?.clear();
     });
 
     it('get style and validate', function() {
@@ -92,6 +92,13 @@ describe('set features style and restore', function() {
 
     it('reset feature style', function() {
         let pa = preparedData.getFeature('paLayer', -804);
+
+        addrLayer.setStyleGroup(pa, [
+            {'zIndex': 0, 'type': 'Rect', 'fill': '#FFFFFF', 'width': 32, 'height': 32}
+        ]);
+        expect(addrLayer.getStyleGroup(pa)).toStrictEqual([
+            {'zIndex': 0, 'type': 'Rect', 'fill': '#FFFFFF', 'width': 32, 'height': 32}
+        ]);
 
         addrLayer.setStyleGroup(pa);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 import {prepare} from 'utils';
 import {getTileOnProvider} from 'coreUtils';
 import dataset from './gettile_multiple_times_cancel_with_same_callback_requestagain_after_finish_spec.json';
-import {describe, beforeAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('get one tile multiple times and cancel with same callback', function() {
     var placeProvider; // placeProvider.level.length == 16
@@ -29,9 +29,10 @@ describe('get one tile multiple times and cancel with same callback', function()
     var qk2;
     var qk3;
     var qk4;
+    var preparedData;
 
-    beforeAll(async function() {
-        let preparedData = await prepare(dataset);
+    beforeEach(async function() {
+        preparedData = await prepare(dataset);
         placeProvider = preparedData.getLayers('placeLayer').getProvider();
 
         qk1 = '3112301330022300'; // length 16
@@ -40,10 +41,13 @@ describe('get one tile multiple times and cancel with same callback', function()
         qk4 = '3112301330022303'; // length 16
     });
 
+    afterEach(async () => {
+        await preparedData?.clear();
+    });
 
     // Sydney, AUS
-    it('get one tile for multiple times and dont cancel', function() {
-        return new Promise<void>((done) => {
+    it('requests a tile repeatedly and reuses the finished request from cache', async function() {
+        await new Promise<void>((done) => {
             // qk1     = '3112301330022300' // length 16
             getTileOnProvider({
                 provider: placeProvider,
@@ -68,12 +72,7 @@ describe('get one tile multiple times and cancel with same callback', function()
                 }
             });
         });
-    });
-
-
-    // Sydney, AUS
-    it('get requested tile again for multiple times and dont cancel', function() {
-        return new Promise<void>((done) => {
+        await new Promise<void>((done) => {
             // qk1     = '3112301330022300' // length 16
             getTileOnProvider({
                 provider: placeProvider,
@@ -100,8 +99,37 @@ describe('get one tile multiple times and cancel with same callback', function()
         });
     });
 
-    it('get one tile for multiple times and cancel once', function() {
-        return new Promise<void>((done) => {
+    it('cancels once, then requests the cancelled tile again', async function() {
+        await new Promise<void>((done) => {
+            // qk2     = '3112301330022301' // length 16
+            getTileOnProvider({
+                provider: placeProvider,
+                quadkeys: [qk2, qk2, qk2],
+                sameCallback: true,
+                cancel: {
+                    quadkeys: [qk2],
+                    withCallback: true
+                },
+                onFinish: function(requests, callbackResults) {
+                    // 1 request(s) sent, 0 callback(s) called
+                    expect(requests.length).toBe(1);
+                    expect(callbackResults.length).toBe(0);
+
+                    let cancelledRequests = 0;
+                    for (let r in requests) {
+                        if (requests[r].status == 0) {
+                            cancelledRequests++;
+                        }
+                    }
+
+                    expect(cancelledRequests).toBe(1);
+
+
+                    done();
+                }
+            });
+        });
+        await new Promise<void>((done) => {
             // qk2     = '3112301330022301' // length 16
             getTileOnProvider({
                 provider: placeProvider,
@@ -132,42 +160,8 @@ describe('get one tile multiple times and cancel with same callback', function()
         });
     });
 
-
-    // Sydney, AUS
-    it('get requested but canceled tile again for multiple times and cancel once', function() {
-        return new Promise<void>((done) => {
-            // qk2     = '3112301330022301' // length 16
-            getTileOnProvider({
-                provider: placeProvider,
-                quadkeys: [qk2, qk2, qk2],
-                sameCallback: true,
-                cancel: {
-                    quadkeys: [qk2],
-                    withCallback: true
-                },
-                onFinish: function(requests, callbackResults) {
-                    // 1 request(s) sent, 0 callback(s) called
-                    expect(requests.length).toBe(1);
-                    expect(callbackResults.length).toBe(0);
-
-                    let cancelledRequests = 0;
-                    for (let r in requests) {
-                        if (requests[r].status == 0) {
-                            cancelledRequests++;
-                        }
-                    }
-
-                    expect(cancelledRequests).toBe(1);
-
-
-                    done();
-                }
-            });
-        });
-    });
-
-    it('get one tile for multiple times and cancel two times', function() {
-        return new Promise<void>((done) => {
+    it('cancels twice, then requests the cancelled tile again', async function() {
+        await new Promise<void>((done) => {
             // qk3     = '3112301330022302' // length 16
             getTileOnProvider({
                 provider: placeProvider,
@@ -196,11 +190,7 @@ describe('get one tile multiple times and cancel with same callback', function()
                 }
             });
         });
-    });
-
-
-    it('get requested but canceled tile for multiple times and cancel two times', function() {
-        return new Promise<void>((done) => {
+        await new Promise<void>((done) => {
             // qk3     = '3112301330022302' // length 16
             getTileOnProvider({
                 provider: placeProvider,
@@ -263,4 +253,3 @@ describe('get one tile multiple times and cancel with same callback', function()
         });
     });
 });
-

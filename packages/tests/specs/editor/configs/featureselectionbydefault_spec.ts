@@ -16,13 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {createEditorFixture, waitForEditorReady} from 'editorUtils';
+import {describe, expect, it} from 'vitest';
 import {userEvent} from 'vitest/browser';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
 import dataset from './featureselectionbydefault_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('set featureSelectionByDefault', function() {
     let editor;
@@ -30,33 +27,17 @@ describe('set featureSelectionByDefault', function() {
     let preparedData;
     let mapContainer;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    async function setup(options: Parameters<typeof createEditorFixture>[2] = {}) {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 77.84172527566523, latitude: 17.450976000022266},
-            zoomlevel: 19,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 19
+        }, options));
 
         mapContainer = display.getContainer();
-    });
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-    });
+    }
 
     it('set featureSelectionByDefault to false, validate after clicking the link', async function() {
-        editor.destroy();
-        editor = new Editor(display, {
-            layers: preparedData.getLayers(),
-            featureSelectionByDefault: false
-        });
+        await setup({featureSelectionByDefault: false});
 
         await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});
@@ -89,10 +70,7 @@ describe('set featureSelectionByDefault', function() {
     });
 
     it('reset everything, validate the disconnect shape distance again', async function() {
-        editor.destroy();
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
+        await setup({});
 
         await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 77.84172527566523, latitude: 17.450976000022266});

@@ -38,7 +38,9 @@ This runs `common`, `core`, `display` and `editor`. Each of them is a Vitest pro
 
 CI runs these projects with file parallelism and four workers. Manual workflow dispatch can select
 a component and serial, four-worker or twelve-worker execution; the default is all components with four workers.
-Local runs remain serial unless overridden with `--fileParallelism --maxWorkers 4`.
+Local runs also use file parallelism with at most four workers. Each file has an isolated browser
+context; tests inside a file still run sequentially. Use `--no-file-parallelism --maxWorkers 1`
+for a serial diagnostic run. Hub integration remains serial.
 
 ### Select tests
 
@@ -96,6 +98,33 @@ Create `credentials.json` in `packages/tests` with your credentials. The file is
 Run them with `pnpm run test:integration`.
 
 ### Write specs
+
+Independent cases must initialize their own mutable state in `beforeEach` or inside the test.
+Do not make one test depend on a preceding test's selection, configuration, geometry or history.
+An intentionally sequential edit/undo/redo workflow belongs in one named test, with assertions at
+each meaningful phase. Keep independent cases separate; do not merge a suite just to hide a dependency.
+
+Editor specs can use `createEditorFixture` from `editorUtils` inside a test or `beforeEach`:
+
+```typescript
+const {preparedData, display, editor} = await createEditorFixture(
+    dataset,
+    {center: {longitude: 8.7, latitude: 50.1}, zoomlevel: 18},
+    {featureSelectionByDefault: false}
+);
+```
+
+It prepares fresh data, constructs the Map and Editor, and waits for editor readiness.
+Cleanup is registered before construction and runs after the test, including failed setup/assertions:
+Editor, Map, then prepared data. Do not construct it in `beforeAll` or replace its owned instances;
+pass constructor options directly. Other resources and temporary global settings still need explicit
+cleanup, preferably registered before an operation can fail.
+
+Verify newly independent cases both alone (`-t`) and in shuffled test order, for example
+`--sequence.shuffle.tests --sequence.seed 42` on the changed files. Do not enable global shuffling
+until remaining legacy suites with shared workflows have been migrated. Preserve numeric tolerances;
+where useful, also assert invariants such as a fixed anchor, unchanged selection, restored geometry
+or the identity of search results rather than only incidental counts.
 
 Use the registered matcher for absolute numeric tolerances, including nested coordinates:
 

@@ -22,14 +22,14 @@ import {prepare} from 'utils';
 import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './disable_zoomcontrol_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('disable zoomcontrol component', function() {
     let preparedData;
     let display;
     let mapContainer;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -39,7 +39,7 @@ describe('disable zoomcontrol component', function() {
         mapContainer = display.getContainer();
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
         display.destroy();
     });
 
@@ -68,7 +68,6 @@ describe('disable zoomcontrol component', function() {
         // click the position where zoom control was
         await userEvent.click(mapContainer, {position: {x: 765, y: 520}, modifiers: ['Alt']});
 
-        // await waitForViewportReady(display);
         expect(display.getZoomlevel()).toBe(18);
     });
 

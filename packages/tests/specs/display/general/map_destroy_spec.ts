@@ -20,31 +20,37 @@
 import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {drag} from 'triggerEvents';
-import {vi, describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {vi, describe, beforeAll, afterEach, it, expect} from 'vitest';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './map_destroy_spec.json';
 
 describe('destroy display', function() {
     let display;
+    let preparedData;
 
     beforeAll(async function() {
-        let preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+        preparedData = await prepare(dataset);
+    });
+
+    function createDisplay() {
+        return new Map(document.getElementById('map'), {
             center: {longitude: 77.852437, latitude: 13.542848},
             zoomlevel: 18,
             layers: preparedData.getLayers()
         });
-    });
+    }
 
-    afterAll(async function() {
-        if (display.destroy) display.destroy();
+    afterEach(function() {
+        if (display?.destroy) display.destroy();
     });
 
     it('validate display is working', async function() {
+        display = createDisplay();
         expect(display.getCenter()).toEqual({longitude: 77.852437, latitude: 13.542848});
     });
 
     it('destroy display and validate', async function() {
+        display = createDisplay();
         display.destroy();
 
         expect(display).toEqual({});

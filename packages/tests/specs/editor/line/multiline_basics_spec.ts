@@ -16,13 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady, editorClick} from 'editorUtils';
+import {DrawingShape, Line, LineShape} from '@here/xyz-maps-editor';
+import {createEditorFixture, editorClick} from 'editorUtils';
 import {drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-display';
-import {Editor, DrawingShape, Line, LineShape} from '@here/xyz-maps-editor';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './multiline_basics_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('basic multiline tests', () => {
     let editor;
@@ -31,209 +29,208 @@ describe('basic multiline tests', () => {
     let mapContainer;
     let multiLine;
 
-    beforeAll(async () => {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async () => {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
 
         mapContainer = display.getContainer();
 
         multiLine = preparedData.getFeature('lineLayer', 'LINE');
     });
 
-    afterAll(async () => {
-        editor.destroy();
-        display.destroy();
-    });
+    it('edits multiline shapes and component line strings through the full workflow', async () => {
+        // validate geometry type
+        {
+            expect(multiLine.geometry.type).toBe('MultiLineString');
+        }
 
-    it('validate geometry type', async () => {
-        expect(multiLine.geometry.type).toBe('MultiLineString');
-    });
+        // validate pointerevents
+        {
+            const target = <Line>(await editorClick(editor, 400, 300)).target;
 
-    it('validate pointerevents', async () => {
-        const target = <Line>(await editorClick(editor, 400, 300)).target;
+            expect(multiLine).toBe(target);
+        }
 
-        expect(multiLine).toBe(target);
-    });
+        // validate line geometry
+        {
+            const coordinates = multiLine.coord();
 
+            expect(coordinates.length).toBe(1);
 
-    it('validate line geometry', async () => {
-        const coordinates = multiLine.coord();
+            expect(coordinates[0]).toEqualWithTolerance([
+                [76.083125712, 13.214838342, 0],
+                [76.082589269, 13.215360578, 0],
+                [76.082052827, 13.214838342, 0]
+            ], 1e-6);
+        }
 
-        expect(coordinates.length).toBe(1);
+        // modify geometry by dragging shape
+        {
+            await drag(mapContainer, {x: 400, y: 300}, {x: 300, y: 400});
 
-        expect(coordinates[0]).toEqualWithTolerance([
-            [76.083125712, 13.214838342, 0],
-            [76.082589269, 13.215360578, 0],
-            [76.082052827, 13.214838342, 0]
-        ], 1e-6);
-    });
+            const coordinates = multiLine.coord();
+            expect(coordinates.length).toBe(1);
 
-    it('modify geometry by dragging shape ', async () => {
-        await drag(mapContainer, {x: 400, y: 300}, {x: 300, y: 400});
+            expect(coordinates[0]).toEqualWithTolerance([
+                [76.082589270, 13.214316105, 0],
+                [76.082589269, 13.215360578, 0],
+                [76.082052827, 13.214838342, 0]
+            ], 1e-6);
+        }
 
-        const coordinates = multiLine.coord();
-        expect(coordinates.length).toBe(1);
+        // remove shape
+        {
+            const shape = <DrawingShape>(await editorClick(editor, 300, 400)).target;
 
-        expect(coordinates[0]).toEqualWithTolerance([
-            [76.082589270, 13.214316105, 0],
-            [76.082589269, 13.215360578, 0],
-            [76.082052827, 13.214838342, 0]
-        ], 1e-6);
-    });
+            shape.remove();
 
+            const coordinates = multiLine.coord();
+            expect(coordinates.length).toBe(1);
 
-    it('remove shape', async () => {
-        const shape = <DrawingShape>(await editorClick(editor, 300, 400)).target;
+            expect(coordinates[0]).toEqualWithTolerance([
+                [76.082589269, 13.215360578, 0],
+                [76.082052827, 13.214838342, 0]
+            ], 1e-6);
+        }
 
-        shape.remove();
+        // modify geometry by dragging virtual shape
+        {
+            multiLine.select();
 
-        const coordinates = multiLine.coord();
-        expect(coordinates.length).toBe(1);
+            await drag(mapContainer, {x: 250, y: 250}, {x: 350, y: 350});
 
-        expect(coordinates[0]).toEqualWithTolerance([
-            [76.082589269, 13.215360578, 0],
-            [76.082052827, 13.214838342, 0]
-        ], 1e-6);
-    });
+            const coordinates = multiLine.coord();
+            expect(coordinates.length).toBe(1);
 
-    it('modify geometry by dragging virtual shape', async () => {
-        multiLine.select();
+            expect(coordinates[0]).toEqualWithTolerance([
+                [76.082589269, 13.215360578, 0],
+                [76.082857490, 13.214577223, 0],
+                [76.082052827, 13.214838342, 0]
+            ], 1e-6);
+        }
 
-        await drag(mapContainer, {x: 250, y: 250}, {x: 350, y: 350});
+        // add linestring geometry
+        {
+            let coordinates = multiLine.coord();
 
-        const coordinates = multiLine.coord();
-        expect(coordinates.length).toBe(1);
+            coordinates.push([
+                [76.082589269, 13.2155, 0],
+                [76.081157490, 13.2146, 0],
+                [76.082052827, 13.2149, 0]
+            ]);
 
-        expect(coordinates[0]).toEqualWithTolerance([
-            [76.082589269, 13.215360578, 0],
-            [76.082857490, 13.214577223, 0],
-            [76.082052827, 13.214838342, 0]
-        ], 1e-6);
-    });
+            multiLine.coord(coordinates);
 
-    it('add linestring geometry', async () => {
-        let coordinates = multiLine.coord();
+            coordinates = multiLine.coord();
 
-        coordinates.push([
-            [76.082589269, 13.2155, 0],
-            [76.081157490, 13.2146, 0],
-            [76.082052827, 13.2149, 0]
-        ]);
+            expect(coordinates.length).toBe(2);
 
-        multiLine.coord(coordinates);
+            expect(coordinates).toEqualWithTolerance([[
+                [76.082589269, 13.215360578, 0],
+                [76.082857490, 13.214577223, 0],
+                [76.082052827, 13.214838342, 0]
+            ], [
+                [76.082589269, 13.2155, 0],
+                [76.081157490, 13.2146, 0],
+                [76.082052827, 13.2149, 0]
+            ]], 1e-6);
+        }
 
-        coordinates = multiLine.coord();
+        // validate pointer events
+        {
+            const {target} = (await editorClick(editor, 200, 240));
 
-        expect(coordinates.length).toBe(2);
+            expect(multiLine).toBe(target);
+        }
 
-        expect(coordinates).toEqualWithTolerance([[
-            [76.082589269, 13.215360578, 0],
-            [76.082857490, 13.214577223, 0],
-            [76.082052827, 13.214838342, 0]
-        ], [
-            [76.082589269, 13.2155, 0],
-            [76.081157490, 13.2146, 0],
-            [76.082052827, 13.2149, 0]
-        ]], 1e-6);
-    });
+        // add Shape to first linestring
+        {
+            multiLine.addShape({x: 200, y: 300});
 
-    it('validate pointer events', async () => {
-        const {target} = (await editorClick(editor, 200, 240));
+            let coordinates = multiLine.coord();
 
-        expect(multiLine).toBe(target);
-    });
+            expect(coordinates).toEqualWithTolerance([[
+                [76.082589269, 13.215360578, 0],
+                [76.082857490, 13.214577223, 0],
+                [76.082052827, 13.214838342, 0],
+                [76.082052827, 13.214838342, 0]
+            ], [
+                [76.082589269, 13.2155, 0],
+                [76.081157490, 13.2146, 0],
+                [76.082052827, 13.2149, 0]
+            ]], 1e-6);
+        }
 
+        // add Shape to second linestring
+        {
+            multiLine.addShape({x: 200, y: 100}, 1);
 
-    it('add Shape to first linestring', async () => {
-        multiLine.addShape({x: 200, y: 300});
+            let coordinates = multiLine.coord();
 
-        let coordinates = multiLine.coord();
+            expect(coordinates).toEqualWithTolerance([[
+                [76.082589269, 13.215360578, 0],
+                [76.082857490, 13.214577223, 0],
+                [76.082052827, 13.214838342, 0],
+                [76.082052827, 13.214838342, 0]
+            ], [
+                [76.082589269, 13.2155, 0],
+                [76.082052827, 13.2158828, 0],
+                [76.081157490, 13.2146, 0],
+                [76.082052827, 13.2149, 0]
+            ]], 1e-6);
+        }
 
-        expect(coordinates).toEqualWithTolerance([[
-            [76.082589269, 13.215360578, 0],
-            [76.082857490, 13.214577223, 0],
-            [76.082052827, 13.214838342, 0],
-            [76.082052827, 13.214838342, 0]
-        ], [
-            [76.082589269, 13.2155, 0],
-            [76.081157490, 13.2146, 0],
-            [76.082052827, 13.2149, 0]
-        ]], 1e-6);
-    });
+        // remove shape of LineString 1
+        {
+            const target = <LineShape>(await editorClick(editor, 200, 300)).target;
 
-    it('add Shape to second linestring', async () => {
-        multiLine.addShape({x: 200, y: 100}, 1);
+            target.remove();
 
-        let coordinates = multiLine.coord();
+            let coordinates = multiLine.coord();
 
-        expect(coordinates).toEqualWithTolerance([[
-            [76.082589269, 13.215360578, 0],
-            [76.082857490, 13.214577223, 0],
-            [76.082052827, 13.214838342, 0],
-            [76.082052827, 13.214838342, 0]
-        ], [
-            [76.082589269, 13.2155, 0],
-            [76.082052827, 13.2158828, 0],
-            [76.081157490, 13.2146, 0],
-            [76.082052827, 13.2149, 0]
-        ]], 1e-6);
-    });
+            expect(coordinates).toEqualWithTolerance([[
+                [76.082589269, 13.215360578, 0],
+                [76.082857490, 13.214577223, 0],
+                [76.082052827, 13.214838342, 0]
+            ], [
+                [76.082589269, 13.2155, 0],
+                [76.082052827, 13.2158828, 0],
+                [76.081157490, 13.2146, 0],
+                [76.082052827, 13.2149, 0]
+            ]], 1e-6);
+        }
 
+        // remove shape of LineString 2
+        {
+            const target = <LineShape>(await editorClick(editor, 200, 100)).target;
 
-    it('remove shape of LineString 1', async () => {
-        const target = <LineShape>(await editorClick(editor, 200, 300)).target;
+            target.remove();
 
-        target.remove();
+            let coordinates = multiLine.coord();
 
-        let coordinates = multiLine.coord();
+            expect(coordinates).toEqualWithTolerance([[
+                [76.082589269, 13.215360578, 0],
+                [76.082857490, 13.214577223, 0],
+                [76.082052827, 13.214838342, 0]
+            ], [
+                [76.082589269, 13.2155, 0],
+                [76.081157490, 13.2146, 0],
+                [76.082052827, 13.2149, 0]
+            ]], 1e-6);
+        }
 
-        expect(coordinates).toEqualWithTolerance([[
-            [76.082589269, 13.215360578, 0],
-            [76.082857490, 13.214577223, 0],
-            [76.082052827, 13.214838342, 0]
-        ], [
-            [76.082589269, 13.2155, 0],
-            [76.082052827, 13.2158828, 0],
-            [76.081157490, 13.2146, 0],
-            [76.082052827, 13.2149, 0]
-        ]], 1e-6);
-    });
+        // remove multiline
+        {
+            const {id} = multiLine;
+            const feature = editor.search({id}).pop();
 
-    it('remove shape of LineString 2', async () => {
-        const target = <LineShape>(await editorClick(editor, 200, 100)).target;
+            feature.remove();
 
-        target.remove();
+            const result = editor.search({id});
 
-        let coordinates = multiLine.coord();
-
-        expect(coordinates).toEqualWithTolerance([[
-            [76.082589269, 13.215360578, 0],
-            [76.082857490, 13.214577223, 0],
-            [76.082052827, 13.214838342, 0]
-        ], [
-            [76.082589269, 13.2155, 0],
-            [76.081157490, 13.2146, 0],
-            [76.082052827, 13.2149, 0]
-        ]], 1e-6);
-    });
-
-    it('remove multiline', async () => {
-        const {id} = multiLine;
-        const feature = editor.search({id}).pop();
-
-        feature.remove();
-
-        const result = editor.search({id});
-
-        expect(result.length).toBe(0);
+            expect(result.length).toBe(0);
+        }
     });
 });

@@ -16,14 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {createEditorFixture, waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
+import {beforeEach, describe, expect, it} from 'vitest';
 import {userEvent} from 'vitest/browser';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
 import dataset from './link_editable_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('link editable', function() {
     let link;
@@ -33,28 +30,15 @@ describe('link editable', function() {
     let mapContainer;
     let linkLayer;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 80.14459, latitude: 17.96039},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
         mapContainer = display.getContainer();
 
         link = preparedData.getFeature('linkLayer', -189070);
         linkLayer = preparedData.getLayers('linkLayer');
-    });
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
     });
 
     it('set link to not editable', function() {
@@ -68,6 +52,7 @@ describe('link editable', function() {
     });
 
     it('click on link and try drag again', async function() {
+        link.editable(false);
         // click on link
         await userEvent.click(mapContainer, {position: {x: 100, y: 100}, modifiers: ['Alt']});
 
@@ -92,6 +77,7 @@ describe('link editable', function() {
         });
 
         let lnk = editor.getFeature(link.id, linkLayer);
+        lnk.editable(false);
         lnk.editable(true);
 
         // click on link

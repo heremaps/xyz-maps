@@ -16,14 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady, editorClick} from 'editorUtils';
+import {DrawingShape, Line} from '@here/xyz-maps-editor';
+import {createEditorFixture, editorClick} from 'editorUtils';
 import {drag, mousemove} from 'triggerEvents';
+import {beforeEach, describe, expect, it} from 'vitest';
 import {userEvent} from 'vitest/browser';
-import {Map} from '@here/xyz-maps-display';
-import {Editor, DrawingShape, Line} from '@here/xyz-maps-editor';
 import dataset from './line_basics_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('basic line tests', function() {
     let editor;
@@ -32,107 +30,103 @@ describe('basic line tests', function() {
     let mapContainer;
     let line;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 76.08312571088209, latitude: 13.214838342327566},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
 
         mapContainer = display.getContainer();
     });
 
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-    });
+    it('edits line shapes, changes coordinates and removes the line', async () => {
+        // create line by drawing manager
+        {
+            editor.getDrawingBoard().start({mode: 'Line'});
 
-    it('create line by drawing manager', async function() {
-        editor.getDrawingBoard().start({mode: 'Line'});
+            await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
+            await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
 
-        await mousemove(mapContainer, {x: 100, y: 100}, {x: 100, y: 200});
-        await userEvent.click(mapContainer, {position: {x: 100, y: 200}, modifiers: ['Alt']});
+            await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 100});
+            await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
 
-        await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 100});
-        await userEvent.click(mapContainer, {position: {x: 200, y: 100}, modifiers: ['Alt']});
+            await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 200});
+            await userEvent.click(mapContainer, {position: {x: 300, y: 200}, modifiers: ['Alt']});
 
-        await mousemove(mapContainer, {x: 200, y: 100}, {x: 300, y: 200});
-        await userEvent.click(mapContainer, {position: {x: 300, y: 200}, modifiers: ['Alt']});
+            let point = <DrawingShape>(await editorClick(editor, 200, 100)).target;
+            point.remove();
 
-        let point = <DrawingShape>(await editorClick(editor, 200, 100)).target;
-        point.remove();
+            await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 300});
+            await userEvent.click(mapContainer, {position: {x: 200, y: 300}, modifiers: ['Alt']});
 
-        await mousemove(mapContainer, {x: 200, y: 100}, {x: 200, y: 300});
-        await userEvent.click(mapContainer, {position: {x: 200, y: 300}, modifiers: ['Alt']});
+            await drag(mapContainer, {x: 100, y: 200}, {x: 400, y: 300});
 
-        await drag(mapContainer, {x: 100, y: 200}, {x: 400, y: 300});
+            let shape = <DrawingShape>(await editorClick(editor, 400, 300)).target;
 
-        let shape = <DrawingShape>(await editorClick(editor, 400, 300)).target;
+            expect(shape.getIndex()).toBe(0);
+            expect(shape.getLength()).toBe(3);
 
-        expect(shape.getIndex()).toBe(0);
-        expect(shape.getLength()).toBe(3);
+            line = editor.getDrawingBoard().create({featureClass: 'LINE'});
+        }
 
-        line = editor.getDrawingBoard().create({featureClass: 'LINE'});
+        // validate line geometry
+        {
+            let selected = <Line>(await editorClick(editor, 400, 300)).target;
+            expect(selected.coord()).toEqualWithTolerance([
+                [76.083125712, 13.214838342, 0],
+                [76.082589269, 13.215360578, 0],
+                [76.082052827, 13.214838342, 0]
+            ], 1e-6);
+        }
+
+        // modify geometry by dragging shape
+        {
+            await drag(mapContainer, {x: 400, y: 300}, {x: 300, y: 400});
+
+            expect(line.coord()).toEqualWithTolerance([
+                [76.082589270, 13.214316105, 0],
+                [76.082589269, 13.215360578, 0],
+                [76.082052827, 13.214838342, 0]
+            ], 1e-6);
+        }
+
+        // remove shape
+        {
+            let shape = <DrawingShape>(await editorClick(editor, 300, 400)).target;
+
+            shape.remove();
+
+            expect(line.coord()).toEqualWithTolerance([
+                [76.082589269, 13.215360578, 0],
+                [76.082052827, 13.214838342, 0]
+            ], 1e-6);
+        }
+
+        // modify geometry by dragging virtual shape
+        {
+            line.select();
+
+            await drag(mapContainer, {x: 250, y: 250}, {x: 350, y: 350});
+
+            expect(line.coord()).toEqualWithTolerance([
+                [76.082589269, 13.215360578, 0],
+                [76.082857490, 13.214577223, 0],
+                [76.082052827, 13.214838342, 0]
+            ], 1e-6);
+        }
+
+        // remove line
+        {
+            let {id} = line;
+            let feature = editor.search({id: id}).pop();
+
+            feature.remove();
+
+            let result = editor.search({id: id});
+
+            expect(result.length).toBe(0);
+        }
     });
 
     // 1204.25 366.7
-    it('validate line geometry', async function() {
-        let selected = <Line>(await editorClick(editor, 400, 300)).target;
-        expect(selected.coord()).toEqualWithTolerance([
-            [76.083125712, 13.214838342, 0],
-            [76.082589269, 13.215360578, 0],
-            [76.082052827, 13.214838342, 0]
-        ], 1e-6);
-    });
-
-    it('modify geometry by dragging shape ', async function() {
-        await drag(mapContainer, {x: 400, y: 300}, {x: 300, y: 400});
-
-        expect(line.coord()).toEqualWithTolerance([
-            [76.082589270, 13.214316105, 0],
-            [76.082589269, 13.215360578, 0],
-            [76.082052827, 13.214838342, 0]
-        ], 1e-6);
-    });
-
-
-    it('remove shape', async function() {
-        let shape = <DrawingShape>(await editorClick(editor, 300, 400)).target;
-
-        shape.remove();
-
-        expect(line.coord()).toEqualWithTolerance([
-            [76.082589269, 13.215360578, 0],
-            [76.082052827, 13.214838342, 0]
-        ], 1e-6);
-    });
-
-    it('modify geometry by dragging virtual shape', async function() {
-        line.select();
-
-        await drag(mapContainer, {x: 250, y: 250}, {x: 350, y: 350});
-
-        expect(line.coord()).toEqualWithTolerance([
-            [76.082589269, 13.215360578, 0],
-            [76.082857490, 13.214577223, 0],
-            [76.082052827, 13.214838342, 0]
-        ], 1e-6);
-    });
-
-    it('remove line', async function() {
-        let {id} = line;
-        let feature = editor.search({id: id}).pop();
-
-        feature.remove();
-
-        let result = editor.search({id: id});
-
-        expect(result.length).toBe(0);
-    });
 });

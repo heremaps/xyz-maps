@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,21 @@
 
 import {prepare} from 'utils';
 import dataset from './add_remove_feature_spec.json';
-import {describe, beforeAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('add and remove features in provider', function() {
     var poiProvider;
+    var preparedData;
 
-    beforeAll(async function() {
-        let preparedData = await prepare(dataset);
+    beforeEach(async function() {
+        preparedData = await prepare(dataset);
 
         let poiLayer = preparedData.getLayers('placeGeoJsonLayer');
         poiProvider = poiLayer.getProvider();
+    });
+
+    afterEach(async function() {
+        await preparedData?.clear();
     });
 
     it('search features and validate', function() {

@@ -23,7 +23,7 @@ import {TileLayer} from '@here/xyz-maps-core';
 import {Editor} from '@here/xyz-maps-editor';
 import {TestLocalProvider} from '../../../src/TestProvider';
 import dataset from '../address/address_setcoordinates_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('coordinatePrecision configuration', function() {
     let preparedData;
@@ -32,7 +32,7 @@ describe('coordinatePrecision configuration', function() {
     let placeLayer;
     let areaLayer;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
         preparedData = await prepare(dataset);
         placeLayer = new TileLayer({
             min: 14,
@@ -57,10 +57,16 @@ describe('coordinatePrecision configuration', function() {
         await waitForEditorReady(editor);
     });
 
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
+    afterEach(async function() {
+        try {
+            if (editor?.destroy) editor.destroy();
+        } finally {
+            try {
+                if (display?.destroy) display.destroy();
+            } finally {
+                if (preparedData) await preparedData.clear();
+            }
+        }
     });
 
     it('rounds Address geometry coordinates to the configured precision', function() {
@@ -119,8 +125,6 @@ describe('coordinatePrecision configuration', function() {
             [75.573481516, 12.950542341, 0],
             [75.573481516, 12.950542341, 0]
         ]]);
-
-        console.log(area, area.geometry.coordinates);
 
         expect(area.geometry.coordinates).toStrictEqual([[[
             [75.573, 12.951, 0], [75.573, 12.951, 0],

@@ -22,7 +22,7 @@ import {expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_polygon_spec.json';
 import {TileLayer} from '@here/xyz-maps-core';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 const IMG_SRC_RED = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mP8z8AARLgB48hQAAAdEw/5itjcFgAAAABJRU5ErkJggg==';
 const IMG_SRC_BLUE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAE0lEQVR42mNkYPj/nwEPYBwZCgANIw/5um5PVwAAAABJRU5ErkJggg==';
@@ -36,7 +36,7 @@ describe('setStyleGroup Polygon', () => {
     let mapContainer;
     let feature;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -56,7 +56,7 @@ describe('setStyleGroup Polygon', () => {
         feature = preparedData.getFeature('buildingLayer', '123');
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
         display.destroy();
     });
 
@@ -99,19 +99,23 @@ describe('setStyleGroup Polygon', () => {
     });
 
 
-    it('setViewBounds to new polygon geometry', async () => {
+    async function fitPolygon() {
         buildingLayer.setFeatureCoordinates(feature, [[[[-74.013731421, 40.706585985], [-74.007503806, 40.706139625], [-74.014741571, 40.706437725], [-74.014601256, 40.705598175], [-74.013483023, 40.703395543], [-74.016736518, 40.703730812], [-74.01555255, 40.705150197], [-74.016208765, 40.706952215], [-74.013731421, 40.706585985]]]]);
 
         await waitForViewportReady(display, () => {
             display.setViewBounds(feature);
         });
+    }
 
+    it('setViewBounds to new polygon geometry', async () => {
+        await fitPolygon();
         expect(display.getCenter()).toEqualWithTolerance({longitude: -74.012120162, latitude: 40.705173879}, 1e-7);
         expect(display.getZoomlevel()).toBe(16);
     });
 
 
     it('set circle style', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},
@@ -122,6 +126,7 @@ describe('setStyleGroup Polygon', () => {
     });
 
     it('set circle style with anchor: Center', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},
@@ -132,6 +137,7 @@ describe('setStyleGroup Polygon', () => {
     });
 
     it('set circle style with anchor: Centroid', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},
@@ -142,6 +148,7 @@ describe('setStyleGroup Polygon', () => {
     });
 
     it('set circle Rect', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},
@@ -152,6 +159,7 @@ describe('setStyleGroup Polygon', () => {
     });
 
     it('set rect style with anchor: Center', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},
@@ -162,6 +170,7 @@ describe('setStyleGroup Polygon', () => {
     });
 
     it('set rect style with anchor: Centroid', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},
@@ -172,6 +181,7 @@ describe('setStyleGroup Polygon', () => {
     });
 
     it('set icon style', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},
@@ -182,6 +192,7 @@ describe('setStyleGroup Polygon', () => {
     });
 
     it('set icon style with anchor: Center', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},
@@ -192,6 +203,7 @@ describe('setStyleGroup Polygon', () => {
     });
 
     it('set icon style with anchor: Centroid', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},
@@ -203,6 +215,7 @@ describe('setStyleGroup Polygon', () => {
 
 
     it('set text style', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},
@@ -213,7 +226,8 @@ describe('setStyleGroup Polygon', () => {
         await expectCanvasPixelColor(mapContainer, {x: 400, y: 300}, '#ff0000');
     });
 
-    it('set icon style with anchor: Center', async () => {
+    it('set text style with anchor: Center', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},
@@ -223,7 +237,8 @@ describe('setStyleGroup Polygon', () => {
         await expectCanvasPixelColor(mapContainer, {x: 400, y: 300}, '#0000ff');
     });
 
-    it('set icon style with anchor: Centroid', async () => {
+    it('set text style with anchor: Centroid', async () => {
+        await fitPolygon();
         buildingLayer.setStyleGroup(
             feature, [
                 {'zIndex': 0, 'type': 'Polygon', 'fill': '#00ff00'},

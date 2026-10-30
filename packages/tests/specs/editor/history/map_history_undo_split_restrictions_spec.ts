@@ -16,13 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady, editorClick} from 'editorUtils';
+import {NavlinkShape} from '@here/xyz-maps-editor';
+import {createEditorFixture, editorClick} from 'editorUtils';
+import {beforeEach, describe, expect, it} from 'vitest';
 import {userEvent} from 'vitest/browser';
-import {Map} from '@here/xyz-maps-display';
-import {Editor, NavlinkShape} from '@here/xyz-maps-editor';
 import dataset from './map_history_undo_split_restrictions_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('turn restriction with spliting the depart link and undo', function() {
     let editor;
@@ -35,18 +33,11 @@ describe('turn restriction with spliting the depart link and undo', function() {
     let splitLinks;
     let linkLayer;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 76.868793, latitude: 13.30644},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
 
         mapContainer = display.getContainer();
 
@@ -55,50 +46,50 @@ describe('turn restriction with spliting the depart link and undo', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
-    });
+    it('restores split links and turn restrictions through undo', async () => {
+        // click on connection point to edit turn restrictions
+        {
+            link2.editTurnRestrictions();
 
-    it('click on connection point to edit turn restrictions', async function() {
-        link2.editTurnRestrictions();
+            await userEvent.click(mapContainer, {position: {x: 390, y: 400}, modifiers: ['Alt']});
 
-        await userEvent.click(mapContainer, {position: {x: 390, y: 400}, modifiers: ['Alt']});
+            expect(link2.prop('turnRestriction')).toEqual({start: [link1.id]});
+        }
 
-        expect(link2.prop('turnRestriction')).toEqual({start: [link1.id]});
-    });
+        // get the shapepoint to split the link, validate link is splitted correctly
+        {
+            link2.select();
+            let linkshape = <NavlinkShape>(await editorClick(editor, 450, 400)).target;
 
-    it('get the shapepoint to split the link, validate link is splitted correctly', async function() {
-        link2.select();
-        let linkshape = <NavlinkShape>(await editorClick(editor, 450, 400)).target;
+            splitLinks = linkshape.splitLink();
 
-        splitLinks = linkshape.splitLink();
+            expect(splitLinks[0].prop('originLink')).toBe(link2.id);
+            expect(splitLinks[1].prop('originLink')).toBe(link2.id);
+            expect(splitLinks[0].prop('parentLink')).toBe(link2.id);
+            expect(splitLinks[1].prop('parentLink')).toBe(link2.id);
+        }
 
-        expect(splitLinks[0].prop('originLink')).toBe(link2.id);
-        expect(splitLinks[1].prop('originLink')).toBe(link2.id);
-        expect(splitLinks[0].prop('parentLink')).toBe(link2.id);
-        expect(splitLinks[1].prop('parentLink')).toBe(link2.id);
-    });
+        // undo last split, validate link turn restriction value
+        {
+            editor.undo();
 
-    it('undo last split, validate link turn restriction value', async function() {
-        editor.undo();
+            let lnk1 = editor.getFeature(link1.id, linkLayer);
+            let lnk2 = editor.getFeature(link2.id, linkLayer);
 
-        let lnk1 = editor.getFeature(link1.id, linkLayer);
-        let lnk2 = editor.getFeature(link2.id, linkLayer);
+            expect(lnk2.prop('turnRestriction')).toEqual({start: [lnk1.id]});
+        }
 
-        expect(lnk2.prop('turnRestriction')).toEqual({start: [lnk1.id]});
-    });
+        // redo last split, verify splitted link
+        {
+            editor.redo();
 
-    it('redo last split, verify splitted link', async function() {
-        editor.redo();
+            let splnk1 = editor.getFeature(splitLinks[0].id, linkLayer);
+            let splnk2 = editor.getFeature(splitLinks[1].id, linkLayer);
 
-        let splnk1 = editor.getFeature(splitLinks[0].id, linkLayer);
-        let splnk2 = editor.getFeature(splitLinks[1].id, linkLayer);
-
-        expect(splnk1.prop('originLink')).toBe(link2.id);
-        expect(splnk2.prop('originLink')).toBe(link2.id);
-        expect(splnk1.prop('parentLink')).toBe(link2.id);
-        expect(splnk2.prop('parentLink')).toBe(link2.id);
+            expect(splnk1.prop('originLink')).toBe(link2.id);
+            expect(splnk2.prop('originLink')).toBe(link2.id);
+            expect(splnk1.prop('parentLink')).toBe(link2.id);
+            expect(splnk2.prop('parentLink')).toBe(link2.id);
+        }
     });
 });

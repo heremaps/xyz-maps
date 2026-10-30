@@ -21,12 +21,12 @@ import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pan_map_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('pan the map', () => {
     let display;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.99026323, latitude: 12.13576713},
@@ -35,7 +35,7 @@ describe('pan the map', () => {
         });
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
         display.destroy();
     });
 
@@ -73,10 +73,10 @@ describe('pan the map', () => {
 
     it('pan & zoom using flyTo', async () => {
         const center = {longitude: 8.5, latitude: 50.1};
-        const zoom = 18;
+        const zoom = 19;
 
         await waitForViewportReady(display, () => {
-            display.flyTo(center, {duration: 100});
+            display.flyTo(center, zoom, {duration: 100});
         });
 
         expect(display.getCenter()).toEqualWithTolerance(center, 1e-7);

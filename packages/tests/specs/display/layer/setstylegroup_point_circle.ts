@@ -22,15 +22,17 @@ import {expectCanvasPixelColor, Listener, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './setstylegroup_point_circle.json';
 import {userEvent} from 'vitest/browser';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('setStyleGroup Point with circle', function() {
     let paLayer;
     let display;
     let mapContainer;
     let feature;
+    let listener: Listener;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
+        listener = undefined;
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -50,7 +52,8 @@ describe('setStyleGroup Point with circle', function() {
         feature = preparedData.getFeature('paLayer', '123');
     });
 
-    afterAll(() => {
+    afterEach(() => {
+        listener?.stop();
         display.destroy();
     });
 
@@ -208,13 +211,20 @@ describe('setStyleGroup Point with circle', function() {
     });
 
     it('zoom in and validate radius in meter is double in size', async () => {
+        paLayer.setStyleGroup(feature, [{
+            zIndex: 0, type: 'Circle', radius: '30m', opacity: 1, fill: '#ff0000'
+        }]);
         await waitForViewportReady(display, () => display.setZoomlevel(display.getZoomlevel() + 1));
         await expectCanvasPixelColor(mapContainer, {x: 400 - 60, y: 300 - 60}, '#ff0000');
     });
 
 
     it('validate pointer-events for meter radius', async () => {
-        const listener = new Listener(display, ['pointerdown', 'pointerup']);
+        paLayer.setStyleGroup(feature, [{
+            zIndex: 0, type: 'Circle', radius: '30m', opacity: 1, fill: '#ff0000'
+        }]);
+        await waitForViewportReady(display, () => display.setZoomlevel(19));
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 460, y: 360}, modifiers: ['Alt']});
 

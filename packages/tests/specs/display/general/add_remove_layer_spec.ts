@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './add_remove_layer_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('get add and remove map layer', function() {
     let imageLayer;
@@ -29,7 +29,7 @@ describe('get add and remove map layer', function() {
     let display;
     let mapContainer;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -47,7 +47,7 @@ describe('get add and remove map layer', function() {
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
         display.destroy();
     });
 
@@ -76,6 +76,9 @@ describe('get add and remove map layer', function() {
     });
 
     it('add image overlay and validate sat image', async function() {
+        await waitForViewportReady(display, [linkLayer], () => {
+            display.removeLayer(imageLayer);
+        });
         expect(display.getLayers()).toHaveLength(1);
 
         await waitForViewportReady(display, [imageLayer, linkLayer], () => {

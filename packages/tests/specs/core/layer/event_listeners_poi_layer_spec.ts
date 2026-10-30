@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_poi_layer_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('event listeners in poi layer', function() {
     var preparedData;
@@ -28,7 +28,7 @@ describe('event listeners in poi layer', function() {
     var place1;
     var place2;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
         preparedData = await prepare(dataset);
         placeLayer = preparedData.getLayers('placeLayer');
         placeProvider = placeLayer.getProvider();
@@ -37,8 +37,8 @@ describe('event listeners in poi layer', function() {
         place2 = preparedData.getFeature('placeLayer', -9119);
     });
 
-    afterAll(async function() {
-        await preparedData.clear();
+    afterEach(async function() {
+        await preparedData?.clear();
     });
 
     it('validate remove feature event', function() {

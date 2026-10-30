@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,20 @@
 
 import {prepare} from 'utils';
 import dataset from './add_remove_feature_spec.json';
-import {describe, beforeAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('add and remove features in layer', function() {
     var addrLayer;
+    var preparedData;
 
 
-    beforeAll(async function() {
-        let preparedData = await prepare(dataset);
+    beforeEach(async function() {
+        preparedData = await prepare(dataset);
         addrLayer = preparedData.getLayers('addressLayer');
+    });
+
+    afterEach(async function() {
+        await preparedData?.clear();
     });
 
     it('search features', async function() {
@@ -44,8 +49,8 @@ describe('add and remove features in layer', function() {
         expect(removed).toBeUndefined();
     });
 
-    it('add an address feature', async function() {
-        addrLayer.addFeature({
+    it('adds two address features, searches and removes one', async function() {
+        let first = addrLayer.addFeature({
             geometry: {
                 coordinates: [79.94419050205374, 12.957261773733392, 0],
                 type: 'Point'
@@ -56,11 +61,9 @@ describe('add and remove features in layer', function() {
                 routingPoint: [79.94372, 12.95714, 0]
             }
         });
-    });
+        expect(first).toEqual(expect.objectContaining({type: 'Feature'}));
 
-
-    it('add another address feature', async function() {
-        addrLayer.addFeature({
+        let second = addrLayer.addFeature({
             geometry: {
                 coordinates: [79.94429050205374, 12.957261773733392, 0],
                 type: 'Point'
@@ -72,19 +75,14 @@ describe('add and remove features in layer', function() {
             }
         }
         , [[0, {r: 8, fill: '#F000F0'}]]);
-    });
+        expect(second).toEqual(expect.objectContaining({type: 'Feature'}));
 
-
-    it('search features', async function() {
         let objs = addrLayer.search({
             point: {longitude: 79.94419050205374, latitude: 12.957261773733392},
             radius: 100
         });
 
         expect(objs).toHaveLength(2);
-    });
-
-    it('remove feature', async () => {
         let area = {
             point: {longitude: 79.94419050205374, latitude: 12.957261773733392},
             radius: 100

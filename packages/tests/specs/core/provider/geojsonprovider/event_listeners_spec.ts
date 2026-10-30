@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,22 @@
 
 import {Listener, prepare} from 'utils';
 import dataset from './event_listeners_spec.json';
-import {describe, beforeAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('event listeners in provider layer', function() {
     var poiProvider;
+    var preparedData;
 
-    beforeAll(async function() {
-        let preparedData = await prepare(dataset);
+    beforeEach(async function() {
+        preparedData = await prepare(dataset);
         let poiLayer = preparedData.getLayers('placeGeoJsonLayer');
         poiProvider = poiLayer.getProvider();
     });
 
+
+    afterEach(async () => {
+        await preparedData?.clear();
+    });
 
     it('add and remove feature and validate add and remove events', function() {
         let listener = new Listener(poiProvider, ['featuresAdd', 'featuresRemove']);
@@ -49,6 +54,7 @@ describe('event listeners in provider layer', function() {
 
         let evts = listener.stop();
 
+        expect(evts.featuresAdd).toHaveLength(1);
         expect(evts.featuresAdd[0].detail.features[0]).toEqual(expect.objectContaining({id: 'abc'}));
         expect(evts.featuresRemove).toHaveLength(0);
 
@@ -63,6 +69,7 @@ describe('event listeners in provider layer', function() {
 
         let evt = listener2.stop();
 
+        expect(evt.featuresRemove).toHaveLength(1);
         expect(evt.featuresRemove[0].detail.features[0]).toEqual(expect.objectContaining({id: 'abc'}));
         expect(evt.featuresAdd).toHaveLength(0);
     });

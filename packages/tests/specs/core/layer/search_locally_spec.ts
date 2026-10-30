@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './search_locally_spec.json';
-import {describe, beforeAll, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('search features in provider by single parameter', function() {
     var preparedData;
@@ -29,6 +29,10 @@ describe('search features in provider by single parameter', function() {
         preparedData = await prepare(dataset);
 
         addressLayer = preparedData.getLayers('addressLayer');
+    });
+
+    afterAll(async () => {
+        await preparedData?.clear();
     });
 
     it('search in provider by feature id', function() {

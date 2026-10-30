@@ -16,14 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {createEditorFixture, waitForEditorReady} from 'editorUtils';
 import {drag} from 'triggerEvents';
+import {beforeEach, describe, expect, it} from 'vitest';
 import {userEvent} from 'vitest/browser';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
 import dataset from './poi_editable_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('poi editable', function() {
     let editor;
@@ -32,26 +29,14 @@ describe('poi editable', function() {
     let mapContainer;
     let poi;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 80.63813, latitude: 16.50068},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
         mapContainer = display.getContainer();
 
         poi = preparedData.getFeature('placeLayer', -29532);
-    });
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
     });
 
     it('set poi to not editable and validate its coordinate', function() {
@@ -61,6 +46,7 @@ describe('poi editable', function() {
     });
 
     it('drag the POI object and validate its coordinate again', async function() {
+        poi.editable(false);
         await waitForEditorReady(editor, async ()=>{
             await drag(mapContainer, {x: 300, y: 250}, {x: 200, y: 250});
         });
@@ -69,6 +55,7 @@ describe('poi editable', function() {
     });
 
     it('set poi to editable and drag it', async function() {
+        poi.editable(false);
         await waitForEditorReady(editor, ()=>{
             display.setCenter({longitude: 80.63813, latitude: 16.50068});
         });

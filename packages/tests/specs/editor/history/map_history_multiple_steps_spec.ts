@@ -16,140 +16,128 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {createEditorFixture, waitForEditorReady} from 'editorUtils';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './map_history_multiple_steps_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map history for multiple steps redo and undo', function() {
     var editor;
     var display;
     var preparedData;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {latitude: 18.865855, longitude: 73.07682},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
     });
 
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-    });
+    it('restores each editing step through undo and redo', async () => {
+        // add objects and validate
+        {
+            var lnk = {
+                type: 'Feature',
+                properties: {featureClass: 'NAVLINK'},
+                geometry: {
+                    type: 'LineString',
+                    coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 150}, {x: 300, y: 150}])
+                }
+            };
 
-    it('add objects and validate', function() {
-        var lnk = {
-            type: 'Feature',
-            properties: {featureClass: 'NAVLINK'},
-            geometry: {
-                type: 'LineString',
-                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 150}, {x: 300, y: 150}])
-            }
-        };
+            var poi1 = {
+                type: 'Feature',
+                properties: {featureClass: 'PLACE'},
+                geometry: {
+                    type: 'Point',
+                    coordinates: editor.toGeoJSONCoordinates({x: 100, y: 200})
+                }
+            };
 
+            var poi2 = {
+                type: 'Feature',
+                properties: {featureClass: 'PLACE'},
+                geometry: {
+                    type: 'Point',
+                    coordinates: editor.toGeoJSONCoordinates({x: 200, y: 200})
+                }
+            };
 
-        var poi1 = {
-            type: 'Feature',
-            properties: {featureClass: 'PLACE'},
-            geometry: {
-                type: 'Point',
-                coordinates: editor.toGeoJSONCoordinates({x: 100, y: 200})
-            }
-        };
+            var poi3 = {
+                type: 'Feature',
+                properties: {featureClass: 'PLACE'},
+                geometry: {
+                    type: 'Point',
+                    coordinates: editor.toGeoJSONCoordinates({x: 250, y: 200})
+                }
+            };
 
+            var poi4 = {
+                type: 'Feature',
+                properties: {featureClass: 'PLACE'},
+                geometry: {
+                    type: 'Point',
+                    coordinates: editor.toGeoJSONCoordinates({x: 250, y: 250})
+                }
+            };
 
-        var poi2 = {
-            type: 'Feature',
-            properties: {featureClass: 'PLACE'},
-            geometry: {
-                type: 'Point',
-                coordinates: editor.toGeoJSONCoordinates({x: 200, y: 200})
-            }
-        };
+            editor.addFeature(lnk, preparedData.getLayers('linkLayer'));
+            editor.addFeature(poi1, preparedData.getLayers('placeLayer'));
+            editor.addFeature(poi2, preparedData.getLayers('placeLayer'));
+            editor.addFeature(poi3, preparedData.getLayers('placeLayer'));
+            editor.addFeature(poi4, preparedData.getLayers('placeLayer'));
 
+            expect(editor.get('history.current')).toBe(5);
+            expect(editor.get('history.length')).toBe(5);
+            expect(editor.get('changes.length')).toBe(5);
+        }
 
-        var poi3 = {
-            type: 'Feature',
-            properties: {featureClass: 'PLACE'},
-            geometry: {
-                type: 'Point',
-                coordinates: editor.toGeoJSONCoordinates({x: 250, y: 200})
-            }
-        };
+        // undo again and validate
+        {
+            editor.undo(2);
 
+            expect(editor.get('history.current')).toBe(3);
+            expect(editor.get('history.length')).toBe(5);
+            expect(editor.get('changes.length')).toBe(3);
+        }
 
-        var poi4 = {
-            type: 'Feature',
-            properties: {featureClass: 'PLACE'},
-            geometry: {
-                type: 'Point',
-                coordinates: editor.toGeoJSONCoordinates({x: 250, y: 250})
-            }
-        };
+        // undo and validate
+        {
+            editor.undo();
 
-        editor.addFeature(lnk, preparedData.getLayers('linkLayer'));
-        editor.addFeature(poi1, preparedData.getLayers('placeLayer'));
-        editor.addFeature(poi2, preparedData.getLayers('placeLayer'));
-        editor.addFeature(poi3, preparedData.getLayers('placeLayer'));
-        editor.addFeature(poi4, preparedData.getLayers('placeLayer'));
+            expect(editor.get('history.current')).toBe(2);
+            expect(editor.get('history.length')).toBe(5);
+            expect(editor.get('changes.length')).toBe(2);
+        }
 
-        expect(editor.get('history.current')).toBe(5);
-        expect(editor.get('history.length')).toBe(5);
-        expect(editor.get('changes.length')).toBe(5);
-    });
+        // redo and validate
+        {
+            editor.redo(2);
 
+            expect(editor.get('history.current')).toBe(4);
+            expect(editor.get('history.length')).toBe(5);
+            expect(editor.get('changes.length')).toBe(4);
+        }
 
-    it('undo again and validate', function() {
-        editor.undo(2);
+        // redo again and validate
+        {
+            editor.redo(3);
 
-        expect(editor.get('history.current')).toBe(3);
-        expect(editor.get('history.length')).toBe(5);
-        expect(editor.get('changes.length')).toBe(3);
-    });
+            expect(editor.get('history.current')).toBe(4);
+            expect(editor.get('history.length')).toBe(5);
+            expect(editor.get('changes.length')).toBe(4);
+        }
 
-    it('undo and validate', function() {
-        editor.undo();
+        // revert changes then redo and validate
+        {
+            await waitForEditorReady(editor, ()=>{
+                editor.revert();
+            });
 
-        expect(editor.get('history.current')).toBe(2);
-        expect(editor.get('history.length')).toBe(5);
-        expect(editor.get('changes.length')).toBe(2);
-    });
+            editor.redo();
 
-    it('redo and validate', function() {
-        editor.redo(2);
-
-        expect(editor.get('history.current')).toBe(4);
-        expect(editor.get('history.length')).toBe(5);
-        expect(editor.get('changes.length')).toBe(4);
-    });
-
-    it('redo again and validate', function() {
-        editor.redo(3);
-
-        expect(editor.get('history.current')).toBe(4);
-        expect(editor.get('history.length')).toBe(5);
-        expect(editor.get('changes.length')).toBe(4);
-    });
-
-
-    it('revert changes then redo and validate', async function() {
-        await waitForEditorReady(editor, ()=>{
-            editor.revert();
-        });
-
-        editor.redo();
-
-        expect(editor.get('history.current')).toBe(0);
-        expect(editor.get('history.length')).toBe(0);
-        expect(editor.get('changes.length')).toBe(0);
+            expect(editor.get('history.current')).toBe(0);
+            expect(editor.get('history.length')).toBe(0);
+            expect(editor.get('changes.length')).toBe(0);
+        }
     });
 });

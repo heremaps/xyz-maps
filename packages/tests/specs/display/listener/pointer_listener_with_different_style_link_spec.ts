@@ -22,7 +22,7 @@ import {Listener, expectCanvasPixelColor, prepare} from 'utils';
 import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_listener_with_different_style_link_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('pointer listener with different style link', ()=>{
     let preparedData;
@@ -30,8 +30,10 @@ describe('pointer listener with different style link', ()=>{
     let linkLayer;
     let styles;
     let display;
+    let listener: Listener;
 
-    beforeAll(async ()=>{
+    beforeEach(async ()=>{
+        listener = undefined;
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -51,13 +53,14 @@ describe('pointer listener with different style link', ()=>{
         styles = linkLayer.getStyle();
     });
 
-    afterAll(async ()=>{
+    afterEach(async ()=>{
+        listener?.stop();
         display.destroy();
         await preparedData.clear();
     });
 
     it('click on link and validate pointer events', async ()=>{
-        let listener = new Listener(display, ['pointerdown', 'pointerup']);
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
 
 
         await userEvent.click(mapContainer, {position: {x: 605, y: 310}, modifiers: ['Alt']});
@@ -94,7 +97,7 @@ describe('pointer listener with different style link', ()=>{
 
         display.refresh(linkLayer);
 
-        let listener = new Listener(display, ['pointerdown', 'pointerup']);
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 322, y: 309}, modifiers: ['Alt']});
 
@@ -125,6 +128,14 @@ describe('pointer listener with different style link', ()=>{
     });
 
     it('reset layer style and validate', async ()=>{
+        linkLayer.setStyle({
+            styleGroups: {
+                replacement: [{zIndex: 0, type: 'Line', strokeWidth: 18, stroke: '#0000ff'}]
+            },
+            assign: () => 'replacement'
+        });
+        display.refresh(linkLayer);
+        await expectCanvasPixelColor(mapContainer, {x: 322, y: 309}, '#0000ff');
         linkLayer.setStyle(styles);
 
         display.refresh(linkLayer);
@@ -150,7 +161,7 @@ describe('pointer listener with different style link', ()=>{
             }]);
 
 
-        let listener = new Listener(display, ['pointerup']);
+        listener = new Listener(display, ['pointerup']);
 
         // center line
         await userEvent.click(mapContainer, {position: {x: 467, y: 312}, modifiers: ['Alt']});
@@ -187,7 +198,7 @@ describe('pointer listener with different style link', ()=>{
             }]);
 
 
-        let listener = new Listener(display, ['pointerup']);
+        listener = new Listener(display, ['pointerup']);
 
         // center line
         await userEvent.click(mapContainer, {position: {x: 467, y: 312}, modifiers: ['Alt']});
@@ -231,7 +242,7 @@ describe('pointer listener with different style link', ()=>{
             }]);
 
 
-        let listener = new Listener(display, ['pointerup']);
+        listener = new Listener(display, ['pointerup']);
 
         // center line
         await userEvent.click(mapContainer, {position: {x: 467, y: 312}, modifiers: ['Alt']});

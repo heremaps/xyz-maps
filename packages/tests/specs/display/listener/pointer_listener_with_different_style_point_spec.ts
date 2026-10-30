@@ -22,7 +22,7 @@ import {Listener, expectCanvasPixelColor, prepare} from 'utils';
 import {userEvent} from 'vitest/browser';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './pointer_listener_with_different_style_point_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('pointer listener with different style point', function() {
     let preparedData;
@@ -30,8 +30,10 @@ describe('pointer listener with different style point', function() {
     let poiLayer;
     let styles;
     let display;
+    let listener: Listener;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
+        listener = undefined;
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             // @ts-ignore
@@ -51,13 +53,14 @@ describe('pointer listener with different style point', function() {
         styles = poiLayer.getStyle();
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
+        listener?.stop();
         display.destroy();
         await preparedData.clear();
     });
 
     it('valite pointdown and up on link', async function() {
-        let listener = new Listener(display, ['pointerdown', 'pointerup']);
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
 
         await userEvent.click(mapContainer, {position: {x: 321, y: 311}, modifiers: ['Alt']});
 
@@ -101,7 +104,7 @@ describe('pointer listener with different style point', function() {
         display.refresh(poiLayer);
 
 
-        let listener = new Listener(display, ['pointerdown', 'pointerup']);
+        listener = new Listener(display, ['pointerdown', 'pointerup']);
         await userEvent.click(mapContainer, {position: {x: 321, y: 311}, modifiers: ['Alt']});
 
         let results = listener.stop();
@@ -130,6 +133,14 @@ describe('pointer listener with different style point', function() {
 
 
     it('reset style and validate', async function() {
+        poiLayer.setStyle({
+            styleGroups: {
+                replacement: [{zIndex: 0, type: 'Circle', radius: 6, fill: '#0000ff'}]
+            },
+            assign: () => 'replacement'
+        });
+        display.refresh(poiLayer);
+        await expectCanvasPixelColor(mapContainer, {x: 254, y: 205}, '#0000ff');
         poiLayer.setStyle(styles);
 
         display.refresh(poiLayer);

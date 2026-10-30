@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,20 @@
 
 import {prepare} from 'utils';
 import dataset from './add_remove_multiple_feature_spec.json';
-import {describe, beforeAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('add and remove multiple features in layer', function() {
     var layer;
+    var preparedData;
 
-    beforeAll(async () => {
-        let preparedData = await prepare(dataset);
+    beforeEach(async () => {
+        preparedData = await prepare(dataset);
         layer = preparedData.getLayers('addressLayer');
     });
 
+    afterEach(async () => {
+        await preparedData?.clear();
+    });
 
     it('search features', async () => {
         let objs = layer.search({
@@ -63,8 +67,8 @@ describe('add and remove multiple features in layer', function() {
         expect(result).toHaveLength(0);
     });
 
-    it('add 2 address feature', async () => {
-        layer.addFeature([{
+    it('adds, searches and removes two address features', async () => {
+        let added = layer.addFeature([{
             geometry: {
                 coordinates: [76.61612872418794, 16.399283334351907, 0],
                 type: 'Point'
@@ -86,10 +90,8 @@ describe('add and remove multiple features in layer', function() {
             }
         }],
         [{zIndex: 0, type: 'Circle', radius: 8, fill: '#F000F0'}]);
-    });
+        expect(added).toHaveLength(2);
 
-
-    it('search features', async () => {
         let objs = layer.search({
             rect: {
                 minLon: 76.6156351977292,
@@ -100,9 +102,6 @@ describe('add and remove multiple features in layer', function() {
         });
 
         expect(objs).toHaveLength(2);
-    });
-
-    it('remove features', async () => {
         let rect = {
             minLon: 76.6156351977292,
             minLat: 16.398663218659152,

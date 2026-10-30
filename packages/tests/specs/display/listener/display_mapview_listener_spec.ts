@@ -22,13 +22,15 @@ import {Listener, prepare} from 'utils';
 import {drag} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './display_mapview_listener_spec.json';
-import {vi, describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {vi, describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('mapview change listener', function() {
     let display;
     let mapContainer;
+    let listener: Listener;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
+        listener = undefined;
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 73.00368500489765, latitude: 20.27239042522672},
@@ -40,12 +42,13 @@ describe('mapview change listener', function() {
         await waitForViewportReady(display);
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
+        listener?.stop();
         display.destroy();
     });
 
     it('validate mapview events are triggered by dragging map', async function() {
-        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
         await waitForViewportReady(display, async ()=>{
             await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
@@ -59,7 +62,7 @@ describe('mapview change listener', function() {
 
     it('validate mapview events numbers after dragging map', async function() {
         // mapviewchangestart and mapviewchangeend are expected to be triggered in pairs
-        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
         await waitForViewportReady(display, async ()=>{
             await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
@@ -71,7 +74,7 @@ describe('mapview change listener', function() {
     });
 
     it('pairs mapview events when movement resumes before the pending end', async function() {
-        const listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
         const getViewBounds = display.getViewBounds.bind(display);
         let reads = 0;
         let resumeMovement: () => void;
@@ -105,7 +108,7 @@ describe('mapview change listener', function() {
 
     it('validate mapview events after dragging map slowly', async function() {
         // mapviewchangestart and mapviewchangeend are expected to be triggered in pairs
-        let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+        listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
         await waitForViewportReady(display, async ()=>{
             await drag(mapContainer, {x: 200, y: 100}, {x: 100, y: 100}, 240);
@@ -121,7 +124,7 @@ describe('mapview change listener', function() {
     it('lock viewport for panning then validate mapview events after dragging map', async function() {
         display.lockViewport({pan: true});
         try {
-            let listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
+            listener = new Listener(display, ['mapviewchangestart', 'mapviewchangeend']);
 
             await drag(mapContainer, {x: 100, y: 100}, {x: 200, y: 100});
 

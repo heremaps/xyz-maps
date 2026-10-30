@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  */
 
 import {Task, TaskManager, TaskSequence} from '@here/xyz-maps-common';
-import {beforeAll, describe, it, expect} from 'vitest';
+import {beforeEach, describe, it, expect} from 'vitest';
 
 describe('task sequence', function() {
     let taskManager = TaskManager.getInstance(5);
@@ -26,7 +26,7 @@ describe('task sequence', function() {
     let tasks = [];
 
 
-    beforeAll(() => {
+    beforeEach(() => {
         tasks = [
             taskManager.create({
                 init(input) {

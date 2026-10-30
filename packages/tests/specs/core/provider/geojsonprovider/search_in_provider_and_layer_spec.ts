@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 import {prepare} from 'utils';
 import dataset from './search_in_provider_and_layer_spec.json';
-import {describe, beforeAll, it, expect} from 'vitest';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('search features in poi layer and provider', function() {
     var preparedData;
@@ -33,6 +33,10 @@ describe('search features in poi layer and provider', function() {
 
         poiLayer = preparedData.getLayers('placeGeoJsonLayer');
         poiProvider = poiLayer.getProvider();
+    });
+
+    afterAll(async () => {
+        await preparedData?.clear();
     });
 
     it('search in poi layer by feature id', function() {

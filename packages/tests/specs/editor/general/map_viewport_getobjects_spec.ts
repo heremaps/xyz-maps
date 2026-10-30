@@ -16,13 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {prepare} from 'utils';
-import {waitForEditorReady} from 'editorUtils';
+import {createEditorFixture} from 'editorUtils';
 import {drag} from 'triggerEvents';
-import {Map} from '@here/xyz-maps-display';
-import {Editor} from '@here/xyz-maps-editor';
+import {beforeEach, describe, expect, it} from 'vitest';
 import dataset from './map_viewport_getobjects_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('map viewport getobjects', function() {
     var editor;
@@ -32,28 +29,15 @@ describe('map viewport getobjects', function() {
     var poi1;
     var poiLayer;
 
-    beforeAll(async function() {
-        preparedData = await prepare(dataset);
-        display = new Map(document.getElementById('map'), {
+    beforeEach(async function() {
+        ({preparedData, display, editor} = await createEditorFixture(dataset, {
             center: {longitude: 77.20057, latitude: 13.143919},
-            zoomlevel: 18,
-            layers: preparedData.getLayers()
-        });
-        editor = new Editor(display, {
-            layers: preparedData.getLayers()
-        });
-
-        await waitForEditorReady(editor);
+            zoomlevel: 18
+        }));
 
         poiLayer = preparedData.getLayers('placeLayer');
 
         poi1 = preparedData.getFeature('placeLayer', -29498);
-    });
-
-    afterAll(async function() {
-        editor.destroy();
-        display.destroy();
-        await preparedData.clear();
     });
 
     it('validate objects in viewport', function() {
@@ -62,16 +46,18 @@ describe('map viewport getobjects', function() {
         expect(obj).toHaveLength(3);
     });
 
-
     it('validate POI objects in viewport', function() {
         let obj = editor.search({rect: display.getViewBounds(), layers: [poiLayer]});
         expect(obj).toHaveLength(2);
     });
 
-    it('get a poi object and add its navigation point', function() {
+    it('preserves a POI when its existing routing link cannot be resolved', function() {
+        const coordinates = poi1.coord();
         poi1.createRoutingPoint();
+        expect(poi1.getLink()).toBeNull();
+        expect(poi1.prop('routingLink')).toBe('abc');
+        expect(poi1.coord()).toEqual(coordinates);
     });
-
 
     it('validate POI objects in boundingbox of the viewport', function() {
         let objs = editor.search({
@@ -82,8 +68,8 @@ describe('map viewport getobjects', function() {
         expect(objs).toHaveLength(1);
     });
 
-
     it('select a poi, validate POI objects in boundingbox of the viewport again', async function() {
+        poi1.createRoutingPoint();
         poi1.select();
         let mapContainer = display.getContainer();
         await drag(mapContainer, {x: 150, y: 100}, {x: 180, y: 100});

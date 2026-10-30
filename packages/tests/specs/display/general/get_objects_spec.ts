@@ -21,7 +21,7 @@ import {prepare} from 'utils';
 import {waitForViewportReady} from 'displayUtils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './get_objects_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('get objects', function() {
     let preparedData;
@@ -30,7 +30,7 @@ describe('get objects', function() {
 
     let testLayer;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         preparedData = await prepare(dataset);
 
 
@@ -46,7 +46,7 @@ describe('get objects', function() {
         link = preparedData.getFeature('linkLayer', 1003913693);
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
         display.destroy();
         await preparedData.clear();
     });
@@ -79,7 +79,7 @@ describe('get objects', function() {
         expect(o.features).toHaveLength(1);
     });
 
-    it('validate drawing order Polygon', () => {
+    it('updates picking order as Polygon, Point and Line zIndex and zLayer change', () => {
         testLayer.getProvider().clear();
 
         let p = display.pixelToGeo({x: 300, y: 300});
@@ -138,9 +138,6 @@ describe('get objects', function() {
         let o = display.getFeatureAt({x: 300, y: 300});
 
         expect(o.feature).toEqual(expect.objectContaining({id: 'Polygon'}));
-    });
-
-    it('validate drawing order Point', () => {
         // move point to top
         testLayer.setStyleGroup(testLayer.search('Point'), [{
             type: 'Circle',
@@ -149,12 +146,9 @@ describe('get objects', function() {
             radius: 20
         }]);
 
-        let o = display.getFeatureAt({x: 300, y: 300});
+        o = display.getFeatureAt({x: 300, y: 300});
 
         expect(o.feature).toEqual(expect.objectContaining({id: 'Point'}));
-    });
-
-    it('validate drawing order Line', () => {
         // move line to top
         testLayer.setStyleGroup(testLayer.search('Line'), [{
             type: 'Line',
@@ -163,13 +157,10 @@ describe('get objects', function() {
             strokeWidth: 16
         }]);
 
-        let o = display.getFeatureAt({x: 300, y: 300});
+        o = display.getFeatureAt({x: 300, y: 300});
 
         expect(o.feature).toEqual(expect.objectContaining({id: 'Line'}));
-    });
-
-    it('validate drawing order Polygon (zLayer)', () => {
-        // move line to top
+        // move polygon to top
         testLayer.setStyleGroup(testLayer.search('Polygon'), [{
             type: 'Polygon',
             zIndex: 2,
@@ -178,12 +169,9 @@ describe('get objects', function() {
             opacity: .5
         }]);
 
-        let o = display.getFeatureAt({x: 300, y: 300});
+        o = display.getFeatureAt({x: 300, y: 300});
 
         expect(o.feature).toEqual(expect.objectContaining({id: 'Polygon'}));
-    });
-
-    it('validate drawing order Point (zLayer)', () => {
         // move point to top
         testLayer.setStyleGroup(testLayer.search('Point'), [{
             type: 'Circle',
@@ -193,12 +181,9 @@ describe('get objects', function() {
             radius: 20
         }]);
 
-        let o = display.getFeatureAt({x: 300, y: 300});
+        o = display.getFeatureAt({x: 300, y: 300});
 
         expect(o.feature).toEqual(expect.objectContaining({id: 'Point'}));
-    });
-
-    it('validate drawing order Line (zLayer)', () => {
         // move line to top
         testLayer.setStyleGroup(testLayer.search('Line'), [{
             type: 'Line',
@@ -208,7 +193,7 @@ describe('get objects', function() {
             strokeWidth: 16
         }]);
 
-        let o = display.getFeatureAt({x: 300, y: 300});
+        o = display.getFeatureAt({x: 300, y: 300});
 
         expect(o.feature).toEqual(expect.objectContaining({id: 'Line'}));
     });

@@ -22,13 +22,13 @@ import {prepare} from 'utils';
 import {drag, mousewheel} from 'triggerEvents';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './set_get_behavior_spec.json';
-import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+import {describe, beforeEach, afterEach, it, expect} from 'vitest';
 
 describe('set and get behavior', function() {
     let display;
     let mapContainer;
 
-    beforeAll(async function() {
+    beforeEach(async function() {
         let preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 77.79802, latitude: 12.62214},
@@ -38,7 +38,7 @@ describe('set and get behavior', function() {
         mapContainer = display.getContainer();
     });
 
-    afterAll(async function() {
+    afterEach(async function() {
         display.destroy();
     });
 
@@ -73,7 +73,8 @@ describe('set and get behavior', function() {
         expect(display.getBehavior()).toEqual(expect.objectContaining({zoom: true, drag: false}));
     });
 
-    it('set pan behavior to false', async function() {
+    it('re-enable dragging and pan the map', async function() {
+        display.setBehavior('drag', false);
         display.setBehavior('drag', true);
 
         await waitForViewportReady(display, async ()=>{
@@ -105,7 +106,7 @@ describe('set and get behavior', function() {
         expect(display.rotate()).not.toBe(rotation);
     });
 
-    it('zoom out and validate', async function() {
+    it('ignore wheel input when zoom behavior is disabled', async function() {
         display.setBehavior('zoom', false);
 
         await mousewheel(mapContainer, 200, 210, 1);
@@ -115,6 +116,7 @@ describe('set and get behavior', function() {
     });
 
     it('set zoom behavior to true and validate', async function() {
+        display.setBehavior('zoom', false);
         display.setBehavior('zoom', true);
 
         await waitForViewportReady(display, ()=>{
