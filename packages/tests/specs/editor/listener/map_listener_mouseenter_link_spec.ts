@@ -74,7 +74,7 @@ describe('map mouseenter link when link layer is removed', function() {
             await mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
         });
 
-        // mouse out of a link
+        // Move away from the link position; this step does not guarantee a pointerleave.
         await mousemove(mapContainer, {x: 330, y: 167}, {x: 360, y: 132});
 
         // mouse over a POI
@@ -107,14 +107,16 @@ describe('map mouseenter link when link layer is removed', function() {
         // mouse over a link
         await mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
 
-        // mouse out of a link
+        // Move away from the link position; this step does not guarantee a pointerleave.
         await mousemove(mapContainer, {x: 330, y: 167}, {x: 360, y: 132});
 
         // mouse over a POI
-        await mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146});
+        await waitForPointerEvent(editor, 'pointerenter', () =>
+            mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146}));
 
         // mouse out of a poi
-        await mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130});
+        await waitForPointerEvent(editor, 'pointerleave', () =>
+            mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130}));
 
         let results = listener.stop();
 
@@ -137,16 +139,19 @@ describe('map mouseenter link when link layer is removed', function() {
         await click(mapContainer, 350, 132);
 
         // mouse over a link
-        await mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167});
+        await waitForPointerEvent(editor, 'pointerenter', () =>
+            mousemove(mapContainer, {x: 350, y: 132}, {x: 330, y: 167}));
 
-        // mouse out of a link
+        // Move away from the link position; this step does not guarantee a pointerleave.
         await mousemove(mapContainer, {x: 330, y: 167}, {x: 360, y: 132});
 
         // mouse over a POI
-        await mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146});
+        await waitForPointerEvent(editor, 'pointerenter', () =>
+            mousemove(mapContainer, {x: 300, y: 132}, {x: 285, y: 146}));
 
         // mouse out of a poi
-        await mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130});
+        await waitForPointerEvent(editor, 'pointerleave', () =>
+            mousemove(mapContainer, {x: 285, y: 146}, {x: 285, y: 130}));
 
         let results = listener.stop();
 
