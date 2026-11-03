@@ -45,6 +45,110 @@ const geometry = () => ({
     bbox: [0, 0, 0, 2, 3, 4]
 });
 
+describe('Render-only handoff', () => {
+    it('requires finalization before transferring builder ownership', () => {
+        expect(() => new PointBuffer().toRenderBuffer()).toThrow('Finalize');
+    });
+
+    it.each(['Line', 'Polygon', 'Circle'])('preserves %s geometry, render state and picking without builder fields', (type) => {
+        const source = type === 'Line' ? new LineBuffer() :
+            type === 'Polygon' ? new PolygonBuffer() : new PointBuffer(true, 256);
+        source.getPositionAttribute().data.push(0, 0, 1, 0, 0, 1);
+        if (type === 'Polygon') source.setIndex(new Uint32Array([0, 1, 2]));
+        source.setIdOffset('feature');
+        source.setRequiresHeightMap(true);
+        source.addUniform('u_opacity', 0.5);
+        source.finalize(type);
+        source.pass = 3;
+        source.depth = source.blend = true;
+        source.renderUsage = 1;
+        source.terrainOcclusion = 1;
+        source.zRange = [2, 10];
+        source.pixelPerfect = true;
+        source.mode = GeometryBuffer.MODE_GL_LINES;
+        source.pointerEvents = false;
+        const attribute = source.attributes.a_position as Attribute;
+        const ref = attribute.ref;
+        const compiledUniforms = source.getUniformData();
+        const rendered = source.toRenderBuffer();
+        expect(Object.getPrototypeOf(rendered)).toBe(GeometryBuffer.prototype);
+        expect(rendered.uid).not.toBe(source.uid);
+        for (const field of ['flexAttributes', 'first', 'i32', 'isPointGeometry', 'finalized', '_index', 'arrayCount']) {
+            expect(Object.prototype.hasOwnProperty.call(rendered, field), field).toBe(false);
+        }
+        expect(rendered.attributes.a_position).toBe(attribute);
+        expect(attribute.ref).toBe(ref);
+        expect(rendered.groups).toBe(source.groups);
+        expect(rendered.uniforms).not.toBe(source.uniforms);
+        expect(rendered.getUniformData()).not.toBe(compiledUniforms);
+        expect(rendered.compileUniforms().uniforms.u_opacity).toBe(0.5);
+        expect(rendered.compileUniforms().fromCache).toBe(true);
+        expect(rendered.idOffsets).toBe(source.idOffsets);
+        expect(rendered.rayIntersects).toBe(source.rayIntersects);
+        for (const field of ['pass', 'depth', 'blend', 'renderUsage', 'terrainOcclusion', 'zRange',
+            'pixelPerfect', 'mode', 'pointerEvents', 'flat', 'anchoredPixelSize'] as const) {
+            expect(rendered[field], field).toBe(source[field]);
+        }
+        expect(rendered.cullFace()).toBe(source.cullFace());
+        expect(rendered.getHeightBounds(2)).toEqual([4, 20]);
+        expect(rendered.requiresHeightMap()).toBe(true);
+        expect(rendered.count()).toBe(source.count());
+        if (type === 'Polygon') {
+            expect(rendered.index()).toBe(source.index());
+            expect((rendered.groups[0] as ElementsDrawCmd).index.type).toBe(5125);
+        } else {
+            expect(() => rendered.index()).toThrow('finalized');
+        }
+        expect(rendered.finalize(type)).toBe(rendered);
+        expect(rendered.groups).toHaveLength(1);
+        expect(() => rendered.setArray(0, 3)).toThrow('finalized');
+        expect(() => rendered.setIdOffset('late')).toThrow('finalized');
+    });
+
+    it('preserves resolved references and excludes specialized models and terrain', () => {
+        const point = new PointBuffer();
+        point.addPoint(0, 0, 0);
+        point.heightMapRef = {terrainTileKey: 123, geometryTileKey: 12, transform: new Float32Array([0, 0, 1])};
+        point.finalize('Circle');
+        expect(point.toRenderBuffer().heightMapRef).toBe(point.heightMapRef);
+        for (const [source, type] of [
+            [new ModelBuffer(geometry()), 'Model'], [new TerrainModelBuffer(geometry()), 'Terrain']
+        ] as const) {
+            expect(() => source.toRenderBuffer()).toThrow('Finalize');
+            source.addInstance(0, 0, 0);
+            source.finalize(type);
+            expect(source.toRenderBuffer()).toBe(source);
+        }
+    });
+
+    it('transfers texture ownership without acquiring or releasing resources again', () => {
+        const renderer = new GLRender({});
+        renderer.init(document.createElement('canvas'), 1, new HeightMapTileCache());
+        const texture = new Texture(renderer.device, {
+            data: new Uint8Array([255, 0, 0, 255]), width: 1, height: 1
+        });
+        const destroy = vi.spyOn(texture, 'destroy');
+        let rendered: GeometryBuffer | undefined;
+        try {
+            const source = new SymbolBuffer(true, 256);
+            source.getPositionAttribute().data.push(0, 0, 1, 0, 0, 1);
+            source.addUniform('u_texture', texture);
+            source.finalize('Icon');
+            const ref = texture.ref;
+            rendered = source.toRenderBuffer();
+            expect(rendered.getUniform('u_texture')).toBe(texture);
+            expect(texture.ref).toBe(ref);
+            expect(destroy).not.toHaveBeenCalled();
+        } finally {
+            if (rendered) renderer.releaseGeometryBuffer(rendered);
+            else texture.destroy();
+            renderer.destroy();
+        }
+        expect(texture.ref).toBe(0);
+        expect(destroy).toHaveBeenCalledTimes(1);
+    });
+});
+
 describe('Unified buffer lifecycle', () => {
     it('couples batch discriminators to specialized buffer and resolved-style contracts', () => {
         expectTypeOf<BufferBatch<'Text'>['buffer']>().toEqualTypeOf<TextBuffer | undefined>();
@@ -271,7 +375,7 @@ describe('Unified buffer lifecycle', () => {
         expect(second.getHeightBounds(1)[0]).toBe(50);
     });
 
-    it('restarts chunked construction with fresh groups rather than re-finalizing old objects', () => {
+    it('restarts construction and hands off render-only base buffers', () => {
         const renderer = new GLRender({});
         renderer.init(document.createElement('canvas'), 1, new HeightMapTileCache());
         const factory = new FeatureBufferBuilder(renderer.device, null, 1);
@@ -296,9 +400,25 @@ describe('Unified buffer lifecycle', () => {
                 expect(fresh.batchesByZIndex).not.toBe(interrupted.batchesByZIndex);
                 expect(fresh.featureIndex).toBe(0);
                 while (task.exec(fresh)) {/* Drain the actual task chunks. */}
+                const source = fresh.batchesByZIndex['0'].batches[0].buffer;
+                if (!(source instanceof GeometryBuffer)) throw new Error('Expected a single scene buffer.');
+                const uniformValue = [0.25, 0.5];
+                source.addUniform('u_handoff', uniformValue);
+                const uniforms = source.uniforms;
+                const uniformKeys = Object.keys(uniforms);
+                const compiledUniforms = source.getUniformData();
                 const result = task.onDone(fresh);
                 expect(result.buffers).toHaveLength(1);
+                expect(Object.getPrototypeOf(result.buffers[0])).toBe(GeometryBuffer.prototype);
                 expect(result.buffers[0].count()).toBe(32 * 6);
+                const rendered = result.buffers[0];
+                expect(rendered.uniforms).not.toBe(uniforms);
+                expect(Object.keys(rendered.uniforms).slice(0, uniformKeys.length)).toStrictEqual(uniformKeys);
+                for (const key of uniformKeys) expect(rendered.uniforms[key]).toBe(uniforms[key]);
+                expect(rendered.getUniformData()).not.toBe(compiledUniforms);
+                expect(rendered.compileUniforms().uniforms.u_handoff).toBe(uniformValue);
+                expect(rendered.compileUniforms().fromCache).toBe(true);
+                expect(rendered.rayIntersects).toBe(source.rayIntersects);
                 results.push(...result.buffers);
             }
             expect(results[0]).not.toBe(results[1]);

@@ -178,11 +178,12 @@ export class FeatureBufferBuildTask extends Task<TaskInput, TaskData, FeatureBuf
                     const hasAlphaColor = GeometryBuffer.hasAlphaColor(resolvedStyle);
                     for (let batchBuffer of batchBuffers) {
                         if (batchBuffer.isEmpty()) continue;
-                        const geoBuffer = batchBuffer.finalize(type, resolvedStyle.light);
+                        const finalizedBuffer = batchBuffer.finalize(type, resolvedStyle.light);
 
-                        if (geoBuffer == null) continue;
+                        if (finalizedBuffer == null) continue;
 
-                        geoBuffer.configureStyle(resolvedStyle, meterToPixel, hasAlphaColor, this.builder.textureManager, styleContext);
+                        finalizedBuffer.configureStyle(resolvedStyle, meterToPixel, hasAlphaColor, this.builder.textureManager, styleContext);
+                        const geoBuffer = finalizedBuffer.toRenderBuffer();
                         geoBuffer.pointerEvents = batch.pointerEvents;
                         buffers.push(geoBuffer);
 

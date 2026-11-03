@@ -169,15 +169,15 @@ class GeometryBuffer {
         return this.getFillColor(style.fill)?.[3] < 1 || style.stroke?.[3] < 1;
     }
 
-    flexAttributes: {[name: string]: FlexAttribute | ConstantAttribute} | null = null;
-    first: number = 0;
+    flexAttributes: {[name: string]: FlexAttribute | ConstantAttribute} | null;
+    first: number;
     last: number;
-    i32: boolean = false;
+    i32: boolean;
     // Construction-time clipping classification; isPointBuffer() controls legacy shader sizing.
-    isPointGeometry: boolean = false;
+    isPointGeometry: boolean;
     protected _index?: IndexArray;
     private arrayCount?: number;
-    private finalized: boolean = false;
+    private finalized: boolean;
     private sourceHeightBounds?: [number, number];
 
     static getVertexZ(x: number, y: number, heightMap: HeightMapTileData, transform: ArrayLike<number> | null): number {
@@ -407,20 +407,20 @@ class GeometryBuffer {
     constructor(flat: boolean);
     constructor(index?: ArrayData | IndexArray, type?: string, i32?: boolean);
     constructor(index?: ArrayData | IndexArray | boolean, type?: string, i32?: boolean) {
-        if (typeof index === 'boolean') {
-            this.flat = index;
-            this.idOffsets = [];
-            this._cullFace = FRONT;
-        } else if (index) {
-            const group = this.addDrawCmd(index, i32);
-            if ('index' in group) {
-                this._index = group.index.data;
-            } else {
-                this.first = group.arrays.first;
-                this.arrayCount = group.arrays.count;
+        if (typeof index === 'boolean' || !index) {
+            this.flexAttributes = null;
+            this.first = 0;
+            this.i32 = false;
+            this.isPointGeometry = false;
+            this.finalized = false;
+            if (typeof index === 'boolean') {
+                this.flat = index;
+                this.idOffsets = [];
+                this._cullFace = FRONT;
             }
+        } else {
+            this.addDrawCmd(index, i32);
             this.type = type;
-            this.finalized = true;
         }
     }
 
@@ -431,8 +431,10 @@ class GeometryBuffer {
 
     count(): number {
         if (this.arrayCount !== undefined) return this.arrayCount;
+        const group = this.groups[0];
+        if (group && 'arrays' in group) return group.arrays.count;
         const {data, size} = (this.flexAttributes?.a_position || this.attributes.a_position) as FlexAttribute | Attribute;
-        return data.length / size - this.first;
+        return data.length / size - (this.first ?? 0);
     }
 
     setArray(first: number, count: number): void {
@@ -447,6 +449,8 @@ class GeometryBuffer {
     }
 
     index(): IndexArray {
+        const group = this.groups[0];
+        if (group && 'index' in group) return group.index.data;
         if (!this._index) {
             this.assertConstructing();
             this._index = [];
@@ -455,7 +459,8 @@ class GeometryBuffer {
     }
 
     hasIndex(): boolean {
-        return !!this._index;
+        const group = this.groups[0];
+        return !!this._index || !!group && 'index' in group;
     }
 
     isEmpty(): boolean {
@@ -473,11 +478,19 @@ class GeometryBuffer {
     }
 
     protected assertConstructing(): void {
-        if (this.finalized) throw new Error('Cannot rebuild a finalized GeometryBuffer; create a fresh buffer.');
+        if (this.finalized || !this.flexAttributes && this.groups.length) {
+            throw new Error('Cannot rebuild a finalized GeometryBuffer; create a fresh buffer.');
+        }
+    }
+
+    protected assertFinalized(): void {
+        if (!this.finalized) {
+            throw new Error('Finalize the buffer first.');
+        }
     }
 
     finalize(type: string, light?: string): this | null {
-        if (this.finalized) return this;
+        if (this.finalized || !this.flexAttributes && this.groups.length) return this;
         if (this.hasIndex() && !this._index.length) return null;
         this.arrayCount = this.count();
         this.addDrawCmd(this.hasIndex() ? this._index : {first: this.first, count: this.count()}, this.i32);
@@ -500,6 +513,60 @@ class GeometryBuffer {
         this.finalized = true;
         this.flexAttributes = null;
         return this;
+    }
+
+    /**
+     * Creates a plain GeometryBuffer for rendering. Subclass instances would give the render hot path
+     * several object shapes (hidden classes) and slow it down.
+     * The source buffer must not be rendered or released afterwards; the returned buffer owns the shared attributes and textures.
+     *
+     * @hideen
+     * @internal
+     */
+    toRenderBuffer(): GeometryBuffer {
+        this.assertFinalized();
+
+        const group = this.groups[0];
+        const buffer = new GeometryBuffer('index' in group ? group.index.data : group.arrays, this.type, this.i32);
+        for (const name in this.attributes) buffer.attributes[name] = this.attributes[name];
+        for (const name in this.uniforms) buffer.addUniform(name, this.uniforms[name]);
+        buffer.groups = this.groups;
+        buffer.light = this.light;
+        buffer.instances = this.instances;
+        buffer.idOffsets = this.idOffsets;
+        buffer.alphaMode = this.alphaMode;
+        buffer.alphaCutoff = this.alphaCutoff;
+        buffer.cullFace(this.cullFace());
+        buffer.rayIntersects = this.rayIntersects;
+        buffer.setHeightMapRef(!!this.heightMapRef);
+        buffer.heightMapRef = this.heightMapRef || null;
+        buffer.anchoredPixelSize = this.anchoredPixelSize;
+        buffer.flat = this.flat;
+        buffer.pass = this.pass;
+        buffer.depth = this.depth;
+        buffer.blend = this.blend;
+        buffer.renderUsage = this.renderUsage;
+        buffer.terrainOcclusion = this.terrainOcclusion;
+        buffer.pixelPerfect = this.pixelPerfect;
+        buffer.renderScale = this.renderScale;
+        buffer.referenceW = this.referenceW;
+        buffer.rendered = this.rendered;
+        buffer.zIndex = this.zIndex;
+        buffer.zLayer = this.zLayer;
+        buffer.clip = this.clip;
+        buffer.scissorBox = this.scissorBox;
+        buffer.mode = this.mode;
+        buffer.pointerEvents = this.pointerEvents;
+        buffer.isSynthetic = this.isSynthetic;
+        buffer.bbox = this.bbox;
+        buffer.fragmentTileClip = this.fragmentTileClip;
+        buffer.id = this.id;
+        buffer.zRange = this.zRange;
+        buffer.heightMap = this.heightMap;
+        buffer.terrainCache = this.terrainCache;
+        buffer.uniformBlocks = this.uniformBlocks;
+        buffer.uniformBlockByField = this.uniformBlockByField;
+        return buffer;
     }
 
     /**

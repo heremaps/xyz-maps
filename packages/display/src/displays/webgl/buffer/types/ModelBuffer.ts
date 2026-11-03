@@ -274,6 +274,11 @@ export type ModelBufferUniforms = BufferUniforms & {
 };
 
 export class ModelBuffer extends GeometryBuffer {
+    override toRenderBuffer(): this {
+        this.assertFinalized();
+        return this;
+    }
+
     declare uniforms: ModelBufferUniforms;
     declare attributes: GeometryBuffer['attributes'] & BufferAttributes<NonNullable<ModelBuffer['flexAttributes']>>;
     declare configureStyle: ConfigureBufferStyle<ModelBufferStyle>;

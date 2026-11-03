@@ -373,7 +373,7 @@ describe('Factory delegation and partition preservation', () => {
                 [x, y], [x + 0.0001, y], [x, y + 0.0001], [x, y]
             ]]}, properties: {width, color: id ? 'blue' : 'red'}});
         }), (_data, buffers) => {
-            const outlines = buffers.filter((buffer) => buffer instanceof LineBuffer);
+            const outlines = buffers.filter((buffer) => buffer.type === 'Line');
             expect(buffers).toHaveLength(4);
             expect(outlines).toHaveLength(2);
             expect(outlines.map((buffer) => buffer.getUniform('u_strokeWidth')[0]).sort()).toEqual([5, 7]);
@@ -495,7 +495,9 @@ describe('Factory delegation and partition preservation', () => {
             expect(buffers[0].zIndex).toBe(1);
             expect(key).toHaveBeenCalledTimes(6);
             expect(configure).toHaveBeenCalledTimes(3);
-            expect(buffers.every((buffer) => buffer instanceof PointBuffer && buffer.flexAttributes === null)).toBe(true);
+            expect(data.batchesByZIndex['0'].batches.every((batch) => batch.buffer instanceof PointBuffer)).toBe(true);
+            expect(buffers.every((buffer) => Object.getPrototypeOf(buffer) === GeometryBuffer.prototype &&
+                !Object.prototype.hasOwnProperty.call(buffer, 'flexAttributes'))).toBe(true);
         });
     });
 
@@ -552,8 +554,8 @@ describe('Factory delegation and partition preservation', () => {
             expect(assigned.map((exp) => exp.toJSON())).toStrictEqual([
                 ['+', 2, ['zoom']], ['step', ['zoom'], ['literal', [4, 2]], 16, ['literal', [8, 4]]], ['+', 4, ['zoom']]
             ]);
-            const line = buffers.find((buffer) => buffer instanceof LineBuffer);
-            const circle = buffers.find((buffer) => buffer instanceof PointBuffer);
+            const line = buffers.find((buffer) => buffer.type === 'DashedLine');
+            const circle = buffers.find((buffer) => buffer.type === 'Circle');
             expect(line.getUniform('u_strokeWidth')[0]).toBe(assigned[0]);
             expect(circle.getUniform('u_radius')[0]).toBe(assigned[2]);
         });
@@ -567,7 +569,8 @@ describe('Factory delegation and partition preservation', () => {
         }), (data, buffers) => {
             expect(data.batchesByZIndex['0'].batches).toHaveLength(1);
             expect(buffers).toHaveLength(1);
-            expect(buffers[0]).toBeInstanceOf(BoxBuffer);
+            expect(data.batchesByZIndex['0'].batches[0].buffer).toBeInstanceOf(BoxBuffer);
+            expect(Object.getPrototypeOf(buffers[0])).toBe(GeometryBuffer.prototype);
             expect(buffers[0].count()).toBe(72);
             const points = (buffers[0].attributes.a_point as Attribute).data;
             expect(points[0] >> 1).toBe(4);
@@ -609,7 +612,8 @@ describe('Factory delegation and partition preservation', () => {
             expect(buffers).toHaveLength(2);
             expect(sync).toHaveBeenCalledTimes(2);
             for (const buffer of buffers) {
-                expect(buffer).toBeInstanceOf(TextBuffer);
+                expect(buffer.type).toBe('Text');
+                expect(Object.getPrototypeOf(buffer)).toBe(GeometryBuffer.prototype);
                 const texture = buffer.getUniform('u_texture') as GlyphTexture;
                 expect(buffer.getUniform('u_texSize')).toStrictEqual([texture.width, texture.height]);
                 expect(texture.width).toBeGreaterThan(0);

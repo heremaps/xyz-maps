@@ -61,7 +61,7 @@ it.each([1, 0.5])('keeps outline-sensitive fill partitions at equal zIndex and o
             const pixels = new Uint8Array(256 * 256 * 4);
             gl.readPixels(0, 0, 256, 256, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
             expect(map.getFeatureAt({x: 120, y: 120})?.feature.id).toBe('b');
-            const buffers = display['_zSortedTileBuffers'].tileBuffers.filter((item) => item.tiled && item.buffer instanceof PolygonBuffer);
+            const buffers = display['_zSortedTileBuffers'].tileBuffers.filter((item) => item.tiled && item.buffer.type === 'Polygon');
             expect(new Set(buffers.map((item) => item.buffer)).size).toBe(merge ? 1 : 2);
             return pixels;
         } finally {
