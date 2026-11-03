@@ -20,12 +20,12 @@
 import {TaskSequence} from '@here/xyz-maps-common';
 import {Tile} from '@here/xyz-maps-core';
 import {Layer} from '../../../Layers';
-import {FeatureFactory} from '../FeatureFactory';
+import {FeatureBufferBuilder} from './FeatureBufferBuilder';
 import {DisplayTileTask} from '../../../BasicTile';
 import {HeightMapTileCache} from '../../HeightMapTileCache';
 import GLTile from '../../GLTile';
 import {TerrainTask} from './TerrainTask';
-import {FactoryTask, FactoryTaskResult} from './FactoryTask';
+import {FeatureBufferBuildTask, FeatureBufferBuildResult} from './FeatureBufferBuildTask';
 import {GeometryBuffer} from '../GeometryBuffer';
 import {GraphicsDevice} from '../../device/GraphicsDevice';
 export const BUFFER_FACTORY_TASK_PRIORITY = 4;
@@ -36,22 +36,19 @@ export class GeometryBufferFactory {
         // tileSize: number,
         tile: Tile,
         displayTile: GLTile,
-        factory: FeatureFactory,
+        builder: FeatureBufferBuilder,
         terrainCache: HeightMapTileCache,
         device: GraphicsDevice,
         onInit: () => void,
         onDone: (
-            result: FactoryTaskResult['buffers'],
-            pending: FactoryTaskResult['pendingResources']
+            result: FeatureBufferBuildResult['buffers'],
+            pending: FeatureBufferBuildResult['pendingResources']
         ) => void
     ): DisplayTileTask {
-        // const task = <DisplayTileTask> new CreateRenderBufferTask(factory);
-        // task.start({tile, displayLayer, onInit, onDone});
-
         const tasks = [
-            new FactoryTask({
+            new FeatureBufferBuildTask({
                 priority: BUFFER_FACTORY_TASK_PRIORITY,
-                factory
+                builder
             }),
             new TerrainTask({
                 priority: BUFFER_FACTORY_TASK_PRIORITY,
@@ -64,7 +61,7 @@ export class GeometryBufferFactory {
 
         const task = new TaskSequence<typeof tasks>({
             tasks,
-            onDone: (data: readonly [FactoryTaskResult, GeometryBuffer['heightMap'] | null]) => {
+            onDone: (data: readonly [FeatureBufferBuildResult, GeometryBuffer['heightMap'] | null]) => {
                 onDone?.(data[0].buffers, data[0].pendingResources);
                 // Heightmaps must be added to terrainCache only after onDone completes.
                 // If added before, they will be directly deleted during resource cleanup triggered by tile refresh/update.

@@ -174,7 +174,7 @@ class Task<I = any, O = any, R = O> {
 
     }
 
-    onDone(data?: R): void | R {
+    onDone(data?: O | R): void | O | R {
         return data;
     };
 

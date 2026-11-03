@@ -17,19 +17,20 @@
  * License-Filename: LICENSE
  */
 
-import {Color} from '@here/xyz-maps-common';
+
+import type {TerrainModelBuffer} from '../buffer/types/TerrainModelBuffer';
 import ModelProgram from './Model';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
-import Program, {CompiledUniformMap, PROGRAM_MACRO, ProgramInitOptions} from './Program';
+
+import Program, {PROGRAM_MACRO, ProgramInitOptions} from './Program';
 import {RenderTile} from '../RenderTile';
 import {Texture} from '../Texture';
-import {IRenderTarget, ScreenRenderTarget} from '../RenderTarget';
+import {IRenderTarget} from '../RenderTarget';
 import {PASS} from '../RenderPass';
-import {BufferCache, ProgramContext} from '../GLRender';
+import {ProgramContext} from '../GLRender';
 import {RenderTargetManager} from '../RenderTargetManager';
 
 
-class TerrainProgram extends ModelProgram {
+class TerrainProgram extends ModelProgram<TerrainModelBuffer> {
     name = 'Terrain';
 
     static dbgGrid: boolean;
@@ -47,7 +48,7 @@ class TerrainProgram extends ModelProgram {
         return false;
     }
 
-    static getBufferMacroMask(buffer: GeometryBuffer) {
+    static getBufferMacroMask(buffer: TerrainModelBuffer) {
         let mask = super.getBufferMacroMask(buffer);
         if (buffer.heightMap || buffer.heightMapRef) {
             mask &= ~PROGRAM_MACRO.USE_HEIGHTMAP;

@@ -19,7 +19,7 @@
 
 import {GlyphAtlas} from '../GlyphAtlas';
 import {isDigit} from '../unicode';
-import {FlexArray} from './templates/FlexArray';
+import {FlexArray} from './FlexArray';
 
 const SPACE_CHAR = ' ';
 const LEFT_TO_RIGHT = 1;

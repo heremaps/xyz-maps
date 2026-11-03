@@ -22,14 +22,15 @@ import vertexShader from '../glsl/polygon_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/polygon_fragment.glsl';
 
+import type {PolygonBuffer} from '../buffer/types/PolygonBuffer';
 import Program, {PROGRAM_MACRO, ProgramMacros} from './Program';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
+
 import {GraphicsDevice} from '../device/GraphicsDevice';
 
-class PolygonProgram extends Program {
+class PolygonProgram extends Program<PolygonBuffer> {
     name = 'Polygon';
 
-    static getBufferMacroMask(buffer: GeometryBuffer) {
+    static getBufferMacroMask(buffer: PolygonBuffer) {
         return buffer.uniforms.specular ? PROGRAM_MACRO.SPECULAR : 0;
     }
 

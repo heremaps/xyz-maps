@@ -21,7 +21,7 @@ import {playwright} from '@vitest/browser-playwright';
 import type {UserWorkspaceConfig} from 'vitest/config';
 import type {BrowserConfigOptions} from 'vitest/node';
 import type {LibraryComponent, MapMarkup} from './types.ts';
-import {type Component, distOf, root, xyzArtifacts, xyzAssets, xyzEnvironment} from './plugins.mts';
+import {type Component, distOf, root, xyzArtifacts, xyzAssets, xyzEnvironment, xyzShaderSources} from './plugins.mts';
 import {mapDrag, mapWheel} from './commands.mts';
 
 const src = path.join(root, 'src');
@@ -45,6 +45,20 @@ export function unitProject(): UserWorkspaceConfig {
             environment: 'node',
             setupFiles: [path.join(root, 'vitest/matchers.ts')],
             sequence: {shuffle: true}
+        }
+    };
+}
+
+export function bufferProject(mode: string): UserWorkspaceConfig {
+    const base = project('display', mode);
+    return {
+        ...base,
+        plugins: [...base.plugins!, xyzShaderSources()],
+        test: {
+            ...base.test,
+            name: 'buffers',
+            include: ['specs/buffers/**/*.spec.ts'],
+            setupFiles: []
         }
     };
 }

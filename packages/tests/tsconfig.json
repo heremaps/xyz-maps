@@ -24,6 +24,8 @@
     "specs/**/*", "src/**/*", "vitest/setup.ts", "vitest/env.d.ts"
   ],
   "exclude": [
+    "specs/buffers",
+    "specs/unit/performance",
     "node_modules",
     "dist"
   ]

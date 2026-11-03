@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Color} from '@here/xyz-maps-common';
+
 import {createProgram, hoistGLSLVersionDirective, logGLRenderState, preprocessShaderIncludes} from '../glTools';
 import {GLStates} from './GLStates';
 
@@ -40,7 +40,7 @@ import {Attribute, ConstantAttribute} from '../buffer/Attribute';
 import {Texture} from '../Texture';
 import {HeightMapTileCache} from '../HeightMapTileCache';
 import {std140Types, UniformBlockLayout, UniformFieldLayout} from '../UniformBlock';
-import {RenderTile, RenderTileTarget} from '../RenderTile';
+import {RenderTile} from '../RenderTile';
 import {IRenderTarget, ScreenRenderTarget} from '../RenderTarget';
 import {BlendFactor, GraphicsDevice} from '../device/GraphicsDevice';
 import {PASS, RenderPass} from '../RenderPass';
@@ -117,6 +117,13 @@ export type ProgramInitOptions = {
     [key: string]: unknown;
 };
 
+export type ProgramConstructor<Buffer extends GeometryBuffer = GeometryBuffer> = {
+    new(device: GraphicsDevice, devicePixelRatio: number, macros?: ProgramMacros): Program<Buffer>;
+    getBufferMacroMask(buffer: Buffer): number;
+    getRenderMacroMask: typeof Program.getRenderMacroMask;
+    resolveMacroMask: typeof Program.resolveMacroMask;
+};
+
 /**
  * Depth bias (in polygon offset units) applied to heightmapped point features
  * while hardware depth testing is active. It keeps them above the terrain
@@ -126,7 +133,7 @@ export type ProgramInitOptions = {
 // const TERRAIN_SURFACE_DEPTH_BIAS = -(1 << 11);
 const TERRAIN_SURFACE_DEPTH_BIAS = -(1 << 2);
 
-class Program {
+class Program<Buffer extends GeometryBuffer = GeometryBuffer> {
     protected vertexShaderSrc: string;
     protected fragmentShaderSrc: string;
     protected framebuffer: WebGLFramebuffer;
@@ -611,7 +618,7 @@ class Program {
         }
     }
 
-    initBufferAttributes(geometryBuffer: GeometryBuffer, groupIndex: number) {
+    initBufferAttributes(geometryBuffer: Buffer, groupIndex: number) {
         const {vaoManager} = this.device;
         const group = geometryBuffer.groups[groupIndex];
         const existingVAO = group.vao;
@@ -763,7 +770,7 @@ class Program {
         console.log(geoBuffer);
     }
 
-    draw(geoBuffer: GeometryBuffer, isPreview?: boolean) {
+    draw(geoBuffer: Buffer, isPreview?: boolean) {
         const {gl} = this;
         const {groups, instances} = geoBuffer;
 
@@ -874,7 +881,7 @@ class Program {
      * Initializes the terrain heightmap for the given GeometryBuffer.
      * Binds heightmap textures and sets related uniforms for the shader programs.
      */
-    initHeightMap(geomBuffer: GeometryBuffer, heightMapTextures: HeightMapTileCache, exaggeration: number = 1) {
+    initHeightMap(geomBuffer: Buffer, heightMapTextures: HeightMapTileCache, exaggeration: number = 1) {
         if (!geomBuffer.heightMapRef && !geomBuffer.heightMap) {
             return;
         }
@@ -917,7 +924,7 @@ class Program {
     }
 
 
-    prepareUniformBlocks(buffer: GeometryBuffer) {
+    prepareUniformBlocks(buffer: Buffer) {
         // for (const layout of this.uniformBlocks || []) {
         //     if (!buffer.hasUniformBlockInstance(layout.name)) {
         //         const instance = new UniformBlockInstance(this.gl as WebGL2RenderingContext, layout);
@@ -926,7 +933,7 @@ class Program {
         // }
     }
 
-    initBufferUniforms(geometryBuffer: GeometryBuffer, uniforms: CompiledUniformMap) {
+    initBufferUniforms(geometryBuffer: Buffer, uniforms: CompiledUniformMap) {
         for (let name in uniforms) {
             const data = uniforms[name];
             const isSimpleUniform = this.initUniform(name, data);
@@ -964,7 +971,7 @@ class Program {
     //     return null;
     // }
 
-    getPassStateOverride(renderPass: RenderPass, buffer: GeometryBuffer, stencilRefVal: number): RenderState | null {
+    getPassStateOverride(renderPass: RenderPass, buffer: Buffer, stencilRefVal: number): RenderState | null {
         const pass = renderPass.type;
 
         if (buffer.needsAlphaDepthPass()) {

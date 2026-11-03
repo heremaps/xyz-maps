@@ -28,8 +28,7 @@ import {transformMat4 as transformMat4Vec4} from 'gl-matrix/vec4';
 import {invert} from 'gl-matrix/mat4';
 import {Layer, Layers} from '../Layers';
 import GLTile from './GLTile';
-import {FeatureFactory} from './buffer/FeatureFactory';
-import {ModelBuffer} from './buffer/templates/ModelBuffer';
+import {FeatureBufferBuilder} from './buffer/factory/FeatureBufferBuilder';
 import {CollisionHandler} from './CollisionHandler';
 import {GeometryBuffer, RenderUsage} from './buffer/GeometryBuffer';
 import {
@@ -104,7 +103,7 @@ class WebGlDisplay extends BasicDisplay {
 
     render: GLRender;
     buckets: GLBucket;
-    private readonly factory: FeatureFactory;
+    private readonly featureBufferBuilder: FeatureBufferBuilder;
     private readonly collision: CollisionHandler;
     private rayCaster: Raycaster;
     private groundResolution: number;
@@ -184,7 +183,7 @@ class WebGlDisplay extends BasicDisplay {
 
         display.rayCaster = new Raycaster(render.screenMat, render.invScreenMat);
 
-        this.factory = new FeatureFactory(render.device, display.collision, display.dpr);
+        this.featureBufferBuilder = new FeatureBufferBuilder(render.device, display.collision, display.dpr);
 
         this.terrainFBOPlanner = new TerrainFBOPlanner(
             display.terrainCache,
@@ -249,7 +248,7 @@ class WebGlDisplay extends BasicDisplay {
     }
 
     private initSky(skyColor: Color | LinearGradient) {
-        const color = this.factory.textureManager.getFillTexture(skyColor);
+        const color = this.featureBufferBuilder.textureManager.getFillTexture(skyColor);
         this.render.setSkyColor(color);
     }
 
@@ -485,7 +484,7 @@ class WebGlDisplay extends BasicDisplay {
                 displayLayer,
                 tile,
                 dTile,
-                this.factory,
+                this.featureBufferBuilder,
                 this.terrainCache,
                 this.render.device,
                 // on initTile / start
@@ -1021,7 +1020,7 @@ class WebGlDisplay extends BasicDisplay {
         this.terrainFBOPlanner.destroy();
         super.destroy();
         this.render.destroy();
-        this.factory.destroy();
+        this.featureBufferBuilder.destroy();
     }
 
     getTerrainHeightAtWorldXY(x: number, y: number, exaggerated: boolean = true): number {
@@ -1242,23 +1241,9 @@ class WebGlDisplay extends BasicDisplay {
         const buffer = renderTile.buffer;
         const localTileSize = renderTile.layer.tileSize;
 
-        let minZ: number;
-        let maxZ: number;
-        if (buffer.type === 'Model') {
-            // Terrain-relative model elevation is supplied by the GPU heightmap.
-            // Do not reject it using an unrelated ground-to-camera height interval.
-            if (buffer.requiresHeightMap()) return true;
-            const heightBounds = ModelBuffer.getInstanceHeightBounds(buffer, this.terrainExaggeration);
-            if (!heightBounds) return true;
-            minZ = heightBounds[0];
-            maxZ = heightBounds[1];
-        } else {
-            minZ = (buffer.zRange?.[0] ?? 0) * this.terrainExaggeration;
-            maxZ = buffer.zRange?.[1] != null
-                ? buffer.zRange[1] * this.terrainExaggeration
-                // Without zRange, bound maxZ just above the camera to improve ray-intersection precision.
-                : this.rayCaster.origin[2] + 0.001;
-        }
+        const heightBounds = buffer.getHeightBounds(this.terrainExaggeration, this.rayCaster.origin[2] + 0.001);
+        if (!heightBounds) return true;
+        const [minZ, maxZ] = heightBounds;
 
         const worldModelMatrix = renderTile.getModelMatrix();
         const aabb = this._tmpAABB;

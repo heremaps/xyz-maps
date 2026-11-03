@@ -25,8 +25,8 @@ export type FontStyle = {
     font?: string;
     textAlign?: string;
     strokeWidth?: number;
-    stroke?: string | Float32Array;
-    fill?: string | Float32Array;
+    stroke?: string | number[] | Float32Array;
+    fill?: string | number[] | Float32Array;
 }
 
 class GlyphTexture extends Texture {

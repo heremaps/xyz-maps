@@ -22,12 +22,13 @@ import vertexShader from '../glsl/circle_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/circle_fragment.glsl';
 
+import type {PointBuffer} from '../buffer/types/PointBuffer';
 import Program, {ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
+
 import {GraphicsDevice} from '../device/GraphicsDevice';
 
-class CircleProgram extends Program {
+class CircleProgram extends Program<PointBuffer> {
     name = 'Circle';
 
     glStates = new GLStates({

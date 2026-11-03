@@ -17,13 +17,13 @@
  * License-Filename: LICENSE
  */
 
-import {GeometryBuffer} from './GeometryBuffer';
-import {addLineString} from './addLineString';
+import {GeometryBuffer, FlexAttribute} from './GeometryBuffer';
+import {addLineString} from './geometry/addLineString';
 import {createTextData} from './createText';
 import {GlyphTexture} from '../GlyphTexture';
-import {LineBuffer} from './templates/LineBuffer';
-import {FlexArray} from './templates/FlexArray';
-import {FlexAttribute} from './templates/TemplateBuffer';
+import {LineBuffer} from './types/LineBuffer';
+import {FlexArray} from './FlexArray';
+
 import {createImageBuffer} from './createImageBuffer';
 import {Color as ColorUtils} from '@here/xyz-maps-common';
 import {Attribute} from './Attribute';
@@ -71,7 +71,7 @@ const createGridTileBuffer = (tileSize: number = 1, color: number[] = [1.0, 0.0,
         strokeWidth
     );
 
-    const geoBuffer = lineBuffer.finalize('Line') as GridTileBuffer;
+    const geoBuffer = lineBuffer.finalize('Line');
 
     geoBuffer.addUniform('u_zIndex', 0.0);
     geoBuffer.addUniform('u_fill', color);
@@ -81,18 +81,18 @@ const createGridTileBuffer = (tileSize: number = 1, color: number[] = [1.0, 0.0,
     geoBuffer.depth = false;
     geoBuffer.pass = PASS.ALPHA_COLOR;
 
-    geoBuffer.setSize = (size: number) => {
-        const position = geoBuffer.attributes.a_position as Attribute;
-        const {data} = position;
-        for (let i = 0; i < data.length; i++) {
-            if (data[i] && data[i] != size) {
-                data[i] = size;
-                position.dirty = true;
+    return Object.assign(geoBuffer, {
+        setSize(size: number) {
+            const position = geoBuffer.attributes.a_position as Attribute;
+            const {data} = position;
+            for (let i = 0; i < data.length; i++) {
+                if (data[i] && data[i] != size) {
+                    data[i] = size;
+                    position.dirty = true;
+                }
             }
         }
-    };
-
-    return geoBuffer;
+    });
 };
 
 export {createGridTileBuffer};

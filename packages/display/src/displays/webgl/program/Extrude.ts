@@ -22,14 +22,15 @@ import vertexShader from '../glsl/extrude_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/fill_fragment.glsl';
 
+import type {ExtrudeBuffer} from '../buffer/types/ExtrudeBuffer';
 import Program, {PROGRAM_MACRO, ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
+
 import {GraphicsDevice} from '../device/GraphicsDevice';
 import {PASS} from '../RenderPass';
 import {RenderTile} from '../RenderTile';
 
-class ExtrudeProgram extends Program {
+class ExtrudeProgram extends Program<ExtrudeBuffer> {
     name = 'Extrude';
 
     glStates = new GLStates({
@@ -38,7 +39,7 @@ class ExtrudeProgram extends Program {
         depth: true
     });
 
-    static getBufferMacroMask(buffer: GeometryBuffer) {
+    static getBufferMacroMask(buffer: ExtrudeBuffer) {
         let mask = super.getBufferMacroMask(buffer);
         if (buffer.uniforms.specular) {
             mask |= PROGRAM_MACRO.SPECULAR;
@@ -60,7 +61,7 @@ class ExtrudeProgram extends Program {
         this.device.applyPolygonOffsetState(true, 1, 1);
     }
 
-    draw(geoBuffer: GeometryBuffer) {
+    draw(geoBuffer: ExtrudeBuffer) {
         super.draw(geoBuffer);
         this.device.applyPolygonOffsetState(false);
     }

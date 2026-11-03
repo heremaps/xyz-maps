@@ -22,13 +22,14 @@ import vertexShader from '../glsl/rect_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/rect_fragment.glsl';
 
+import type {PointBuffer} from '../buffer/types/PointBuffer';
 import Program, {ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
+
 import {GraphicsDevice} from '../device/GraphicsDevice';
 import {RenderTile} from '../RenderTile';
 
-class RectProgram extends Program {
+class RectProgram extends Program<PointBuffer> {
     name = 'Rect';
 
     glStates = new GLStates({

@@ -22,26 +22,27 @@ import vertexShader from '../glsl/model_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/model_fragment.glsl';
 
+import type {ModelBuffer} from '../buffer/types/ModelBuffer';
 import Program, {PROGRAM_MACRO, ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
+
 import {Texture} from '../Texture';
 import {GraphicsDevice} from '../device/GraphicsDevice';
 
 
-class ModelProgram extends Program {
+class ModelProgram<Buffer extends ModelBuffer = ModelBuffer> extends Program<Buffer> {
     name = 'Model';
 
     /**
      * Whether the specular highlights are driven by the buffer's own material uniforms.
      * Subclasses sourcing their material from the render state override this.
      */
-    protected static usesBufferSpecular(buffer: GeometryBuffer): boolean {
+    protected static usesBufferSpecular(buffer: ModelBuffer): boolean {
         return (buffer.uniforms.illumination as number ?? 2) > 1 &&
             (buffer.uniforms.shininess as number) > 0;
     }
 
-    static getBufferMacroMask(buffer: GeometryBuffer) {
+    static getBufferMacroMask(buffer: ModelBuffer) {
         const {uniforms} = buffer;
         let mask = super.getBufferMacroMask(buffer);
         if (buffer.fragmentTileClip) {
@@ -83,7 +84,7 @@ class ModelProgram extends Program {
         this.fragmentShaderSrc = fragmentShader;
     }
 
-    draw(geoBuffer: GeometryBuffer, isPreview?: boolean) {
+    draw(geoBuffer: Buffer, isPreview?: boolean) {
         if (isPreview) {
             this.device.applyPolygonOffsetState(true, 1, 1);
         }

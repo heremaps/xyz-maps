@@ -22,13 +22,14 @@ import vertexShader from '../glsl/icon_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/icon_fragment.glsl';
 
+import type {SymbolBuffer} from '../buffer/types/SymbolBuffer';
 import Program, {ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
 import {ViewUniforms} from '../GLRender';
 import {GraphicsDevice} from '../device/GraphicsDevice';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
 
-class IconProgram extends Program {
+
+class IconProgram extends Program<SymbolBuffer> {
     name = 'Icon';
 
     glStates = new GLStates({

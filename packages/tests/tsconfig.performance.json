@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "ESNext",
+    "lib": ["ES2017", "dom"],
+    "types": ["node"],
+    "paths": {
+      "@here/xyz-maps-*": ["packages/*/src"],
+      "vitest/browser": ["packages/tests/node_modules/vitest/browser/context.d.ts"],
+      "vitest/internal/browser": ["packages/tests/node_modules/vitest/dist/browser.d.ts"]
+    }
+  },
+  "include": ["benchmarks/**/*.ts", "specs/buffers/**/*.ts", "../display/src/typings/**/*.d.ts"]
+}

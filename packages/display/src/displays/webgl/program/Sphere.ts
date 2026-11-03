@@ -18,11 +18,12 @@
  */
 
 import BoxProgram from './Box';
+import type {SphereBuffer} from '../buffer/types/SphereBuffer';
 import {ViewUniforms} from '../GLRender';
 import {PROGRAM_MACRO, ProgramMacros} from './Program';
 import {GraphicsDevice} from '../device/GraphicsDevice';
 
-class SphereProgram extends BoxProgram {
+class SphereProgram extends BoxProgram<SphereBuffer> {
     name = 'Sphere';
 
     constructor(device: GraphicsDevice, devicePixelRation: number, macros?: ProgramMacros) {

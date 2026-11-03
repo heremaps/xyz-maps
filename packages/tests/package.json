@@ -14,13 +14,14 @@
   },
   "private": true,
   "scripts": {
-    "lint": "eslint \"src/**/*.ts\" \"specs/**/*.ts\" \"vitest/**/*.{ts,mts}\" \"*.mts\"",
+    "lint": "eslint \"src/**/*.ts\" \"specs/**/*.ts\" \"benchmarks/**/*.{ts,mjs}\" \"vitest/**/*.{ts,mts}\" \"*.mts\"",
     "test": "vitest run",
     "test:unit": "vitest run --config vitest.unit.config.mts",
+    "test:performance": "vitest run --config vitest.performance.config.mts",
     "test:isolation": "vitest run --config vitest.isolation.config.mts",
     "test:integration": "vitest run --config vitest.integration.config.mts",
     "watch": "vitest",
-    "typecheck": "tsc -p tsconfig.json --noEmit --skipLibCheck && tsc -p tsconfig.vitest.json"
+    "typecheck": "tsc -p tsconfig.json --noEmit --skipLibCheck && tsc -p tsconfig.vitest.json && tsc -p tsconfig.performance.json --noEmit"
   },
   "devDependencies": {
     "@here/xyz-maps-common": "workspace:^",

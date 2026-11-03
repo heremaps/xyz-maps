@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import {defineConfig} from 'vitest/config';
-import {project, unitProject} from './vitest/projects.mts';
+import {bufferProject, project, unitProject} from './vitest/projects.mts';
 
 // Core also runs against ESM release artifacts in the core-esm project.
 // `pnpm test --mode dev` runs against the dev bundles (dist/xyz-maps-<name>.js) instead of the minified ones.
@@ -28,6 +28,7 @@ export default defineConfig(({mode}) => ({
         maxWorkers: 4,
         projects: [
             unitProject(),
+            bufferProject(mode),
             project('common', mode),
             project('core', mode),
             ...(mode === 'dev' ? [] : [project('core', mode, 'esm')]),

@@ -275,5 +275,227 @@ published declaration entry for compatibility with the existing `node` module re
 * Do not use `done` callbacks or `this.timeout()`, Vitest does not support them. Return a promise or use `async`.
 * A spec file must not import another spec file. Put shared helpers into `src/utils`.
 * Vitest does not check types. Run `pnpm run typecheck` for specs, helpers, browser setup and setup declarations
-  (`tsconfig.json`), plus strict checking of Node-side plugins, projects and both Vitest configs (`tsconfig.vitest.json`).
+  (`tsconfig.json`), plus strict checking of Node-side plugins, projects, configs and performance-comparator
+  specs (`tsconfig.vitest.json`).
 * The imports `utils`, `editorUtils`, `displayUtils`, `coreUtils`, `triggerEvents` and `TestProviders` refer to `src/utils` and `src/TestProvider.ts`, see `vitest/projects.mts`.
+
+## Buffer construction performance
+
+The normal test suite also has a `buffers` Chromium project for internal lifecycle
+and style-contract regressions (`pnpm test --project buffers`). It covers buffer-owned
+batch keys/render configuration, builder delegation, exact grouping, material/debug draws,
+terrain normal fallback and texture sharing. It imports display sources and loads GLSL
+as strings; these tests and the benchmark use source-aware `tsconfig.performance.json`
+because the published declaration bundles deliberately omit internal APIs.
+The source loader also supplies the same default UI virtual modules as the Display build,
+allowing real Map/render-path regressions without substituting UI or renderer implementations.
+
+Build the packages first. From this package, run on an otherwise idle machine:
+
+```sh
+XYZ_BROWSER=chrome XYZ_SOFTWARE_RENDERING=0 XYZ_BENCH_OUTPUT=dist/performance/baseline.json pnpm test:performance
+# Repeat with candidate.json after changing buffer construction.
+node benchmarks/compare.mjs dist/performance/baseline.json dist/performance/candidate.json
+```
+
+The separate, single-worker Chromium suite imports internal display sources; common/core
+dependencies still use built artifacts. It does not change public APIs or run in the normal
+test suite. Use the same browser, rendering mode, build settings and machine for comparisons.
+Reports record the commit, dirty state, runtime, browser, actual WebGL backend and raw samples; keep baseline reports
+locally before refactoring. Run at least twice to establish noise rather than enforcing an
+arbitrary CI percentage.
+Local comparisons normally use the browser's default rendering backend.
+Prefer installed Chrome for local GPU-backed runs; bundled Chromium can fall back to SwiftShader
+even without explicit software-rendering flags. Check the actual WebGL renderer before interpreting GPU measurements.
+`XYZ_SOFTWARE_RENDERING=1` explicitly forces SwiftShader for CI or controlled software-rendering
+comparisons; use the same setting for baseline and candidate, and do not compare different backends.
+
+The timed path starts before FeatureBufferBuildTask construction and includes init, every feature chunk,
+style processing, geometry generation, and complete finalization/render-state setup.
+Scheduler waits, fixture generation, initial renderer/asset setup, correctness checks and actual
+drawing are excluded. Inline images and fonts are prepared before timing. The first complete
+build remains alive until each case finishes, anchoring shared geometry and gradient resources;
+subsequent builds still run the real construction and release paths. Required CPU-side GL calls
+such as per-buffer glyph texture synchronization remain timed; no draws or GPU completion are
+measured. Reported build/finalize times sum to total; regular renderer release is measured
+separately. Models and terrain reuse inline source geometry, with shared instancing across two
+material parts; terrain includes a synthetic 33x33 heightmap/mesh, not preview composition, FBO
+rendering or TerrainTask texture generation. This is a warm-resource CPU benchmark, not a
+first-load, picking or end-to-end rendering benchmark.
+
+### Startup, retained heap and real rendering
+
+```sh
+XYZ_BROWSER=chrome XYZ_SOFTWARE_RENDERING=0 XYZ_BENCH_SUITE=runtime XYZ_BENCH_OUTPUT=dist/performance/runtime-baseline.json pnpm test:performance
+# Repeat with runtime-candidate.json after the change.
+node benchmarks/compare-runtime.mjs dist/performance/runtime-baseline.json dist/performance/runtime-candidate.json --allow-model-geometry-sharing
+```
+
+The opt-in `runtime-1` workload measures 64 fresh builder constructions and process-wide
+V8 heap/backing storage after forced GC with those builders held and then released.
+Renderer initialization, GC and texture-count probes are outside constructor timing.
+The probe records fallback texture creation/deletion separately; it is not GPU memory accounting.
+
+Four deterministic 256x256 Map scenes exercise 1024 points in one versus 32 batches,
+1024 translucent polygons with eight outline styles, and 64 instances of a two-material model
+whose parts reference the same geometry. Fixtures and resource waits are untimed.
+Maps explicitly use `devicePixelRatio: 1`, so their drawing buffers remain 256x256
+in both headless and headed runs, including Retina displays. To view the runtime suite,
+append `--browser.headless=false` to `pnpm test:performance`; scenes are removed after each
+measurement. Compare timings only within the same headless/headed mode.
+The first upload records actual ARRAY_BUFFER/ELEMENT_ARRAY_BUFFER `bufferData`/`bufferSubData`
+calls and bytes, excluding view UBOs and texture transfers. An untimed settled-frame replay
+counts actual native draw calls, including stencil and extra pass draws. These are not stored
+draw-command or renderer-statistics counts.
+
+Each of 20 measured batches submits 16 real viewport frames, then drains the GPU with `gl.finish()`.
+Reports distinguish CPU submission wall time from GPU-completed wall time per frame;
+the latter includes submission and synchronization and is **not isolated GPU execution time**.
+Spies, framebuffer readback and output checks are outside timing. Full-frame pixel fingerprints,
+buffer/group counts and draw counts must remain identical before comparing performance.
+Reports include the actual WebGL vendor/renderer/version, not just software-rendering flags.
+Use multiple sequential control/candidate pairs on an idle machine. Small timings near the
+browser timer resolution cannot establish a speedup; no CI timing threshold is imposed.
+This does not measure network loading, frame pacing, all terrain passes, peak allocation or GPU memory.
+
+`ModelResourceCache` owns parsing, prepared geometry/material resources and whole-model lifetime;
+`ModelBufferFactory` only assembles material buffers and instances. Geometry attribute descriptors
+are shared by source geometry identity **within a prepared model**, not by style identity or across
+unrelated sources. Draw ranges, materials and index descriptors remain separate. Matrix/offset
+references include every material buffer. Partial release/rebuild keeps the model cached until
+its final buffer is released; deleted GPU attribute cache entries are evicted and marked for
+reupload, and individual model textures can be restored from their retained source data.
+Restoration retains the source image/data reference while a prepared model is alive, without
+copying its pixels; this is a deliberate memory/lifetime tradeoff, not an allocation-free cache.
+Fallback textures and the OBJ parser initialize lazily. Cache destruction releases unused
+prepared textures and defers active fallback texture disposal until the last buffer release.
+
+Polygon fill keys intentionally retain outline identity: merging equal-fill outline partitions
+changes alpha compositing for overlapping translucent polygons at equal zIndex. The source-render
+regression compares opaque/translucent output and verifies picking without changing the shader.
+
+Shared resolved-style types live in `display/src/displays/webgl/buffer/BufferStyle.ts`, and
+shared key encoders in `batchKey.ts`. Specialized buffers and their style/uniform contracts live in
+`buffer/types/`; builders, factories and tile tasks in `buffer/factory/`; geometry generators and pure normal/wireframe
+algorithms in `buffer/geometry/`. FlexArray and GeometryBufferBucket are shared infrastructure,
+not specialized types. Program generics and `program/ProgramRegistry.ts` check buffer/program
+contracts, with general buffers retained for synthetic image, sky and heatmap quads.
+These type views do not allocate new runtime style objects or change shader data layouts.
+`FeatureBufferBuilder.addFeature()` accumulates `BufferBatch` objects through
+`FeatureBufferBuildTask`. The discriminated batch contracts in `factory/BufferBatch.ts` tie
+each type to its specialized buffer (or model bucket) and resolved style; `batchesByZIndex`
+contains `ZIndexBatches.batches`, not finalized draw commands. Polygon outlines pass resolved
+stroke values without mutating/copying their source styles or reevaluating paint callbacks.
+Empty model parts are excluded before acquiring attributes/textures, and a bucket is empty
+only when all contained buffers are empty. Line projection/placement scratch arrays allocate
+on demand, grow for both 2D/3D input, and retain reusable capacity across features/tiles.
+The source suite checks frozen shared polygon styles, feature-dependent widths, failing
+callbacks, empty material parts/resource release and complete projection beyond the former
+fixed capacities. Startup scratch allocations are outside the warm benchmark's timed path.
+Specialized buffers own their complete batch keys. Geometry identity is prepared at the original
+resolution point to preserve lazy expression/model-ID assignment order; after resolving style values,
+the builder prepares the common terrain/depth/opacity/zLayer state once per feature/style iteration and
+routes scalar values to the relevant buffer's full-key method. Shared encoders cover only Point style,
+Stroke/Fill, offsets or lighting; Line/Polygon do not traverse Point offset logic, and Icon/Model do not
+traverse paint logic. Heatmap encodes its gradient once, and VerticalLine encodes its stroke once.
+The full Point encoder lives with PointBuffer and is shared directly by Text; Point/Icon entry points
+are function aliases rather than additional forwarding calls. Encoders can append the selected
+geometry identity while writing the key, avoiding separate full-fragment composition.
+Raw paint and lighting colors become immutable identity strings at their original resolution points:
+later style callbacks can mutate previously read color arrays. Encoded lighting identities have an
+opaque type so raw colors cannot accidentally enter the full-key methods.
+Standard zero offsets require no separate offset component or Point offset bits; fractional and
+packed offsets have explicit representation flags. There is no cross-feature style-identity cache
+or per-feature style projection object.
+The common state encoder retains one previous key, keyed only by its complete primitive flag word,
+opacity and zLayer. It holds no style/feature references and rebuilds whenever any encoded input changes.
+Offset units remain scalar inputs; an independently owned unit array is created only for a new batch,
+alongside its shared style. GeometryBuffer keeps direct aliases for shared size and geometry functions,
+without forwarding calls. The source project checks complete type-owned keys, alias identity,
+normal winding/quantization and indexed/non-indexed wireframe behavior.
+
+Workload 4 contains 38 deterministic, generated families and 78 size cases. The original 26
+families and 54 size cases are: points, point-batches,
+style-batches, circle-color-batches, circle-width-batches, circle-style-matrix, rectangles, lines, dashed-lines, dynamic-lines, lines-3d, polygons, polygon-outlines,
+extrudes, text, icons, boxes, spheres, vertical-lines, heatmap, model, model-modes, clipped-models,
+terrain, mesh-terrain and mixed. Most use 128/1024 features; spheres use 16/128, polygons add
+16384 for 32-bit indices, and extrudes add 2048. Each case warms up for four batches, then records
+twenty batches of eight fresh builds/releases. Twelve additional within-type style matrices cover
+Rect, Line/DashedLine, Polygon, Extrude, Text, Icon, Box, Sphere, VerticalLine, Heatmap, Model and Terrain.
+The sphere matrix uses 64/128 features. Each matrix independently duplicates its style objects and
+asserts exact batch/buffer/draw-group counts. Per-feature Box dimensions, text/icon geometry and
+model transforms deliberately merge. Per-style pointerEvents on Line, Icon, Model and Terrain
+remain ignored, preserving current behavior rather than introducing a new feature.
+Use `XYZ_BENCH_SCENARIO=matrices` for just the new cases, or `legacy` for the original workload-3
+fixtures and metadata. Different workload/selector reports are not interchangeable.
+
+The benchmark prints and records **batch groups, finalized render buffers and draw groups**,
+including counts by batch/render type and zIndex. It asserts that identical styles merge and
+relevant differences split: the point/style grouping cases create 32 batches, while a single model
+batch creates two material-part buffers. Model debug modes also exercise additional draw groups.
+The Circle-only cases construct 60 independent style objects at zIndex 0: 30 distinct fills or
+stroke widths, each repeated in a second style object. Both must produce exactly 30 Circle
+batches, buffers and draw groups. This checks within-type splitting and identity-independent merging,
+rather than using zIndex or a different geometry type as a proxy.
+The Circle matrix changes radius, fill, stroke, stroke width, opacity, each offset and its unit,
+alignment, pointer events, altitude, depth test, altitude scale and zLayer independently.
+Its 30 variants (again using 60 independent style objects) retain 26 batches: explicit default
+boolean values and Circle rotation intentionally do not split the existing batches.
+Draw groups are stored draw commands, **not actual GPU draw-call counts**; render passes,
+visibility, previews and FBO composition can change the latter.
+
+Output signatures check batch keys/order, attribute and index data, uniforms, texture/descriptor
+sharing, render passes, clipping and draw commands outside timing. Unique backing-buffer bytes
+describe result storage, not peak heap usage or allocation/GC counts. The comparator validates
+all grouping statistics and output before printing before/after grouping counts, median timings
+and p10..p90 ranges for total, build, finalize and release. A faster build with different grouping
+is rejected, and a percentage below observed run-to-run variation is not evidence of a regression
+or improvement.
+
+Batch keys use bounded flag words and a range-checked signed 27-bit offset word for small integer
+offsets. Fractional and out-of-range offsets remain lossless numeric strings; free string components
+are length-prefixed. Presence bits omit defaults and empty fields without merging distinct values;
+lighting flags distinguish equal values in different property slots. Flags use scalar constants so
+source transpilation does not introduce runtime enum lookups.
+Corrected cases include ambiguous Rect dimensions, offset overflow/fractions,
+numeric/expression identities, opacity precision, fill intensity, lighting boundaries/slots,
+dash-image suffixes and Sphere units.
+Those corrections can legitimately split batches that previously combined incompatible values.
+For an intentional key-encoding change only, pass `--allow-key-format-change` to the comparator.
+This ignores raw key text, but still checks batch order/index assignment, complete buffer signatures
+and every grouping statistic. It does not allow changed counts or altered output.
+For intentional model geometry sharing, `--allow-model-geometry-sharing` permits only base
+Model/Terrain geometry descriptor identity changes and nonincreasing unique backing-buffer bytes.
+All key text/order, attribute/index content, uniforms, instance/debug sharing and grouping remain
+checked. The runtime comparator permits nonincreasing model upload counts/bytes with this flag,
+but still requires identical framebuffer fingerprints and actual draw counts. Leave the flag
+off when no such ownership change is intended.
+
+For isolated runs, set `XYZ_BENCH_SCENARIO` to any family above, such as `model-modes` or `terrain`. Increase
+`XYZ_BENCH_WARMUP=32` to check whether short warm-up or workload order affects results;
+the default full benchmark remains unchanged. Comparisons require matching warm-up counts
+and scenario selection.
+
+With Chromium, `XYZ_BENCH_PROFILE=1` additionally writes CPU `.cpuprofile` files
+(100 microsecond sampling), sampled allocation `.heapprofile` files (including collected objects)
+and GC/V8 `.trace.json` files beside the JSON report. Open them in Chrome DevTools Memory / Performance.
+Scope CPU samples to Factory construction stacks to distinguish key costs from correctness checks,
+release and profiler setup; inlined work may be attributed to its caller. Sampling and tracing
+perturb execution: use separate **unprofiled** runs for timing comparisons. The comparator
+rejects mixed profiled/unprofiled reports. The trace's `buffer-measure-start/end` marks
+delimit measured batches; exclude profiler setup/teardown and forced GC outside these marks.
+Heap measurements after forced GC separately record empty, 64 simultaneously held tiles,
+and released state. These are process-wide V8 heap/backing-store diagnostics, not exact
+per-buffer sizes, GPU memory or a proof of leak freedom.
+
+An archived pre-refactor display source can be selected with
+`XYZ_BENCH_DISPLAY_SOURCE=/absolute/path/to/packages/display/src` and identified using
+`XYZ_BENCH_SOURCE_COMMIT=<sha>`. This redirects display-source imports only; Common/Core
+artifacts and gl-matrix still come from the current workspace. Do not install dependencies
+inside the archive. Use the same workspace dependencies for both sides. The archive must match
+the benchmark's internal import paths; for an older folder layout, apply only mechanical
+moves/import updates to the archive, keeping its original runtime implementation.
+Preserve the archive's
+`tsconfig.json` and `packages/display/tsconfig.json` alongside `packages/display/src`, with
+their original relative paths: otherwise Vite can emit type-only class declarations as fields
+and change inherited buffer initialization.

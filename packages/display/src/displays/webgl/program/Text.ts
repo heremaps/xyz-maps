@@ -22,13 +22,14 @@ import vertexShader from '../glsl/text_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/text_fragment.glsl';
 
+import type {TextBuffer} from '../buffer/types/TextBuffer';
 import Program, {ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
+
 import {ViewUniforms} from '../GLRender';
 import {BlendFactor, GraphicsDevice} from '../device/GraphicsDevice';
 
-class TextProgram extends Program {
+class TextProgram extends Program<TextBuffer> {
     name = 'Text';
 
     glStates = new GLStates({
@@ -63,7 +64,7 @@ class TextProgram extends Program {
     //     gl.enable(gl.POLYGON_OFFSET_FILL);
     // }
 
-    draw(geoBuffer: GeometryBuffer) {
+    draw(geoBuffer: TextBuffer) {
         const {gl, uniforms} = this;
 
         gl.uniform1f(uniforms.u_strokeOnly, 1);

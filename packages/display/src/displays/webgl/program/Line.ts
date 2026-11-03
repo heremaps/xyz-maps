@@ -22,11 +22,12 @@ import vertexShader from '../glsl/line_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/line_fragment.glsl';
 
+import type {LineBuffer} from '../buffer/types/LineBuffer';
 import Program, {UniformMap} from './Program';
 import {GLStates} from './GLStates';
 import {GraphicsDevice} from '../device/GraphicsDevice';
 
-class LineProgram extends Program {
+class LineProgram extends Program<LineBuffer> {
     name = 'Line';
 
     glStates = new GLStates({

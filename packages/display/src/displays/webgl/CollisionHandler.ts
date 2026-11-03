@@ -16,12 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
+
+import {FlexAttribute} from './buffer/GeometryBuffer';
 import {TaskManager, Task, TaskOptions} from '@here/xyz-maps-common';
 import {LocalProvider, Tile, TileLayer, tileUtils, webMercator} from '@here/xyz-maps-core';
 import Display from './Display';
 import {Attribute} from './buffer/Attribute';
 import {Layer} from '../Layers';
-import {FlexAttribute} from './buffer/templates/TemplateBuffer';
+
 import {mapInstances} from '../../MapInstances';
 import {type DisplayTile, type ViewportTile} from '../BasicDisplay';
 import {BUFFER_FACTORY_TASK_PRIORITY} from './buffer/factory/GeometryBufferFactory';

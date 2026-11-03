@@ -18,6 +18,7 @@
  */
 
 import {GeometryBuffer, RenderUsage, ElementsDrawCmd, HeightMapReference} from './buffer/GeometryBuffer';
+import {TerrainModelBuffer} from './buffer/types/TerrainModelBuffer';
 import {Attribute} from './buffer/Attribute';
 import {HeightMapTileCache, HeightMapTileData} from './HeightMapTileCache';
 import {RenderTile, RenderTilePool, RenderTileTarget} from './RenderTile';
@@ -591,13 +592,14 @@ export class TerrainFBOPlanner {
         const gridResolution = this.syntheticGridResolution;
         const {positionAttr, indexDescriptor, wireFrameIndices} = this.getSharedTerrainGeom(gridResolution, useSkirt);
 
-        const synthetic = new GeometryBuffer(indexDescriptor.data, 'Terrain');
+        const synthetic = new TerrainModelBuffer();
+        synthetic.setIndex(indexDescriptor.data);
+        synthetic.cullFace(0);
         synthetic.isSynthetic = true;
-        // synthetic.type = 'Terrain';
-        // synthetic.groups.push({index: indexDescriptor});
-        synthetic.attributes.a_position = positionAttr;
+        synthetic.addAttribute('a_position', positionAttr);
         synthetic.attributes.a_color = {value: [1, 1, 1, 1]};
         synthetic.attributes.a_tangent = {value: [1, 0, 0]};
+        if (!synthetic.finalize('Terrain')) throw new Error('Cannot finalize empty synthetic terrain geometry');
 
         synthetic.heightMapRef = {
             terrainTileKey: null,
@@ -633,7 +635,6 @@ export class TerrainFBOPlanner {
         synthetic.clip = sourceBuffer.clip;
         synthetic.light = sourceBuffer.light;
         synthetic.idOffsets = sourceBuffer.idOffsets;
-        synthetic.rayIntersects = sourceBuffer.rayIntersects;
         synthetic.pointerEvents = sourceBuffer.pointerEvents;
 
 

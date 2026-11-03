@@ -17,16 +17,22 @@
  * License-Filename: LICENSE
  */
 
+import {getSizeBatchKey} from './batchKey';
+import type {BufferStyle, BufferColor, CommonBufferStyle, SharedBufferStyle} from './BufferStyle';
+export type {BufferStyle, BufferColor} from './BufferStyle';
+import {generateWireframeIndices, computeNormals} from './geometry/geometryUtils';
 import {Attribute, ConstantAttribute} from './Attribute';
 import {glType, type TypedArray} from './glType';
 import {Texture} from '../Texture';
-import {FlexAttribute, TemplateBuffer} from './templates/TemplateBuffer';
+import {FlexArray} from './FlexArray';
 import {Raycaster} from '../Raycaster';
 import {Expression} from '@here/xyz-maps-common';
-import {HeightMapTileCache, HeightMapTileData} from '../HeightMapTileCache';
+import {HeightMapTileCache, HeightMapTileData, sampleHeightMap} from '../HeightMapTileCache';
+import {FRONT} from './glType';
 import {UniformBlockLayout, UniformBlockInstance, UniformBlockFieldSetter} from '../UniformBlock';
 import {PASS} from '../RenderPass';
-import {TerrainOcclusionMode} from './TerrainRenderPolicy';
+import {TerrainOcclusionMode, TerrainRenderMode} from './TerrainRenderPolicy';
+import type {TextureManager} from '../TextureManager';
 
 /**
  * Heightmap reference for a GeometryBuffer.
@@ -78,6 +84,33 @@ export enum RenderUsage {
 export type Uniform = number | number[] | Float32Array | Float64Array | Int32Array | boolean | Texture | Texture[];
 export type DynamicUniform = Expression | (Expression | Uniform)[];
 
+export type BufferUniforms = {
+    [name: string]: Uniform | DynamicUniform;
+    u_scaleByAltitude?: boolean;
+    u_offset?: number[];
+    u_offsetZ?: number[];
+    u_alignMap?: boolean;
+    u_texSize?: number[];
+    specular?: number[];
+    shininess?: number;
+    'u_emissive.color'?: number[];
+};
+
+export type BufferAttributes<Attributes> = {
+    [Name in keyof Attributes]: Attributes[Name] extends FlexAttribute ? Attribute : Attribute | ConstantAttribute
+};
+
+export type ConfigureBufferStyle<Style> = (
+    style: Style,
+    meterToPixel: number,
+    hasAlphaColor: boolean,
+    textureManager?: TextureManager,
+    context?: Set<number[]>
+) => void;
+
+export type FlexAttribute = Omit<Attribute, 'data' | 'bytesPerElement' | 'ref'> & {
+    data: FlexArray;
+};
 
 export type IndexData = {
     data: Uint16Array | Uint32Array
@@ -120,119 +153,51 @@ type CompiledUniformCache = {
 
 export type CompiledUniformData = Omit<CompiledUniformCache, 'clear'>;
 
-const averageFaceNormal = (vertex: ArrayLike<number>, i1: number, i2: number, i3: number, normals: TypedArray) => {
-    const t1x = vertex[i1];
-    const t1y = vertex[i1 + 1];
-    const t1z = vertex[i1 + 2];
-
-    const t2x = vertex[i2];
-    const t2y = vertex[i2 + 1];
-    const t2z = vertex[i2 + 2];
-
-    const t3x = vertex[i3];
-    const t3y = vertex[i3 + 1];
-    const t3z = vertex[i3 + 2];
-
-    const ux = t2x - t3x;
-    const uy = t2y - t3y;
-    const uz = t2z - t3z;
-
-    const vx = t1x - t3x;
-    const vy = t1y - t3y;
-    const vz = t1z - t3z;
-
-    // surface normal
-    const nx = uz * vy - uy * vz;
-    const ny = ux * vz - uz * vx;
-    const nz = uy * vx - ux * vy;
-
-    // sum normals, average
-    normals[i1] += nx;
-    normals[i1 + 1] += ny;
-    normals[i1 + 2] += nz;
-
-    normals[i2] += nx;
-    normals[i2 + 1] += ny;
-    normals[i2 + 2] += nz;
-
-    normals[i3] += nx;
-    normals[i3 + 1] += ny;
-    normals[i3 + 2] += nz;
-};
-
 const _nextBufferUid = new Uint32Array(1);
 
 class GeometryBuffer {
+    protected static readonly COLOR_UNDEFINED = new Float32Array([-1, -1, -1, -1]);
+
+    static getSizeBatchKey = getSizeBatchKey;
+
+
+    static getFillColor(fill: BufferStyle['fill']): BufferColor | undefined {
+        return fill && !('stops' in fill) ? fill : undefined;
+    }
+
+    static hasAlphaColor(style: SharedBufferStyle): boolean {
+        return this.getFillColor(style.fill)?.[3] < 1 || style.stroke?.[3] < 1;
+    }
+
+    flexAttributes: {[name: string]: FlexAttribute | ConstantAttribute} | null = null;
+    first: number = 0;
+    last: number;
+    i32: boolean = false;
+    // Construction-time clipping classification; isPointBuffer() controls legacy shader sizing.
+    isPointGeometry: boolean = false;
+    protected _index?: IndexArray;
+    private arrayCount?: number;
+    private finalized: boolean = false;
+    private sourceHeightBounds?: [number, number];
+
+    static getVertexZ(x: number, y: number, heightMap: HeightMapTileData, transform: ArrayLike<number> | null): number {
+        return sampleHeightMap(heightMap.data, heightMap.size, heightMap.tileSize, x, y,
+            transform[0], transform[1], transform[2], heightMap.padding);
+    }
+
     // Monotonically increasing instance ID. Used for content-hash based FBO caching:
     // new data -> new buffer -> new uid -> hash mismatch -> FBO re-rendered.
     readonly uid: number = _nextBufferUid[0]++;
 
-    static generateWireframeIndices(triangleIndices: ArrayLike<number>): Uint16Array | Uint32Array;
-    static generateWireframeIndices(first: number, vertexCount: number): Uint16Array | Uint32Array;
-    static generateWireframeIndices(
-        triangleIndices: ArrayLike<number> | number,
-        vertexCount?: number
-    ): Uint16Array | Uint32Array {
-        if (typeof triangleIndices === 'number') {
-            if (vertexCount === undefined) {
-                throw new TypeError('Wireframe generation from first requires a vertex count.');
-            }
-            const first = triangleIndices;
-            const triangleCount = Math.floor(vertexCount / 3);
-            const lastVertex = first + triangleCount * 3 - 1;
-            const indices = lastVertex > 0xffff
-                ? new Uint32Array(triangleCount * 6)
-                : new Uint16Array(triangleCount * 6);
+    static generateWireframeIndices = generateWireframeIndices;
 
-            for (let triangle = 0; triangle < triangleCount; triangle++) {
-                const vertex = first + triangle * 3;
-                const index = triangle * 6;
-                indices[index] = vertex;
-                indices[index + 1] = vertex + 1;
-                indices[index + 2] = vertex + 1;
-                indices[index + 3] = vertex + 2;
-                indices[index + 4] = vertex + 2;
-                indices[index + 5] = vertex;
-            }
-
-            return indices;
-        }
-
-        const edgeSet = new Set<string>();
-        const lines: number[] = [];
-
-        for (let i = 0; i < triangleIndices.length; i += 3) {
-            const i0 = triangleIndices[i];
-            const i1 = triangleIndices[i + 1];
-            const i2 = triangleIndices[i + 2];
-
-            const edges: [number, number][] = [
-                [i0, i1],
-                [i1, i2],
-                [i2, i0]
-            ];
-
-            for (const [a, b] of edges) {
-                const key = a < b ? `${a};${b}` : `${b};${a}`;
-                if (!edgeSet.has(key)) {
-                    edgeSet.add(key);
-                    lines.push(a, b);
-                }
-            }
-        }
-
-        const IndexArrayConstructor =
-            triangleIndices instanceof Uint32Array ? Uint32Array : Uint16Array;
-
-        return new IndexArrayConstructor(lines);
-    }
 
     static MODE_GL_POINTS: number = 0x0000;
     static MODE_GL_LINES: number = 0x0001;
     static MODE_GL_TRIANGLES: number = 0x0004;
     // private size: number;
     attributes: { [name: string]: Attribute | ConstantAttribute } = {};
-    uniforms: { [name: string]: Uniform | DynamicUniform } = {};
+    uniforms: BufferUniforms = {};
     type: string;
     pass: number = PASS.OPAQUE;
     alphaMode?: 'opaque' | 'mask' | 'blend';
@@ -248,7 +213,7 @@ class GeometryBuffer {
     mode?: number; // primitive to render
     flat: boolean = true;
     // Whether pixel-defined sizes/offsets are applied from a single anchor position,
-    // see usesFixedScreenSizeScale(). Mirrored from the TemplateBuffer.
+    // see usesFixedScreenSizeScale().
     anchoredPixelSize: boolean = false;
     groups: (ElementsDrawCmd | ArrayDrawCmd)[] = [];
     idOffsets?: (string | number)[];
@@ -270,8 +235,6 @@ class GeometryBuffer {
 
     // ------ currently used by "Model" only ------
     bbox?: number[];
-    // Cached transformed model heights after exaggeration; the third value is the cache key.
-    instanceHeightBounds?: [min: number, max: number, exaggeration: number];
     fragmentTileClip?: boolean;
     // Terrain height range before exaggeration, used by the picking AABB.
     zRange?: [min: number, max: number];
@@ -439,88 +402,178 @@ class GeometryBuffer {
         return !!this.heightMapRef;
     }
 
-    static computeNormals(vertex: ArrayLike<number>, index?: ArrayLike<number>): TypedArray {
-        const vertexLength = vertex.length;
-        const normals = new Float32Array(vertexLength);
+    static computeNormals = computeNormals;
 
-        if (!index) {
-            // flat shading
-            let i = 0;
-            while (i < vertexLength) {
-                averageFaceNormal(vertex, i, i + 6, i + 3, normals);
-                i += 9;
+    constructor(flat: boolean);
+    constructor(index?: ArrayData | IndexArray, type?: string, i32?: boolean);
+    constructor(index?: ArrayData | IndexArray | boolean, type?: string, i32?: boolean) {
+        if (typeof index === 'boolean') {
+            this.flat = index;
+            this.idOffsets = [];
+            this._cullFace = FRONT;
+        } else if (index) {
+            const group = this.addDrawCmd(index, i32);
+            if ('index' in group) {
+                this._index = group.index.data;
+            } else {
+                this.first = group.arrays.first;
+                this.arrayCount = group.arrays.count;
             }
-        } else {
-            // smooth shading
-            for (let i = 0, {length} = index; i < length; i += 3) {
-                // averageFaceNormal(vertex, index[i+2] * 3, index[i + 1] * 3, index[i] * 3, normals);
-                averageFaceNormal(vertex, index[i] * 3, index[i + 1] * 3, index[i + 2] * 3, normals);
-            }
-        }
-        // normalize and quantize
-        const normalized = new Int8Array(vertexLength);
-        // const normalized = new Int16Array(vertexLength);
-        for (let i = 0, nx, ny, nz; i < vertexLength; i += 3) {
-            nx = normals[i];
-            ny = normals[i + 1];
-            nz = normals[i + 2];
-            const invLen = 127 / Math.sqrt(nx * nx + ny * ny + nz * nz) || 0;
-            // const invLen = 32767 / Math.sqrt(nx * nx + ny * ny + nz * nz) || 0;
-            normalized[i] = Math.round(nx * invLen);
-            normalized[i + 1] = Math.round(ny * invLen);
-            normalized[i + 2] = Math.round(nz * invLen);
-        }
-        return normalized;
-    }
-
-    static fromTemplateBuffer(type: string, templBuffer: TemplateBuffer, light?: string): GeometryBuffer {
-        const {flexAttributes} = templBuffer;
-        let geoBuffer: GeometryBuffer;
-
-        if (templBuffer.hasIndex()) {
-            const index = templBuffer.index();
-
-            if (!index.length) {
-                return null;
-            }
-            geoBuffer = new GeometryBuffer(index, type, templBuffer.i32);
-        } else {
-            geoBuffer = new GeometryBuffer({
-                first: templBuffer.first,
-                count: templBuffer.count()
-            }, type);
-        }
-
-        for (let name in flexAttributes) {
-            let attr = flexAttributes[name];
-
-            if ((<ConstantAttribute>attr).value) {
-                // attribute uses constant value
-                geoBuffer.attributes[name] = {value: (<ConstantAttribute>attr).value};
-            } else if ((<FlexAttribute>attr).data.length) {
-                geoBuffer.addAttribute(name, templBuffer.trimAttribute(attr as FlexAttribute));
-            }
-        }
-
-        for (let name in templBuffer.uniforms) {
-            geoBuffer.addUniform(name, templBuffer.uniforms[name]);
-        }
-
-        geoBuffer.light = light || templBuffer.light;
-
-        templBuffer.populateGeometryBuffer(geoBuffer);
-
-        return geoBuffer;
-    }
-
-    constructor(index?: ArrayData | IndexArray, type?: string, i32?: boolean) {
-        if (index) {
-            this.addDrawCmd(index, i32);
             this.type = type;
+            this.finalized = true;
         }
+    }
 
-        // this.uniformBlocks = new Map();
-        // this.uniformBlockByField = new Map();
+    setRequiresHeightMap(required: boolean): void {
+        this.setHeightMapRef(required);
+        if (required) this.flat = false;
+    }
+
+    count(): number {
+        if (this.arrayCount !== undefined) return this.arrayCount;
+        const {data, size} = (this.flexAttributes?.a_position || this.attributes.a_position) as FlexAttribute | Attribute;
+        return data.length / size - this.first;
+    }
+
+    setArray(first: number, count: number): void {
+        this.assertConstructing();
+        this.first = first;
+        this.arrayCount = count;
+    }
+
+    setIndex(index: IndexArray): void {
+        this.assertConstructing();
+        this._index = index;
+    }
+
+    index(): IndexArray {
+        if (!this._index) {
+            this.assertConstructing();
+            this._index = [];
+        }
+        return this._index;
+    }
+
+    hasIndex(): boolean {
+        return !!this._index;
+    }
+
+    isEmpty(): boolean {
+        return this.count() === 0;
+    }
+
+    getPositionAttribute(): FlexAttribute {
+        this.assertConstructing();
+        return this.flexAttributes.a_position as FlexAttribute;
+    }
+
+    setIdOffset(featureId: string | number): void {
+        this.assertConstructing();
+        this.idOffsets?.push(featureId);
+    }
+
+    protected assertConstructing(): void {
+        if (this.finalized) throw new Error('Cannot rebuild a finalized GeometryBuffer; create a fresh buffer.');
+    }
+
+    finalize(type: string, light?: string): this | null {
+        if (this.finalized) return this;
+        if (this.hasIndex() && !this._index.length) return null;
+        this.arrayCount = this.count();
+        this.addDrawCmd(this.hasIndex() ? this._index : {first: this.first, count: this.count()}, this.i32);
+        if (this.hasIndex()) this._index = (this.groups[0] as ElementsDrawCmd).index.data;
+        for (const name in this.flexAttributes) {
+            const attr = this.flexAttributes[name];
+            if ('value' in attr) {
+                this.attributes[name] = {value: attr.value};
+            } else if (attr.data.length) {
+                // Preserve descriptor identity: model parts and collision records share attributes.
+                const attribute = attr as FlexAttribute | Attribute;
+                if (attribute.data instanceof FlexArray) {
+                    Object.assign(attribute, {data: attribute.data.trim()});
+                }
+                this.addAttribute(name, attribute as Attribute);
+            }
+        }
+        this.light = light || this.light;
+        this.type = type;
+        this.finalized = true;
+        this.flexAttributes = null;
+        return this;
+    }
+
+    /**
+     * Effective picking heights, including exaggeration. The camera-derived fallback
+     * preserves the generic prefilter; specialized buffers return null when unsafe to cull.
+     * Returned storage belongs to the buffer and may be reused.
+     */
+    getHeightBounds(exaggeration: number, fallbackMax: number = Infinity): readonly number[] | null {
+        return this.getSourceHeightBounds(exaggeration, fallbackMax);
+    }
+
+    createStyleContext(style: SharedBufferStyle): Set<number[]> | undefined {
+        return undefined;
+    }
+
+    configureStyle(
+        style: SharedBufferStyle,
+        meterToPixel: number,
+        hasAlphaColor: boolean,
+        textureManager?: TextureManager,
+        context?: Set<number[]>
+    ): void {
+        this.terrainOcclusion = style.terrainOcclusion;
+        if (style.terrainRenderMode === TerrainRenderMode.OFFSCREEN) {
+            this.renderUsage = RenderUsage.TERRAIN_PREPASS;
+        }
+        this.addUniform('u_scaleByAltitude', style.scaleByAltitude);
+        this.configureTypeStyle(style, meterToPixel, hasAlphaColor, textureManager, context);
+        this.configureOffsets(style, meterToPixel);
+        this.configureLighting(style);
+    }
+
+    protected configureTypeStyle(
+        style: SharedBufferStyle,
+        meterToPixel: number,
+        hasAlphaColor: boolean,
+        textureManager?: TextureManager,
+        context?: Set<number[]>
+    ): void {}
+
+    protected configureOffsets(style: CommonBufferStyle, meterToPixel: number): void {
+        if (Array.isArray(style.offsetUnit)) {
+            this.addUniform('u_offset', [
+                style.offsetX, style.offsetUnit[0] === 'm' ? meterToPixel : 0,
+                style.offsetY, style.offsetUnit[1] === 'm' ? meterToPixel : 0
+            ]);
+            this.addUniform('u_offsetZ', [style.offsetZ, style.offsetUnit[2] === 'm' ? meterToPixel : 0]);
+        }
+    }
+
+    protected configureLighting(style: CommonBufferStyle): void {
+        this.addLightingUniforms(style);
+    }
+
+    protected addLightingUniforms(style: CommonBufferStyle): void {
+        if (style.emissive) this.addUniform('u_emissive.color', style.emissive);
+        if (style.specular) {
+            this.addUniform('specular', style.specular);
+            this.addUniform('shininess', style.shininess);
+        }
+    }
+
+    protected configureTextureStyle(style: Pick<BufferStyle, 'alignment'>, texture: Texture): void {
+        this.addUniform('u_texSize', [texture.width, texture.height]);
+        this.addUniform('u_alignMap', style.alignment === 'map');
+        this.pass = PASS.ALPHA_COLOR;
+        this.depth = this.blend = true;
+    }
+
+    protected getSourceHeightBounds(exaggeration: number, fallbackMax: number): readonly [number, number] {
+        const bounds = this.sourceHeightBounds ||= [0, 0];
+        bounds[0] = (this.zRange?.[0] ?? 0) * exaggeration;
+        bounds[1] = this.zRange?.[1] != null ? this.zRange[1] * exaggeration : fallbackMax;
+        return bounds;
     }
 
     acknowledgeRender() {
@@ -569,11 +622,13 @@ class GeometryBuffer {
         }
     }
 
-    addUniform(name: string, uniform: Uniform) {
+    addUniform<Name extends keyof this['uniforms'] & string>(name: Name, uniform: this['uniforms'][Name]): void;
+    addUniform(name: string, uniform: Uniform | DynamicUniform) {
         this.uniforms[name] = uniform;
         this.macroMask = undefined;
     }
 
+    getUniform<Name extends keyof this['uniforms'] & string>(name: Name): this['uniforms'][Name];
     getUniform(name: string): Uniform | DynamicUniform {
         return this.uniforms[name];
     }
@@ -581,6 +636,7 @@ class GeometryBuffer {
     addAttribute(name: string, attr: Attribute, dynamic?: boolean) {
         this.initAttribute(attr, dynamic);
         this.attributes[name] = attr;
+        this.macroMask = undefined;
     }
 
     // reusing a base attribute requires the same name. group-only attributes are owned by the group.

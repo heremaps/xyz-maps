@@ -28,6 +28,24 @@ export type {Component} from './types.ts';
 
 export type Dist = 'min' | 'dev';
 
+export function xyzShaderSources(): Plugin {
+    const uiModules: Record<string, string> = {
+        'ui-logo-src': `data:image/svg+xml;base64,${fs.readFileSync(path.resolve(root, '../display', process.env.logo || 'assets/xyz.svg'), 'base64')}`,
+        'ui-default-cOwner': process.env.cOwner || 'XYZ',
+        'ui-tac-url': process.env.tacUrl || ''
+    };
+    return {
+        name: 'xyz-shader-sources',
+        resolveId(id) {
+            if (id in uiModules) return '\0xyz-display:' + id;
+        },
+        load(id) {
+            if (id.startsWith('\0xyz-display:')) return `export default ${JSON.stringify(uiModules[id.slice(13)])};`;
+            if (id.endsWith('.glsl')) return `export default ${JSON.stringify(fs.readFileSync(id, 'utf8'))};`;
+        }
+    };
+}
+
 /**
  * Maps the vitest mode to the flavor of the library bundles.
  * The default mode "test" uses the minified bundles, `--mode dev` the dev bundles.

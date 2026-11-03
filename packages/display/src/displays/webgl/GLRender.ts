@@ -37,6 +37,7 @@ import HeatmapProgram from './program/Heatmap';
 import VerticalLineProgram from './program/VerticalLine';
 import {createSkyBuffer, createSkyMatrix, SkyProgram} from './program/Sky';
 import Program, {ColorMask, CompiledUniformMap} from './program/Program';
+import type {ProgramConfigurationMap} from './program/ProgramRegistry';
 import {
     createGridTextBuffer,
     createGridTileBuffer,
@@ -234,7 +235,7 @@ export class GLRender implements BasicRender {
         u_referenceW: number;
     };
 
-    private programConfig: { [name: string]: { program: typeof Program, default?: boolean, macros?: any } };
+    private programConfig: ProgramConfigurationMap;
     // private resolution: number[] = [];
     private mapContext: ProgramContext = {resolution: [], features: {}};
 
@@ -968,6 +969,8 @@ export class GLRender implements BasicRender {
             const refCounter = (attr as Attribute).ref = ((attr as Attribute).ref || 1) - 1;
             if (refCounter === 0) {
                 gl.deleteBuffer(buffers.get(attr as Attribute));
+                buffers.delete(attr as Attribute);
+                (attr as Attribute).dirty = true;
             }
         }
     }

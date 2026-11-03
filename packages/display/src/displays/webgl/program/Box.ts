@@ -22,13 +22,14 @@ import vertexShader from '../glsl/box_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/box_fragment.glsl';
 
+import type {BoxBuffer} from '../buffer/types/BoxBuffer';
 import Program, {PROGRAM_MACRO, ProgramMacros} from './Program';
 import {GLStates} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
+
 import {GraphicsDevice} from '../device/GraphicsDevice';
 
 
-class BoxProgram extends Program {
+class BoxProgram<Buffer extends BoxBuffer = BoxBuffer> extends Program<Buffer> {
     name = 'Box';
 
     glStates = new GLStates({
@@ -37,7 +38,7 @@ class BoxProgram extends Program {
         depth: true
     });
 
-    static getBufferMacroMask(buffer: GeometryBuffer) {
+    static getBufferMacroMask(buffer: BoxBuffer) {
         let mask = super.getBufferMacroMask(buffer);
         if (buffer.uniforms.specular) {
             mask |= PROGRAM_MACRO.SPECULAR;

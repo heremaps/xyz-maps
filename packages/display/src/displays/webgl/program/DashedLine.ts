@@ -22,14 +22,15 @@ import vertexShader from '../glsl/line_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/line_fragment.glsl';
 
-import Program, {PROGRAM_MACRO, ProgramMacros} from './Program';
+import type {LineBuffer} from '../buffer/types/LineBuffer';
+import Program, {PROGRAM_MACRO} from './Program';
 import {GLStates} from './GLStates';
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
-import {GraphicsDevice} from '../device/GraphicsDevice';
-import {PASS} from '../RenderPass';
 
-class DashedLineProgram extends Program {
-    static getBufferMacroMask(buffer: GeometryBuffer) {
+import {GraphicsDevice} from '../device/GraphicsDevice';
+
+
+class DashedLineProgram extends Program<LineBuffer> {
+    static getBufferMacroMask(buffer: LineBuffer) {
         const {uniforms} = buffer;
         let mask = PROGRAM_MACRO.DASH_ARRAY;
         if (uniforms.u_dashPattern) {

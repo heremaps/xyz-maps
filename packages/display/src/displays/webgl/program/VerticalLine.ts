@@ -16,17 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {GeometryBuffer} from '../buffer/GeometryBuffer';
+
+import type {VerticalLineBuffer} from '../buffer/types/VerticalLineBuffer';
 import Program, {ProgramMacros} from './Program';
 // @ts-ignore
 import vertexShader from '../glsl/vline_vertex.glsl';
 // @ts-ignore
 import fragmentShader from '../glsl/polygon_fragment.glsl';
 import {GraphicsDevice} from '../device/GraphicsDevice';
-class VerticalLineProgram extends Program {
+class VerticalLineProgram extends Program<VerticalLineBuffer> {
     name = 'VerticalLine';
 
-    static getBufferMacroMask(buffer: GeometryBuffer) {
+    static getBufferMacroMask(buffer: VerticalLineBuffer) {
         return Program.getBufferMacroMask(buffer);
     }
 
