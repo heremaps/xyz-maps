@@ -54,6 +54,83 @@ const GLSL_INCLUDES = {
 
 let UNDEF;
 
+function cacheScalarUniform(
+    gl: WebGLRenderingContext,
+    location: WebGLUniformLocation,
+    upload: (location: WebGLUniformLocation, value: number) => void,
+    float: boolean
+) {
+    let initialized = false;
+    let previous: number;
+    return (value: number) => {
+        const next = float ? Math.fround(value) : value | 0;
+        if (initialized && Object.is(previous, next)) return;
+        upload.call(gl, location, value);
+        previous = next;
+        initialized = true;
+    };
+}
+
+function cacheArrayUniform(
+    gl: WebGLRenderingContext,
+    location: WebGLUniformLocation,
+    upload: (location: WebGLUniformLocation, value: Float32List) => void
+) {
+    let previous: Float32Array;
+    return (value: Float32List) => {
+        const length = value.length;
+        const typed = value instanceof Float32Array;
+        let identical = previous?.length === length;
+
+        if (identical) {
+            for (let i = 0; i < length; i++) {
+                const next = typed ? value[i] : Math.fround(value[i]);
+                if (!Object.is(previous[i], next)) {
+                    identical = false;
+                    break;
+                }
+            }
+        }
+        if (identical) return;
+        upload.call(gl, location, value);
+        // create or resize the cache, then copy the uploaded values.
+        if (previous?.length !== length) {
+            previous = new Float32Array(length);
+        }
+        previous.set(value);
+    };
+}
+
+function cacheMatrixUniform(
+    gl: WebGLRenderingContext,
+    location: WebGLUniformLocation,
+    upload: (location: WebGLUniformLocation, transpose: boolean, value: Float32List) => void
+) {
+    let previous: Float32Array;
+    return (value: Float32List) => {
+        const length = value.length;
+        const typed = value instanceof Float32Array;
+        let identical = previous?.length === length;
+
+        if (identical) {
+            for (let i = 0; i < length; i++) {
+                const next = typed ? value[i] : Math.fround(value[i]);
+                if (!Object.is(previous[i], next)) {
+                    identical = false;
+                    break;
+                }
+            }
+        }
+        if (identical) return;
+        upload.call(gl, location, false, value);
+        // Create or resize the cache, then copy the uploaded values.
+        if (previous?.length !== length) {
+            previous = new Float32Array(length);
+        }
+        previous.set(value);
+    };
+}
+
 type UniformLocations = {
     [name: string]: WebGLUniformLocation
 };
@@ -388,22 +465,20 @@ class Program<Buffer extends GeometryBuffer = GeometryBuffer> {
 
         switch (uInfo.type) {
         case gl.FLOAT:
-            return (v) => gl.uniform1f(location, v);
+            return cacheScalarUniform(gl, location, gl.uniform1f, true);
         case gl.FLOAT_MAT3:
-            return (v) => gl.uniformMatrix3fv(location, false, v);
+            return cacheMatrixUniform(gl, location, gl.uniformMatrix3fv);
         case gl.FLOAT_MAT4:
-            return (v) => {
-                gl.uniformMatrix4fv(location, false, v);
-            };
+            return cacheMatrixUniform(gl, location, gl.uniformMatrix4fv);
         case gl.FLOAT_VEC2:
-            return (v) => gl.uniform2fv(location, v);
+            return cacheArrayUniform(gl, location, gl.uniform2fv);
         case gl.FLOAT_VEC3:
-            return (v) => gl.uniform3fv(location, v);
+            return cacheArrayUniform(gl, location, gl.uniform3fv);
         case gl.FLOAT_VEC4:
-            return (v) => gl.uniform4fv(location, v);
+            return cacheArrayUniform(gl, location, gl.uniform4fv);
         case gl.BOOL:
         case gl.INT:
-            return (v) => gl.uniform1i(location, v);
+            return cacheScalarUniform(gl, location, gl.uniform1i, false);
         case gl.SAMPLER_2D:
             if (uInfo.size === 1) {
                 const tu = this.texUnitCount++;
@@ -507,6 +582,9 @@ class Program<Buffer extends GeometryBuffer = GeometryBuffer> {
 
         this.prog = glProg;
         this.texUnitCount = 0;
+        // A newly linked program (including context recreation) has fresh uniform state.
+        this.uniforms = {};
+        this.uniformSetters = {};
 
         // setup attributes
         let activeAttributes = gl.getProgramParameter(glProg, gl.ACTIVE_ATTRIBUTES);

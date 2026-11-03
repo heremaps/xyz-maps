@@ -173,6 +173,34 @@ export class GraphicsDevice {
         this._maxTexSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     }
 
+    uniform1f(location: WebGLUniformLocation, value: number): void {
+        this.gl.uniform1f(location, value);
+    }
+
+    uniform1i(location: WebGLUniformLocation, value: number): void {
+        this.gl.uniform1i(location, value);
+    }
+
+    uniform2fv(location: WebGLUniformLocation, value: Float32List): void {
+        this.gl.uniform2fv(location, value);
+    }
+
+    uniform3fv(location: WebGLUniformLocation, value: Float32List): void {
+        this.gl.uniform3fv(location, value);
+    }
+
+    uniform4fv(location: WebGLUniformLocation, value: Float32List): void {
+        this.gl.uniform4fv(location, value);
+    }
+
+    uniformMatrix3fv(location: WebGLUniformLocation, value: Float32List): void {
+        this.gl.uniformMatrix3fv(location, false, value);
+    }
+
+    uniformMatrix4fv(location: WebGLUniformLocation, value: Float32List): void {
+        this.gl.uniformMatrix4fv(location, false, value);
+    }
+
     invalidateState(): void {
         this._framebuffer = null;
         this._renderbuffer = null;

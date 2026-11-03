@@ -65,12 +65,10 @@ class TextProgram extends Program<TextBuffer> {
     // }
 
     draw(geoBuffer: TextBuffer) {
-        const {gl, uniforms} = this;
-
-        gl.uniform1f(uniforms.u_strokeOnly, 1);
+        this.initUniform('u_strokeOnly', 1);
         super.draw(geoBuffer);
 
-        gl.uniform1f(uniforms.u_strokeOnly, 0);
+        this.initUniform('u_strokeOnly', 0);
         super.draw(geoBuffer);
     }
 
