@@ -1582,11 +1582,10 @@ export class GLRender implements BasicRender {
 
         layer.render(gl, render.worldMatrix);
 
-        // make sure vao gets unbound in case of being used to prevent possible side effects
+        this.device.invalidateState();
         this.device.unbindVertexArray();
         this.screenRenderTarget.bind(this.device);
 
-        this.device.invalidateState();
         this.device.resetStateToDefaults({keepViewport: true});
     }
 

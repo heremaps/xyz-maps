@@ -202,6 +202,7 @@ export class GraphicsDevice {
     }
 
     invalidateState(): void {
+        this.vaoManager.invalidateState();
         this._framebuffer = null;
         this._renderbuffer = null;
         this._currentProgram = null;

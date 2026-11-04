@@ -21,22 +21,56 @@ import {GLExtensions} from './GLExtensions';
 
 export class VAOManager {
     readonly isVAOSupported: boolean;
+    // undefined means unknown; null is the known default vertex array.
+    private boundVAO: WebGLVertexArrayObject | WebGLVertexArrayObjectOES | null | undefined;
 
     constructor(gl: WebGLRenderingContext | WebGL2RenderingContext, glExtensions: GLExtensions) {
         const isWGL2 = isWebGL2(gl);
-        const ext = isWGL2 ? null : glExtensions.getExtension('OES_vertex_array_object');
+        let ext = isWGL2 ? null : glExtensions.getExtension('OES_vertex_array_object');
 
         this.isVAOSupported = isWGL2 || !!ext;
 
         if (isWGL2) {
             this.createVAO = () => (gl as WebGL2RenderingContext).createVertexArray();
-            this.bindVAO = (vao) => (gl as WebGL2RenderingContext).bindVertexArray(vao as WebGLVertexArrayObject);
-            this.deleteVAO = (vao) => (gl as WebGL2RenderingContext).deleteVertexArray(vao as WebGLVertexArrayObject);
+            this.bindVAO = (vao) => {
+                if (this.boundVAO === vao) return;
+                gl.bindVertexArray(vao);
+                this.boundVAO = vao;
+            };
+            this.deleteVAO = (vao) => {
+                gl.deleteVertexArray(vao);
+                if (vao === this.boundVAO) {
+                    this.boundVAO = null;
+                }
+            };
         } else if (ext) {
             this.createVAO = () => ext.createVertexArrayOES();
-            this.bindVAO = (vao) => ext.bindVertexArrayOES(vao as WebGLVertexArrayObjectOES);
-            this.deleteVAO = (vao) => ext.deleteVertexArrayOES(vao as WebGLVertexArrayObjectOES);
+            this.bindVAO = (vao) => {
+                if (this.boundVAO === vao) return;
+                ext.bindVertexArrayOES(vao);
+                this.boundVAO = vao;
+            };
+            this.deleteVAO = (vao) => {
+                ext.deleteVertexArrayOES(vao);
+                if (vao === this.boundVAO) {
+                    this.boundVAO = null;
+                }
+            };
         }
+
+        if (this.isVAOSupported) {
+            gl.canvas.addEventListener('webglcontextrestored', () => {
+                // Restored WebGL1 contexts have fresh extension objects.
+                if (!isWGL2) {
+                    ext = gl.getExtension('OES_vertex_array_object');
+                }
+                this.invalidateState();
+            });
+        }
+    }
+
+    invalidateState(): void {
+        this.boundVAO = undefined;
     }
 
     createVAO(): WebGLVertexArrayObject | WebGLVertexArrayObjectOES | null {
