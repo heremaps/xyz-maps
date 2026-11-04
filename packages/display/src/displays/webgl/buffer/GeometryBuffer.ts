@@ -19,6 +19,7 @@
 
 import {getSizeBatchKey} from './batchKey';
 import type {BufferStyle, BufferColor, CommonBufferStyle, SharedBufferStyle} from './BufferStyle';
+
 export type {BufferStyle, BufferColor} from './BufferStyle';
 import {generateWireframeIndices, computeNormals} from './geometry/geometryUtils';
 import {Attribute, ConstantAttribute} from './Attribute';
@@ -169,7 +170,7 @@ class GeometryBuffer {
         return this.getFillColor(style.fill)?.[3] < 1 || style.stroke?.[3] < 1;
     }
 
-    flexAttributes: {[name: string]: FlexAttribute | ConstantAttribute} | null;
+    flexAttributes: { [name: string]: FlexAttribute | ConstantAttribute } | null;
     first: number;
     last: number;
     i32: boolean;
@@ -433,7 +434,10 @@ class GeometryBuffer {
         if (this.arrayCount !== undefined) return this.arrayCount;
         const group = this.groups[0];
         if (group && 'arrays' in group) return group.arrays.count;
-        const {data, size} = (this.flexAttributes?.a_position || this.attributes.a_position) as FlexAttribute | Attribute;
+        const {
+            data,
+            size
+        } = (this.flexAttributes?.a_position || this.attributes.a_position) as FlexAttribute | Attribute;
         return data.length / size - (this.first ?? 0);
     }
 
@@ -528,8 +532,14 @@ class GeometryBuffer {
 
         const group = this.groups[0];
         const buffer = new GeometryBuffer('index' in group ? group.index.data : group.arrays, this.type, this.i32);
-        for (const name in this.attributes) buffer.attributes[name] = this.attributes[name];
-        for (const name in this.uniforms) buffer.addUniform(name, this.uniforms[name]);
+
+        for (const name in this.attributes) {
+            buffer.attributes[name] = this.attributes[name];
+        }
+        for (const name in this.uniforms) {
+            buffer.addUniform(name, this.uniforms[name]);
+        }
+
         buffer.groups = this.groups;
         buffer.light = this.light;
         buffer.instances = this.instances;
@@ -605,7 +615,8 @@ class GeometryBuffer {
         hasAlphaColor: boolean,
         textureManager?: TextureManager,
         context?: Set<number[]>
-    ): void {}
+    ): void {
+    }
 
     protected configureOffsets(style: CommonBufferStyle, meterToPixel: number): void {
         if (Array.isArray(style.offsetUnit)) {

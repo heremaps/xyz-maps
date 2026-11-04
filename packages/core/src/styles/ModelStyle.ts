@@ -239,14 +239,18 @@ export interface ModelGeometry {
 }
 
 /**
- * Raw RGBA pixel data for a model texture.
+ * Raw RGBA pixels for a model texture.
+ * @public
  */
 export interface ModelTextureData {
     width: number;
     height: number;
     /** RGBA values in row-major order; must contain width * height * 4 bytes. */
     data: Uint8Array | Uint8ClampedArray;
-    /** Flip the texture vertically when uploading it. */
+    /**
+     * Vertical upload flip hint. WebGL does not flip typed-array pixels;
+     * normalize raw pixel rows before uploading (as `utils.decodeTga` does).
+     */
     flipY?: boolean;
 }
 

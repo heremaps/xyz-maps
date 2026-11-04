@@ -19,38 +19,40 @@
 
 import {type TileProviderOptions} from '../TileProvider/TileProviderOptions';
 import {GeoJSONFeature} from '../../features/GeoJSON';
+import type {ModelTextureData} from '../../styles/ModelStyle';
+import type {
+    WorkerPreProcessorFunction,
+    WorkerPreProcessorInput,
+    WorkerPreProcessorContext,
+    WorkerPreProcessorUtils
+} from './processors';
 
 /**
- * Input received by a worker preprocessor.
+ * Execution configuration for a remote provider preprocessor.
+ *
+ * The processor receives {@link WorkerPreProcessorInput} and a
+ * {@link WorkerPreProcessorContext}. The context provides the configured options
+ * and worker-safe utilities, including {@link WorkerPreProcessorUtils.decodeTga}
+ * for decoding TGA bytes into {@link ModelTextureData}.
+ *
+ * @example
+ * ```ts
+ * preProcessor: {
+ *     execution: 'worker',
+ *     processor: ({data}, {utils}) => {
+ *         for (const feature of data) {
+ *             // This example assumes the asset already contains decoded TGA bytes.
+ *             const texture = utils.decodeTga(feature.properties.tgaBytes);
+ *             feature.properties.modelSource.textures['texture.tga'] = texture;
+ *         }
+ *         return data;
+ *     }
+ * }
+ * ```
  *
  * @public
  */
-export interface WorkerPreProcessorInput {
-    data: any[];
-    tile: {
-        x: number;
-        y: number;
-        z: number;
-        quadkey: string;
-    };
-}
-
-/**
- * Standalone preprocessor function that can be serialized into the worker.
- *
- * @public
- */
-export type WorkerPreProcessorFunction = (
-    input: WorkerPreProcessorInput,
-    options: Record<string, unknown>
-) => any[] | Promise<any[]>;
-
-/**
- * Worker execution configuration for a remote provider preprocessor.
- *
- * @public
- */
-export interface WorkerPreProcessorOptions {
+export interface PreProcessorOptions {
     /**
      * Run this preprocessor in the provider's web worker. The `processor` function
      * must be self-contained; it cannot access closures or main-thread APIs.
@@ -59,14 +61,17 @@ export interface WorkerPreProcessorOptions {
     /**
      * A standalone function (serialized and reconstructed in the worker) or a URL
      * to a JavaScript module whose default export is the processor function.
+     * Receives `(input, context)`, where {@link WorkerPreProcessorContext.options | context.options}
+     * contains the configured options and {@link WorkerPreProcessorContext.utils | context.utils}
+     * exposes worker-safe helpers such as {@link WorkerPreProcessorUtils.decodeTga}.
      * Serialized functions and module loading use dynamic code loading, which may
      * require `unsafe-eval` and module URLs to be permitted by the Content Security Policy.
      * Cross-origin module URLs must allow worker-origin CORS requests.
      */
     processor: WorkerPreProcessorFunction | URL | string;
     /**
-     * Structured-cloneable values passed as the processor's second argument; an empty
-     * object is passed when omitted.
+     * Structured-cloneable values available as `context.options`; an empty
+     * object is supplied when omitted.
      */
     options?: Record<string, unknown>;
 }
@@ -86,7 +91,9 @@ export interface RemoteTileProviderOptions extends TileProviderOptions {
      * Promise, or use `ready` for legacy callback-style async work. Use the worker
      * configuration on an HTTP/GeoJSON provider to automatically load and preprocess
      * GeoJSON in a worker. Worker processors receive only `data` and `tile`, plus the
-     * configured options as a second argument, and must return the processed array.
+     * context as a second argument, and must return the processed array or a Promise
+     * of that array. The context exposes `options` and `utils.decodeTga` for preparing
+     * raw model textures without main-thread decoding.
      * They do not receive a provider reference or a `ready` callback. Worker mode is
      * not supported by `RemoteTileProvider` with a custom loader. ArrayBuffers,
      * typed-array buffers, and ImageBitmaps in the returned data are transferred to
@@ -97,7 +104,7 @@ export interface RemoteTileProviderOptions extends TileProviderOptions {
      * ```
      * preProcessor: {
      *     execution: 'worker',
-     *     processor: async ({data}, options) => {
+     *     processor: async ({data}, {options, utils}) => {
      *         // Return the processed feature array.
      *         return data;
      *     },
@@ -105,7 +112,7 @@ export interface RemoteTileProviderOptions extends TileProviderOptions {
      * }
      * ```
      */
-    preProcessor?: WorkerPreProcessorOptions | ((input: {
+    preProcessor?: PreProcessorOptions | ((input: {
         data: any[],
         ready: (features: GeoJSONFeature[]) => void,
         tile?: { x: number, y: number, z: number }

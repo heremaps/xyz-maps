@@ -20,6 +20,52 @@
 import {GeoJSONFeature} from '../../features/GeoJSON';
 import TileProvider from '../TileProvider/TileProvider';
 import Tile from '../../tile/Tile';
+import type {ModelTextureData} from '../../styles/ModelStyle';
+
+/**
+ * Worker-safe helpers available to worker preprocessors.
+ */
+export interface WorkerPreProcessorUtils {
+    /**
+     * Decode an uncompressed or RLE-compressed 24/32-bit truecolor TGA image
+     * into {@link ModelTextureData}, with bottom-to-top RGBA rows and `flipY: false`.
+     * Throws an Error for invalid or unsupported input.
+     */
+    decodeTga(bytes: Uint8Array): ModelTextureData;
+}
+
+/**
+ * Context received as the worker preprocessor's second argument.
+ */
+export interface WorkerPreProcessorContext {
+    /** Configured structured-cloneable options, or an empty object when omitted. */
+    options: Record<string, unknown>;
+    /** Worker-safe helpers; no main-thread or provider APIs are exposed. */
+    utils: WorkerPreProcessorUtils;
+}
+
+/**
+ * Input received by a worker preprocessor.
+ *
+ */
+export interface WorkerPreProcessorInput {
+    data: any[];
+    tile: {
+        x: number;
+        y: number;
+        z: number;
+        quadkey: string;
+    };
+}
+
+/**
+ * Standalone preprocessor function that can be serialized into the worker.
+ *
+ */
+export type WorkerPreProcessorFunction = (
+    input: WorkerPreProcessorInput,
+    context: WorkerPreProcessorContext
+) => any[] | Promise<any[]>;
 
 let UNDEF;
 

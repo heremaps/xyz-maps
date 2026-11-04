@@ -68,7 +68,8 @@ export class IMLProvider extends SpaceProvider {
      * The function must return the feature array; it cannot use closures or the DOM.
      * Returning Blobs for inline OBJ/MTL/textures avoids sending large decoded strings
      * back to the main thread. Browser-decodable image Blobs can be returned as texture
-     * entries; convert formats such as TGA in the worker before returning them. Remove
+     * entries; use `context.utils.decodeTga(bytes)` to convert TGA bytes into raw
+     * {@link ModelTextureData} in the worker before returning them. Remove
      * large encoded source properties before returning the features if they are no
      * longer needed.
      *
@@ -85,7 +86,7 @@ export class IMLProvider extends SpaceProvider {
      *             objProperty: 'objGzipBase64',
      *             mtlProperty: 'mtlGzipBase64'
      *         },
-     *         processor: async ({data}, options) => {
+     *         processor: async ({data}, {options}) => {
      *             const decodeGzipBase64 = async (encoded) => {
      *                 const bytes = Uint8Array.from(atob(encoded), (c) => c.charCodeAt(0));
      *                 const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));

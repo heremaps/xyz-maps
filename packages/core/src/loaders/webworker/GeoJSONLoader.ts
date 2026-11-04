@@ -19,7 +19,7 @@
 
 import WorkerHTTPLoader from './HTTPLoader';
 import type {HTTPLoaderOptions} from '../HTTPLoader';
-import type {WorkerPreProcessorOptions} from '../../providers/RemoteTileProvider/RemoteTileProviderOptions';
+import type {PreProcessorOptions} from '../../providers/RemoteTileProvider/RemoteTileProviderOptions';
 
 interface WorkerProcessorConfig {
     type: 'function' | 'module';
@@ -27,7 +27,7 @@ interface WorkerProcessorConfig {
     options?: Record<string, unknown>;
 }
 
-const serializeProcessor = (config: WorkerPreProcessorOptions): WorkerProcessorConfig => {
+const serializeProcessor = (config: PreProcessorOptions): WorkerProcessorConfig => {
     const {processor, options} = config;
     if (typeof processor == 'function') {
         return {
@@ -44,7 +44,7 @@ const serializeProcessor = (config: WorkerPreProcessorOptions): WorkerProcessorC
 };
 
 export interface GeoJSONWorkerLoaderOptions extends HTTPLoaderOptions {
-    preProcessor: WorkerPreProcessorOptions;
+    preProcessor: PreProcessorOptions;
 }
 
 class GeoJSONWorkerLoader extends WorkerHTTPLoader {

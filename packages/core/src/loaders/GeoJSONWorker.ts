@@ -19,7 +19,8 @@
 
 import {HTTPWorker} from './webworker/HTTPWorker';
 import {TransferableCollector} from './webworker/TransferableCollector';
-import type {WorkerPreProcessorFunction, WorkerPreProcessorInput} from '../providers/RemoteTileProvider/RemoteTileProviderOptions';
+import {decodeTga} from './webworker/decodeTga';
+import type {WorkerPreProcessorFunction, WorkerPreProcessorInput} from '../providers/RemoteTileProvider/processors';
 
 interface WorkerProcessorConfig {
     type: 'function' | 'module';
@@ -84,7 +85,10 @@ export default {
                 data: features,
                 tile: {x, y, z, quadkey}
             };
-            const result = await processor(input, this.processorOptions);
+            const result = await processor(input, {
+                options: this.processorOptions,
+                utils: {decodeTga}
+            });
             if (!Array.isArray(result)) {
                 throw new Error('Worker preProcessor must return a GeoJSON feature array');
             }
