@@ -58,9 +58,14 @@ export type {LocalProviderOptions} from './providers/LocalProvider';
 export {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvider';
 export type {
     RemoteTileProviderOptions,
-    PreProcessorOptions
+    PreProcessorOptions,
+    WorkerPreProcessorOptions,
+    PreProcessorPipelineOptions,
+    WorkerPreProcessorStageOptions,
+    WorkerPreProcessorStage
 } from './providers/RemoteTileProvider/RemoteTileProviderOptions';
 export type {
+    PreProcessor,
     WorkerPreProcessorFunction,
     WorkerPreProcessorInput,
     WorkerPreProcessorContext,

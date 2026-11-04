@@ -19,6 +19,7 @@
 
 import {geotools, JSUtils} from '@here/xyz-maps-common';
 import LoaderManager from '../../loaders/TileLoaderManager';
+import {normalizePreProcessor} from './normalizePreProcessor';
 import {tileUtils} from '../../tile/TileUtils';
 import {Tile} from '../../tile/Tile';
 import {EditableRemoteTileProviderOptions} from './EditableRemoteTileProviderOptions';
@@ -65,7 +66,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
 
     clipped: boolean;
 
-    private preprocess: (data: any[], cb: (data: GeoJSONFeature[]) => void, tile?: Tile) => void;
+    private preprocess: (data: any[], cb: (data: GeoJSONFeature[]) => void, tile?: Tile, onError?: (error: any) => void) => void;
     private postprocess: (data: PostProcesserInput, cb: (data: PostProcesserInput) => void) => void;
     protected remoteTileLoader: FixedLevelTileLoadDelegator;
 
@@ -90,8 +91,15 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
             throw (new Error('no tile loader defined.'));
         }
 
-        const preProcessor = typeof options.preProcessor == 'function' ? options.preProcessor : undefined;
-        provider.preprocess = createRemoteProcessor(preProcessor || (<any>options).preprocessor, provider);
+        const phases = normalizePreProcessor(options.preProcessor);
+        if (phases.worker.length) {
+            throw new Error('Worker preprocessing requires an HTTP/GeoJSON provider without a custom loader.');
+        }
+        const preProcessor = phases.main;
+        provider.preprocess = createRemoteProcessor(
+            options.preProcessor === undefined ? (<any>options).preprocessor : preProcessor,
+            provider
+        );
         provider.postprocess = createRemoteProcessor((<any>options).postProcessor, provider);
 
         this.remoteTileLoader = new FixedLevelTileLoadDelegator({
@@ -263,7 +271,7 @@ export abstract class EditableRemoteTileProvider extends EditableFeatureProvider
                         if (onload) {
                             onload(createResult());
                         }
-                    });
+                    }, undefined, onerror);
                 },
                 onerror,
                 options

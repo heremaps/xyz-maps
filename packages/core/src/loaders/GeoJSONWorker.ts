@@ -64,14 +64,12 @@ const loadProcessor = async (config: WorkerProcessorConfig): Promise<WorkerPrePr
 export default {
     id: 'GeoJSONWorker',
     Worker: class GeoJSONWorker extends HTTPWorker {
-        private processor?: Promise<WorkerPreProcessorFunction>;
-        private processorConfig: WorkerProcessorConfig;
-        private processorOptions: Record<string, unknown>;
+        private processors: Promise<WorkerPreProcessorFunction>[] = [];
+        private processorConfigs: WorkerProcessorConfig[];
 
-        constructor(options: { responseType?: string, processor: WorkerProcessorConfig }) {
+        constructor(options: { responseType?: string, processors?: WorkerProcessorConfig[], processor?: WorkerProcessorConfig }) {
             super({responseType: 'arraybuffer'});
-            this.processorConfig = options.processor;
-            this.processorOptions = options.processor.options || {};
+            this.processorConfigs = options.processors || (options.processor ? [options.processor] : []);
         }
 
         async process(arrayBuffer: ArrayBuffer, x: number, y: number, z: number, quadkey: string): Promise<WorkerProcessorResult> {
@@ -83,18 +81,22 @@ export default {
                 throw new Error('Worker preProcessor expected a GeoJSON feature array or FeatureCollection');
             }
 
-            const processor = await (this.processor ||= loadProcessor(this.processorConfig));
             const input: WorkerPreProcessorInput = {
                 data: features,
                 tile: {x, y, z, quadkey}
             };
-            const result = await processor(input, {
-                options: this.processorOptions,
-                utils: {decodeTga, decodeBase64, decompress}
-            });
-            if (!Array.isArray(result)) {
-                throw new Error('Worker preProcessor must return a GeoJSON feature array');
+            for (let i = 0; i < this.processorConfigs.length; i++) {
+                const config = this.processorConfigs[i];
+                const processor = await (this.processors[i] ||= loadProcessor(config));
+                input.data = await processor(input, {
+                    options: config.options || {},
+                    utils: {decodeTga, decodeBase64, decompress}
+                });
+                if (!Array.isArray(input.data)) {
+                    throw new Error('Worker preProcessor must return a GeoJSON feature array');
+                }
             }
+            const result = input.data;
 
             const transfer = new TransferableCollector();
             transfer.add(result);

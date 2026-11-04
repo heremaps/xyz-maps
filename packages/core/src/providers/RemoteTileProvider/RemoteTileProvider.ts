@@ -23,6 +23,7 @@ import {Tile} from '../../tile/Tile';
 import {RemoteTileProviderOptions} from './RemoteTileProviderOptions';
 import {FixedLevelTileLoadDelegator} from './FixedLevelTileLoadDelegator';
 import {TileLoadDelegator} from './TileLoadDelegator';
+import {normalizePreProcessor} from './normalizePreProcessor';
 
 /**
  *  A remote tile provider fetches data from remote data-sources.
@@ -53,7 +54,8 @@ export class RemoteTileProvider extends FeatureProvider {
 
         const provider = this;
 
-        if (options.preProcessor && typeof options.preProcessor == 'object') {
+        const phases = normalizePreProcessor(options.preProcessor);
+        if (phases.worker.length) {
             throw new Error('Worker preProcessor requires an HTTP/GeoJSON provider with automatic worker loading; RemoteTileProvider uses a custom loader.');
         }
 
@@ -79,7 +81,7 @@ export class RemoteTileProvider extends FeatureProvider {
         //     );
         // }
 
-        const preProcessor = typeof options.preProcessor == 'function' ? options.preProcessor : undefined;
+        const preProcessor = phases.main;
 
         this.remoteTileLoader = new FixedLevelTileLoadDelegator({
             provider,

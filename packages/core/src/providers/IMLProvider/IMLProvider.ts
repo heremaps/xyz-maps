@@ -19,6 +19,7 @@
 import {SpaceProvider} from '../GeoSpace/SpaceProvider';
 import {type IMLProviderOptions} from './IMLProviderOptions';
 import {type SpaceProviderOptions} from '../GeoSpace/SpaceOptions';
+import type {PreProcessorOptions} from '../RemoteTileProvider/RemoteTileProviderOptions';
 
 const IML_ENDPOINT = 'http://interactive.data.api.platform.here.com/interactive/v1';
 
@@ -71,6 +72,10 @@ export class IMLProvider extends SpaceProvider {
      * and preprocessing. Started preprocessing cannot be cancelled; late results
      * of cancelled requests are ignored. Main-thread preprocessors may use `ready`;
      * worker preprocessors must return the array or a Promise of it.
+     * Use {@link PreProcessorOptions} with optional `worker` and `main` phases
+     * (one stage or arrays): worker stages share the download worker and transfer
+     * only their final result, then main stages run sequentially before ingestion.
+     * Empty phases are identity; worker phases require automatic HTTP loading.
      * The example assumes features already contain an OBJ `modelSource` with OBJ/MTL
      * assets. `tgaGzipBase64` maps exact MTL `map_Kd` texture filenames (for example,
      * `"facade.tga"`) to base64-encoded gzip TGA assets. The utilities decode these
@@ -84,8 +89,7 @@ export class IMLProvider extends SpaceProvider {
      *     catalog: 'hrn:here:data::example:catalog',
      *     credentials: {apiKey: 'YOUR_API_KEY'},
      *     preProcessor: {
-     *         execution: 'worker',
-     *         processor: async ({data}, {utils}) => {
+     *         worker: {processor: async ({data}, {utils}) => {
      *             for (const feature of data) {
      *                 const {modelSource, tgaGzipBase64} = feature.properties;
      *                 modelSource.textures ||= {};
@@ -96,7 +100,8 @@ export class IMLProvider extends SpaceProvider {
      *                 delete feature.properties.tgaGzipBase64;
      *             }
      *             return data;
-     *         }
+     *         }},
+     *         main: ({data}) => data
      *     }
      * });
      * ```

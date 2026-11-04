@@ -23,6 +23,7 @@ import {Tile} from '../../tile/Tile';
 import {getTilesOfLevel} from '../../tile/TileUtils';
 import TileProvider from '../TileProvider/TileProvider';
 import {TileLoadDelegator} from './TileLoadDelegator';
+import type {PreProcessor} from './processors';
 
 let UNDEF;
 
@@ -39,11 +40,7 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
       ignoreTileQueryLimit?: boolean,
       provider: TileProvider,
       loader: TileLoader,
-      preProcessor?: (input: {
-        data: any,
-        ready: (features: any) => void,
-        tile?: { x: number, y: number, z: number }
-      }) => (any | Promise<any>),
+      preProcessor?: PreProcessor | PreProcessor[],
       processTileResponse: (tile: Tile, data: any, onDone: (data: any) => void, xhr: XMLHttpRequest) => any
     }) {
         super(options);
@@ -102,7 +99,8 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
                         }
 
                         if (!onLoaded.length) {
-                            if (this.loader.abort(dTile)) {
+                            this.cancelled.add(dTile);
+                            if (this.loader.abort(dTile) || !dTile.isLoaded()) {
                                 storage.remove(dTile);
                             }
                         }
@@ -239,11 +237,13 @@ export class FixedLevelTileLoadDelegator extends TileLoadDelegator {
                 tile.loadStartTs = Date.now();
 
                 this.loader.tile(tile, (data) => {
-                    this.preprocess(data, (data) => this.completeTile(tile, data), tile);
+                    if (!this.isActive(tile)) return;
+                    this.preprocess(data, (data) => {
+                        if (this.isActive(tile)) this.completeTile(tile, data);
+                    }, tile, (error) => this.failTile(tile, error));
                 },
                 (error, xhr) => {
-                    tile.error = error;
-                    this.handleTileResponse(tile, undefined, xhr, () => provider.listeners.trigger('error', [error, tile], true));
+                    this.failTile(tile, error, xhr);
                 });
             }
         }

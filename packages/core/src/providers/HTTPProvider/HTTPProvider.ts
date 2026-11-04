@@ -24,6 +24,7 @@ import {JSUtils} from '@here/xyz-maps-common';
 import {HTTPProviderOptions} from './HTTPProviderOptions';
 import {Feature} from '../../features/Feature';
 import GeoJSONWorkerLoader from '../../loaders/webworker/GeoJSONLoader';
+import {normalizePreProcessor} from '../RemoteTileProvider/normalizePreProcessor';
 
 
 const METHOD_NOT_IMPLEMENTED = 'Method not implemented.';
@@ -50,15 +51,10 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      */
     constructor(options: HTTPProviderOptions) {
         let loader = options.loader;
-        const workerPreProcessor = options.preProcessor && typeof options.preProcessor == 'object'
-            ? options.preProcessor
-            : undefined;
+        const phases = normalizePreProcessor(options.preProcessor);
+        const workerPreProcessor = phases.worker;
 
-        if (workerPreProcessor && workerPreProcessor.execution != 'worker') {
-            throw new Error('Unsupported preProcessor execution mode. Use `execution: "worker"`.');
-        }
-
-        if (workerPreProcessor) {
+        if (workerPreProcessor.length) {
             if (loader) {
                 throw new Error('A worker preProcessor cannot be combined with a custom loader. Remove `loader` to use the automatic GeoJSON worker loader.');
             }
@@ -87,7 +83,12 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
         }
         options.loader = loader;
 
-        super(options);
+        super({
+            ...options,
+            preProcessor: options.preProcessor !== undefined
+                ? {main: phases.main}
+                : undefined
+        });
 
         this.setParams(options.params || {});
         this.setHeaders(options.headers || {});
@@ -227,8 +228,8 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
      * @param options - The configuration key as a string to get a value, or an object to set multiple options.
      * @param value - Optional value to set if a string key is provided.
      */
-    config(options: HTTPProviderOptions| string, value?: any) {
-        if ( options === 'url' && typeof value === 'string') {
+    config(options: HTTPProviderOptions | string, value?: any) {
+        if (options === 'url' && typeof value === 'string') {
             options = {url: value} as HTTPProviderOptions;
             value = undefined;
         }

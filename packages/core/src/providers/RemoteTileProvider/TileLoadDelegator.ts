@@ -28,20 +28,17 @@ let UNDEF;
 
 type TileLoader = any;
 
-type PreProcessor = (input: {
-    data: any,
-    ready: (features: any) => void,
-    tile?: { x: number, y: number, z: number }
-}) => (any | Promise<any>)
+type TileProcessor = ((input: any) => any) | ((input: any) => any)[];
 
 export class TileLoadDelegator {
     provider: TileProvider;
-    protected preprocess: (data: any, ready, tile?: Tile) => void;
+    protected preprocess: (data: any, ready, tile?: Tile, onError?: (error: any) => void) => void;
 
     loader: TileLoader;
+    protected cancelled = new WeakSet<Tile>();
 
     constructor(options: {
-        provider: TileProvider, loader: TileLoader, preProcessor?: PreProcessor,
+        provider: TileProvider, loader: TileLoader, preProcessor?: TileProcessor,
         processTileResponse?: (tile: Tile, data: any, onDone: (data: any) => void, xhr: XMLHttpRequest) => any
     }) {
         let {loader} = options;
@@ -64,7 +61,7 @@ export class TileLoadDelegator {
         }
     }
 
-    initPreprocessor(preProcessor: PreProcessor) {
+    initPreprocessor(preProcessor: TileProcessor) {
         this.preprocess = createRemoteProcessor(preProcessor, this.provider);
     }
 
@@ -96,7 +93,8 @@ export class TileLoadDelegator {
                 }
 
                 if (!onLoaded.length) {
-                    if (this.loader.abort(tile)) {
+                    this.cancelled.add(tile);
+                    if (this.loader.abort(tile) || !tile.isLoaded()) {
                         storage.remove(tile);
                     }
                 }
@@ -140,6 +138,16 @@ export class TileLoadDelegator {
 
     protected completeTile(tile: Tile, data?: any) {
         this.handleTileResponse(tile, data);
+    }
+
+    protected isActive(tile: Tile) {
+        return this.provider.storage.get(tile.quadkey) === tile && !this.cancelled.has(tile);
+    }
+
+    protected failTile(tile: Tile, error: any, xhr?: XMLHttpRequest) {
+        if (!this.isActive(tile)) return;
+        tile.error = error;
+        this.handleTileResponse(tile, undefined, xhr, () => this.provider.listeners.trigger('error', [error, tile], true));
     }
 
     /**
@@ -191,18 +199,17 @@ export class TileLoadDelegator {
         if (!tile.loadStartTs) {
             tile.loadStartTs = Date.now();
 
+            const active = () => this.isActive(tile);
+            const failed = (err, xhr?: XMLHttpRequest) => this.failTile(tile, err, xhr);
             this.loader.tile(tile, (data, stringByteSize) => {
                 // console.log('----loadtile---',tile.quadkey);
                 // provider.sizeKB += stringByteSize / 1024;
-                this.preprocess(data, (data) => this.completeTile(tile, data), tile);
+                if (!active()) return;
+                this.preprocess(data, (data) => {
+                    if (active()) this.completeTile(tile, data);
+                }, tile, failed);
             },
-            (err, xhr: XMLHttpRequest) => {
-                // tile.loadStopTs = Date.now();
-
-                tile.error = err;
-
-                this.handleTileResponse(tile, undefined, xhr, () => provider.listeners.trigger('error', [err, tile], true));
-            });
+            failed);
         }
         return tile;
     };

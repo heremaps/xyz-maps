@@ -50,9 +50,16 @@ export interface WorkerPreProcessorUtils {
  * Context received as the worker preprocessor's second argument.
  */
 export interface WorkerPreProcessorContext {
-    /** Configured structured-cloneable options, or an empty object when omitted. */
+    /**
+     * Configured structured-cloneable options, or an empty object when omitted.
+     */
     options: Record<string, unknown>;
-    /** Worker-safe helpers; no main-thread or provider APIs are exposed. */
+    /**
+     * Utilities for preparing feature data in the worker.
+     *
+     * @remarks
+     * The full XYZ Maps API is not available in the worker.
+     */
     utils: WorkerPreProcessorUtils;
 }
 
@@ -79,8 +86,6 @@ export type WorkerPreProcessorFunction = (
     context: WorkerPreProcessorContext
 ) => GeoJSONFeature[] | Promise<GeoJSONFeature[]>;
 
-let UNDEF;
-
 const isFnc = (fnc) => typeof fnc === 'function';
 
 const isPromise = (p) => p && (typeof p == 'object' || typeof p == 'function') && typeof p.then == 'function';
@@ -101,7 +106,15 @@ export type ProcessorInput = {
     }
 }
 
-export type PreProcessor = (data: ProcessorInput) => GeoJSONFeature[];
+/**
+ * Main-thread preprocessor, including Promise and legacy callback completion.
+ * Receives loaded features, the provider, and optional tile coordinates.
+ * Return the processed features or call `ready(features)` when returning void.
+ *
+ */
+export type PreProcessor = (input: Omit<ProcessorInput, 'data'> & {
+    data: any[];
+}) => GeoJSONFeature[] | Promise<GeoJSONFeature[]> | void;
 
 export const isPreprocessor = (preprocessor) => {
     return isFnc(preprocessor);
@@ -111,27 +124,47 @@ export const isPostprocessor = (postprocessor) => {
     return isFnc(postprocessor);
 };
 
-export const executeProcessor = (processor, data: any = {}) => {
-    let callback = data.ready;
+/**
+ * Execute one stage, completing once via callback, return value, or Promise.
+ *
+ * @internal
+ * @hidden
+ */
+export const executeProcessor = (processor, data: any = {}, onError?: (error: any) => void) => {
+    let completed = false;
+    const complete = (result) => {
+        if (completed) return;
+        completed = true;
+        return data.ready(result);
+    };
+    const fail = (error) => {
+        if (completed) return;
+        completed = true;
+        if (onError) return onError(error);
+        throw error;
+    };
     let processedData;
-
-    if (isPreprocessor(processor)) {
-        processedData = processor(data);
-    } else {
-        processedData = data.data;
+    try {
+        processedData = isPreprocessor(processor) ?
+            processor({...data, ready: complete}) : data.data;
+        if (isPromise(processedData)) {
+            return processedData.then(complete, fail);
+        }
+    } catch (error) {
+        // A synchronous ready/next call may already have completed this stage.
+        if (completed) throw error;
+        return fail(error);
     }
-
-    if (isPromise(processedData)) {
-        processedData.then(callback);
-    } else if (processedData !== UNDEF) {
-        callback(processedData);
+    if (processedData !== undefined) {
+        return complete(processedData);
     }
 };
 
-export const createRemoteProcessor = (preprocessor: PreProcessor, provider: TileProvider) => function(
+export const createRemoteProcessor = (preprocessor: ((input: any) => any) | ((input: any) => any)[], provider: TileProvider) => function(
     data: any[] | PostProcesserInput,
     ready,
-    tile?: Tile
+    tile?: Tile,
+    onError?: (error: any) => void
 ) {
     const processorInput: ProcessorInput = {
         data: data,
@@ -147,5 +180,14 @@ export const createRemoteProcessor = (preprocessor: PreProcessor, provider: Tile
             quadkey: tile.quadkey
         };
     }
-    executeProcessor(preprocessor, processorInput);
+    const stages = Array.isArray(preprocessor) ? preprocessor : preprocessor ? [preprocessor] : [];
+    const next = (index: number, data) => {
+        if (index === stages.length) {
+            return ready(data);
+        }
+        return executeProcessor(stages[index], {
+            ...processorInput, data, ready: (result) => next(index + 1, result)
+        }, onError);
+    };
+    return next(0, data);
 };

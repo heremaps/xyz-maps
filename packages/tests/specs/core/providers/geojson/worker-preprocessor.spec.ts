@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2025 HERE Europe B.V.
+ * Copyright (C) 2019-2026 HERE Europe B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,11 +53,11 @@ describe('GeoJSON worker preprocessor', function() {
                 processor: async ({data}, {options, utils}) => {
                     const bytes = utils.decodeBase64('AP+A4oKs8J+YgA==');
                     const format = options.format;
-                    if (format != 'gzip' && format != 'deflate' && format != 'deflate-raw') {
+                    if (format !== 'gzip' && format !== 'deflate' && format !== 'deflate-raw') {
                         throw new Error('Invalid format');
                     }
                     const compressed = new Uint8Array(await new Response(
-                        new Blob([bytes]).stream().pipeThrough(new CompressionStream(format))
+                        new Blob([new Uint8Array(bytes)]).stream().pipeThrough(new CompressionStream(format))
                     ).arrayBuffer());
                     const padded = new Uint8Array(compressed.length + 4).fill(99);
                     padded.set(compressed, 2);
@@ -168,14 +168,134 @@ describe('GeoJSON worker preprocessor', function() {
         }
     });
 
+    it('chains function and module stages in one worker before callback and Promise main stages', async () => {
+        const url = createTileUrl();
+        const moduleUrl = URL.createObjectURL(new Blob([
+            `export default ({data}, {options}) => {
+                    if (data[0].properties.bytes.buffer.byteLength !== 3) throw Error('detached between stages');
+                    data[0].properties.order += options.value;
+                    return data;
+                };`
+        ], {type: 'text/javascript'}));
+        let mainCalls = 0;
+        const provider = new GeoJSONProvider({
+            level: 1, url,
+            preProcessor: {
+                worker: [
+                    {processor: ({data}, {options}) => {
+                        data[0].properties.bytes = new Uint8Array([1, 2, 3]);
+                        data[0].properties.order = options.value;
+                        return data;
+                    }, options: {value: 'first'}},
+                    {processor: new URL(moduleUrl), options: {value: '-module'}},
+                    ({data}) => {
+                        data[0].properties.order += '-last';
+                        return data;
+                    }
+                ],
+                main: [
+                    ({data, ready, provider: inputProvider}) => {
+                        expect(inputProvider).toBe(provider);
+                        setTimeout(() => ready(data), 0);
+                    },
+                    async ({data}) => {
+                        mainCalls++;
+                        data[0].properties.order += '-main';
+                        return data;
+                    }
+                ]
+            }
+        });
+        try {
+            const feature = await loadFeature(provider);
+            expect(feature.properties.order).toBe('first-module-last-main');
+            expect(Array.from(feature.properties.bytes)).toEqual([1, 2, 3]);
+            expect(mainCalls).toBe(1);
+        } finally {
+            provider.clear();
+            URL.revokeObjectURL(url);
+            URL.revokeObjectURL(moduleUrl);
+        }
+    });
+
+    it.each(['worker', 'main'] as const)('routes chained %s rejections through tile errors', async (phase) => {
+        const url = createTileUrl();
+        const provider = new GeoJSONProvider({
+            level: 1, url,
+            preProcessor: phase === 'worker' ? {
+                worker: [({data}) => data, async () => {
+                    throw new Error('chain failure');
+                }]
+            } : {
+                main: [({data}) => data, async () => {
+                    throw new Error('chain failure');
+                }]
+            }
+        });
+        try {
+            await expect(loadFeature(provider)).rejects.toBeDefined();
+        } finally {
+            provider.clear();
+            URL.revokeObjectURL(url);
+        }
+    });
+
+    it('accepts main-only chains with custom loaders and rejects worker custom loaders', async () => {
+        const loader = {load: (_tile, done) => done(JSON.parse(JSON.stringify(dataset)).features)};
+        const provider = new GeoJSONProvider({
+            level: 1, loader,
+            preProcessor: {main: [
+                ({data, ready}) => {
+                    ready(data); return data;
+                },
+                async ({data}) => {
+                    data[0].properties.chained = true; return data;
+                }
+            ]}
+        });
+        try {
+            expect((await loadFeature(provider)).properties.chained).toBe(true);
+        } finally {
+            provider.clear();
+        }
+        expect(() => new GeoJSONProvider({
+            level: 1, loader, preProcessor: {worker: ({data}) => data}
+        })).toThrow(/custom loader/);
+    });
+
+    it('ignores a main chain result after cancellation', async () => {
+        let release: () => void;
+        let started: () => void;
+        const entered = new Promise<void>((resolve) => {
+            started = resolve;
+        });
+        let completions = 0;
+        const provider = new GeoJSONProvider({
+            level: 1,
+            loader: {load: (_tile, done) => done(JSON.parse(JSON.stringify(dataset)).features)},
+            preProcessor: {main: ({data, ready}) => {
+                release = () => ready(data);
+                started();
+            }}
+        });
+        provider.getTile('0', () => {
+            completions++;
+        });
+        await entered;
+        provider.cancel('0');
+        release();
+        expect(completions).toBe(0);
+        expect(provider.getFeature('worker-feature')).toBeUndefined();
+        provider.clear();
+    });
+
     it('supplies default options and transfers decoded texture buffers out of the worker', async () => {
         const url = createTileUrl();
         const provider = new GeoJSONProvider({
             level: 1,
             url,
             preProcessor: {
-                execution: 'worker',
-                processor: ({data, tile}, {options, utils}) => {
+                worker: [{processor: ({data, tile}, {options, utils}) => {
                     const previous = (globalThis as any).previousTgaTexture;
                     const texture = utils.decodeTga(new Uint8Array([
                         0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 24, 0,
@@ -189,7 +309,12 @@ describe('GeoJSON worker preprocessor', function() {
                         previousDetached: previous?.data.buffer.byteLength == 0
                     };
                     return data;
-                }
+                }}, ({data}) => {
+                    if (data[0].properties.texture.data.buffer.byteLength !== 4) {
+                        throw new Error('Buffer detached before the final worker stage');
+                    }
+                    return data;
+                }]
             }
         });
         const load = (key: string) => new Promise<Feature>((resolve, reject) => {
