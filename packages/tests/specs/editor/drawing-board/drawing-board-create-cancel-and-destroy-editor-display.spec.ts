@@ -1,0 +1,84 @@
+/*
+ * Copyright (C) 2019-2022 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {mousemove} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
+import {Map} from '@here/xyz-maps-display';
+import {Editor} from '@here/xyz-maps-editor';
+import dataset from './drawing-board-create-cancel-and-destroy-editor-display.json';
+import {describe, it} from 'vitest';
+
+describe('Drawing cancellation and Editor/Map destruction', function() {
+    it('Create a link with drawing manager and then destroy editor and display', async function() {
+        // instanciate display and editor
+        let preparedData = await prepare(dataset);
+        let display = new Map(document.getElementById('map'), {
+            center: {longitude: 77.26345, latitude: 13.04889},
+            zoomlevel: 18,
+            layers: preparedData.getLayers()
+        });
+        let editor = new Editor(display, {
+            layers: preparedData.getLayers()
+        });
+        await waitForEditorReady(editor);
+        let mapContainer = display.getContainer();
+
+        editor.getDrawingBoard().start();
+
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
+
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
+        await userEvent.click(mapContainer, {position: {x: 200, y: 300}, modifiers: ['Alt']});
+
+        editor.getDrawingBoard().create({featureClass: 'NAVLINK'});
+
+        editor.destroy();
+        display.destroy();
+    });
+
+    it('Cancel drawing and destroy editor and displays', async function() {
+        // instanciate display and editor
+        let preparedData = await prepare(dataset);
+        let display = new Map(document.getElementById('map'), {
+            center: {longitude: 77.26345, latitude: 13.04889},
+            zoomlevel: 18,
+            layers: preparedData.getLayers()
+        });
+        let editor = new Editor(display, {
+            layers: preparedData.getLayers()
+        });
+        await waitForEditorReady(editor);
+        let mapContainer = display.getContainer();
+
+        editor.getDrawingBoard().start();
+
+        await mousemove(mapContainer, {x: 100, y: 200}, {x: 200, y: 200});
+        await userEvent.click(mapContainer, {position: {x: 200, y: 200}, modifiers: ['Alt']});
+
+        await mousemove(mapContainer, {x: 200, y: 200}, {x: 200, y: 300});
+        await userEvent.click(mapContainer, {position: {x: 200, y: 300}, modifiers: ['Alt']});
+
+        editor.getDrawingBoard().cancel();
+
+        editor.destroy();
+        display.destroy();
+    });
+});

@@ -20,20 +20,20 @@
 import {prepare} from 'utils';
 import dataset from './remote_filtering.json';
 import {Feature} from '@here/xyz-maps-core';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('remote filtering in spaceprovider', () => {
-    const expect = chai.expect;
     var preparedData;
     var spaceLayer;
     var spaceProvider;
 
-    before(async () => {
+    beforeAll(async () => {
         preparedData = await prepare(dataset);
         spaceLayer = preparedData.getLayers('spaceLayer');
         spaceProvider = spaceLayer.getProvider();
     });
 
-    after(async () => {
+    afterAll(async () => {
         await preparedData.clear();
     });
 
@@ -48,7 +48,7 @@ describe('remote filtering in spaceprovider', () => {
                 }
             });
         });
-        expect(result.id).to.equal(featureId);
+        expect(result.id).toBe(featureId);
         spaceProvider.clear();
     });
 
@@ -63,7 +63,7 @@ describe('remote filtering in spaceprovider', () => {
             });
         });
 
-        expect(result).to.have.lengthOf(3);
+        expect(result).toHaveLength(3);
     });
 
     it('validate search result with filter 1', async () => {
@@ -83,7 +83,7 @@ describe('remote filtering in spaceprovider', () => {
                 }
             });
         });
-        expect(result).to.have.lengthOf(0);
+        expect(result).toHaveLength(0);
     });
 
 
@@ -105,7 +105,7 @@ describe('remote filtering in spaceprovider', () => {
                 }
             });
         });
-        expect(result).to.have.lengthOf(1);
+        expect(result).toHaveLength(1);
     });
 
 
@@ -127,7 +127,7 @@ describe('remote filtering in spaceprovider', () => {
                 }
             });
         });
-        expect(result).to.have.lengthOf(3);
+        expect(result).toHaveLength(3);
     });
 
 
@@ -149,7 +149,7 @@ describe('remote filtering in spaceprovider', () => {
                 }
             });
         });
-        expect(result).to.have.lengthOf(2);
+        expect(result).toHaveLength(2);
     });
 
     it('validate search result with filter 5', async () => {
@@ -174,7 +174,7 @@ describe('remote filtering in spaceprovider', () => {
                 }
             });
         });
-        expect(result).to.have.lengthOf(2);
+        expect(result).toHaveLength(2);
     });
 
 
@@ -200,7 +200,7 @@ describe('remote filtering in spaceprovider', () => {
                 }
             });
         });
-        expect(result).to.have.lengthOf(1);
+        expect(result).toHaveLength(1);
     });
 
 
@@ -217,7 +217,7 @@ describe('remote filtering in spaceprovider', () => {
                 }
             });
         });
-        expect(result).to.have.lengthOf(3);
+        expect(result).toHaveLength(3);
     });
 
 
@@ -234,7 +234,7 @@ describe('remote filtering in spaceprovider', () => {
                 }
             });
         });
-        expect(result).to.have.lengthOf(2);
+        expect(result).toHaveLength(2);
 
         result = await new Promise<void>((resolve) => {
             spaceProvider.setPropertySearch();
@@ -247,6 +247,6 @@ describe('remote filtering in spaceprovider', () => {
                 }
             });
         });
-        expect(result).to.have.lengthOf(3);
+        expect(result).toHaveLength(3);
     });
 });

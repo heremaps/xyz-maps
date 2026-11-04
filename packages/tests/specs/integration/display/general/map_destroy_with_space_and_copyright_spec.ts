@@ -19,13 +19,12 @@
 import {prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './map_destroy_with_space_and_copyright_spec.json';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('destroy display with space layer and copyright', function() {
-    const expect = chai.expect;
-
     let display;
 
-    before(async function() {
+    beforeAll(async function() {
         // prepare map display which has Space with copyright and destroy the display in test
         // the destroy function should not throw exception
         let preparedData = await prepare(dataset);
@@ -36,18 +35,20 @@ describe('destroy display with space layer and copyright', function() {
         });
     });
 
-    after(function() {
+    afterAll(function() {
         if (display.destroy) display.destroy();
     });
 
-    it('destroy display and validate', function(done) {
-        setTimeout(()=>{
-            display.destroy();
+    it('destroy display and validate', function() {
+        return new Promise<void>((done) => {
+            setTimeout(()=>{
+                display.destroy();
 
-            expect(display).to.deep.equal({});
+                expect(display).toEqual({});
 
-            // wait 100ms for exception thrown asynchronously by destroy
-            setTimeout(done, 100);
-        }, 0);
+                // wait 100ms for exception thrown asynchronously by destroy
+                setTimeout(done, 100);
+            }, 0);
+        });
     });
 });

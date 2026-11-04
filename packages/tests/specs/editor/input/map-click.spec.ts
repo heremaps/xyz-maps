@@ -1,0 +1,106 @@
+/*
+ * Copyright (C) 2019-2022 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+import {Listener, prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {drag} from 'triggerEvents';
+import {userEvent} from 'vitest/browser';
+import {Map} from '@here/xyz-maps-display';
+import {Editor} from '@here/xyz-maps-editor';
+import dataset from './map-click.json';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+
+describe('Map click', function() {
+    var editor;
+    var display;
+    var preparedData;
+
+    beforeAll(async function() {
+        preparedData = await prepare(dataset);
+        display = new Map(document.getElementById('map'), {
+            center: {longitude: 76.0572959685897, latitude: 13.08281747103834},
+            zoomlevel: 18,
+            layers: preparedData.getLayers()
+        });
+        editor = new Editor(display, {
+            layers: preparedData.getLayers()
+        });
+
+        await waitForEditorReady(editor);
+    });
+
+    afterAll(async function() {
+        editor.destroy();
+        display.destroy();
+    });
+
+
+    it('listen to events and validate', async function() {
+        let listener = new Listener(editor, ['pointerup', 'dragStart', 'dragStop']);
+
+        let mapContainer = display.getContainer();
+        // click on ground
+        await userEvent.click(mapContainer, {position: {x: 200, y: 170}, modifiers: ['Alt']});
+
+        // drag map
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 100, y: 100}, {x: 300, y: 100});
+        });
+
+        // drag map again
+        await waitForEditorReady(editor, async ()=>{
+            await drag(mapContainer, {x: 350, y: 100}, {x: 150, y: 100});
+        });
+
+        await waitForEditorReady(editor, ()=>{
+            display.setCenter({longitude: 76.05532722717277, latitude: 13.084839606874539});
+        });
+
+
+        let lnk = {
+            type: 'Feature',
+            properties: {featureClass: 'NAVLINK'},
+            geometry: {
+                type: 'LineString',
+                coordinates: editor.toGeoJSONCoordinates([{x: 100, y: 100}, {x: 300, y: 100}])
+            }
+        };
+        let link = editor.addFeature(lnk);
+
+        // click on a link
+        await userEvent.click(mapContainer, {position: {x: 160, y: 100}, modifiers: ['Alt']});
+
+        let results = listener.stop();
+
+        expect(results.dragStart).toHaveLength(0);
+        expect(results.dragStop).toHaveLength(0);
+        expect(results.pointerup).toHaveLength(2);
+
+        expect(results.pointerup[0]).toEqual(expect.objectContaining({
+            mapX: 200,
+            mapY: 170
+        }));
+        expect(results.pointerup[1]).toEqual(expect.objectContaining({
+            mapX: 160,
+            mapY: 100
+        }));
+        for (const event of results.pointerup) {
+            expect(event.nativeEvent).toEqual(expect.objectContaining({isTrusted: true, altKey: true}));
+        }
+    });
+});

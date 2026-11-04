@@ -21,19 +21,18 @@ import {waitForViewportReady} from 'displayUtils';
 import {MonitorXHR, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './init_requests_spec.json';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('initial requests of display', function() {
-    const expect = chai.expect;
-
     let preparedData;
     let display;
     let requests;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
     });
 
-    after(async function() {
+    afterAll(async function() {
         display && display.destroy();
     });
 
@@ -55,6 +54,6 @@ describe('initial requests of display', function() {
         requests = monitor.stop();
 
         // two tile requests and one space request.
-        expect(requests).to.have.lengthOf(3);
+        expect(requests).toHaveLength(3);
     });
 });

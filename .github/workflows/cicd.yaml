@@ -10,15 +10,34 @@ on:
             - '*'
     workflow_call:
     workflow_dispatch:
+        inputs:
+            component:
+                description: Test component
+                type: choice
+                default: all
+                options:
+                    - all
+                    - unit
+                    - common
+                    - core
+                    - display
+                    - editor
+            workers:
+                description: Test workers (serial disables file parallelism)
+                type: choice
+                default: '4'
+                options:
+                    - serial
+                    - '4'
+                    - '12'
 
 jobs:
     build:
-        name: Test ${{ matrix.browser }} (${{ matrix.os }})
+        name: Test (${{ matrix.os }})
         runs-on: ${{ matrix.os }}
 
         strategy:
             matrix:
-                browser: [ ChromeHeadless ]
                 os: [ ubuntu-24.04 ]
 
         steps:
@@ -35,7 +54,39 @@ jobs:
                     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             -   name: Install dependencies
                 run: pnpm install --frozen-lockfile
+            -   name: Test pure helpers before building browser bundles
+                run: pnpm --filter @here/xyz-maps-test run test:unit --sequence.seed "$GITHUB_RUN_ID"
+            -   name: Lint test specs and infrastructure
+                run: pnpm --filter @here/xyz-maps-test run lint
             -   name: Build release package
                 run: pnpm run build-release
+            -   name: Typecheck test specs
+                run: pnpm --filter @here/xyz-maps-test run typecheck
             -   name: Run tests
-                run: pnpm test --browser ${{ matrix.browser }}
+                env:
+                    TEST_COMPONENT: ${{ github.event_name == 'workflow_dispatch' && inputs.component || 'all' }}
+                    TEST_WORKERS: ${{ github.event_name == 'workflow_dispatch' && inputs.workers || '4' }}
+                shell: bash
+                run: |
+                    args=()
+                    case "$TEST_COMPONENT" in
+                        all) ;;
+                        unit|common|core|display|editor) args+=(--project "$TEST_COMPONENT") ;;
+                        *) echo "Unknown test component: $TEST_COMPONENT" >&2; exit 1 ;;
+                    esac
+                    case "$TEST_WORKERS" in
+                        serial) args+=(--no-fileParallelism --maxWorkers 1) ;;
+                        4|12) args+=(--fileParallelism --maxWorkers "$TEST_WORKERS") ;;
+                        *) echo "Unknown test workers: $TEST_WORKERS" >&2; exit 1 ;;
+                    esac
+                    pnpm test "${args[@]}"
+                    pnpm --filter @here/xyz-maps-test run test:isolation "${args[@]}" --sequence.seed "$GITHUB_RUN_ID"
+            -   name: Upload test reports
+                if: always()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: test-reports-${{ matrix.os }}
+                    path: |
+                        packages/tests/dist/vitest/report.json
+                        packages/tests/dist/vitest/report-isolation.json
+                    if-no-files-found: warn

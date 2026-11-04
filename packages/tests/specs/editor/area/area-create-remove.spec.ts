@@ -1,0 +1,106 @@
+/*
+ * Copyright (C) 2019-2022 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+import {prepare} from 'utils';
+import {waitForEditorReady, submit} from 'editorUtils';
+import {Map} from '@here/xyz-maps-display';
+import {Editor} from '@here/xyz-maps-editor';
+import dataset from './area-create-remove.json';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+
+describe('Area creation and removal', function() {
+    var editor;
+    var display;
+
+    let preparedData;
+    let area;
+    let areaLayer;
+    let idMap;
+
+    beforeAll(async function() {
+        preparedData = await prepare(dataset);
+        display = new Map(document.getElementById('map'), {
+            center: {longitude: 77.02831, latitude: 12.9356},
+            zoomlevel: 18,
+            layers: preparedData.getLayers()
+        });
+        editor = new Editor(display, {
+            layers: preparedData.getLayers()
+        });
+
+        await waitForEditorReady(editor);
+
+        areaLayer = preparedData.getLayers('buildingLayer');
+
+        // validate no area objects in viewport
+        let objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
+        expect(objs).toHaveLength(0);
+    });
+
+    afterAll(async function() {
+        editor.destroy();
+        display.destroy();
+        await preparedData.clear();
+    });
+
+
+    it('add object to map and validate area objects in viewport', async function() {
+        let a = {
+            type: 'Feature',
+            properties: {featureClass: 'AREA'},
+            geometry: {
+                type: 'MultiPolygon',
+                coordinates: editor.toGeoJSONCoordinates([[[{x: 200, y: 300}, {x: 200, y: 500}, {x: 400, y: 300}, {x: 200, y: 300}]]])
+            }
+        };
+        area = editor.addFeature(a);
+
+        // validate there is one area object in viewport
+        let objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
+        expect(objs).toHaveLength(1);
+
+        await waitForEditorReady(editor, async ()=>{
+            idMap = await submit(editor);
+        });
+
+        // validate there is one area object in viewport
+        objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
+        expect(objs).toHaveLength(1);
+    });
+
+    it('get area and remove it, validate area objects in viewport again', async function() {
+        // remove created area object
+        let areaId = idMap.permanentIDMap[area.getProvider().id][area.id];
+        area = editor.getFeature(areaId, areaLayer);
+        area.remove();
+        expect(area.prop('removed')).toBe('HOOK');
+        expect(area.prop('estate')).toBe('REMOVED');
+
+        // validate there is no area object in viewport
+        let objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
+        expect(objs).toHaveLength(0);
+
+        await waitForEditorReady(editor, async ()=>{
+            await submit(editor);
+        });
+
+        // validate there is no area object in viewport
+        objs = editor.search({rect: display.getViewBounds(), layers: [areaLayer]});
+        expect(objs).toHaveLength(0);
+    });
+});

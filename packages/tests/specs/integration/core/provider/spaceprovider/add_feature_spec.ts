@@ -19,20 +19,20 @@
 
 import {prepare} from 'utils';
 import dataset from './add_feature_spec.json';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('add feature to spaceprovider', function() {
-    const expect = chai.expect;
     var preparedData;
     var spaceLayer;
     var spaceProvider;
 
-    before(async function() {
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         spaceLayer = preparedData.getLayers('spaceLayer');
         spaceProvider = spaceLayer.getProvider();
     });
 
-    after(async function() {
+    afterAll(async function() {
         await preparedData.clear();
     });
 
@@ -48,8 +48,8 @@ describe('add feature to spaceprovider', function() {
                 }
             });
         });
-        expect(objs).to.equal(undefined);
-        expect(robjs).to.have.lengthOf(2);
+        expect(objs).toBe(undefined);
+        expect(robjs).toHaveLength(2);
 
         await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
@@ -62,12 +62,12 @@ describe('add feature to spaceprovider', function() {
             });
         });
 
-        expect(objs).to.have.lengthOf(2);
-        expect(robjs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
+        expect(robjs).toHaveLength(2);
     });
 
 
-    xit('set tag and validate objects in an area where new feature is added', async function() {
+    it.skip('set tag and validate objects in an area where new feature is added', async function() {
         // expect search function to return 2 features
         spaceProvider.clear();
         var objs; var robjs;
@@ -84,8 +84,8 @@ describe('add feature to spaceprovider', function() {
             });
         });
 
-        expect(objs).to.equal(undefined);
-        expect(robjs).to.have.lengthOf(2);
+        expect(objs).toBe(undefined);
+        expect(robjs).toHaveLength(2);
 
         await new Promise<void>(function(resolve) {
             objs = spaceProvider.search({
@@ -98,7 +98,7 @@ describe('add feature to spaceprovider', function() {
             });
         });
 
-        expect(objs).to.have.lengthOf(2);
-        expect(robjs).to.have.lengthOf(2);
+        expect(objs).toHaveLength(2);
+        expect(robjs).toHaveLength(2);
     });
 });

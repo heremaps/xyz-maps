@@ -1,0 +1,72 @@
+/*
+ * Copyright (C) 2019-2022 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {Map} from '@here/xyz-maps-display';
+import {Editor} from '@here/xyz-maps-editor';
+import dataset from './place-create-outside-viewport.json';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+
+describe('Place creation outside the viewport', function() {
+    let editor;
+    let display;
+    let preparedData;
+    let link;
+
+    beforeAll(async function() {
+        preparedData = await prepare(dataset);
+        display = new Map(document.getElementById('map'), {
+            center: {longitude: 78.68822870649961, latitude: 17.065070322770552},
+            zoomlevel: 18,
+            layers: preparedData.getLayers()
+        });
+        editor = new Editor(display, {
+            layers: preparedData.getLayers()
+        });
+        await waitForEditorReady(editor);
+
+        link = preparedData.getFeature('linkLayer', -189171);
+    });
+
+    afterAll(async function() {
+        editor.destroy();
+        display.destroy();
+        await preparedData.clear();
+    });
+
+    it('create a poi outside viewport, validate it connects a link nearby', async function() {
+        await waitForEditorReady(editor, ()=>{
+            display.setCenter({longitude: 78.69697807230585, latitude: 17.06284978426463});
+        });
+
+        let p = {
+            type: 'Feature',
+            properties: {featureClass: 'PLACE'},
+            geometry: {
+                type: 'Point',
+                coordinates: editor.toGeoJSONCoordinates({longitude: 78.68822870649961, latitude: 17.065070322770552})
+            }
+        };
+        let poi = editor.addFeature(p, preparedData.getLayers('placeLayer'));
+
+        poi.createRoutingPoint();
+
+        expect(poi.prop('routingLink')).toEqual(link.id+'');
+    });
+});

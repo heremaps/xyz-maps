@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noEmit": true
+  },
+  "include": [
+    "vitest/*.mts",
+    "vitest.config.mts",
+    "vitest.isolation.config.mts",
+    "vitest.unit.config.mts",
+    "vitest.integration.config.mts"
+  ]
+}

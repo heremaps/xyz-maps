@@ -1,0 +1,85 @@
+/*
+ * Copyright (C) 2019-2022 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+import {prepare} from 'utils';
+import {waitForEditorReady} from 'editorUtils';
+import {waitForViewportReady} from 'displayUtils';
+import {Map} from '@here/xyz-maps-display';
+import {Editor} from '@here/xyz-maps-editor';
+import dataset from './navlink-modify-then-undo-clear-provider.json';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
+
+describe('Navlink changes, undo and provider cleanup', function() {
+    let editor;
+    let display;
+    let preparedData;
+    let linkLayer;
+    let linkProvider;
+    let link;
+
+    beforeAll(async function() {
+        preparedData = await prepare(dataset);
+        display = new Map(document.getElementById('map'), {
+            center: {longitude: 77.13201659362801, latitude: 13.660441367361372},
+            zoomlevel: 17,
+            layers: preparedData.getLayers()
+        });
+        editor = new Editor(display, {
+            layers: preparedData.getLayers()
+        });
+
+        await waitForEditorReady(editor);
+        linkLayer = preparedData.getLayers('linkLayer');
+        linkProvider = preparedData.getLayers('linkLayer').getProvider();
+
+        link = preparedData.getFeature('linkLayer', -189076);
+    });
+
+    afterAll(async function() {
+        editor.destroy();
+        display.destroy();
+        await preparedData.clear();
+    });
+
+    it('modify link', async function() {
+        link.addShape({x: 100, y: 100});
+
+        expect(link.coord()).toHaveLength(3);
+    });
+
+    it('modify link again', async function() {
+        link.addShape({x: 400, y: 100});
+
+        expect(link.coord()).toHaveLength(4);
+    });
+
+    it('undo change', async function() {
+        editor.undo();
+        let lnk = editor.getFeature(link.id, linkLayer);
+        expect(lnk.coord()).toHaveLength(3);
+    });
+
+    it('clear provider validate again the link coordinate', async function() {
+        await waitForViewportReady(display, ()=>{
+            linkProvider.clear();
+        });
+
+        let lnk = editor.getFeature(link.id, linkLayer);
+        expect(lnk.coord()).toHaveLength(3);
+    });
+});

@@ -1,0 +1,270 @@
+/*
+ * Copyright (C) 2019-2026 HERE Europe B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ * License-Filename: LICENSE
+ */
+
+import {Map} from '@here/xyz-maps-display';
+import {Feature, LocalProvider, TerrainTileLayer, TileLayer} from '@here/xyz-maps-core';
+import {waitForViewportReady} from 'displayUtils';
+import {Listener} from 'utils';
+import {userEvent} from 'vitest/browser';
+import {createPickingTerrain, terrainFixtureUrl, terrainScreenshot} from '../../../src/utils/terrainPicking';
+import {vi, describe, beforeAll, afterAll, beforeEach, it, expect} from 'vitest';
+
+describe('Terrain support picking', () => {
+    let map: Map;
+    let terrain: TerrainTileLayer;
+    let overlay: TileLayer;
+    let draped: Feature;
+    let pixels: {x: number, y: number}[];
+
+    beforeAll(async () => {
+        terrain = createPickingTerrain();
+        overlay = new TileLayer({
+            min: 2, max: 20, provider: new LocalProvider(),
+            style: {altitude: 'terrain', styleGroups: {}}
+        });
+        draped = overlay.addFeature({
+            id: 'draped-slope',
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                    [0.0033, 0.0026], [0.0043, 0.0026],
+                    [0.0043, 0.0036], [0.0033, 0.0036], [0.0033, 0.0026]
+                ]]
+            }
+        }, [{type: 'Polygon', zIndex: 1, fill: '#ff0000'}]);
+        map = new Map(document.getElementById('map'), {
+            center: {longitude: 0.0038, latitude: 0.0031},
+            zoomlevel: 16,
+            pitch: 50,
+            maxPitch: 75,
+            layers: [terrain, overlay]
+        });
+        await waitForViewportReady(map);
+        pixels = (await terrainScreenshot(map)).inside;
+        expect(pixels.length, 'rendered draped polygon on the slope').toBeGreaterThan(20);
+    });
+
+    afterAll(() => map.destroy());
+
+    beforeEach(async () => {
+        terrain.pointerEvents(false);
+        overlay.pointerEvents(true);
+        await terrainScreenshot(map);
+    });
+
+    it('uses a 512x512 Terrarium hill with a flat, seamless 1000 m border', async () => {
+        const image = new Image();
+        image.src = terrainFixtureUrl();
+        await image.decode();
+        expect([image.naturalWidth, image.naturalHeight]).toStrictEqual([512, 512]);
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 512;
+        const context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0);
+        const data = context.getImageData(0, 0, 512, 512).data;
+        const elevation = (x: number, y: number) => {
+            const i = (y * 512 + x) * 4;
+            return data[i] * 256 + data[i + 1] + data[i + 2] / 256 - 32768;
+        };
+        let maximum = 0;
+        for (let y = 0; y < 512; y++) {
+            for (let x = 0; x < 512; x++) {
+                const height = elevation(x, y);
+                maximum = Math.max(maximum, height);
+                expect(height).toBeGreaterThanOrEqual(1000);
+                expect(height).toBeLessThanOrEqual(1300);
+                if (x < 16 || y < 16 || x >= 496 || y >= 496) expect(height).toBe(1000);
+            }
+        }
+        expect(maximum).toEqualWithTolerance(1300, 0.1);
+        expect(Math.abs(elevation(150, 245) - elevation(290, 245))).toBeGreaterThan(10);
+        const heights = pixels.map((pixel) => map.getTerrainPointAt(pixel)?.altitude);
+        expect(Math.min(...heights)).toBeGreaterThan(1000);
+        expect(Math.max(...heights) - Math.min(...heights), 'draped polygon spans the hill slope').toBeGreaterThan(20);
+    });
+
+    it('does not redraw the scene during CPU picking', () => {
+        const canvas = map.getContainer().querySelector('canvas');
+        const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+        expect(gl).not.toBeNull();
+        const clear = vi.spyOn(gl, 'clear');
+        try {
+            const pixel = pixels[Math.floor(pixels.length / 2)];
+            for (let i = 0; i < 10; i++) {
+                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).toBe(draped.id);
+            }
+            expect(clear).not.toHaveBeenCalled();
+        } finally {
+            clear.mockRestore();
+        }
+    });
+
+    for (const enabled of [false, true]) {
+        for (const selection of ['implicit', 'overlay only', 'terrain and overlay']) {
+            it(`picks rendered draped pixels with terrain pointerEvents:${enabled}, layers:${selection}`, () => {
+                terrain.pointerEvents(enabled);
+                const options = selection === 'implicit' ? undefined :
+                    {layers: selection === 'overlay only' ? [overlay] : [terrain, overlay]};
+                for (const pixel of pixels) {
+                    const result = map.getFeatureAt(pixel, options);
+                    expect(result?.feature.id, `draped pixel ${pixel.x},${pixel.y}`).toBe(draped.id);
+                    expect(result?.layer?.id).toBe(overlay.id);
+                }
+            });
+        }
+    }
+
+    it('does not leak terrain support into an empty or excluded layer selection', () => {
+        for (const enabled of [false, true]) {
+            terrain.pointerEvents(enabled);
+            for (const pixel of pixels) {
+                expect(map.getFeatureAt(pixel, {layers: []})?.feature.id).toBe(undefined);
+                const result = map.getFeatureAt(pixel, {layers: [terrain]});
+                // Explicit API queries are independent of pointer-event subscription.
+                expect(result?.layer?.id).toBe(terrain.id);
+                expect(result?.feature.id).not.toBe(draped.id);
+            }
+        }
+    });
+
+    it('honors overlay pointerEvents without losing selectable terrain', async () => {
+        const pixel = pixels[Math.floor(pixels.length / 2)];
+        const pointerTarget = async () => {
+            const listener = new Listener(map, ['pointerup']);
+            let events;
+            try {
+                await userEvent.click(map.getContainer(), {position: {x: pixel.x, y: pixel.y}, modifiers: ['Alt']});
+            } finally {
+                events = listener.stop().pointerup;
+            }
+            expect(events.length).toBe(1);
+            return events[0].target?.id;
+        };
+        expect(await pointerTarget()).toBe(draped.id);
+        overlay.pointerEvents(false);
+        expect(await pointerTarget()).toBe(undefined);
+        terrain.pointerEvents(true);
+        expect(await pointerTarget()).toBe(map.getFeatureAt(pixel, {layers: [terrain]})?.feature.id);
+        overlay.pointerEvents(true);
+        expect(await pointerTarget()).toBe(draped.id);
+    });
+
+    it('picks draped pixels shifted away from the polygon sea-level projection', () => {
+        const seaLevel = map.geoToPixel({longitude: 0.0038, latitude: 0.0031, altitude: 0});
+        expect(Math.min(...pixels.map((pixel) => Math.hypot(pixel.x - seaLevel.x, pixel.y - seaLevel.y)))).toBeGreaterThan(40);
+        for (const pixel of pixels) {
+            expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).toBe(draped.id);
+        }
+    });
+
+    it('retains closer 3D circles and occludes circles below the terrain support', async () => {
+        const circle = overlay.addFeature({
+            id: 'above-slope',
+            type: 'Feature',
+            properties: {},
+            geometry: {type: 'Point', coordinates: [0.0038, 0.0031, 1350]}
+        }, [{type: 'Circle', zIndex: 2, radius: 24, fill: '#ff0000', altitude: true}]);
+        overlay.setStyleGroup(draped, [{type: 'Polygon', zIndex: 1, fill: '#0000ff'}]);
+        try {
+            const visible = await terrainScreenshot(map);
+            expect(visible.inside.length).toBeGreaterThan(20);
+            for (const pixel of visible.inside) {
+                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).toBe(circle.id);
+            }
+            overlay.setStyleGroup(circle, [{
+                type: 'Circle', zIndex: 2, radius: 24, fill: '#ff0000', altitude: true, offsetZ: '-600m'
+            }]);
+            expect((await terrainScreenshot(map)).redPixels).toBe(0);
+            for (let y = 10; y < map.getContainer().clientHeight; y += 20) {
+                for (let x = 10; x < map.getContainer().clientWidth; x += 20) {
+                    expect(map.getFeatureAt({x, y}, {layers: [overlay]})?.feature.id).not.toBe(circle.id);
+                }
+            }
+        } finally {
+            overlay.removeFeature(circle);
+            overlay.setStyleGroup(draped, [{type: 'Polygon', zIndex: 1, fill: '#ff0000'}]);
+        }
+    });
+
+    it('occludes a rear-slope circle behind the hill, not outside the viewport', async () => {
+        overlay.setStyleGroup(draped, [{type: 'Polygon', zIndex: 1, fill: '#0000ff'}]);
+        const rear = overlay.addFeature({
+            id: 'rear-slope',
+            type: 'Feature',
+            properties: {},
+            geometry: {type: 'Point', coordinates: [0.00472, 0.0083, 1180]}
+        }, [{type: 'Circle', zIndex: 2, radius: 12, fill: '#ff0000', altitude: true}]);
+        try {
+            await waitForViewportReady(map, () => {
+                map.setCenter({longitude: 0.00472, latitude: 0.0057});
+                map.pitch(0);
+            });
+            const visible = await terrainScreenshot(map);
+            expect(visible.inside.length, 'rear circle visible from above').toBeGreaterThan(5);
+            for (const pixel of visible.inside) {
+                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).toBe(rear.id);
+            }
+            await waitForViewportReady(map, () => map.pitch(75));
+            expect(map.pitch()).toEqualWithTolerance(75, 1e-6);
+            const projected = map.geoToPixel(0.00472, 0.0083, 1180);
+            expect(projected.x).toBeGreaterThanOrEqual(20);
+            expect(projected.x).toBeLessThanOrEqual(map.getContainer().clientWidth - 20);
+            expect(projected.y).toBeGreaterThanOrEqual(20);
+            expect(projected.y).toBeLessThanOrEqual(map.getContainer().clientHeight - 20);
+            expect((await terrainScreenshot(map)).redPixels, 'hidden by the hill crest').toBe(0);
+            for (const enabled of [false, true]) {
+                terrain.pointerEvents(enabled);
+                for (let y = 10; y < map.getContainer().clientHeight; y += 20) {
+                    for (let x = 10; x < map.getContainer().clientWidth; x += 20) {
+                        expect(map.getFeatureAt({x, y}, {layers: [overlay]})?.feature.id).not.toBe(rear.id);
+                    }
+                }
+            }
+        } finally {
+            overlay.removeFeature(rear);
+            overlay.setStyleGroup(draped, [{type: 'Polygon', zIndex: 1, fill: '#ff0000'}]);
+            await waitForViewportReady(map, () => {
+                map.setCenter({longitude: 0.0038, latitude: 0.0031});
+                map.pitch(50);
+            });
+        }
+    });
+
+    it('does not retain terrain support after removing the terrain layer', async () => {
+        await waitForViewportReady(map, [overlay], () => {
+            map.removeLayer(terrain);
+            map.pitch(0);
+        });
+        try {
+            const {inside} = await terrainScreenshot(map);
+            expect(inside.length).toBeGreaterThan(20);
+            for (const pixel of inside) {
+                expect(map.getFeatureAt(pixel, {layers: [overlay]})?.feature.id).toBe(draped.id);
+                expect(map.getFeatureAt(pixel, {layers: []})?.feature.id).toBe(undefined);
+            }
+        } finally {
+            await waitForViewportReady(map, [terrain, overlay], () => {
+                map.addLayer(terrain, 0);
+                map.pitch(50);
+            });
+        }
+    });
+});

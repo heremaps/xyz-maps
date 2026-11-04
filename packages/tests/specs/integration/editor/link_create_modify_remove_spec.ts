@@ -21,12 +21,10 @@ import {waitForEditorReady, submit} from 'editorUtils';
 import {Map} from '@here/xyz-maps-display';
 import {drag} from 'triggerEvents';
 import {Editor} from '@here/xyz-maps-editor';
-import chaiAlmost from 'chai-almost';
 import dataset from './link_create_modify_remove_spec.json';
+import {describe, beforeAll, afterAll, it, expect} from 'vitest';
 
 describe('Validate submit of creating new link, modifying and removing link', function() {
-    const expect = chai.expect;
-
     let editor;
     let display;
     let preparedData;
@@ -34,8 +32,7 @@ describe('Validate submit of creating new link, modifying and removing link', fu
     let link;
     let linkLayer;
 
-    before(async function() {
-        chai.use(chaiAlmost());
+    beforeAll(async function() {
         preparedData = await prepare(dataset);
         display = new Map(document.getElementById('map'), {
             center: {longitude: 76.98506, latitude: 12.88776},
@@ -50,7 +47,7 @@ describe('Validate submit of creating new link, modifying and removing link', fu
         linkLayer = preparedData.getLayers('linkLayer');
     });
 
-    after(async function() {
+    afterAll(async function() {
         editor.destroy();
         display.destroy();
         await preparedData.clear();
@@ -67,10 +64,10 @@ describe('Validate submit of creating new link, modifying and removing link', fu
         };
         link = editor.addFeature(l);
 
-        expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [76.983450675, 12.888805854, 0],
             [76.984791779, 12.887498536, 0]
-        ]);
+        ], 1e-6);
 
         let monitor = new MonitorXHR();
         monitor.start({method: 'post'});
@@ -81,18 +78,18 @@ describe('Validate submit of creating new link, modifying and removing link', fu
         });
         let linkId = idMap.permanentIDMap[link.getProvider().id][link.id];
         let reqs = monitor.stop();
-        expect(reqs).to.have.lengthOf(1);
+        expect(reqs).toHaveLength(1);
         let payload = reqs[0].payload;
 
         link = editor.getFeature(linkId, linkLayer);
 
-        expect(payload.features[0].geometry.coordinates).to.deep.almost([
+        expect(payload.features[0].geometry.coordinates).toEqualWithTolerance([
             [76.983450675, 12.888805854, 0],
             [76.984791779, 12.887498536, 0]
-        ]);
-        expect(payload.features[0].properties).to.deep.include({
+        ], 1e-6);
+        expect(payload.features[0].properties).toEqual(expect.objectContaining({
             'featureClass': 'NAVLINK'
-        });
+        }));
     });
 
     it('modify link and validate', async function() {
@@ -100,10 +97,10 @@ describe('Validate submit of creating new link, modifying and removing link', fu
 
         await drag(mapContainer, {x: 100, y: 100}, {x: 150, y: 150});
 
-        expect(link.coord()).to.deep.almost([
+        expect(link.coord()).toEqualWithTolerance([
             [76.983718921, 12.888544437, 0],
             [76.9847918, 12.8874985, 0]
-        ]);
+        ], 1e-6);
 
         let monitor = new MonitorXHR();
         monitor.start({method: 'post'});
@@ -113,18 +110,18 @@ describe('Validate submit of creating new link, modifying and removing link', fu
         });
 
         let reqs = monitor.stop();
-        expect(reqs).to.have.lengthOf(1);
+        expect(reqs).toHaveLength(1);
         let payload = reqs[0].payload;
 
         link = editor.getFeature(link.id, linkLayer);
 
-        expect(payload.features[0].geometry.coordinates).to.deep.almost([
+        expect(payload.features[0].geometry.coordinates).toEqualWithTolerance([
             [76.983718921, 12.888544437, 0],
             [76.9847918, 12.8874985, 0]
-        ]);
-        expect(payload.features[0].properties).to.deep.include({
+        ], 1e-6);
+        expect(payload.features[0].properties).toEqual(expect.objectContaining({
             'featureClass': 'NAVLINK'
-        });
+        }));
     });
 
 
@@ -132,13 +129,13 @@ describe('Validate submit of creating new link, modifying and removing link', fu
         link.select();
         let links = editor.search(display.getViewBounds());
 
-        expect(links).to.be.lengthOf(1);
+        expect(links).toHaveLength(1);
 
         link.remove();
 
         links = editor.search(display.getViewBounds());
 
-        expect(links).to.be.lengthOf(0);
+        expect(links).toHaveLength(0);
 
         let monitor = new MonitorXHR(/&id=/);
         monitor.start({method: 'delete'});
@@ -147,8 +144,8 @@ describe('Validate submit of creating new link, modifying and removing link', fu
         });
         let request = monitor.stop()[0];
 
-        expect(request.payload).to.equal(null);
-        expect(request.method).to.equal('DELETE');
-        expect(request.url.indexOf(link.id) > -1).to.be.true;
+        expect(request.payload).toBe(null);
+        expect(request.method).toBe('DELETE');
+        expect(request.url.indexOf(link.id) > -1).toBe(true);
     });
 });

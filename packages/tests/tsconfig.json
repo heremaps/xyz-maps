@@ -1,14 +1,18 @@
 {
   "compilerOptions": {
     "target": "ES2017",
+    "module": "ESNext",
     "rootDir": "..",
     "outDir": "dist",
     "lib": ["es5", "ES2017", "dom"],
     "sourceMap": true,
     "allowJs": true,
-    "types" : ["mocha", "chai"],
+    "types" : ["@vitest/browser-playwright"],
     "baseUrl": ".",
     "paths": {
+      "@test/*": ["src/*"],
+      "vitest/browser": ["node_modules/vitest/browser/context.d.ts"],
+      "vitest/internal/browser": ["node_modules/vitest/dist/browser.d.ts"],
       "*": ["src/utils/*"],
       "TestProviders": ["src/TestProvider.ts"]
     },
@@ -17,7 +21,7 @@
     "esModuleInterop": true
   },
   "include": [
-    "specs/**/*", "src/**/*"
+    "specs/**/*", "src/**/*", "vitest/setup.ts", "vitest/env.d.ts"
   ],
   "exclude": [
     "node_modules",

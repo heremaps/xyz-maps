@@ -19,15 +19,14 @@
 
 import {prepare} from 'utils';
 import dataset from './search_in_provider_remote_spec.json';
+import {describe, beforeAll, it, expect} from 'vitest';
 
 // GeoJSonProvider actually does not support remote search......
 // search locally instead
 describe('search in providers remotely', function() {
-    const expect = chai.expect;
-
     var poiProvider;
 
-    before(async function() {
+    beforeAll(async function() {
         let preparedData = await prepare(dataset);
 
         let poiLayer = preparedData.getLayers('placeGeoJsonLayer');
@@ -42,10 +41,10 @@ describe('search in providers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.equal(undefined);
+            expect(objs).toBe(undefined);
         });
 
-        expect(results).to.have.lengthOf(2);
+        expect(results).toHaveLength(2);
     });
 
     it('search in provider by point and radius at same place for 3 times remotely ', async function() {
@@ -56,10 +55,10 @@ describe('search in providers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.equal(undefined);
+            expect(objs).toBe(undefined);
         });
 
-        expect(results).to.have.lengthOf(4);
+        expect(results).toHaveLength(4);
 
         results = await new Promise<void>((resolve) => {
             let objs = poiProvider.search({
@@ -68,10 +67,10 @@ describe('search in providers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.have.lengthOf(2);
+            expect(objs).toHaveLength(2);
         });
 
-        expect(results).to.have.lengthOf(2);
+        expect(results).toHaveLength(2);
 
         results = await new Promise<void>((resolve) => {
             let objs = poiProvider.search({
@@ -80,10 +79,10 @@ describe('search in providers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.have.lengthOf(6);
+            expect(objs).toHaveLength(6);
         });
 
-        expect(results).to.have.lengthOf(6);
+        expect(results).toHaveLength(6);
     });
 
     it('search in provider by viewport and validate at same place for 2 times', async function() {
@@ -101,10 +100,10 @@ describe('search in providers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.have.lengthOf(3);
+            expect(objs).toHaveLength(3);
         });
 
-        expect(results).to.have.lengthOf(3);
+        expect(results).toHaveLength(3);
     });
 
 
@@ -115,10 +114,10 @@ describe('search in providers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.equal(undefined);
+            expect(objs).toBe(undefined);
         });
 
-        expect(results).to.have.lengthOf(5);
+        expect(results).toHaveLength(5);
 
         results = await new Promise<void>((resolve) => {
             let objs = poiProvider.search({
@@ -126,9 +125,9 @@ describe('search in providers remotely', function() {
                 remote: true,
                 onload: resolve
             });
-            expect(objs).to.have.lengthOf(5);
+            expect(objs).toHaveLength(5);
         });
 
-        expect(results).to.have.lengthOf(5);
+        expect(results).toHaveLength(5);
     });
 });
