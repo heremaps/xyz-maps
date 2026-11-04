@@ -66,12 +66,15 @@ export class IMLProvider extends SpaceProvider {
      *
      * To decode model assets off the main thread, use a standalone worker preprocessor.
      * The function must return the feature array; it cannot use closures or the DOM.
-     * Returning Blobs for inline OBJ/MTL/textures avoids sending large decoded strings
-     * back to the main thread. Browser-decodable image Blobs can be returned as texture
-     * entries; use `context.utils.decodeTga(bytes)` to convert TGA bytes into raw
-     * {@link ModelTextureData} in the worker before returning them. Remove
-     * large encoded source properties before returning the features if they are no
-     * longer needed.
+     * Worker mode automatically selects a worker loader with one worker per provider.
+     * Each LoaderManager allows up to 16 concurrent tile tasks, including download
+     * and preprocessing. Started preprocessing cannot be cancelled; late results
+     * of cancelled requests are ignored. Main-thread preprocessors may use `ready`;
+     * worker preprocessors must return the array or a Promise of it.
+     * The example assumes features already contain an OBJ `modelSource` with OBJ/MTL
+     * assets. `tgaGzipBase64` maps exact MTL `map_Kd` texture filenames (for example,
+     * `"facade.tga"`) to base64-encoded gzip TGA assets. The utilities decode these
+     * into {@link ModelTextureData}; existing model assets and textures are preserved.
      *
      * @example
      * ```ts
@@ -82,34 +85,15 @@ export class IMLProvider extends SpaceProvider {
      *     credentials: {apiKey: 'YOUR_API_KEY'},
      *     preProcessor: {
      *         execution: 'worker',
-     *         options: {
-     *             objProperty: 'objGzipBase64',
-     *             mtlProperty: 'mtlGzipBase64'
-     *         },
-     *         processor: async ({data}, {options}) => {
-     *             const decodeGzipBase64 = async (encoded) => {
-     *                 const bytes = Uint8Array.from(atob(encoded), (c) => c.charCodeAt(0));
-     *                 const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-     *                 return new Response(stream).text();
-     *             };
-     *             const objProperty = String(options.objProperty);
-     *             const mtlProperty = String(options.mtlProperty);
+     *         processor: async ({data}, {utils}) => {
      *             for (const feature of data) {
-     *                 const obj = await decodeGzipBase64(feature.properties[objProperty]);
-     *                 const encodedMTL = feature.properties[mtlProperty];
-     *                 const mtl: Record<string, Blob> = {};
-     *                 for (const filename of Object.keys(encodedMTL || {})) {
-     *                     mtl[filename] = new Blob([
-     *                         await decodeGzipBase64(encodedMTL[filename])
-     *                     ], {type: 'text/plain'});
+     *                 const {modelSource, tgaGzipBase64} = feature.properties;
+     *                 modelSource.textures ||= {};
+     *                 for (const filename of Object.keys(tgaGzipBase64)) {
+     *                     const bytes = await utils.decompress(utils.decodeBase64(tgaGzipBase64[filename]), 'gzip');
+     *                     modelSource.textures[filename] = utils.decodeTga(bytes);
      *                 }
-     *                 feature.properties.modelSource = {
-     *                     format: 'obj',
-     *                     obj: new Blob([obj], {type: 'text/plain'}),
-     *                     mtl
-     *                 };
-     *                 delete feature.properties[objProperty];
-     *                 delete feature.properties[mtlProperty];
+     *                 delete feature.properties.tgaGzipBase64;
      *             }
      *             return data;
      *         }

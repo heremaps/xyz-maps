@@ -27,6 +27,18 @@ import type {ModelTextureData} from '../../styles/ModelStyle';
  */
 export interface WorkerPreProcessorUtils {
     /**
+     * Decode standard base64 into bytes using native `atob` validation.
+     * ASCII whitespace and omitted padding are accepted; invalid alphabet or
+     * padding throws. This does not decode text or accept base64url.
+     */
+    decodeBase64(encoded: string): Uint8Array;
+    /**
+     * Decompress bytes using native `DecompressionStream`, preserving the input.
+     * Rejects for malformed data, unsupported formats, or unavailable native APIs.
+     * No base64/text detection or fallback is performed.
+     */
+    decompress(bytes: Uint8Array, format: 'gzip' | 'deflate' | 'deflate-raw'): Promise<Uint8Array>;
+    /**
      * Decode an uncompressed or RLE-compressed 24/32-bit truecolor TGA image
      * into {@link ModelTextureData}, with bottom-to-top RGBA rows and `flipY: false`.
      * Throws an Error for invalid or unsupported input.
@@ -49,7 +61,7 @@ export interface WorkerPreProcessorContext {
  *
  */
 export interface WorkerPreProcessorInput {
-    data: any[];
+    data: GeoJSONFeature[];
     tile: {
         x: number;
         y: number;
@@ -65,7 +77,7 @@ export interface WorkerPreProcessorInput {
 export type WorkerPreProcessorFunction = (
     input: WorkerPreProcessorInput,
     context: WorkerPreProcessorContext
-) => any[] | Promise<any[]>;
+) => GeoJSONFeature[] | Promise<GeoJSONFeature[]>;
 
 let UNDEF;
 

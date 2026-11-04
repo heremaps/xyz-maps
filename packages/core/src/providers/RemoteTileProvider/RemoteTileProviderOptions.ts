@@ -34,16 +34,25 @@ import type {
  * {@link WorkerPreProcessorContext}. The context provides the configured options
  * and worker-safe utilities, including {@link WorkerPreProcessorUtils.decodeTga}
  * for decoding TGA bytes into {@link ModelTextureData}.
+ * {@link WorkerPreProcessorUtils.decodeBase64} decodes standard base64 into bytes;
+ * {@link WorkerPreProcessorUtils.decompress} decompresses bytes using native streams.
+ * The example assumes each feature already has an OBJ `modelSource` (including
+ * its OBJ/MTL assets). `tgaGzipBase64` maps the exact texture filenames referenced
+ * by the MTL's `map_Kd` entries, such as `"facade.tga"`, to base64-encoded gzip TGA assets.
  *
  * @example
  * ```ts
  * preProcessor: {
  *     execution: 'worker',
- *     processor: ({data}, {utils}) => {
+ *     processor: async ({data}, {utils}) => {
  *         for (const feature of data) {
- *             // This example assumes the asset already contains decoded TGA bytes.
- *             const texture = utils.decodeTga(feature.properties.tgaBytes);
- *             feature.properties.modelSource.textures['texture.tga'] = texture;
+ *             const {modelSource, tgaGzipBase64} = feature.properties;
+ *             modelSource.textures ||= {};
+ *             for (const filename of Object.keys(tgaGzipBase64)) {
+ *                 const bytes = await utils.decompress(utils.decodeBase64(tgaGzipBase64[filename]), 'gzip');
+ *                 modelSource.textures[filename] = utils.decodeTga(bytes);
+ *             }
+ *             delete feature.properties.tgaGzipBase64;
  *         }
  *         return data;
  *     }
@@ -90,10 +99,15 @@ export interface RemoteTileProviderOptions extends TileProviderOptions {
      * receives `data`, `ready`, and `tile`; it may return the processed features or a
      * Promise, or use `ready` for legacy callback-style async work. Use the worker
      * configuration on an HTTP/GeoJSON provider to automatically load and preprocess
-     * GeoJSON in a worker. Worker processors receive only `data` and `tile`, plus the
+     * GeoJSON in one worker per provider using an automatically selected worker loader.
+     * Each LoaderManager limits concurrent tile tasks to 16, covering both download
+     * and preprocessing. Started preprocessing is not cancelled; late results of
+     * cancelled tile requests are ignored.
+     * Worker processors receive only `data` and `tile`, plus the
      * context as a second argument, and must return the processed array or a Promise
-     * of that array. The context exposes `options` and `utils.decodeTga` for preparing
-     * raw model textures without main-thread decoding.
+     * of that array. The context exposes `options` and {@link WorkerPreProcessorUtils | utils}
+     * for decoding base64, decompressing bytes, and preparing raw TGA model textures
+     * without main-thread decoding.
      * They do not receive a provider reference or a `ready` callback. Worker mode is
      * not supported by `RemoteTileProvider` with a custom loader. ArrayBuffers,
      * typed-array buffers, and ImageBitmaps in the returned data are transferred to

@@ -20,6 +20,9 @@
 import {HTTPWorker} from './webworker/HTTPWorker';
 import {TransferableCollector} from './webworker/TransferableCollector';
 import {decodeTga} from './webworker/decodeTga';
+import {decodeBase64} from './webworker/decodeBase64';
+import {decompress} from './webworker/decompress';
+import type {GeoJSONFeature} from '../features/GeoJSON';
 import type {WorkerPreProcessorFunction, WorkerPreProcessorInput} from '../providers/RemoteTileProvider/processors';
 
 interface WorkerProcessorConfig {
@@ -29,7 +32,7 @@ interface WorkerProcessorConfig {
 }
 
 interface WorkerProcessorResult {
-    data: any[];
+    data: GeoJSONFeature[];
     transfer: Transferable[];
 }
 
@@ -87,7 +90,7 @@ export default {
             };
             const result = await processor(input, {
                 options: this.processorOptions,
-                utils: {decodeTga}
+                utils: {decodeTga, decodeBase64, decompress}
             });
             if (!Array.isArray(result)) {
                 throw new Error('Worker preProcessor must return a GeoJSON feature array');

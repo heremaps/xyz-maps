@@ -42,6 +42,65 @@ describe('GeoJSON worker preprocessor', function() {
         });
     });
 
+    it.each(['gzip', 'deflate', 'deflate-raw'] as const)('exposes byte utilities in the built %s worker', async (format) => {
+        const url = createTileUrl();
+        const provider = new GeoJSONProvider({
+            level: 1,
+            url,
+            preProcessor: {
+                execution: 'worker',
+                options: {format},
+                processor: async ({data}, {options, utils}) => {
+                    const bytes = utils.decodeBase64('AP+A4oKs8J+YgA==');
+                    const format = options.format;
+                    if (format != 'gzip' && format != 'deflate' && format != 'deflate-raw') {
+                        throw new Error('Invalid format');
+                    }
+                    const compressed = new Uint8Array(await new Response(
+                        new Blob([bytes]).stream().pipeThrough(new CompressionStream(format))
+                    ).arrayBuffer());
+                    const padded = new Uint8Array(compressed.length + 4).fill(99);
+                    padded.set(compressed, 2);
+                    data[0].properties.bytes = await utils.decompress(padded.subarray(2, -2), format);
+                    data[0].properties.unchanged = padded[0] == 99 && padded[2] == compressed[0];
+                    return data;
+                }
+            }
+        });
+        try {
+            const feature = await loadFeature(provider);
+            expect(feature.properties.bytes).toBeInstanceOf(Uint8Array);
+            expect(Array.from(feature.properties.bytes)).toEqual([0, 255, 128, 226, 130, 172, 240, 159, 152, 128]);
+            expect(feature.properties.unchanged).toBe(true);
+        } finally {
+            provider.clear();
+            URL.revokeObjectURL(url);
+        }
+    });
+
+    it.each(['base64', 'compressed'])('routes invalid %s through tile errors', async (kind) => {
+        const url = createTileUrl();
+        const provider = new GeoJSONProvider({
+            level: 1,
+            url,
+            preProcessor: {
+                execution: 'worker',
+                options: {kind},
+                processor: async ({data}, {options, utils}) => {
+                    if (options.kind == 'base64') utils.decodeBase64('!');
+                    else await utils.decompress(new Uint8Array([255]), 'gzip');
+                    return data;
+                }
+            }
+        });
+        try {
+            await expect(loadFeature(provider)).rejects.toBeDefined();
+        } finally {
+            provider.clear();
+            URL.revokeObjectURL(url);
+        }
+    });
+
     it('runs a serialized function and transfers prepared model assets', async () => {
         const url = createTileUrl();
         const provider = new GeoJSONProvider({
