@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import RBush from 'rbush/rbush.min.js';
+import RBush from 'rbush';
 import {GeoJSONFeature} from './GeoJSON';
 
 type BBox = {
@@ -33,58 +33,68 @@ interface FeatureIndex {
 }
 
 
-class RTree extends RBush {
+class RTree {
+    private _tree: RBush;
+
     constructor(d: number) {
-        super(d);
-    }
-
-    toBBox(feature: GeoJSONFeature): BBox {
-        const {bbox} = feature;
-        return {minX: bbox[0], minY: bbox[1], maxX: bbox[2], maxY: bbox[3]};
-    }
-
-    compareMinX(feature1: GeoJSONFeature, feature2: GeoJSONFeature): number {
-        return feature1.bbox[0] - feature2.bbox[0];
-    }
-
-    compareMinY(feature1: GeoJSONFeature, feature2: GeoJSONFeature): number {
-        return feature1.bbox[1] - feature2.bbox[1];
+        const tree = new RBush(d);
+        tree.toBBox = (feature: GeoJSONFeature): BBox => {
+            const bbox = feature.bbox;
+            return {minX: bbox[0], minY: bbox[1], maxX: bbox[2], maxY: bbox[3]};
+        };
+        tree.compareMinX = (feature1: GeoJSONFeature, feature2: GeoJSONFeature): number => {
+            return feature1.bbox[0] - feature2.bbox[0];
+        };
+        tree.compareMinY = (feature1: GeoJSONFeature, feature2: GeoJSONFeature): number => {
+            return feature1.bbox[1] - feature2.bbox[1];
+        };
+        this._tree = tree;
     }
 
     import(data) {
-        super.fromJSON(data);
+        this._tree.fromJSON(data);
     }
 
-    load?(features: GeoJSONFeature[]): void;
+    load(features: GeoJSONFeature[]): this {
+        this._tree.load(features);
+        return this;
+    }
 
-    insert?(feature: GeoJSONFeature);
+    insert(feature: GeoJSONFeature): this {
+        this._tree.insert(feature);
+        return this;
+    }
 
-    remove?(feature: GeoJSONFeature);
+    remove(feature: GeoJSONFeature, equals?: (a: GeoJSONFeature, b: GeoJSONFeature) => boolean): this {
+        this._tree.remove(feature, equals);
+        return this;
+    }
 
-    search?(bbox: BBox): GeoJSONFeature[];
+    search(bbox: BBox): GeoJSONFeature[] {
+        return this._tree.search(bbox);
+    }
 
-    clear?(): void;
+    collides(bbox: BBox): boolean {
+        return this._tree.collides(bbox);
+    }
 
-    all?(): GeoJSONFeature[];
+    clear(): this {
+        this._tree.clear();
+        return this;
+    }
 
-    // load(features: GeoJSONFeature[]) {
-    //     return super.load(features);
-    // }
-    //
-    // insert(feature: GeoJSONFeature) {
-    //     return super.insert(feature);
-    // }
-    //
-    // remove(feature: GeoJSONFeature) {
-    //     return super.remove(feature);
-    // }
-    //
-    // search(bbox: BBox) {
-    //     return super.propertyIsEnumerable(bbox);
-    // }
-    // clear() {
-    //     super.clear();
-    // }
+    all(): GeoJSONFeature[] {
+        return this._tree.all();
+    }
+
+    toJSON() {
+        return this._tree.toJSON();
+    }
+
+    fromJSON(data): this {
+        this._tree.fromJSON(data);
+        return this;
+    }
 }
 
 export default RTree;

@@ -22,6 +22,9 @@ import * as Expressions from './Expressions';
 import * as InterpolateExpressions from './InterpolateExpression';
 
 // type Cache = Map<Expression, any> & { hits?: number };
+/**
+ * @hidden
+ */
 interface Cache<E> {
     hits?: number;
 
@@ -38,7 +41,13 @@ interface Cache<E> {
  * @hidden
  */
 export type Def = JSONExpression | Expression | boolean | number | string | null | any[];
+/**
+ * @hidden
+ */
 export type Value = { value: Def };
+/**
+ * @hidden
+ */
 export type Definitions = { [name: string]: Def | Value };
 
 

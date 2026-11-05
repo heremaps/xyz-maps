@@ -228,6 +228,9 @@ export type {Style};
 
 export type StyleGroupMap = { [id: string]: StyleGroup }
 
+/**
+ * An array of styles used together to render a feature.
+ */
 export type StyleGroup = Style[];
 
 // type StrictExclude<T, U> = T extends U ? U extends T ? never : T : T;

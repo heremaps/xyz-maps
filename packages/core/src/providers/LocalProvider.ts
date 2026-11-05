@@ -116,15 +116,18 @@ export class LocalProvider extends EditableFeatureProvider {
     }
 
 
+    /** {@inheritDoc EditableFeatureProvider.readDirection} */
     readDirection(link: Feature): 'BOTH' | 'START_TO_END' | 'END_TO_START' {
         throw new Error(METHOD_NOT_IMPLEMENTED);
         // return 'BOTH';
     }
 
+    /** {@inheritDoc EditableFeatureProvider.readPedestrianOnly} */
     readPedestrianOnly(link: Feature): boolean {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
+    /** {@inheritDoc EditableFeatureProvider.writeTurnRestriction} */
     writeTurnRestriction(restricted: boolean, turnFrom: { link: Feature; index: number; }, turnTo: {
         link: Feature;
         index: number;
@@ -132,26 +135,32 @@ export class LocalProvider extends EditableFeatureProvider {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
+    /** {@inheritDoc EditableFeatureProvider.readRoutingProvider} */
     readRoutingProvider(location: Feature, providers?: EditableFeatureProvider[]): string {
         return this.id;
     }
 
+    /** {@inheritDoc EditableFeatureProvider.readRoutingPosition} */
     readRoutingPosition(feature: any): GeoJSONCoordinate {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
+    /** {@inheritDoc EditableFeatureProvider.readRoutingLink} */
     readRoutingLink(feature: any): string | number {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
+    /** {@inheritDoc EditableFeatureProvider.writeRoutingPosition} */
     writeRoutingPosition(feature: any, position: GeoJSONCoordinate) {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
+    /** {@inheritDoc EditableFeatureProvider.writeRoutingLink} */
     writeRoutingLink(location: any, link: Feature) {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
+    /** {@inheritDoc EditableFeatureProvider.readTurnRestriction} */
     readTurnRestriction(turnFrom: { link: Feature; index: number; }, turnTo: {
         link: Feature;
         index: number;
@@ -164,18 +173,22 @@ export class LocalProvider extends EditableFeatureProvider {
         this.writeRoutingPosition(location, position);
     }
 
+    /** {@inheritDoc EditableFeatureProvider.readZLevels} */
     readZLevels(link: Feature): number[] {
         throw new Error('Method not implemented.');
     }
 
+    /** {@inheritDoc EditableFeatureProvider.writeZLevels} */
     writeZLevels(link: Feature, zLevels: number[]) {
         throw new Error('Method not implemented.');
     }
 
+    /** {@inheritDoc EditableFeatureProvider.readFeatureHeight} */
     readFeatureHeight(feature: Feature): number | null {
         return null;
     };
 
+    /** {@inheritDoc EditableFeatureProvider.writeFeatureHeight} */
     writeFeatureHeight(feature: Feature, height: number) {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }

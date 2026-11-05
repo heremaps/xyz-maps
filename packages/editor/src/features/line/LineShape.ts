@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Feature} from '@here/xyz-maps-core';
+import {Feature, type GeoJSONCoordinate} from '@here/xyz-maps-core';
 import {Line} from './Line';
 import LineTools, {Coordinate} from './LineTools';
 import {dragFeatureCoordinate} from '../oTools';
@@ -97,7 +97,7 @@ class LineShape extends Feature {
         /**
          * Coordinate of this LineShape in the parent Line geometry, as `[x, y, z?]`.
          */
-        coordinates: [number, number, number?]
+        coordinates: GeoJSONCoordinate
     };
 
     // getProvider: () => any;

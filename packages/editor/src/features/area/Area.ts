@@ -213,13 +213,13 @@ class Area extends Feature {
     /**
      *  Get the geographical coordinate(s) of the Area feature.
      */
-    coord(): [number, number, number?][][] | [number, number, number?][][][];
+    coord(): GeoJSONCoordinate[][] | GeoJSONCoordinate[][][];
     /**
      *  Set the geographical coordinate(s) of the Area feature.
      *
      *  @param coordinates - the geographical coordinates that should be set.
      */
-    coord(coordinates: [number, number, number?][][] | [number, number, number?][][][]);
+    coord(coordinates: GeoJSONCoordinate[][] | GeoJSONCoordinate[][][]);
 
     coord(coordinates?) {
         return super.coord(coordinates);

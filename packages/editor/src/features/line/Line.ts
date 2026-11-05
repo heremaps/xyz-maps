@@ -87,16 +87,16 @@ class Line extends Feature {
     /**
      * Get the geographical coordinate(s) of the Line feature.
      */
-    coord(): [number, number, number?][] | [number, number, number?][][];
+    coord(): GeoJSONCoordinate[] | GeoJSONCoordinate[][];
     /**
      * Set the geographical coordinate(s) of the Line feature.
      *
      * @param coordinates - the geographical coordinates that should be set.
      */
-    coord(coordinates: [number, number, number?][] | [number, number, number?][][]);
+    coord(coordinates: GeoJSONCoordinate[] | GeoJSONCoordinate[][]);
 
-    coord(coordinates?: [number, number, number?][] | [number, number, number?][][]):
-        [number, number, number?][] | [number, number, number?][][] {
+    coord(coordinates?: GeoJSONCoordinate[] | GeoJSONCoordinate[][]):
+        GeoJSONCoordinate[] | GeoJSONCoordinate[][] {
         return super.coord(coordinates);
     }
 

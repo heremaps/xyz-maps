@@ -257,7 +257,7 @@ const tools = {
 
         getPrivate(line).isGeoMod = true;
 
-        let coordinates: Coordinate[] | Coordinate[][] = lineString;
+        let coordinates: GeoJSONCoordinate[] | GeoJSONCoordinate[][] = lineString;
 
         if (tools.isMultiLineString(line)) {
             if (lineStringIndex >= 0) {

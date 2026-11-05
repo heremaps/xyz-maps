@@ -107,6 +107,9 @@ function getIndex(line: Navlink, point: GeoJSONCoordinate) {
 class Crossing implements GeoJSONFeature {
     id?: string | number;
 
+    /**
+     * The GeoJSON feature type.
+     */
     type: string = 'Feature';
     /**
      * the feature class of the crossing. Can be either CROSSING or CROSSING_CANDIDATE.

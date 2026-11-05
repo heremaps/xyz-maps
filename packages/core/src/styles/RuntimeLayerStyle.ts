@@ -76,6 +76,9 @@ const deepCopy = (src: any) => {
  * @hidden
  */
 export class RuntimeLayerStyle implements LayerStyle {
+    /**
+     * @hidden
+     */
     styleGroups = null;
     private _c: StyleGroupMap = null;
     /**
@@ -87,6 +90,9 @@ export class RuntimeLayerStyle implements LayerStyle {
     backgroundColor?: LayerStyle['backgroundColor'];
     lights: LayerStyle['lights'] = {};
 
+    /**
+     * @hidden
+     */
     protected expContext: {
         $geometryType: string;
         $layer: string;

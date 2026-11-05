@@ -40,14 +40,17 @@ export class GeoJSONProvider extends HTTPProvider {
         super(options);
     }
 
+    /** {@inheritDoc HTTPProvider.getFeatureUrl} */
     getFeatureUrl(layer: string, featureId: string | number): string {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
+    /** {@inheritDoc HTTPProvider.getLayerUrl} */
     getLayerUrl(layer: string): string {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
+    /** {@inheritDoc HTTPProvider.getTileUrl} */
     getTileUrl(layer: string): string {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }

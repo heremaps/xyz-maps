@@ -89,7 +89,9 @@ export abstract class Expression implements IExpression {
         return new (<any> this).constructor(jsonExp || this.toJSON(), this.env);
     }
 
-    // compute(context);
+    /**
+     * @hidden
+     */
     abstract eval(context);
 
     /**

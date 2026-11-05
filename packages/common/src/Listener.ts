@@ -34,6 +34,9 @@ const indexOf = (listeners, cb, context) => {
 type Callback = (...args) => void;
 type Context = any;
 
+/**
+ * @hidden
+ */
 class Listener {
     private _l: { [key: string]: [Callback, Context][] } = {};
     private _sync = false;

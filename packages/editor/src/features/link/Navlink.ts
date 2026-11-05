@@ -81,15 +81,15 @@ export class Navlink extends Feature {
     /**
      * Get the geographical coordinate(s) of the Navlink feature.
      */
-    coord(): [number, number, number?][];
+    coord(): GeoJSONCoordinate[];
     /**
      * Set the geographical coordinate(s) of the Navlink feature.
      *
      * @param coordinates - the geographical coordinates that should be set.
      */
-    coord(coordinates: [number, number, number?][]);
+    coord(coordinates: GeoJSONCoordinate[]);
 
-    coord(coordinates?: [number, number, number?][]): [number, number, number?][] {
+    coord(coordinates?: GeoJSONCoordinate[]): GeoJSONCoordinate[] {
         return super.coord(coordinates);
     }
 

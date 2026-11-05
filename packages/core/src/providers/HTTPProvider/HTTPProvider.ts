@@ -220,6 +220,7 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
         return retVal;
     }
 
+    /** {@inheritDoc EditableRemoteTileProvider.commit} */
     commit(features, onSuccess, onError, transactionId?: string) {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
@@ -257,10 +258,12 @@ abstract class HTTPProvider extends EditableRemoteTileProvider {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
+    /** {@inheritDoc EditableFeatureProvider.readZLevels} */
     readZLevels(link: Feature): number[] {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }
 
+    /** {@inheritDoc EditableFeatureProvider.writeZLevels} */
     writeZLevels(link: Feature, zLevels: number[]) {
         throw new Error(METHOD_NOT_IMPLEMENTED);
     }

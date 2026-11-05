@@ -38,7 +38,7 @@
     "earcut": "^3.0.2",
     "git-rev-sync": "^3.0.2",
     "pbf": "^3.2.1",
-    "rbush": "^3.0.1",
+    "rbush": "^4.0.1",
     "rolldown": "^1.2.14",
     "source-map": "^0.8.0",
     "tslib": "^2.4.0",
