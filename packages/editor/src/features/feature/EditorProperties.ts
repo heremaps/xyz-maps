@@ -71,4 +71,5 @@ EditorNsPrototype.selected = false;
 
 EditorNsPrototype.hovered = false;
 
-export {EditorFeatureProperties, DefaultEditorProperties};
+export {DefaultEditorProperties};
+export type {EditorFeatureProperties};

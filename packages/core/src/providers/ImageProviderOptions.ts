@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {TileProviderOptions} from './TileProvider/TileProviderOptions';
+import {type TileProviderOptions} from './TileProvider/TileProviderOptions';
 
 /**
  * Options to configure the ImageProvider.

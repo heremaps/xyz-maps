@@ -21,7 +21,7 @@ import {addPolygon, FlatPolygon} from './addPolygon';
 import {isInBox} from '../../../geometry';
 import {Tile, GeoJSONCoordinate as Coordinate} from '@here/xyz-maps-core';
 import {FlexArray} from './templates/FlexArray';
-import {TypedArray} from './glType';
+import {type TypedArray} from './glType';
 
 const MIN_VISIBLE_HEIGHT = 0.01;
 
@@ -150,5 +150,4 @@ export const addExtrude = (
 
     return flatPolygon;
 };
-
 

@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {getDistance, distanceToPolygon, getSegmentIndex, intersectLineLine, Point} from '../../geometry';
+import {getDistance, distanceToPolygon, getSegmentIndex, intersectLineLine, type Point} from '../../geometry';
 import {AreaShape} from './AreaShape';
 import {VirtualAreaShape} from './VirtualShape';
 import {HeightKnob} from './HeightKnob';

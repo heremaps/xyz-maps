@@ -33,8 +33,14 @@ export default defineConfig(({mode}) => ({
         reporters: ['default', ['json', {outputFile: 'dist/vitest/report-isolation.json'}]],
         projects: [
             unitProject(),
-            ...(['common', 'core', 'display', 'editor'] as const).map((component) => {
-                const config = project(component, mode);
+            ...([
+                ['common', 'umd'],
+                ['core', 'umd'],
+                ...(mode === 'dev' ? [] : [['core', 'esm']] as const),
+                ['display', 'umd'],
+                ['editor', 'umd']
+            ] as const).map(([component, format]) => {
+                const config = project(component, mode, format);
                 return {
                     ...config,
                     test: {

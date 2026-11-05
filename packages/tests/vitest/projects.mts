@@ -109,11 +109,11 @@ function browser(): Pick<BrowserConfigOptions, 'provider' | 'instances'> {
 }
 
 // mode: the vitest mode, see distOf() in plugins.mts
-export function project(component: Component, mode: string): UserWorkspaceConfig {
+export function project(component: Component, mode: string, format: 'umd' | 'esm' = 'umd'): UserWorkspaceConfig {
     const {libs, include, map} = COMPONENTS[component];
 
     return {
-        plugins: [xyzArtifacts(libs, distOf(mode)), xyzAssets(), xyzEnvironment(component)],
+        plugins: [xyzArtifacts(libs, distOf(mode), format), xyzAssets(), xyzEnvironment(component)],
         resolve: {
             alias: aliases
         },
@@ -122,7 +122,7 @@ export function project(component: Component, mode: string): UserWorkspaceConfig
             __XYZ_MAP__: JSON.stringify(map)
         },
         test: {
-            name: component,
+            name: format === 'esm' ? `${component}-esm` : component,
             include,
             setupFiles: [path.join(root, 'vitest/setup.ts')],
             // the timeout of the mocha settings in the former build.js

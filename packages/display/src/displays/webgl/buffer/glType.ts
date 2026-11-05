@@ -47,4 +47,5 @@ const isTypedArray = (() => {
 const FRONT = 1028;
 const BACK = 1029;
 
-export {glType, TypedArray, isTypedArray, TypedArrayConstructor, FRONT, BACK};
+export {glType, isTypedArray, FRONT, BACK};
+export type {TypedArray, TypedArrayConstructor};

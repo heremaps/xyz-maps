@@ -159,4 +159,5 @@ class Atlas {
     }
 }
 
-export {AtlasOptions, Atlas, ImageInfo, SharedTexture};
+export {Atlas, ImageInfo, SharedTexture};
+export type {AtlasOptions};

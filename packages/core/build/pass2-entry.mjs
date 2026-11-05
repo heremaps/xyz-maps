@@ -176,13 +176,15 @@ const newlineCount = (source) => source.split('\n').length - 1;
 
 /**
  * Generates the pass-2 entry from the pass-1 CJS chunks and composes their
- * source maps for the final UMD build.
+ * source maps for the final bundle.
  *
  * @param {{
  *     buildDir: string,
  *     pass1Chunks: {shared: string, worker: string, main: string},
  *     pass2EntryFileName: string,
- *     sourcemap?: boolean
+ *     sourcemap?: boolean,
+ *     includeNamedExports?: boolean,
+ *     exportNames?: string[]
  * }} options
  * @returns {Promise<string>}
  */
@@ -190,8 +192,13 @@ export const createPass2EntrySource = async ({
     buildDir,
     pass1Chunks,
     pass2EntryFileName,
-    sourcemap = true
+    sourcemap = true,
+    includeNamedExports = false,
+    exportNames = []
 }) => {
+    if (includeNamedExports && !exportNames.includes('default')) {
+        throw new Error('Missing default export in pass-1 entry metadata');
+    }
     const read = (fileName) => {
         const filePath = join(buildDir, fileName);
         if (!existsSync(filePath)) {
@@ -215,9 +222,19 @@ export const createPass2EntrySource = async ({
         `${role}Factory`,
         await readChunk(pass1Chunks[role])
     ]));
+    const exportStatements = includeNamedExports ?
+        exportNames
+            .filter((name) => name !== 'default' && name !== '__esModule')
+            .map((name, index) =>
+                `const __coreExport${index} = xyz[${JSON.stringify(name)}];\n` +
+                `export {__coreExport${index} as ${name}};`
+            ) :
+        [];
 
     const generator = sourcemap ? new SourceMapGenerator({file: pass2EntryFileName}) : null;
-    const sourceParts = [`import '@here/xyz-maps-common';`];
+    const sourceParts = [includeNamedExports ?
+        `import * as common from '@here/xyz-maps-common';` :
+        `import '@here/xyz-maps-common';`];
     let lineOffset = 1;
 
     for (const [factoryName, chunk] of chunks) {
@@ -236,8 +253,10 @@ export const createPass2EntrySource = async ({
     sourceParts.push(
         `let xyz = typeof window == 'undefined' ? global : window;`,
         `'here.xyz.maps'.split('.').forEach((ns) => xyz = (xyz[ns] = xyz[ns] || {}));`,
-        `bootstrapCore(sharedFactory, workerFactory, mainFactory, ${JSON.stringify(sharedChunkId)});`,
-        `export default xyz;`
+        `bootstrapCore(sharedFactory, workerFactory, mainFactory, ${JSON.stringify(sharedChunkId)}` +
+            `${includeNamedExports ? ', common' : ''});`,
+        ...exportStatements,
+        includeNamedExports ? `export default xyz.default;` : `export default xyz;`
     );
     if (sourcemap) {
         const map = Buffer.from(JSON.stringify(generator.toJSON()), 'utf8').toString('base64');

@@ -21,7 +21,7 @@ import {getElDimension} from './DOMTools';
 import WebglDisplay from './displays/webgl/Display';
 import CanvasDisplay from './displays/canvas/Display';
 import BasicDisplay from './displays/BasicDisplay';
-import {Behavior, BehaviorOptions} from './behavior/Behavior';
+import {Behavior, type BehaviorOptions} from './behavior/Behavior';
 import {EventDispatcher} from './event/Dispatcher';
 import {Search} from './search/Search';
 import {MapEvent} from './event/Event';

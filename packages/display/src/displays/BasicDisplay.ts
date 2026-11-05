@@ -60,7 +60,7 @@ type TerrainElevationSource = {
     readonly gridY: number
 };
 
-export {ViewportTile};
+export type {ViewportTile};
 
 export type DisplayTile = ViewportTile & {
     scale?: number,

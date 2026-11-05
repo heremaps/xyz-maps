@@ -27,7 +27,7 @@ import type {
     CoordinatesUpdateHook
 } from '@here/xyz-maps-editor';
 import {GeoJSONCoordinate} from '../features/GeoJSON';
-import {TileProviderOptions} from './TileProvider/TileProviderOptions';
+import {type TileProviderOptions} from './TileProvider/TileProviderOptions';
 import type {
     Editor,
     EditorOptions,

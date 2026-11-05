@@ -22,7 +22,7 @@ import {TemplateBufferBucket} from './templates/TemplateBufferBucket';
 import {ModelData, Material} from '@here/xyz-maps-core';
 import {ObjParser} from '../ObjParser';
 import {vec3} from '@here/xyz-maps-common';
-import {TypedArray} from './glType';
+import {type TypedArray} from './glType';
 import {GraphicsDevice} from '../device/GraphicsDevice';
 
 class ModelTexture extends Texture {

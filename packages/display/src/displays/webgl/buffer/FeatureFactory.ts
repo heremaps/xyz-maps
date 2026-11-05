@@ -18,7 +18,7 @@
  */
 import {addPolygon, FlatPolygon} from './addPolygon';
 import {addExtrude} from './addExtrude';
-import {calcBBox, getTextString, getValue, parseSizeValue, Style, StyleGroup} from '../../styleTools';
+import {calcBBox, getTextString, getValue, parseSizeValue, type Style, type StyleGroup} from '../../styleTools';
 import {defaultFont, wrapText} from '../../textUtils';
 import {FontStyle, GlyphTexture} from '../GlyphTexture';
 import {BBox, CollisionData, CollisionHandler} from '../CollisionHandler';

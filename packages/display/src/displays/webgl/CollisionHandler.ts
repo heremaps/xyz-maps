@@ -23,7 +23,7 @@ import {Attribute} from './buffer/Attribute';
 import {Layer} from '../Layers';
 import {FlexAttribute} from './buffer/templates/TemplateBuffer';
 import {mapInstances} from '../../MapInstances';
-import {DisplayTile, ViewportTile} from '../BasicDisplay';
+import {type DisplayTile, type ViewportTile} from '../BasicDisplay';
 import {BUFFER_FACTORY_TASK_PRIORITY} from './buffer/factory/GeometryBufferFactory';
 import {measureStart, measureEnd, measurePause, measureResume, MeasureHandle} from './PerfTimer';
 

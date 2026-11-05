@@ -98,4 +98,5 @@ abstract class Animator {
     }
 }
 
-export {Animator, AnimatorOptions};
+export {Animator};
+export type {AnimatorOptions};

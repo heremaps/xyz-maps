@@ -84,28 +84,46 @@ const buildInfo = 'export default ' + JSON.stringify({
 // Two-pass inline-worker build.
 //
 // Pass 1 emits CJS chunks for the shared, worker, and main factories. The generated pass-2 entry combines them into
-// one UMD bundle. `intro.js` initializes the shared factory, serializes the shared and worker factories into the
-// inline-worker Blob, and runs the main factory. Shared code is emitted once.
+// the UMD and ESM bundles. `intro.js` initializes the shared factory, serializes the shared and worker factories
+// into the inline-worker Blob, and runs the main factory. Shared code is emitted once.
 const intro = fs.readFileSync(require.resolve('./build/intro.js'), 'utf8');
 // Pass-2 entry generation is kept in a separate helper so this config only
 // describes the two Rolldown passes. The helper validates that all pass-1
 // chunks exist before assembling the generated entry.
 const pass2EntryFileName = 'bundle.gen.js';
 const pass2EntryFile = path.join(buildDir, pass2EntryFileName);
+const pass2EsmEntryFileName = 'bundle.esm.gen.js';
+const pass2EsmEntryFile = path.join(buildDir, pass2EsmEntryFileName);
 
-// Pass-1 plugin: after the shared/workers/index chunks are written, assemble the
-// pass-2 UMD entry (the three direct factories + namespace export) on disk.
+const pass2Entries = [
+    {file: pass2EntryFile, fileName: pass2EntryFileName, includeNamedExports: false},
+    ...(production ? [{
+        file: pass2EsmEntryFile,
+        fileName: pass2EsmEntryFileName,
+        includeNamedExports: true
+    }] : [])
+];
+
+// Pass-1 plugin: assemble the pass-2 entries after the shared/workers/index chunks are written.
 const writePass2EntryPlugin = () => ({
     name: 'core-write-pass2-entry',
-    writeBundle: async () => fs.promises.writeFile(pass2EntryFile,
-        await createPass2EntrySource({
-            buildDir,
-            pass1Chunks,
-            pass2EntryFileName,
-            sourcemap
-        }),
-        'utf8'
-    )
+    writeBundle: async (_options, bundle) => {
+        const mainChunk = bundle[pass1Chunks.main];
+        if (!mainChunk || mainChunk.type !== 'chunk' || !mainChunk.isEntry) {
+            throw new Error(`Missing pass-1 entry metadata: ${pass1Chunks.main}`);
+        }
+        await Promise.all(pass2Entries.map(async ({file: entryFile, fileName, includeNamedExports}) => {
+            const source = await createPass2EntrySource({
+                buildDir,
+                pass1Chunks,
+                pass2EntryFileName: fileName,
+                sourcemap,
+                includeNamedExports,
+                exportNames: mainChunk.exports
+            });
+            return fs.promises.writeFile(entryFile, source, 'utf8');
+        }));
+    }
 });
 
 const rolldownConfig = [{
@@ -149,5 +167,24 @@ const rolldownConfig = [{
     external,
     treeshake: false
 }];
+
+if (production) {
+    rolldownConfig.push({
+        // The ESM entry exposes the same static named exports as the pass-1 CommonJS main chunk.
+        input: pass2EsmEntryFile,
+        output: {
+            file: 'dist/' + file.replace('.min.js', '.esm.min.js'),
+            format: 'esm',
+            exports: 'named',
+            sourcemap: false,
+            strict: true,
+            banner,
+            intro,
+            ...minifyOptions
+        },
+        external,
+        treeshake: false
+    });
+}
 
 export default rolldownConfig;

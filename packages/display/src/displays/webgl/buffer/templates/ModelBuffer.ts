@@ -25,7 +25,7 @@ import {multiply, create as createMat4, fromRotationTranslationScale} from 'gl-m
 import {normalFromMat4, create as createMat3} from 'gl-matrix/mat3';
 import {subtract, scale as scaleVec3, normalize as normalizeVec3} from 'gl-matrix/vec3';
 import {create as createQuat, fromEuler} from 'gl-matrix/quat';
-import {isTypedArray, TypedArray} from '../glType';
+import {isTypedArray, type TypedArray} from '../glType';
 import {Attribute} from '../Attribute';
 import {Color} from '@here/xyz-maps-common';
 import {ModelGeometry, ModelData} from '@here/xyz-maps-core';

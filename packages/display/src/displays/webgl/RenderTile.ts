@@ -19,7 +19,7 @@
 import {GeometryBuffer, HeightMapReference} from './buffer/GeometryBuffer';
 import {HeightMapTileCache} from './HeightMapTileCache';
 import {Layer} from '../Layers';
-import {DisplayTile, ViewportTile} from '../BasicDisplay';
+import {type DisplayTile, type ViewportTile} from '../BasicDisplay';
 import {create, identity, invert, multiply} from 'gl-matrix/mat4';
 import {transformMat4} from 'gl-matrix/vec3';
 import {PASS} from './RenderPass';

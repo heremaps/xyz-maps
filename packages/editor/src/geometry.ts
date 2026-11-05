@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {GeoJSONCoordinate as Point} from '@here/xyz-maps-core';
+import {type GeoJSONCoordinate as Point} from '@here/xyz-maps-core';
 import {geometry, geotools, vec3} from '@here/xyz-maps-common';
 
 
@@ -26,7 +26,7 @@ const PI = MATH.PI;
 const pow = MATH.pow;
 const sqrt = MATH.sqrt;
 
-export {Point};
+export type {Point};
 
 export const simplifyPath = (
     path: Point[],

@@ -20,7 +20,7 @@
 import {LinearGradient} from '@here/xyz-maps-core';
 import {FillTexture, type LinearGradientStops} from './FillTexture';
 import {GraphicsDevice} from './device/GraphicsDevice';
-export {LinearGradientStops};
+export type {LinearGradientStops};
 
 export class GradientFactory {
     static canvas: HTMLCanvasElement = document.createElement('canvas');
@@ -65,4 +65,3 @@ export class GradientFactory {
         return new FillTexture(this.device, {width, height, data}, {premultiplyAlpha: true});
     }
 }
-

@@ -19,14 +19,21 @@
 import {defineConfig} from 'vitest/config';
 import {project, unitProject} from './vitest/projects.mts';
 
-// One project per component. Run a single one with e.g. `pnpm test --project editor`.
+// Core also runs against ESM release artifacts in the core-esm project.
 // `pnpm test --mode dev` runs against the dev bundles (dist/xyz-maps-<name>.js) instead of the minified ones.
 // The integration tests need an XYZ Hub and run with `pnpm test:integration` (vitest.integration.config.mts).
 export default defineConfig(({mode}) => ({
     test: {
         silent: 'passed-only',
         maxWorkers: 4,
-        projects: [unitProject(), project('common', mode), project('core', mode), project('display', mode), project('editor', mode)],
+        projects: [
+            unitProject(),
+            project('common', mode),
+            project('core', mode),
+            ...(mode === 'dev' ? [] : [project('core', mode, 'esm')]),
+            project('display', mode),
+            project('editor', mode)
+        ],
         reporters: ['default', ['json', {outputFile: 'dist/vitest/report.json'}]]
     }
 }));

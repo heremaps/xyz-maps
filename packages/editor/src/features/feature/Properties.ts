@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {EditorFeatureProperties} from './EditorProperties';
+import {type EditorFeatureProperties} from './EditorProperties';
 
 /**
  *  The properties of a editable Features.

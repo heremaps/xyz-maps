@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {TileProviderOptions} from '../TileProvider/TileProviderOptions';
+import {type TileProviderOptions} from '../TileProvider/TileProviderOptions';
 import {GeoJSONFeature} from '../../features/GeoJSON';
 
 /**

@@ -21,7 +21,7 @@ import {Tile} from '../../tile/Tile';
 import {TileStorage} from '../../storage/TileStorage';
 import Level2TileStorage from '../../storage/Level2Storage';
 import {Listener} from '@here/xyz-maps-common';
-import {TileProviderOptions} from './TileProviderOptions';
+import {type TileProviderOptions} from './TileProviderOptions';
 import {GeoJSONBBox} from '../../features/GeoJSON';
 
 import {DataSourceAttribution} from '../../layers/DataSourceAttribution';

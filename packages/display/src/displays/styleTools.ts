@@ -24,9 +24,9 @@ import {
     Feature,
     StyleZoomRange,
     webMercator,
-    Style,
+    type Style,
     LayerStyle,
-    StyleGroup,
+    type StyleGroup,
     GeoJSONCoordinate
 } from '@here/xyz-maps-core';
 import {Expression, ExpressionParser, geometry as geometryUtils, Color} from '@here/xyz-maps-common';
@@ -631,7 +631,7 @@ export {
     merge,
     isStyle,
     getMaxZoom,
-    parseStyleGroup,
-    StyleGroup,
-    Style
+    parseStyleGroup
 };
+
+export type {StyleGroup, Style};

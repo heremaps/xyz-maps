@@ -17,8 +17,8 @@
  * License-Filename: LICENSE
  */
 import {SpaceProvider} from '../GeoSpace/SpaceProvider';
-import {IMLProviderOptions} from './IMLProviderOptions';
-import {SpaceProviderOptions} from '../GeoSpace/SpaceOptions';
+import {type IMLProviderOptions} from './IMLProviderOptions';
+import {type SpaceProviderOptions} from '../GeoSpace/SpaceOptions';
 
 const IML_ENDPOINT = 'http://interactive.data.api.platform.here.com/interactive/v1';
 

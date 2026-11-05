@@ -46,15 +46,18 @@ const MIME: { [ext: string]: string } = {
 };
 
 /**
- * Resolves package imports to the built UMD artifacts, never the ESM entry points or TypeScript sources.
- * Linked workspace packages need explicit dependency optimization for their CommonJS exports.
+ * Resolves package imports to built artifacts, never TypeScript sources.
+ * UMD artifacts need explicit dependency optimization for their CommonJS exports.
  */
-export function xyzArtifacts(components: LibraryComponent[], dist: Dist): Plugin {
+export function xyzArtifacts(components: LibraryComponent[], dist: Dist, format: 'umd' | 'esm' = 'umd'): Plugin {
+    if (format === 'esm' && dist === 'dev') {
+        throw new Error('ESM artifacts are only available in release builds.');
+    }
     const alias = components.map((name) => {
         const custom = process.env[`XYZ_${name.toUpperCase()}_SRC`];
         const file = custom
             ? path.resolve(process.cwd(), custom)
-            : path.join(root, '..', name, 'dist', `xyz-maps-${name}${dist == 'dev' ? '' : '.min'}.js`);
+            : path.join(root, '..', name, 'dist', `xyz-maps-${name}${format === 'esm' ? '.esm' : ''}${dist == 'dev' ? '' : '.min'}.js`);
         if (!fs.existsSync(file)) {
             throw new Error(`Cannot find "${file}". Build the packages first with "pnpm run build-release" (--mode dev: "pnpm run build-dev").`);
         }
@@ -66,7 +69,9 @@ export function xyzArtifacts(components: LibraryComponent[], dist: Dist): Plugin
             return {
                 resolve: {alias},
                 optimizeDeps: {
-                    include: alias.map(({find}) => find),
+                    ...(format === 'umd'
+                        ? {include: alias.map(({find}) => find)}
+                        : {exclude: alias.map(({find}) => find)}),
                     force: true
                 }
             };

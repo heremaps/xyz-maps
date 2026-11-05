@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {TypedArray} from './glType';
+import {type TypedArray} from './glType';
 
 export type Attribute = {
     data: TypedArray,

@@ -32,7 +32,7 @@ import {Map} from '@here/xyz-maps-display';
 import {DrawingBoard} from './DrawingBoard';
 import {RangeSelector} from './ERangeSelector';
 import InternalEditor from '../IEditor';
-import {mergeOptions, EditorOptions} from './EditorOptions';
+import {mergeOptions, type EditorOptions} from './EditorOptions';
 import {initHooks} from '../hooks/init';
 import {Feature} from '../features/feature/Feature';
 import {EditorEvent, EditorEventTypes} from './EditorEvent';

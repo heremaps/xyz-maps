@@ -30,7 +30,7 @@ import {
     Feature
 } from '@here/xyz-maps-core';
 import {Map as Display, styleTools} from '@here/xyz-maps-display';
-import {EditorOptions, EditRestrictionContext, EditOperation} from './API/EditorOptions';
+import {type EditorOptions, type EditRestrictionContext, EditOperation} from './API/EditorOptions';
 import ObserverHandler from './handlers/ObserverHandler';
 import EventHandler from './handlers/EventHandler';
 import ObjectManager from './features/ObjectManager';

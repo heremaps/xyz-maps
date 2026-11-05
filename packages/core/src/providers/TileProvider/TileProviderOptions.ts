@@ -77,4 +77,4 @@ interface TileProviderOptions {
     attribution?: string | DataSourceAttribution | DataSourceAttribution[];
 }
 
-export {TileProviderOptions};
+export type {TileProviderOptions};

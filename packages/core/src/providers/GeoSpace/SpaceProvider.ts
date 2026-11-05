@@ -22,7 +22,7 @@ import {GeoJSONFeature} from '../../features/GeoJSON';
 import {JSUtils, Queue} from '@here/xyz-maps-common';
 
 
-import {SpaceProviderOptions, defaultOptions} from './SpaceOptions';
+import {defaultOptions, type SpaceProviderOptions} from './SpaceOptions';
 import {GeoJSONProvider} from '../GeoJSONProvider';
 import {PostProcessor, PostProcesserInput, isPreprocessor} from '../RemoteTileProvider/processors';
 import {HTTPLoader} from '../../loaders/HTTPLoader';

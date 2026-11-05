@@ -321,4 +321,5 @@ const mergeOptions = (options): EditorOptions => {
 };
 
 
-export {defaultOptions, EditorOptions, mergeOptions, isAutoResolveRoutingPointEnabled};
+export {defaultOptions, mergeOptions, isAutoResolveRoutingPointEnabled};
+export type {EditorOptions};

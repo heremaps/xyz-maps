@@ -1,7 +1,7 @@
 // Inline-worker bootstrap for the two-pass build (CJS chunk factories).
 // Keeps main and worker code in one bundle without duplicating the shared
 // factory, which is reused to build the inline worker Blob at runtime.
-function bootstrapCore(sharedFactory, workerFactory, mainFactory, sharedChunkId) {
+function bootstrapCore(sharedFactory, workerFactory, mainFactory, sharedChunkId, common = here.xyz.maps.common) {
     const xyz = here.xyz.maps;
     const sharedExports = {};
 
@@ -10,7 +10,7 @@ function bootstrapCore(sharedFactory, workerFactory, mainFactory, sharedChunkId)
             return sharedExports;
         }
         if (id === '@here/xyz-maps-common') {
-            return xyz.common;
+            return common;
         }
         throw new Error('Unknown main module: ' + id);
     };

@@ -18,8 +18,7 @@ XYZ Maps consists of the following main modules:
 * [@here/xyz-maps-display](packages/display) : The Display module is a highly customizable vector map display that's optimized for map editing, larger raw datasets and frequently changing data.
 * [@here/xyz-maps-editor](packages/editor) : The Editor module provides an API for editing map data that can be used to easily access, add, remove and edit various types of map data.
 
-All packages include UMD builds and TypeScript declarations with browser-global typings.
-Common, display and editor also provide ESM builds.
+All four modules provide UMD and ESM builds with TypeScript and browser-global typings.
 
 ## Prerequisites
 

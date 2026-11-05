@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {isTypedArray, TypedArray, TypedArrayConstructor} from '../glType';
+import {isTypedArray, type TypedArray, type TypedArrayConstructor} from '../glType';
 
 export interface SimpleArray<T> {
     length: number;

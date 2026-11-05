@@ -103,4 +103,5 @@ const defaultOptions: SpaceProviderOptions = {
     level: 0
 };
 
-export {SpaceProviderOptions, defaultOptions};
+export {defaultOptions};
+export type {SpaceProviderOptions};

@@ -18,7 +18,7 @@
  */
 
 import {Map} from '../Map';
-import {Animator, AnimatorOptions} from './Animator';
+import {Animator, type AnimatorOptions} from './Animator';
 import {getDistance} from '../geometry';
 import {GeoPoint, webMercator as project} from '@here/xyz-maps-core';
 

@@ -18,7 +18,7 @@
  */
 
 import {Map} from '../Map';
-import {Animator, AnimatorOptions} from './Animator';
+import {Animator, type AnimatorOptions} from './Animator';
 
 class ZoomAnimator extends Animator {
     private map: Map;

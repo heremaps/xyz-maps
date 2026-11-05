@@ -21,7 +21,7 @@ import {Tile, Layer as BasicLayer, TileLayer, TerrainTileLayer, LayerStyle} from
 import {Color, Expression, ExpressionParser} from '@here/xyz-maps-common';
 import {parseColor, parseRGBA, parseStyleGroup} from './styleTools';
 import {defaultLight, ProcessedLights} from './webgl/lights';
-import {ViewportTile, DisplayTile} from './BasicDisplay';
+import {type ViewportTile, type DisplayTile} from './BasicDisplay';
 
 const {toRGB} = Color;
 type RGBA = Color.RGBA;

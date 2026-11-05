@@ -18,7 +18,7 @@
  */
 
 import {Attribute} from './Attribute';
-import {glType, TypedArray} from './glType';
+import {glType, type TypedArray} from './glType';
 import {Texture} from '../Texture';
 import {ConstantAttribute, FlexAttribute, TemplateBuffer} from './templates/TemplateBuffer';
 import {Raycaster} from '../Raycaster';

@@ -29,7 +29,7 @@ import {
     GeoJSONBBox,
     GeoJSONCoordinate
 } from '../features/GeoJSON';
-import {TileProviderOptions} from './TileProvider/TileProviderOptions';
+import {type TileProviderOptions} from './TileProvider/TileProviderOptions';
 import {GeoPoint} from '../geo/GeoPoint';
 import {GeoRect} from '../geo/GeoRect';
 import {PathFinder} from '../route/Route';

@@ -71,7 +71,8 @@ jobs:
                     args=()
                     case "$TEST_COMPONENT" in
                         all) ;;
-                        unit|common|core|display|editor) args+=(--project "$TEST_COMPONENT") ;;
+                        core) args+=(--project core --project core-esm) ;;
+                        unit|common|display|editor) args+=(--project "$TEST_COMPONENT") ;;
                         *) echo "Unknown test component: $TEST_COMPONENT" >&2; exit 1 ;;
                     esac
                     case "$TEST_WORKERS" in

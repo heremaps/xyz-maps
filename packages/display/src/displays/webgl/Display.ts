@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import BasicDisplay, {ViewportTile, TerrainStats} from '../BasicDisplay';
+import BasicDisplay, {type ViewportTile, TerrainStats} from '../BasicDisplay';
 import {GLRender, RenderOptions} from './GLRender';
 import GLBucket from './Bucket';
 

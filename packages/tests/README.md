@@ -17,8 +17,9 @@ Browser tests run against the bundles in `packages/*/dist`. Build them first in 
 * `pnpm run build-release` for the minified bundles (default)
 * `pnpm run build-dev` for the bundles that are used with `--mode dev`
 
-Package imports resolve explicitly to these UMD files, not ESM entry points or TypeScript sources.
-Vite's dependency optimizer makes their CommonJS exports available as browser imports.
+Package imports resolve explicitly to built artifacts, never TypeScript sources.
+The component projects use UMD; Vite's dependency optimizer makes their CommonJS exports available as browser imports.
+`core-esm` runs the Core specs against ESM release bundles; it is omitted with `--mode dev`.
 The test harness neither injects library scripts nor rewrites imports to the libraries' global namespace.
 Dependency optimization is refreshed on startup so rebuilt artifacts are not hidden by a stale cache.
 
@@ -35,7 +36,7 @@ Under the root directory or in `packages/tests`:
 pnpm run test
 ```
 
-This runs the Node project `unit` and the browser projects `common`, `core`, `display` and `editor`.
+This runs the Node project `unit` and the browser projects `common`, `core`, `core-esm`, `display` and `editor`.
 
 Run only the pure unit tests, without built bundles or an installed browser:
 
@@ -47,7 +48,8 @@ The dedicated unit config does not initialize browser projects. Selecting `--pro
 the main config still initializes the declared browser projects and therefore requires their bundles.
 
 CI runs these projects with file parallelism and four workers. Manual workflow dispatch can select
-a component and serial, four-worker or twelve-worker execution; the default is all components with four workers.
+a component and serial, four-worker or twelve-worker execution; selecting Core includes both UMD and ESM.
+The default is all components with four workers.
 Local runs also use file parallelism with at most four workers. Each file has an isolated browser
 context; tests inside a file still run sequentially. Use `--no-file-parallelism --maxWorkers 1`
 for a serial diagnostic run. Hub integration remains serial.
@@ -67,6 +69,7 @@ Everything after `pnpm run test` is passed to Vitest, see `vitest run --help`.
 
 ```
 pnpm run test --project editor                  # a single component, can be repeated
+pnpm run test --project core --project core-esm # Core against both release formats
 pnpm run test --project editor specs/editor/navlink   # only spec files whose path contains the string
 pnpm run test --project editor -t "drawing"     # only tests whose name matches
 pnpm run test --mode dev                        # run against dist/xyz-maps-<name>.js instead of the minified bundles

@@ -84,4 +84,4 @@ interface IMLProviderOptions extends HTTPProviderOptions {
     }
 }
 
-export {IMLProviderOptions};
+export type {IMLProviderOptions};

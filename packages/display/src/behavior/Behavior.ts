@@ -542,4 +542,5 @@ class Behavior {
     };
 }
 
-export {Behavior, BehaviorOptions};
+export {Behavior};
+export type {BehaviorOptions};

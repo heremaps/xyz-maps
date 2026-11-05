@@ -84,4 +84,5 @@ class DashAtlas {
     }
 }
 
-export {DashAtlas, DashArray};
+export {DashAtlas};
+export type {DashArray};
