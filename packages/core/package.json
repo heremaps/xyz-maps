@@ -19,9 +19,9 @@
     "dist/xyz-maps-core.d.ts"
   ],
   "scripts": {
-    "watch-dev": "rollup -c --watch --environment BUILD:dev --bundleConfigAsCjs",
-    "build-dev": "rollup -c --environment BUILD:dev --bundleConfigAsCjs",
-    "build-release": "rollup -c --environment BUILD:production --bundleConfigAsCjs",
+    "watch-dev": "rolldown -c rolldown.config.mjs --watch --environment BUILD:dev",
+    "build-dev": "tsc --noEmit && rolldown -c rolldown.config.mjs --environment BUILD:dev",
+    "build-release": "tsc --noEmit && rolldown -c rolldown.config.mjs --environment BUILD:production",
     "build-dts": "npx build-dts -p .",
     "update-changelog": "npx build-changelog"
   },
@@ -31,10 +31,6 @@
   },
   "devDependencies": {
     "@mapbox/vector-tile": "^1.3.1",
-    "@rollup/plugin-commonjs": "^29.0.3",
-    "@rollup/plugin-node-resolve": "^16.0.0",
-    "@rollup/plugin-terser": "^1.0.0",
-    "@rollup/plugin-typescript": "^12.3.0",
     "@rollup/plugin-virtual": "^3.0.2",
     "@types/node": "^18.7.11",
     "@types/offscreencanvas": "^2019.7.3",
@@ -42,8 +38,8 @@
     "git-rev-sync": "^3.0.2",
     "pbf": "^3.2.1",
     "rbush": "^3.0.1",
-    "rollup": "^4.64.2",
-    "rollup-plugin-sourcemaps": "^0.6.3",
+    "rolldown": "^1.2.14",
+    "source-map": "^0.8.0",
     "tslib": "^2.4.0",
     "typescript": "^5.9.3"
   },

@@ -18,7 +18,7 @@
  */
 
 import React, {useEffect} from 'react';
-import './FSToggle.scss';
+import './FSToggle.css';
 
 export const FSToggle: React.FC = (props: { title: string, onClick?: (fs: boolean) => void }) => {
     const ref = React.useRef(null);

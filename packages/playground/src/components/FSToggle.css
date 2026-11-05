@@ -17,8 +17,6 @@
  * License-Filename: LICENSE
  */
 
-$border: 2px solid white;
-
 .fs-toggle {
     position: absolute;
     background-color: #0F1621;
@@ -36,41 +34,41 @@ $border: 2px solid white;
     color: white;
 
     cursor: pointer;
+}
 
-    div {
-        float: left;
-        margin: 4px;
-        box-sizing: border-box;
-        width: 6px;
-        height: 6px;
-    }
+.fs-toggle div {
+    float: left;
+    margin: 4px;
+    box-sizing: border-box;
+    width: 6px;
+    height: 6px;
 }
 
 .fs-toggle :first-child, .fs-toggle.active :last-child {
     border: none;
-    border-top: $border;
-    border-left: $border;
+    border-top: 2px solid white;
+    border-left: 2px solid white;
 }
 
 .fs-toggle :nth-child(2), .fs-toggle.active :nth-child(3) {
     border: none;
-    border-top: $border;
-    border-right: $border;
+    border-top: 2px solid white;
+    border-right: 2px solid white;
 }
 
 .fs-toggle :nth-child(3), .fs-toggle.active :nth-child(2) {
     border: none;
-    border-bottom: $border;
-    border-left: $border;
+    border-bottom: 2px solid white;
+    border-left: 2px solid white;
 }
 
 .fs-toggle :last-child, .fs-toggle.active :first-child {
     border: none;
-    border-bottom: $border;
-    border-right: $border;
+    border-bottom: 2px solid white;
+    border-right: 2px solid white;
 }
 
-.fs-toggle:hover, .fs-toggle :hover div  {
+.fs-toggle:hover, .fs-toggle :hover div {
     background-color: #383c45;
 }
 

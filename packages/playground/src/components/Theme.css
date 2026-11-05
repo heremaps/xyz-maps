@@ -16,35 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-@use 'Theme' as *;
-
-.mobilePanel {
-    width: 100%;
-    background-color: $backgroundColor;
-    display: flex;
-    color: white;
-    padding-bottom: 2px;
-
-    > div {
-        flex-grow: 1;
-        box-sizing: border-box;
-        border-right: 2px solid $backgroundColor;
-        padding: 4px;
-        text-align: center;
-        background-color: $primaryColor;
-    }
-
-    > div:last-child {
-        border-right: none;
-    }
-
-    > div.active, > div:hover {
-        background-color: $secondaryColor;
-    }
-}
-
-@media screen and (min-width: 769px) {
-    .mobilePanel {
-        display: none;
-    }
+:root {
+    --logo-url: url("assets/icon/logo.svg");
+    --background-color: #E0E0E0;
+    --navbar-color: #3a3d45;
+    --primary-color: #333;
+    --secondary-color: #666;
+    --font-family: Arial, Helvetica, sans-serif;
+    --primary-font-color: black;
+    --secondary-font-color: white;
+    --font-highlight-color: var(--secondary-font-color);
 }

@@ -45,7 +45,7 @@ export * from './features/area/AreaShape';
 export * from './features/feature/EditorProperties';
 export * from './API/EditorEvent';
 export * from './API/DrawingBoard';
-export {
+export type {
     EditorOptions,
     EditRestrictionContext
 } from './API/EditorOptions';

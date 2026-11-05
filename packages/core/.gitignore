@@ -3,3 +3,4 @@ dist/
 build/index.js
 build/shared.js
 build/workers.js
+build/bundle.gen.js

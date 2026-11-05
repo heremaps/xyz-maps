@@ -21,9 +21,9 @@
   ],
   "publishConfig": {},
   "scripts": {
-    "watch-dev": "rollup -c --watch --environment BUILD:dev --bundleConfigAsCjs",
-    "build-dev": "rollup -c --environment BUILD:dev --bundleConfigAsCjs",
-    "build-release": "rollup -c --environment BUILD:production --bundleConfigAsCjs",
+    "watch-dev": "rolldown -c rolldown.config.mjs --watch --environment BUILD:dev",
+    "build-dev": "tsc --noEmit && rolldown -c rolldown.config.mjs --environment BUILD:dev",
+    "build-release": "tsc --noEmit && rolldown -c rolldown.config.mjs --environment BUILD:production",
     "build-dts": "npx build-dts -p .",
     "update-changelog": "npx build-changelog"
   },
@@ -33,10 +33,8 @@
     "@here/xyz-maps-display": "^0.46.1"
   },
   "devDependencies": {
-    "@rollup/plugin-terser": "^1.0.0",
-    "@rollup/plugin-typescript": "^12.3.0",
-    "rollup": "^4.64.2",
     "rollup-plugin-img": "^1.1.0",
+    "rolldown": "^1.2.14",
     "tslib": "^2.4.0",
     "typescript": "^5.9.3"
   },

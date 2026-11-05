@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import React, {useEffect, useLayoutEffect} from 'react';
-import './App.scss';
+import './App.css';
 import {Navbar} from './components/Navbar';
 import {Editor, Value} from './components/Editor';
 import {Slider} from './components/Slider';

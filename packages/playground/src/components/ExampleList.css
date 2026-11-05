@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-@use 'Theme' as *;
 
 .exampleList.hidden {
     width: 8px;
@@ -28,62 +27,62 @@
     position: relative;
     width: 300px;
     height: 100%;
-    color: $primaryFontColor;
+    color: var(--primary-font-color);
     transition: width 500ms ease-out;
-
-    ul {
-        padding-inline-start: 0px;
-        list-style-type: none;
-        overflow: hidden;
-        overflow-y: scroll;
-        position: absolute;
-        top: 0px;
-        bottom: 0px;
-        width: calc(100% - 12px);
-        height: auto;
-        margin: 0 0 0 6px;
-    }
-
-    li {
-        padding: 4px 0;
-        cursor: pointer;
-    }
-
-    li.selected {
-        background-color: $primaryColor;
-        color: $fontHighlightColor;
-    }
-
-    li:not(.section):hover {
-        color: $fontHighlightColor;
-        background-color: $secondaryColor;
-    }
-
-    li:not(.section) {
-        padding-left: 8px;
-    }
-
-    li.section {
-        margin: 10px 0;
-        font-weight: bold;
-        border-bottom: 1px solid #0f0f0f;
-    }
-
-    li.section:first-child {
-        margin: 0 0 10px 0;
-    }
-
-    .slider {
-        position: relative;
-        float: right;
-        cursor: w-resize;
-    }
-    .slider.toggle {
-        cursor: e-resize;
-    }
-
-
 }
+
+.exampleList ul {
+    padding-inline-start: 0px;
+    list-style-type: none;
+    overflow: hidden;
+    overflow-y: scroll;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    width: calc(100% - 12px);
+    height: auto;
+    margin: 0 0 0 6px;
+}
+
+.exampleList li {
+    padding: 4px 0;
+    cursor: pointer;
+}
+
+.exampleList li.selected {
+    background-color: var(--primary-color);
+    color: var(--font-highlight-color);
+}
+
+.exampleList li:not(.section):hover {
+    color: var(--font-highlight-color);
+    background-color: var(--secondary-color);
+}
+
+.exampleList li:not(.section) {
+    padding-left: 8px;
+}
+
+.exampleList li.section {
+    margin: 10px 0;
+    font-weight: bold;
+    border-bottom: 1px solid #0f0f0f;
+}
+
+.exampleList li.section:first-child {
+    margin: 0 0 10px 0;
+}
+
+.exampleList .slider {
+    position: relative;
+    float: right;
+    cursor: w-resize;
+}
+
+.exampleList .slider.toggle {
+    cursor: e-resize;
+}
+
 
 @media screen and (max-width: 768px) {
     .slider {

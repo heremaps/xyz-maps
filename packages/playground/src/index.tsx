@@ -18,6 +18,7 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
+import './components/Theme.css';
 import {App} from './App';
 
 // @ts-ignore

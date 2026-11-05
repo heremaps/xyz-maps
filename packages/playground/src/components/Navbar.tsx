@@ -18,7 +18,7 @@
  */
 
 import React from 'react';
-import './Navbar.scss';
+import './Navbar.css';
 
 const Navbar: React.FC = (props: { title: string, version: string }) => {
     return (

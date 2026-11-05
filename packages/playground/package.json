@@ -15,8 +15,8 @@
   "main": "index.html",
   "private": true,
   "scripts": {
-    "build": "rollup -c --bundleConfigAsCjs",
-    "dev": "rollup -c -w --bundleConfigAsCjs"
+    "build": "tsc --noEmit && rolldown -c rolldown.config.mjs",
+    "dev": "tsc --noEmit && rolldown -c rolldown.config.mjs --watch"
   },
   "dependencies": {
     "@here/xyz-maps-common": "^0.46.1",
@@ -29,19 +29,11 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-html": "^2.0.0",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^16.0.0",
-    "@rollup/plugin-replace": "^6.0.3",
-    "@rollup/plugin-terser": "^1.0.0",
-    "@rollup/plugin-typescript": "^12.3.0",
     "@rollup/plugin-virtual": "^3.0.2",
-    "postcss": "^8.4.16",
-    "rollup": "^4.64.2",
+    "lightningcss": "1.33.0",
+    "rolldown": "^1.2.14",
     "rollup-plugin-copy": "^3.4.0",
-    "rollup-plugin-postcss": "^4.0.2",
-    "sass": "^1.54.5",
     "tslib": "^2.4.0",
     "typescript": "^5.9.3"
   }

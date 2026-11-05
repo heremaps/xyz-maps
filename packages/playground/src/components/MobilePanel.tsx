@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import React from 'react';
-import './MobilePanel.scss';
+import './MobilePanel.css';
 
 const MobilePanel: React.FC = (props: {
     defaultActive: string,

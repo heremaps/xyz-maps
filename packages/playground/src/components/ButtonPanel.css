@@ -17,35 +17,27 @@
  * License-Filename: LICENSE
  */
 
-@use 'Theme' as *;
-
-$navbarHeight: 50px;
-
-.navbar {
-    position: relative;
-    height: $navbarHeight;
+.buttonPanel {
     width: 100%;
-    background-color: $navbarColor;
-    margin: 0;
-    color: white;
-}
-.navbar .title{
-    float: left;
-    font-size: 20px;
-    line-height: $navbarHeight;
+    height: 26px;
+    background-color: var(--background-color);
 }
 
-.navbar .logo {
-    content: $logoUrl;
-    background-size: 100%;
-    height: 38px;
-    width: 35px;
-    padding: 6px 12px 0;
-    float: left;
-}
-
-.navbar .version {
+.buttonPanel .button#run, .buttonPanel .button#reset, .buttonPanel .button#dl, .buttonPanel .button#docs {
     float: right;
-    font-size: 14px;
-    margin: 16px;
+    margin-left: 2px;
+}
+
+.buttonPanel .button {
+    margin: 0;
+}
+
+.buttonPanel #dl {
+    background-color: var(--primary-color);
+    padding-left: 10px;
+    padding-right: 10px;
+    cursor: pointer;
+    text-decoration: overline;
+    transform: rotate(180deg);
+    -webkit-text-stroke: 1px white;
 }

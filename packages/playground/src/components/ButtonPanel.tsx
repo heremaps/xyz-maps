@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import React from 'react';
-import './ButtonPanel.scss';
+import './ButtonPanel.css';
 import {Button} from './Button';
 // @ts-ignore
 import settings from 'settings';

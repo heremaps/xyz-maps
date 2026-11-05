@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import React, {useEffect, useLayoutEffect} from 'react';
-import './ExampleList.scss';
+import './ExampleList.css';
 import {Slider} from './Slider';
 
 

@@ -26,7 +26,7 @@ import BasicRender from './BasicRender';
 import BasicTile from './BasicTile';
 import BasicBucket from './BasicBucket';
 import Preview from './Preview';
-import Grid, {GridTile, ViewportTile} from '../Grid';
+import Grid, {GridTile, type ViewportTile} from '../Grid';
 import {parseColor} from './styleTools';
 import toRGB = ColorUtils.toRGB;
 

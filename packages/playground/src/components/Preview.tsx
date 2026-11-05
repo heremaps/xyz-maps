@@ -18,7 +18,7 @@
  */
 
 import React, {useEffect, useLayoutEffect} from 'react';
-import './Preview.scss';
+import './Preview.css';
 import {convertImport} from '../convertImport';
 // @ts-ignore
 import settings from 'settings';

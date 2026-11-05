@@ -45,7 +45,7 @@ export {styleTools};
 
 export {Map};
 export {MapEvent} from './event/Event';
-export {MapOptions, ModifierKey} from './MapOptions';
+export type {MapOptions, ModifierKey} from './MapOptions';
 export {FollowPathAnimationController};
 
 export default Map;

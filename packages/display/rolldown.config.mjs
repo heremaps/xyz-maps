@@ -17,24 +17,20 @@
  * License-Filename: LICENSE
  */
 
-import typescript from '@rollup/plugin-typescript';
-import terser from '@rollup/plugin-terser';
-import commonjs from '@rollup/plugin-commonjs';
-import nodeResolve from '@rollup/plugin-node-resolve';
+import {createRequire} from 'node:module';
 import virtual from '@rollup/plugin-virtual';
 import glslify from 'rollup-plugin-glslify';
 
-
+const require = createRequire(import.meta.url);
 const fs = require('fs');
 const pkg = require('./package.json');
-
-let production = process.env.BUILD === 'production';
+const production = process.env.BUILD === 'production';
 
 let sourcemap = true;
+
 let module = pkg.name.split('-').pop();
 let file = 'xyz-maps-' + module + '.js';
 
-const banner = '/*\n * ' + pkg.name + '\n * (c) 2019-2022 HERE\n */\n';
 const logoSrc = process.env.logo || './assets/xyz.svg';
 const cOwner = process.env.cOwner || 'XYZ';
 const tacUrl = process.env.tacUrl || '';
@@ -44,6 +40,27 @@ if (production) {
     file = file.replace('.js', '.min.js');
     console.info(`Use logo: ${logoSrc} cOwner: ${cOwner}`);
 }
+
+// "/*!" marks the banner as a legal comment, which the minifier keeps
+const banner = '/*!\n * ' + pkg.name + '\n * (c) 2019-2022 HERE\n */\n';
+
+const target = 'es2017';
+
+const transform = {
+    target: target,
+    // same class field emit as tsc for target ES2017 (useDefineForClassFields: false)
+    assumptions: {setPublicClassFields: true},
+    typescript: {removeClassFieldsWithoutInitializer: true}
+};
+
+const minifyOptions = production ? {
+    // the minifier defaults to esnext, keep its output at the same syntax level
+    minify: {compress: {target: target, dropConsole: true}},
+    // regular comments are always stripped when minifying, legal ones are kept
+    comments: {legal: true, annotation: false, jsdoc: false}
+} : {
+    minify: false
+};
 
 const createPlugins = () => {
     return [
@@ -55,22 +72,17 @@ const createPlugins = () => {
         glslify({
             include: ['src/**/*.glsl'],
             compress: production
-        }),
-        nodeResolve(),
-        commonjs(),
-        typescript(),
-        production ? terser({
-            output: {
-                comments: /\(c\)/
-            },
-            compress: {
-                drop_console: true
-            }
-        }) : false
+        })
     ];
 };
 
-const rollupConfig = [{
+const globals = {
+    '@here/xyz-maps-core': 'here.xyz.maps',
+    '@here/xyz-maps-common': 'here.xyz.maps.common'
+};
+const external = ['@here/xyz-maps-core', '@here/xyz-maps-common'];
+
+const rolldownConfig = [{
     input: './src/index.ts',
     output: {
         file: 'dist/' + file,
@@ -79,20 +91,19 @@ const rollupConfig = [{
         sourcemap: sourcemap,
         extend: true,
         exports: 'named',
-        globals: {
-            '@here/xyz-maps-core': 'here.xyz.maps',
-            '@here/xyz-maps-common': 'here.xyz.maps.common'
-        },
+        globals: globals,
         strict: true,
-        banner: banner
+        banner: banner,
+        ...minifyOptions
     },
-    external: ['@here/xyz-maps-core', '@here/xyz-maps-common'],
+    external: external,
     plugins: createPlugins(),
+    transform: transform,
     treeshake: production
 }];
 
 if (production) {
-    rollupConfig.push({
+    rolldownConfig.push({
         input: './src/index.ts',
         output: {
             file: 'dist/' + file.replace('.', '.esm.'),
@@ -100,17 +111,16 @@ if (production) {
             sourcemap: sourcemap,
             extend: true,
             exports: 'named',
-            globals: {
-                '@here/xyz-maps-core': 'here.xyz.maps',
-                '@here/xyz-maps-common': 'here.xyz.maps.common'
-            },
+            globals: globals,
             strict: true,
-            banner: banner
+            banner: banner,
+            ...minifyOptions
         },
-        external: ['@here/xyz-maps-core', '@here/xyz-maps-common'],
+        external: external,
         plugins: createPlugins(),
+        transform: transform,
         treeshake: production
     });
 }
 
-export default rollupConfig;
+export default rolldownConfig;

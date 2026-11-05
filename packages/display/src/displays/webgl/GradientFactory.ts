@@ -18,7 +18,7 @@
  */
 
 import {LinearGradient} from '@here/xyz-maps-core';
-import {FillTexture, LinearGradientStops} from './FillTexture';
+import {FillTexture, type LinearGradientStops} from './FillTexture';
 import {GraphicsDevice} from './device/GraphicsDevice';
 export {LinearGradientStops};
 

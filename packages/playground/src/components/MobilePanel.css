@@ -16,24 +16,34 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-@use 'Theme' as *;
 
-.button {
-    outline: none;
-    background-color: $primaryColor;
-    border: none;
+.mobilePanel {
+    width: 100%;
+    background-color: var(--background-color);
+    display: flex;
     color: white;
-    padding: 5px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    font-family: $fontFamily;
-    box-sizing: border-box;
-    float: left;
-    cursor: pointer
+    padding-bottom: 2px;
 }
 
-.button:hover, .button.active, #dl:hover {
-    background-color: $secondaryColor;
+.mobilePanel > div {
+    flex-grow: 1;
+    box-sizing: border-box;
+    border-right: 2px solid var(--background-color);
+    padding: 4px;
+    text-align: center;
+    background-color: var(--primary-color);
+}
+
+.mobilePanel > div:last-child {
+    border-right: none;
+}
+
+.mobilePanel > div.active, .mobilePanel > div:hover {
+    background-color: var(--secondary-color);
+}
+
+@media screen and (min-width: 769px) {
+    .mobilePanel {
+        display: none;
+    }
 }

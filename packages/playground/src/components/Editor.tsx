@@ -19,7 +19,7 @@
 import React, {useRef} from 'react';
 import MonacoEditor, {useMonaco} from '@monaco-editor/react';
 import {ButtonPanel} from './ButtonPanel';
-import './Editor.scss';
+import './Editor.css';
 
 export type Value = { html: string, ts: string, docs: string, title?: string };
 

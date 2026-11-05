@@ -18,7 +18,7 @@
  */
 
 import {Feature} from '../features/Feature';
-import {Style} from './GenericStyle';
+import type {Style} from './GenericStyle';
 import {LinearGradient} from './HeatmapStyle';
 
 /**
@@ -210,7 +210,7 @@ export type StyleValueFunction<Type> = (feature: Feature, zoom: number) => Type 
  */
 export type StyleZoomRange<Type> = { [zoom: number | string]: Type }
 
-export {Style};
+export type {Style};
 // /**
 //  * The Style defines how certain features should be rendered.
 //  */

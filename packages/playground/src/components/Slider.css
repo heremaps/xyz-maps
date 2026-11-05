@@ -16,29 +16,28 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-@use 'Theme' as *;
 
-.buttonPanel {
+.slider {
+    box-sizing: border-box;
+    cursor: col-resize;
+    background-color: var(--background-color);
+    border-left: 1px solid #222;
+    border-right: 1px solid #222;
+    width: 8px;
+    height: 100%;
+}
+
+.slider div {
+    box-sizing: border-box;
+    background-color: #414650;
+    border-left: 1px solid var(--secondary-color);
+    border-right: 1px solid var(--secondary-color);
     width: 100%;
-    height: 26px;
-    background-color: $backgroundColor;
+    height: 100%;
+}
 
-    .button#run, .button#reset, .button#dl, .button#docs {
-        float: right;
-        margin-left: 2px;
-    }
-
-    .button {
-        margin: 0;
-    }
-
-    #dl {
-        background-color: $primaryColor;
-        padding-left: 10px;
-        padding-right: 10px;
-        cursor: pointer;
-        text-decoration: overline;
-        transform: rotate(180deg);
-        -webkit-text-stroke: 1px white;
+@media screen and (max-width: 768px) {
+    .slider {
+        display: none;
     }
 }

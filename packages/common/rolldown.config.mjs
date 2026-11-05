@@ -17,9 +17,9 @@
  * License-Filename: LICENSE
  */
 
-import typescript from '@rollup/plugin-typescript';
-import terser from '@rollup/plugin-terser';
+import {createRequire} from 'node:module';
 
+const require = createRequire(import.meta.url);
 const pkg = require('./package.json');
 const production = process.env.BUILD === 'production';
 
@@ -33,28 +33,28 @@ if (production) {
     file = file.replace('.js', '.min.js');
 }
 
-const banner = '/*\n * ' + pkg.name + '\n * (c) 2019-2022 HERE\n */\n';
+// "/*!" marks the banner as a legal comment, which the minifier keeps
+const banner = '/*!\n * ' + pkg.name + '\n * (c) 2019-2022 HERE\n */\n';
 
-const createPlugins = () => {
-    return [
-        typescript({
-            typescript: require('typescript'),
-            // only compileroptions are read from tsconfig.json
-            include: ['src/**/*'],
-            exclude: ['node_modules', 'dist']
-        }),
-        production ? terser({
-            output: {
-                comments: /\(c\)/
-            },
-            compress: {
-                drop_console: true
-            }
-        }) : false
-    ];
+const target = 'es2017';
+
+const transform = {
+    target: target,
+    // same class field emit as tsc for target ES2017 (useDefineForClassFields: false)
+    assumptions: {setPublicClassFields: true},
+    typescript: {removeClassFieldsWithoutInitializer: true}
 };
 
-const rollupConfig = [{
+const minifyOptions = production ? {
+    // the minifier defaults to esnext, keep its output at the same syntax level
+    minify: {compress: {target: target, dropConsole: true}},
+    // regular comments are always stripped when minifying, legal ones are kept
+    comments: {legal: true, annotation: false, jsdoc: false}
+} : {
+    minify: false
+};
+
+const rolldownConfig = [{
     input: './src/index.ts',
     output: {
         file: 'dist/' + file,
@@ -63,14 +63,15 @@ const rollupConfig = [{
         sourcemap: sourcemap,
         exports: 'named',
         strict: true,
-        banner: banner
+        banner: banner,
+        ...minifyOptions
     },
-    plugins: createPlugins(),
+    transform: transform,
     treeshake: production
 }];
 
 if (production) {
-    rollupConfig.push({
+    rolldownConfig.push({
         input: './src/index.ts',
         output: {
             file: 'dist/' + file.replace('.', '.esm.'),
@@ -78,10 +79,12 @@ if (production) {
             sourcemap: sourcemap,
             exports: 'named',
             strict: true,
-            banner: banner
+            banner: banner,
+            ...minifyOptions
         },
-        plugins: createPlugins(),
+        transform: transform,
         treeshake: production
     });
 }
-export default rollupConfig;
+
+export default rolldownConfig;

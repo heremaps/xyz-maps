@@ -71,20 +71,14 @@ const common = {
 scp.common = common;
 export {
     AStar,
-    AStarNode,
     BinaryHeap,
     Color,
-    Context,
-    Def,
-    IExpression,
-    JSONExpression,
     Expression,
     ExpressionMode,
     ExpressionParser,
     LRU,
     TaskManager,
     Task,
-    TaskOptions,
     TaskSequence,
     Listener,
     parseJSONArray,
@@ -98,4 +92,5 @@ export {
     geometry,
     Pool
 };
+export type {AStarNode, Context, Def, IExpression, JSONExpression, TaskOptions};
 export default common;

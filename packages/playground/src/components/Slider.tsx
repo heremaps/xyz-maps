@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 import React from 'react';
-import './Slider.scss';
+import './Slider.css';
 
 export const Slider: React.FC = React.forwardRef((props: {
     active?: boolean,

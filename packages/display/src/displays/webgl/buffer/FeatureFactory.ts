@@ -363,16 +363,19 @@ export class FeatureFactory {
 
                 groupBuffer.addUniform('u_texture', this.atlasManager.getTexture(src));
             } else if (type == 'Circle' || type == 'Rect') {
-                const pointBuffer = ((group.buffer as PointBuffer) ||= new PointBuffer(isFlat, this.tileSize));
+                group.buffer ||= new PointBuffer(isFlat, this.tileSize);
+                const pointBuffer = group.buffer as PointBuffer;
                 positionBuffer = pointBuffer.flexAttributes.a_position;
                 pointBuffer.addPoint(x, y, z/* !!this.collisionGroup*/);
             } else if (type == 'Heatmap') {
-                const heatmapBuffer = ((group.buffer as HeatmapBuffer) ||= new HeatmapBuffer(isFlat, this.tileSize));
+                group.buffer ||= new HeatmapBuffer(isFlat, this.tileSize);
+                const heatmapBuffer = group.buffer as HeatmapBuffer;
 
                 const weight = getValue('weight', style, feature, level);
                 heatmapBuffer.addPoint(x, y, weight);
             } else if (type == 'Sphere') {
-                const sphereBuffer: SphereBuffer = ((group.buffer as SphereBuffer) ||= new SphereBuffer(isFlat));
+                group.buffer ||= new SphereBuffer(isFlat);
+                const sphereBuffer: SphereBuffer = group.buffer as SphereBuffer;
                 const {flexAttributes} = sphereBuffer;
                 positionBuffer = flexAttributes.a_position;
 
@@ -382,7 +385,8 @@ export class FeatureFactory {
                 let height = getValue('height', style, feature, level) || width;
                 let depth = getValue('depth', style, feature, level) || width;
 
-                const boxBuffer: BoxBuffer = ((group.buffer as BoxBuffer) ||= new BoxBuffer(isFlat));
+                group.buffer ||= new BoxBuffer(isFlat);
+                const boxBuffer: BoxBuffer = group.buffer as BoxBuffer;
                 const {flexAttributes} = boxBuffer;
                 positionBuffer = flexAttributes.a_position;
 
