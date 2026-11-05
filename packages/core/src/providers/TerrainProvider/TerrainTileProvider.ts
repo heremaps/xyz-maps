@@ -19,7 +19,7 @@
 
 import {Tile} from '../../tile/Tile';
 import LRUStorage from '../../storage/LRUStorage';
-import LoaderManager from '../../loaders/Manager';
+import LoaderManager from '../../loaders/TileLoaderManager';
 import {HTTPLoader} from '../../loaders/HTTPLoader';
 import {ConcurrentTileLoader} from '../../loaders/ConcurrentTileLoader';
 import TerrainWorkerLoader, {TerrainTileLoaderOptions, TerrainImageryLoaderOptions} from './TerrainWorkerLoader';
@@ -53,6 +53,9 @@ const createGeometricErrorMap = (maxGeometricError: number | StyleZoomRange<numb
 };
 
 
+/**
+ * Terrain tile data provider.
+ */
 export class TerrainTileProvider extends RemoteTileProvider {
     dataType = 'json';
 

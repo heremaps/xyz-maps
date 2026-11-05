@@ -29,6 +29,15 @@ import {Line} from './features/line/Line';
 import {Area} from './features/area/Area';
 import {Marker} from './features/marker/Marker';
 import {EditableFeatureProvider} from '@here/xyz-maps-core';
+import {LineShape, defaultBehavior} from './features/line/LineShape';
+import {NavlinkShape, createShapeLinkProperties} from './features/link/NavlinkShape';
+import {AreaShape, createAreaShapeGeoJSON} from './features/area/AreaShape';
+import {EditorEvent} from './API/EditorEvent';
+import {DrawingBoard} from './API/DrawingBoard';
+import {RangeSelector} from './API/ERangeSelector';
+import {Crossing} from './API/MCrossing';
+import {ConnectionCandidate} from './features/link/ConnectionCandidate';
+import {DrawingShape} from './tools/drawingBoards/DrawingShape';
 
 export * from './features/feature/Feature';
 export type {FeatureContainer} from './features/Container';
@@ -153,21 +162,43 @@ for (let i = 0; i < dns.length - 1; i++) {
     scp = scp[dns[i]] = scp[dns[i]] || {};
 }
 // support for deprecated legacy (namespace based) api interface
-const editor = scp[dns.pop()] = {
+/**
+ * @deprecated Use named exports from `@here/xyz-maps-editor`, or `here.xyz.maps.editor.Editor` with script tags.
+ * @hidden
+ */
+const editor = {
     Editor: Editor,
     features: features,
     EditOperation,
-    PixelCoordinate: function(x: number, y: number, z: number) {
+    /**
+     * @deprecated Use `PixelPoint` from `@here/xyz-maps-core` (or `here.xyz.maps.PixelPoint`) instead.
+     * @hidden
+     */
+    PixelCoordinate: function(x: number, y: number, z?: number) {
         this.x = x;
         this.y = y;
         this.z = z || 0;
-    },
-    GeoCoordinate: function(lon: number, lat: number, z: number) {
+    } as unknown as {new(x: number, y: number, z?: number): {x: number; y: number; z: number}},
+    /**
+     * @deprecated Use GeoJSON coordinate arrays `[longitude, latitude, altitude?]` for features, or core `GeoPoint` for map positions.
+     * @hidden
+     */
+    GeoCoordinate: function(lon: number, lat: number, z?: number) {
         this.longitude = lon;
         this.latitude = lat;
         this.z = z || 0;
-    }
+    } as unknown as {new(lon: number, lat: number, z?: number): {longitude: number; latitude: number; z: number}}
 };
+
+// Keep the package namespace intact: the UMD factory extends this same object.
+const modernExports = {
+    Editor, EditOperation, Feature, Marker, Line, LineShape, defaultBehavior,
+    Area, AreaShape, createAreaShapeGeoJSON, Place, Address, Navlink, NavlinkShape,
+    createShapeLinkProperties, DefaultEditorProperties, EditorEvent, DrawingBoard,
+    RangeSelector, Crossing, ConnectionCandidate, DrawingShape, features
+} satisfies Omit<typeof import('@here/xyz-maps-editor'), 'default'>;
+const namespace = dns.pop();
+scp[namespace] = Object.assign(scp[namespace] || {}, modernExports, editor);
 
 
 EditableFeatureProvider.setFeatureClassResolver(function(this: EditableFeatureProvider, feature) {
@@ -190,4 +221,41 @@ EditableFeatureProvider.setFeatureClassResolver(function(this: EditableFeaturePr
     return this.Feature;
 });
 
+/**
+ * @deprecated Use named exports from `@here/xyz-maps-editor`, or the flat `here.xyz.maps.editor` exports with script tags.
+ * @hidden
+ */
 export default editor;
+
+declare global {
+    /**
+ * @hidden
+ */
+    namespace XYZMaps {
+        /**
+ * @hidden
+ */
+        type EditorExports = Omit<typeof import('@here/xyz-maps-editor'), 'default'>;
+        /**
+ * @hidden
+ */
+        interface Editor extends EditorExports {
+            /**
+             * @deprecated Use core `PixelPoint` (`here.xyz.maps.PixelPoint`) instead.
+             * @hidden
+             */
+            PixelCoordinate: typeof import('@here/xyz-maps-editor').default.PixelCoordinate;
+            /**
+             * @deprecated Use GeoJSON coordinate arrays for features, or core `GeoPoint` for map positions.
+             * @hidden
+             */
+            GeoCoordinate: typeof import('@here/xyz-maps-editor').default.GeoCoordinate;
+        }
+        /**
+ * @hidden
+ */
+        interface Maps {
+            editor: Editor;
+        }
+    }
+}

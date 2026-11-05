@@ -37,6 +37,9 @@ const SD_I_1_4 = /{SUBDOMAIN_INT_1_4}/;
 const SD_I = /{SUBDOMAIN_INT}/;
 const SD_C = /{SUBDOMAIN_CHAR}/;
 
+/**
+ * @hidden
+ */
 class NetworkError extends Error {
     name = 'NetworkError';
     message: string;
@@ -60,6 +63,9 @@ class NetworkError extends Error {
 }
 
 
+/**
+ * @hidden
+ */
 export interface HTTPRequest {
     url: string;
     type?: 'POST' | 'GET' | string;
@@ -72,6 +78,9 @@ export interface HTTPRequest {
 }
 
 
+/**
+ * @hidden
+ */
 export interface HTTPLoaderOptions {
     responseType?: string;
     // src?: string | ((x: number, y: number, z: number, qk: string) => string);
@@ -82,6 +91,9 @@ export interface HTTPLoaderOptions {
 }
 
 
+/**
+ * @hidden
+ */
 class HTTPLoader implements TileLoader {
     private responseType: string;
 
@@ -99,6 +111,9 @@ class HTTPLoader implements TileLoader {
         });
     }
 
+    /**
+ * @hidden
+ */
     constructor(options: HTTPLoaderOptions) {
         let responseType = options['responseType'] || 'json';
 
@@ -151,6 +166,9 @@ class HTTPLoader implements TileLoader {
         this.baseUrl = url;
     };
 
+    /**
+ * @hidden
+ */
     load(tile, success, /* onAbort,*/ error) {
         const url = this.getUrl(tile);
 
@@ -204,6 +222,9 @@ class HTTPLoader implements TileLoader {
         xhr = this.send(req);
     };
 
+    /**
+ * @hidden
+ */
     abort(tile) {
         const queue = this.q;
         const key = tile.quadkey;

@@ -58,7 +58,9 @@ export type {LocalProviderOptions} from './providers/LocalProvider';
 export {RemoteTileProvider} from './providers/RemoteTileProvider/RemoteTileProvider';
 export type {RemoteTileProviderOptions} from './providers/RemoteTileProvider/RemoteTileProviderOptions';
 export {EditableRemoteTileProvider} from './providers/RemoteTileProvider/EditableRemoteTileProvider';
-export type {EditableRemoteTileProviderOptions} from './providers/RemoteTileProvider/EditableRemoteTileProviderOptions';
+export type {
+    EditableRemoteTileProviderOptions
+} from './providers/RemoteTileProvider/EditableRemoteTileProviderOptions';
 export {HTTPProvider} from './providers/HTTPProvider/HTTPProvider';
 export type {HTTPProviderOptions} from './providers/HTTPProvider/HTTPProviderOptions';
 export {SpaceProvider} from './providers/GeoSpace/SpaceProvider';
@@ -75,13 +77,16 @@ export {ClusterFeature} from './features/ClusterFeature';
 export type {ClusterFeatureProperties} from './features/ClusterFeature';
 
 import {ClusterTileLayer} from './layers/cluster/ClusterTileLayer';
+
 export {ClusterTileLayer};
 export type {ClusterTileLayerOptions} from './layers/cluster/ClusterTileLayerOptions';
 
 import {TerrainTileFeature} from './features/TerrainFeature';
+
 export {TerrainTileFeature};
 import {TerrainTileLayer} from './layers/terrain/TerrainTileLayer';
 import {TerrainTileLayerStyle} from './layers/terrain/TerrainStyle';
+
 export {TerrainTileLayer, TerrainTileLayerStyle};
 export type {TerrainTileLayerOptions} from './layers/terrain/TerrainTileLayerOptions';
 export {RTINMeshBuilder} from './providers/TerrainProvider/RTINMeshBuilder';
@@ -157,7 +162,9 @@ import {MVTProvider} from './providers/MVTProvider/MVTProvider';
 import {TerrainTileProvider} from './providers/TerrainProvider/TerrainTileProvider';
 import {EditableFeatureProvider} from './providers/EditableFeatureProvider';
 import {HTTPLoader} from './loaders/HTTPLoader';
-import Manager from './loaders/Manager';
+import TileLoaderManager from './loaders/TileLoaderManager';
+
+export {HTTPLoader, TileLoaderManager};
 import {GeoCoder} from './service/GeoCoder';
 import * as common from '@here/xyz-maps-common';
 // WORKAROUND IF BUNDELED BY WEBPACK (UMD REMOVAL)
@@ -165,15 +172,27 @@ import * as common from '@here/xyz-maps-common';
 const XYZMAPS = common.global.here.xyz.maps;
 XYZMAPS.common = common;
 
+/**
+ * @hidden
+ * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the geo namespace.
+ */
 const geo = XYZMAPS.geo = {
     Point: GeoPoint,
     Rect: GeoRect
 };
+/**
+ * @hidden
+ * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the pixel namespace.
+ */
 const pixel = XYZMAPS.pixel = {
     Point: PixelPoint,
     Rect: PixelRect
 };
 
+/**
+ * @hidden
+ * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the layers namespace.
+ */
 const layers = XYZMAPS.layers = {
     TileLayer,
     MVTLayer,
@@ -182,15 +201,27 @@ const layers = XYZMAPS.layers = {
     TerrainTileLayer
 };
 
+/**
+ * @hidden
+ * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the styles namespace.
+ */
 const styles = XYZMAPS.styles = {
     TerrainTileLayerStyle
 };
 
+/**
+ * @hidden
+ * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the features namespace.
+ */
 const features = XYZMAPS.features = {
     Feature,
     TerrainTileFeature
 };
 
+/**
+ * @hidden
+ * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the tile namespace.
+ */
 const tile = XYZMAPS.tile = {
     Tile: Tile,
     Utils: tileUtils
@@ -198,6 +229,10 @@ const tile = XYZMAPS.tile = {
 
 XYZMAPS.build = build;
 
+/**
+ * @hidden
+ * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the providers namespace.
+ */
 const providers = XYZMAPS.providers = {
     ImageProvider,
     GeoJSONProvider,
@@ -214,24 +249,44 @@ const providers = XYZMAPS.providers = {
 
 export {pixel, tile, layers, styles, features, providers};
 
+/**
+ * @hidden
+ * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the projection namespace.
+ */
 export const projection = XYZMAPS.projection = {
     webMercator
 };
 
 
+/**
+ * @hidden
+ * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the loaders namespace.
+ */
 export const loaders = XYZMAPS.loaders = {
     HTTPLoader,
-    Manager
+    Manager: TileLoaderManager
 };
 
+/**
+ * @hidden
+ * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the service namespace.
+ */
 export const service = XYZMAPS.service || {
     Geocoder: GeoCoder
 };
 
+/**
+ * @hidden
+ * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the default legacy namespace.
+ */
 export default {
     tile,
     layers,
     styles,
+    /**
+     * @hidden
+     * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the geo namespace.
+     */
     geo,
     pixel,
     features,
@@ -242,3 +297,23 @@ export default {
     build,
     common
 };
+
+declare global {
+    /**
+     * @hidden
+     */
+    namespace XYZMaps {
+        /**
+         * @hidden
+         */
+        type CoreExports = Omit<typeof import('@here/xyz-maps-core'),
+            'default' | 'geo' | 'pixel' | 'layers' | 'styles' | 'features' | 'tile' |
+            'providers' | 'projection' | 'loaders' | 'service'>;
+
+        /**
+         * @hidden
+         */
+        interface Maps extends CoreExports {
+        }
+    }
+}

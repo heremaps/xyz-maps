@@ -18,7 +18,7 @@
  */
 
 import {geotools, JSUtils} from '@here/xyz-maps-common';
-import LoaderManager from '../../loaders/Manager';
+import LoaderManager from '../../loaders/TileLoaderManager';
 import {tileUtils} from '../../tile/TileUtils';
 import {Tile} from '../../tile/Tile';
 import {EditableRemoteTileProviderOptions} from './EditableRemoteTileProviderOptions';

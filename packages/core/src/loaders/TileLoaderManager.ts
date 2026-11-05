@@ -20,7 +20,13 @@
 import {Tile} from '../tile/Tile';
 import TileLoader from './TileLoader';
 
+/**
+ * @hidden
+ */
 type OnTileLoadSuccess = (data: any, size?: number) => void;
+/**
+ * @hidden
+ */
 type OnTileLoadError = (error: any, data?: any) => void
 
 type QueueItem = {
@@ -29,7 +35,10 @@ type QueueItem = {
     onError: OnTileLoadError;
 }
 
-class ManagedLoader {
+/**
+ * @hidden
+ */
+class TileLoaderManager {
     private executing = 0;
     private parallel = 16;
 
@@ -37,6 +46,9 @@ class ManagedLoader {
     private lq = {};
     private src: TileLoader[];
 
+    /**
+ * @hidden
+ */
     constructor(...dataSources: TileLoader[]) {
         this.src = dataSources;
     }
@@ -131,4 +143,4 @@ class ManagedLoader {
     };
 }
 
-export default ManagedLoader;
+export default TileLoaderManager;

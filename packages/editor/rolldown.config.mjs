@@ -73,7 +73,7 @@ const rolldownConfig = [{
         format: 'umd',
         name: 'here.xyz.maps.' + module,
         sourcemap: sourcemap,
-        extend: false,
+        extend: true,
         exports: 'named',
         globals: globals,
         strict: true,

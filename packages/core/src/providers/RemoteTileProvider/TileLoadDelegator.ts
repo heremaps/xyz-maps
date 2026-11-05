@@ -18,7 +18,7 @@
  */
 
 
-import LoaderManager from '../../loaders/Manager';
+import LoaderManager from '../../loaders/TileLoaderManager';
 import TileReceiver from './TileReceiver';
 import {Tile} from '../../tile/Tile';
 import {createRemoteProcessor} from './processors';

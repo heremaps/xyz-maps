@@ -21,6 +21,9 @@ import {GeoJSONCoordinate} from './GeoJSON';
 import {TerrainTileProvider, TileLayer} from '@here/xyz-maps-core';
 
 
+/**
+ * @hidden
+ */
 export type TerrainTileMesh = {
     vertices: Uint16Array | Uint32Array | Float32Array;
     indices: Uint16Array | Uint32Array;

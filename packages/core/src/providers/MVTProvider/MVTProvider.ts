@@ -39,6 +39,9 @@ class MvtFeature extends Feature {
 }
 
 
+/**
+ * @hidden
+ */
 export class MVTProvider extends RemoteTileProvider {
     private c = null; // cached copyright data
 

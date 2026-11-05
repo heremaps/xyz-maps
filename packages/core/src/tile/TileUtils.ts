@@ -196,14 +196,11 @@ export const getTilesInRect =
  * @param childQuadkey  - the child (longer) quadkey
  * @returns [offsetX, offsetY, scale] in normalized [0,1] coordinates
  */
-export function getQuadkeyOffset(parentQuadkey: string, childQuadkey: string): number[];
-export function getQuadkeyOffset(parentQuadkey: string, childQuadkey: string, out: number[]): number[];
-export function getQuadkeyOffset(parentQuadkey: string, childQuadkey: string, out: Float32Array): Float32Array;
-export function getQuadkeyOffset(
+export const getQuadkeyOffset = <T extends number[] | Float32Array = number[]>(
     parentQuadkey: string,
     childQuadkey: string,
-    out: number[] | Float32Array = [0, 0, 0]
-): number[] | Float32Array {
+    out: T = [0, 0, 0] as T
+): T => {
     const parentLevel = parentQuadkey.length;
     const deltaLevel = childQuadkey.length - parentLevel;
     let x = 0;

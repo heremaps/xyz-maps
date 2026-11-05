@@ -42,6 +42,22 @@ const editor = new Editor( map, {
 });
 ```
 
+## Browser scripts and migration
+
+Load common, core, display, then editor UMD bundles. All editor named runtime
+exports are available flat under `here.xyz.maps.editor`, including `Editor`,
+`Place`, `Navlink`, and `Feature`. Core's `here.xyz.maps.Feature` remains distinct.
+In modules, use named imports (alias `Feature` when importing both packages).
+
+The default editor object, `editor.features` wrappers, `PixelCoordinate`, and
+`GeoCoordinate` are deprecated but retained. The wrappers are not aliases of
+modern feature classes. Migrate `new here.xyz.maps.editor.features.Place(coords)`
+to `editor.addFeature({type: 'Feature', properties: {featureClass: 'PLACE'},
+geometry: {type: 'Point', coordinates: coords}}, layer)` with GeoJSON coordinate
+arrays. Modern feature constructors are not coordinate-based public factories.
+Use core `PixelPoint` for pixel positions and core `GeoPoint` for geographic map
+positions instead of the legacy coordinate constructors.
+
 ## Start developing
 
 1. Install node module dependencies

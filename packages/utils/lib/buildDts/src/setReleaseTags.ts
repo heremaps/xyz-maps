@@ -18,7 +18,7 @@
  */
 import {Project, SyntaxKind, JSDocableNode} from 'ts-morph';
 
-const JS_DOCTAG_REGEX = /\/\*\*\s*\n([^\*]|(\*(?!\/)))*\*\//;
+const JS_DOCTAG_REGEX = /\/\*\*[\s\S]*?\*\//;
 
 export const setReleaseTags = async (dtsPath: string, releaseTag: 'internal' | 'beta' | 'public' = 'internal') => {
     const project = new Project({});

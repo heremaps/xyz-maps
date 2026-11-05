@@ -20,6 +20,9 @@
 import {Tile} from '../tile/Tile';
 
 
+/**
+ * @hidden
+ */
 interface TileLoader {
 
     load: (tile: Tile, success, error) => void;
@@ -31,4 +34,3 @@ interface TileLoader {
 }
 
 export default TileLoader;
-

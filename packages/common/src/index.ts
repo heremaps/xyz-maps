@@ -93,4 +93,47 @@ export {
     Pool
 };
 export type {AStarNode, Context, Def, IExpression, JSONExpression, TaskOptions};
+/**
+ * @hidden
+ */
 export default common;
+
+declare global {
+    /**
+     * @hidden
+     */
+    namespace XYZMaps {
+        /**
+         * @hidden
+         */
+        interface Maps {
+            common: typeof import('@here/xyz-maps-common');
+        }
+
+        /**
+         * @hidden
+         */
+        interface XYZ {
+            maps: Maps;
+        }
+
+        /**
+         * @hidden
+         */
+        interface Here {
+            xyz: XYZ;
+        }
+    }
+
+    /**
+     * @hidden
+     */
+    interface Window {
+        here: XYZMaps.Here;
+    }
+
+    /**
+     * @hidden
+     */
+    var here: XYZMaps.Here;
+}

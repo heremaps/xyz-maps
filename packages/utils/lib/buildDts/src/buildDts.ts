@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {rmSync, existsSync, mkdirSync} from 'fs';
+import {rmSync, existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
 import * as path from 'path';
 import {setReleaseTags} from './setReleaseTags';
 import {Extractor, ExtractorConfig, ExtractorResult, IConfigFile} from '@microsoft/api-extractor';
 import {compileDeclarations} from './compileDeclarations';
+import {retainGlobalDeclarations} from './retainGlobalDeclarations';
 
 export const build = async (moduleDirectory: string, apiExtractorJsonPath: string, dtsFolder: string = 'lib') => {
     const entryPoint = 'src/index.ts';
@@ -64,6 +65,11 @@ export const build = async (moduleDirectory: string, apiExtractorJsonPath: strin
         });
 
         if (extractorResult.succeeded) {
+            const globals = retainGlobalDeclarations(
+                readFileSync(mainEntryPointFile.replace('.ts', '.d.ts'), 'utf8')
+            );
+            writeFileSync(extractorConfig.publicTrimmedFilePath,
+                readFileSync(extractorConfig.publicTrimmedFilePath, 'utf8') + '\n' + globals + '\n');
             console.log(`API Extractor completed successfully`);
             process.exitCode = 0;
         } else {

@@ -26,7 +26,13 @@ import {scale, rotate, translate, create, identity} from 'gl-matrix/mat4';
 
 import {FollowPathAnimationController} from './animation/FollowPathAnimationController';
 
+/**
+ * @hidden
+ */
 export const mat4 = {scale, rotate, translate, create, identity};
+/**
+ * @hidden
+ */
 export const vec3 = {transformMat4};
 
 
@@ -48,4 +54,23 @@ export {MapEvent} from './event/Event';
 export type {MapOptions, ModifierKey} from './MapOptions';
 export {FollowPathAnimationController};
 
+/**
+ * @hidden
+ */
 export default Map;
+
+declare global {
+    /**
+ * @hidden
+ */
+    namespace XYZMaps {
+        /**
+ * @hidden
+ */
+        type DisplayExports = Omit<typeof import('@here/xyz-maps-display'), 'default'>;
+        /**
+ * @hidden
+ */
+        interface Maps extends DisplayExports {}
+    }
+}

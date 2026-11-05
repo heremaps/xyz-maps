@@ -18,7 +18,7 @@
  */
 
 import {FeatureProvider} from '../FeatureProvider';
-import LoaderManager from '../../loaders/Manager';
+import LoaderManager from '../../loaders/TileLoaderManager';
 import {Tile} from '../../tile/Tile';
 import {RemoteTileProviderOptions} from './RemoteTileProviderOptions';
 import {FixedLevelTileLoadDelegator} from './FixedLevelTileLoadDelegator';

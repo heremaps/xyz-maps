@@ -18,7 +18,7 @@
  */
 
 import {EditableRemoteTileProvider} from '../RemoteTileProvider/EditableRemoteTileProvider';
-import LoaderManager from '../../loaders/Manager';
+import LoaderManager from '../../loaders/TileLoaderManager';
 import {HTTPLoader} from '../../loaders/HTTPLoader';
 import {JSUtils} from '@here/xyz-maps-common';
 import {HTTPProviderOptions} from './HTTPProviderOptions';
