@@ -53,6 +53,7 @@ class ConnectionCandidate {
     private readonly _ignoreZ: boolean;
 
     /**
+     * @hidden
      * @internal
      */
     constructor(navlink: Navlink, shapeIndex: number, targetLink: Navlink, point: GeoJSONCoordinate, distance: number, segment: number | null, ignoreZ: boolean) {
@@ -94,4 +95,3 @@ class ConnectionCandidate {
 }
 
 export {ConnectionCandidate};
-

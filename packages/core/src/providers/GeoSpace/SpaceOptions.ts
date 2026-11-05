@@ -27,6 +27,7 @@ interface SpaceProviderOptions extends HTTPProviderOptions {
      * The XYZ Hub environment.
      *
      * @defaultValue "prd"
+     * @hidden
      * @internal
      */
     environment?: string

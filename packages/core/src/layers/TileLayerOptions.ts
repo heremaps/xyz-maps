@@ -73,6 +73,7 @@ export interface TileLayerOptions extends LayerOptions {
         provider: TileProvider
     }[];
     /**
+     * @hidden
      * @internal
      */
     providers?: any;
@@ -171,4 +172,3 @@ export interface TileLayerOptions extends LayerOptions {
      */
     attribution?: string | DataSourceAttribution | DataSourceAttribution[];
 }
-

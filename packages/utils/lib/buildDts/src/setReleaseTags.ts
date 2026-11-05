@@ -16,9 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-import {Project, SyntaxKind, JSDocableNode} from 'ts-morph';
+import {Project, SyntaxKind, JSDocableNode, Node} from 'ts-morph';
 
 const JS_DOCTAG_REGEX = /\/\*\*[\s\S]*?\*\//;
+const INTERNAL_API_NOTICE = 'Internal API. Not intended for application use. May change or be removed without notice.';
 
 export const setReleaseTags = async (dtsPath: string, releaseTag: 'internal' | 'beta' | 'public' = 'internal') => {
     const project = new Project({});
@@ -46,6 +47,25 @@ export const setReleaseTags = async (dtsPath: string, releaseTag: 'internal' | '
                 traversal.skip();
             }
         });
+        {
+            const text = sourceFile.getFullText();
+            const edits: number[] = [];
+            sourceFile.forEachDescendant((node) => {
+                if (!Node.isJSDocable(node)) return;
+                const docs = node.getJsDocs();
+                const tags = docs.flatMap((doc) => doc.getTags().map((tag) => tag.getTagName()));
+                if (!tags.includes('hidden') || tags.includes('public') || tags.includes('internal') ||
+                    docs.some((doc) => doc.getDescription().includes(INTERNAL_API_NOTICE))) return;
+                edits.push(docs.find((doc) => doc.getTags().some((tag) => tag.getTagName() === 'hidden')).getStart() + 3);
+            });
+            let result = text;
+            for (const position of edits.sort((a, b) => b - a)) {
+                const indent = text.slice(text.lastIndexOf('\n', position) + 1, position - 3);
+                const prefix = `\n${indent} * ${INTERNAL_API_NOTICE}\n${indent} *`;
+                result = result.slice(0, position) + prefix + result.slice(position);
+            }
+            sourceFile.replaceWithText(result);
+        }
     }
     return await project.save();
 };

@@ -244,6 +244,7 @@ interface EditorOptions {
     /**
      * Enable/Disable debug logs
      *
+     * @hidden
      * @internal
      */
     debug?: boolean;

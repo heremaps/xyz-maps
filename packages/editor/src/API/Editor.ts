@@ -689,6 +689,7 @@ export default class Editor {
     /**
      * Clears the current selected feature.
      *
+     * @public
      * @deprecated please use `editor.getSelectedFeature()?.unselect()` instead.
      *
      * @hidden
@@ -1057,6 +1058,7 @@ export default class Editor {
 
     /**
      * @hidden
+     * @public
      * @deprecated Use editor.getRangeSelector();
      */
     getZoneSelector(): RangeSelector {

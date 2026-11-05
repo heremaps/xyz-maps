@@ -100,10 +100,12 @@ export default common;
 
 declare global {
     /**
+     * @public
      * @hidden
      */
     namespace XYZMaps {
         /**
+         * @public
          * @hidden
          */
         interface Maps {
@@ -111,6 +113,7 @@ declare global {
         }
 
         /**
+         * @public
          * @hidden
          */
         interface XYZ {
@@ -118,6 +121,7 @@ declare global {
         }
 
         /**
+         * @public
          * @hidden
          */
         interface Here {
@@ -126,6 +130,7 @@ declare global {
     }
 
     /**
+     * @public
      * @hidden
      */
     interface Window {
@@ -133,6 +138,7 @@ declare global {
     }
 
     /**
+     * @public
      * @hidden
      */
     var here: XYZMaps.Here;

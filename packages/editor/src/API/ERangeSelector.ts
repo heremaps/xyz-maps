@@ -37,6 +37,7 @@ export type RangeSegment = {
     /**
      * The Navlink the RangeSegment is located at.
      * @hidden
+     * @public
      * @deprecated Please use RangeSegment.feature instead
      */
     navlink: Navlink

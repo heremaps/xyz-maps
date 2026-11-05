@@ -41,6 +41,7 @@ interface TileProviderOptions {
     margin?: number;
 
     /**
+     * @hidden
      * @internal
      */
     storage?: TileStorage;

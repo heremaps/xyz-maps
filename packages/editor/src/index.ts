@@ -76,6 +76,7 @@ let UNDEF;
 
 /**
  * Constructor of a legacy feature.
+ * @public
  * @deprecated Use `editor.addFeature(geojson)` with a GeoJSON Feature instead.
  * @hidden
  */
@@ -91,6 +92,7 @@ interface LegacyFeatureConstructor {
 
 
 /**
+ * @public
  * @deprecated Use `editor.addFeature(geojson)` with a GeoJSON Feature instead, e.g. `editor.addFeature({type: 'Feature', properties: {featureClass: 'MARKER'}, geometry: {type: 'Point', coordinates: [lon, lat]}})
  * @hidden
  */
@@ -163,6 +165,7 @@ for (let i = 0; i < dns.length - 1; i++) {
 }
 // support for deprecated legacy (namespace based) api interface
 /**
+ * @public
  * @deprecated Use named exports from `@here/xyz-maps-editor`, or `here.xyz.maps.editor.Editor` with script tags.
  * @hidden
  */
@@ -171,6 +174,7 @@ const editor = {
     features: features,
     EditOperation,
     /**
+     * @public
      * @deprecated Use `PixelPoint` from `@here/xyz-maps-core` (or `here.xyz.maps.PixelPoint`) instead.
      * @hidden
      */
@@ -180,6 +184,7 @@ const editor = {
         this.z = z || 0;
     } as unknown as {new(x: number, y: number, z?: number): {x: number; y: number; z: number}},
     /**
+     * @public
      * @deprecated Use GeoJSON coordinate arrays `[longitude, latitude, altitude?]` for features, or core `GeoPoint` for map positions.
      * @hidden
      */
@@ -222,6 +227,7 @@ EditableFeatureProvider.setFeatureClassResolver(function(this: EditableFeaturePr
 });
 
 /**
+ * @public
  * @deprecated Use named exports from `@here/xyz-maps-editor`, or the flat `here.xyz.maps.editor` exports with script tags.
  * @hidden
  */
@@ -229,31 +235,37 @@ export default editor;
 
 declare global {
     /**
- * @hidden
- */
+     * @public
+     * @hidden
+     */
     namespace XYZMaps {
         /**
- * @hidden
- */
+         * @public
+         * @hidden
+         */
         type EditorExports = Omit<typeof import('@here/xyz-maps-editor'), 'default'>;
         /**
- * @hidden
- */
+         * @public
+         * @hidden
+         */
         interface Editor extends EditorExports {
             /**
+             * @public
              * @deprecated Use core `PixelPoint` (`here.xyz.maps.PixelPoint`) instead.
              * @hidden
              */
             PixelCoordinate: typeof import('@here/xyz-maps-editor').default.PixelCoordinate;
             /**
+             * @public
              * @deprecated Use GeoJSON coordinate arrays for features, or core `GeoPoint` for map positions.
              * @hidden
              */
             GeoCoordinate: typeof import('@here/xyz-maps-editor').default.GeoCoordinate;
         }
         /**
- * @hidden
- */
+         * @public
+         * @hidden
+         */
         interface Maps {
             editor: Editor;
         }

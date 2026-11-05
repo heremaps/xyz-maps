@@ -266,6 +266,7 @@ export default abstract class TileProvider {
     };
 
     /**
+     * @public
      * @deprecated please use {@link TileProvider.getCachedTiles} instead.
      * @hidden
      */

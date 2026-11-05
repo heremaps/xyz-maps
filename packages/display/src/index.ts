@@ -61,16 +61,19 @@ export default Map;
 
 declare global {
     /**
- * @hidden
- */
+     * @public
+     * @hidden
+     */
     namespace XYZMaps {
         /**
- * @hidden
- */
+         * @public
+         * @hidden
+         */
         type DisplayExports = Omit<typeof import('@here/xyz-maps-display'), 'default'>;
         /**
- * @hidden
- */
+         * @public
+         * @hidden
+         */
         interface Maps extends DisplayExports {}
     }
 }

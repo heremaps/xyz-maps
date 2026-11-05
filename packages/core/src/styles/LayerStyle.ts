@@ -339,6 +339,7 @@ export interface LayerStyle {
     definitions?: { [definitionName: string]: boolean | number | StyleExpression | any[] | null };
 
     /**
+     * @public
      * @deprecated define strokeWidth style property using a "StyleZoomRange" value instead.
      * @hidden
      */

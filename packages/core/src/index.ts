@@ -174,6 +174,7 @@ XYZMAPS.common = common;
 
 /**
  * @hidden
+ * @public
  * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the geo namespace.
  */
 const geo = XYZMAPS.geo = {
@@ -182,6 +183,7 @@ const geo = XYZMAPS.geo = {
 };
 /**
  * @hidden
+ * @public
  * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the pixel namespace.
  */
 const pixel = XYZMAPS.pixel = {
@@ -191,6 +193,7 @@ const pixel = XYZMAPS.pixel = {
 
 /**
  * @hidden
+ * @public
  * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the layers namespace.
  */
 const layers = XYZMAPS.layers = {
@@ -203,6 +206,7 @@ const layers = XYZMAPS.layers = {
 
 /**
  * @hidden
+ * @public
  * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the styles namespace.
  */
 const styles = XYZMAPS.styles = {
@@ -211,6 +215,7 @@ const styles = XYZMAPS.styles = {
 
 /**
  * @hidden
+ * @public
  * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the features namespace.
  */
 const features = XYZMAPS.features = {
@@ -220,6 +225,7 @@ const features = XYZMAPS.features = {
 
 /**
  * @hidden
+ * @public
  * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the tile namespace.
  */
 const tile = XYZMAPS.tile = {
@@ -231,6 +237,7 @@ XYZMAPS.build = build;
 
 /**
  * @hidden
+ * @public
  * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the providers namespace.
  */
 const providers = XYZMAPS.providers = {
@@ -251,6 +258,7 @@ export {pixel, tile, layers, styles, features, providers};
 
 /**
  * @hidden
+ * @public
  * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the projection namespace.
  */
 export const projection = XYZMAPS.projection = {
@@ -260,6 +268,7 @@ export const projection = XYZMAPS.projection = {
 
 /**
  * @hidden
+ * @public
  * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the loaders namespace.
  */
 export const loaders = XYZMAPS.loaders = {
@@ -269,6 +278,7 @@ export const loaders = XYZMAPS.loaders = {
 
 /**
  * @hidden
+ * @public
  * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the service namespace.
  */
 export const service = XYZMAPS.service || {
@@ -277,6 +287,7 @@ export const service = XYZMAPS.service || {
 
 /**
  * @hidden
+ * @public
  * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the default legacy namespace.
  */
 export default {
@@ -285,6 +296,7 @@ export default {
     styles,
     /**
      * @hidden
+     * @public
      * @deprecated Use direct named exports from `@here/xyz-maps-core` instead of the geo namespace.
      */
     geo,
@@ -300,10 +312,12 @@ export default {
 
 declare global {
     /**
+     * @public
      * @hidden
      */
     namespace XYZMaps {
         /**
+         * @public
          * @hidden
          */
         type CoreExports = Omit<typeof import('@here/xyz-maps-core'),
@@ -311,6 +325,7 @@ declare global {
             'providers' | 'projection' | 'loaders' | 'service'>;
 
         /**
+         * @public
          * @hidden
          */
         interface Maps extends CoreExports {

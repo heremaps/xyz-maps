@@ -47,6 +47,7 @@ export interface LocalProviderOptions extends EditableFeatureProviderOptions {
      */
     editable?: boolean;
     /**
+     * @hidden
      * @internal
      */
     storage?: TileStorage;
