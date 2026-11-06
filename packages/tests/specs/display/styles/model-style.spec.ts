@@ -21,7 +21,7 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './model-style.json';
-import {LocalProvider, ModelData, ModelStyle, OBJModelSource, TileLayer} from '@here/xyz-maps-core';
+import {CircleStyle, LocalProvider, ModelData, ModelStyle, OBJModelSource, TileLayer} from '@here/xyz-maps-core';
 import {describe, beforeAll, afterAll, beforeEach, afterEach, it, expect} from 'vitest';
 
 
@@ -585,7 +585,7 @@ function modelCoverageTests(geometryType: 'Point' | 'Polygon' | 'MultiPolygon') 
             geometry: {type: geometryType, coordinates: geometryCoordinates()},
             properties: {}
         });
-        layer.setStyleGroup(feature, [style]);
+        layer.setStyleGroup(feature, [{...style}]);
         container = document.getElementById('map');
         display = new Map(container, {
             // @ts-ignore
@@ -618,6 +618,65 @@ function modelCoverageTests(geometryType: 'Point' | 'Polygon' | 'MultiPolygon') 
         const eastEdge = display.geoToPixel(tileWidth, anchor[1]);
         expect(eastEdge.x).toBeLessThan(0);
         await expectRedAndPickable([{x: 200, y: 300}, {x: 400, y: 300}, {x: 600, y: 300}]);
+    });
+
+    for (const mode of ['static', 'callback', 'expression'] as const) {
+        it(`renders and picks ${mode} coordinate anchors with unchanged footprint coverage`, async () => {
+            const coordinate: [number, number] = [anchor[0] + tileWidth * 4, anchor[1]];
+            feature.properties.anchorPoint = {coordinates: coordinate};
+            const modelAnchor: ModelStyle['anchor'] = mode === 'static' ? coordinate :
+                mode === 'callback' ? (f) => f.properties.anchorPoint?.coordinates ?? 'Center' :
+                    ['get', 'coordinates', ['get', 'anchorPoint']];
+            layer.setStyleGroup(feature, [{...style, anchor: modelAnchor}]);
+            if (geometryType === 'Point') {
+                await expectRedAndPickable([{x: 200, y: 300}, {x: 600, y: 300}]);
+            } else {
+                await expectRedAndPickable([{x: 600, y: 300}, {x: 700, y: 300}]);
+                await expectCanvasPixelColor(container, {x: 200, y: 300}, '#ffffff');
+                expect(display.getFeatureAt({x: 200, y: 300}, {layers: [layer]})).toBeUndefined();
+            }
+        });
+    }
+
+    if (geometryType !== 'Point') {
+        for (const mode of ['static', 'callback', 'expression', 'zoom-map'] as const) {
+            it(`renders and picks a circle at a ${mode} polygon coordinate anchor`, async () => {
+                const initial: [number, number] = [center.longitude - tileWidth / 2, center.latitude];
+                const coordinate: [number, number] = [center.longitude + tileWidth / 2, center.latitude];
+                const circle: CircleStyle = {
+                    type: 'Circle', zIndex: 0, radius: 16, fill: '#ff0000', anchor: initial
+                };
+                const previous = display.geoToPixel(...initial);
+                const target = display.geoToPixel(...coordinate);
+                layer.setStyleGroup(feature, [circle]);
+                await expectRedAndPickable([previous]);
+
+                feature.properties.circleAnchor = coordinate;
+                const circleAnchor: CircleStyle['anchor'] = mode === 'static' ? coordinate :
+                    mode === 'callback' ? (f) => f.properties.circleAnchor :
+                        mode === 'expression' ? ['get', 'circleAnchor'] : {18: coordinate};
+                layer.setStyleGroup(feature, [{
+                    type: 'Circle', zIndex: 0, radius: 16, fill: '#ff0000', anchor: circleAnchor
+                }]);
+                await expectRedAndPickable([target]);
+                await expectCanvasPixelColor(container, previous, '#ffffff');
+                expect(display.getFeatureAt(previous, {layers: [layer]})).toBeUndefined();
+            });
+        }
+    }
+
+    it('renders and picks model coordinate zoom stops across a zoom transition', async () => {
+        const coordinate: [number, number] = [anchor[0] + tileWidth * 4, anchor[1]];
+        layer.setStyleGroup(feature, [{
+            ...style, anchor: {18: coordinate, 19: 'Center'}
+        }]);
+        if (geometryType !== 'Point') {
+            await expectRedAndPickable([{x: 600, y: 300}]);
+            await expectCanvasPixelColor(container, {x: 200, y: 300}, '#ffffff');
+            expect(display.getFeatureAt({x: 200, y: 300}, {layers: [layer]})).toBeUndefined();
+        }
+        await waitForViewportReady(display, () => display.setZoomlevel(19));
+        await expectRedAndPickable([{x: 400, y: 300}]);
     });
 
     it('keeps translucent coverage continuous and single-blended across tile seams', async () => {

@@ -20,7 +20,7 @@
 import {GeometryBuffer} from './../GeometryBuffer';
 import {Task} from '@here/xyz-maps-common';
 
-import {getPolygonCenter, getValue} from '../../../styleTools';
+import {getPolygonAnchor, getValue} from '../../../styleTools';
 import {Feature, StyleGroup, Tile, TileLayer, webMercator} from '@here/xyz-maps-core';
 import {Layer} from '../../../Layers';
 import {CollisionGroup, FeatureBufferBuilder} from './FeatureBufferBuilder';
@@ -60,7 +60,7 @@ const handlePolygons = (
                 }
             }
         } else if (multiIndex == 0) {
-            const center = getPolygonCenter(style, feature, zoom);
+            const center = getPolygonAnchor(style, feature, zoom);
             // A building model can span its polygon footprint, so emit it in every covered tile,
             // even when its anchor is elsewhere. clipping then limits each instance to its tile.
             if (type === 'Model' || tile.isInside(center)) {

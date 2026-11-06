@@ -66,7 +66,10 @@ import {LinearGradient} from './HeatmapStyle';
  * {zIndex: 0, type: "Sphere", radius: 16, fill: "#FFFFFF"}
  * ```
  */
-export interface Style {
+export type Style = CommonStyle;
+
+/** @hidden */
+export interface CommonStyle {
     /**
      * Indicates type of the shape to render.
      * Its value must be one of the following: "Circle", "Rect", "Text", "Image", "Line", "Polygon", "VerticalLine", "Box" or "Sphere",
@@ -509,7 +512,13 @@ export interface Style {
     lineWrap?: number | StyleValueFunction<number> | StyleZoomRange<number> | StyleExpression<number>;
 
     /**
-     * Sets the anchor point for styles of type "Circle", "Rect", "Image" and "Text" used with Line or Polygon geometry.
+     * Sets the anchor point for "Circle", "Rect", "Image", "Text" and "Model" styles on Polygon/MultiPolygon,
+     * and for non-model styles on Line geometry.
+     * Polygon/MultiPolygon also accepts a WGS84 [longitude, latitude] pair in degrees.
+     * Point geometries keep their own coordinates.
+     * Zoom-map stops are rounded to integers and prepared for integer zooms 1–20.
+     * They select the last reached stop (or the first stop below the stop range),
+     * without interpolation, retaining the last stop above the stop range.
      *
      * Possible values for Line geometry are "Coordinate" and "Line".
      * - "Coordinate": the respective style is displayed at each coordinate of the polyline.
@@ -521,7 +530,10 @@ export interface Style {
      *
      * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default for styles of type "Text" is "Line", while "Coordinate" is the default for styles of type "Circle", "Rect" or "Image".
      */
-    anchor?: 'Line' | 'Coordinate' | 'Centroid' | 'Center' | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
+    anchor?: 'Line' | 'Coordinate' | 'Centroid' | 'Center' | [number, number]
+        | StyleValueFunction<string | [number, number]>
+        | StyleZoomRange<string | [number, number]>
+        | StyleExpression<string | [number, number]>;
 
     /**
      * Enable or disable the space check for point styles on line geometries.

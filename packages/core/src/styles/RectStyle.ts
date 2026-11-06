@@ -202,13 +202,20 @@ export interface RectStyle {
      * - "Coordinate": the respective style is displayed at each coordinate of the polyline.
      * - "Line": the respective style is displayed on the shape of the polyline when there is enough space. See {@link checkLineSpace} to disable the space check.
      *
-     * Possible values for Polygon geometry are "Center" and "Centroid".
+     * Polygon/MultiPolygon also accepts a WGS84 [longitude, latitude] pair in degrees.
+     * Coordinates can be supplied directly, by callback, expression or discrete zoom map.
+     * Zoom-map values are not interpolated. Point geometries keep their own coordinates.
+     *
+     * Named values for Polygon/MultiPolygon are "Center" and "Centroid".
      * - "Center": the center of the bounding box of the polygon.
      * - "Centroid": the geometric centroid of the polygon geometry.
      *
      * @defaultValue For Polygon geometry the default is "Center". For Line geometry the default is "Coordinate".
      */
-    anchor?: 'Line' | 'Coordinate' | 'Centroid' | StyleValueFunction<string> | StyleZoomRange<string> | StyleExpression<string>;
+    anchor?: 'Line' | 'Coordinate' | 'Centroid' | 'Center' | [number, number]
+        | StyleValueFunction<string | [number, number]>
+        | StyleZoomRange<string | [number, number]>
+        | StyleExpression<string | [number, number]>;
 
     /**
      * Enable or disable the space check for point styles on line geometries.

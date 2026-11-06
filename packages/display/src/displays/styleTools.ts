@@ -54,6 +54,7 @@ enum ValueType {
 
 const parsePropertyNames = {
     'type': {value: ValueType.Number},
+    'anchor': {value: ValueType.String},
     'zIndex': {value: ValueType.Number},
     'fill': {value: ValueType.Color},
     'stroke': {value: ValueType.Color},
@@ -112,13 +113,40 @@ export const getTextString = (style, feature: Feature, level: number) => {
     }
 };
 
-export const fillMap = (searchMap, parseSizeValue: boolean, map = {}) => {
-    let fixedZoomMap = {};
+export const fillMap = <T>(searchMap: StyleZoomRange<T>, parseSizeValue: boolean, map: StyleZoomRange<T> = {}): StyleZoomRange<T> => {
+    const fixedZoomMap: StyleZoomRange<T> = {};
     for (let zoom in searchMap) {
         fixedZoomMap[Math.round(Number(zoom))] = searchMap[zoom];
     }
     for (let zoom = 1; zoom <= 20; zoom++) {
         map[zoom] = searchLerp(fixedZoomMap, zoom, parseSizeValue);
+    }
+    return map;
+};
+
+export const fillDiscreteMap = <T>(searchMap: StyleZoomRange<T>): StyleZoomRange<T> => {
+    const fixedZoomMap: StyleZoomRange<T> = {};
+    let first = Infinity;
+    let initial = -Infinity;
+    for (const zoom in searchMap) {
+        const stop = Math.round(Number(zoom));
+        fixedZoomMap[stop] = searchMap[zoom];
+        if (stop < first) {
+            first = stop;
+        }
+        if (stop <= 1 && stop > initial) {
+            initial = stop;
+        }
+    }
+    const map: StyleZoomRange<T> = {};
+    if (first !== Infinity) {
+        let value = fixedZoomMap[initial === -Infinity ? first : initial];
+        for (let zoom = 1; zoom <= 20; zoom++) {
+            if (zoom in fixedZoomMap) {
+                value = fixedZoomMap[zoom];
+            }
+            map[zoom] = value;
+        }
     }
     return map;
 };
@@ -541,12 +569,15 @@ export const parseColorMap = (map: StyleZoomRange<string | number | Color.RGBA>)
     return map as StyleZoomRange<Color.RGBA>;
 };
 
-export const createZoomRangeFunction = (map: StyleZoomRange<Color.RGBA>, /* isFeatureContext?:boolean,*/ parseSizeValue?: boolean) => {
-    map = fillMap(map, parseSizeValue);
-    // return new Function('f,zoom', `return (${JSON.stringify(map)})[zoom];`);
-    const range = (feature, zoom?: number) => {
-        return map[zoom ?? feature];
-    };
+
+export const createZoomRangeFunction = <T>(
+    map: StyleZoomRange<T>,
+    parseSizeValue?: boolean,
+    // Discrete ranges select the last reached stop instead of interpolating values.
+    discrete = false
+) => {
+    map = discrete ? fillDiscreteMap(map) : fillMap(map, parseSizeValue);
+    const range = (feature: any, zoom?: number): T => map[zoom ?? feature];
     range.map = map; // dbg
     return range;
 };
@@ -584,7 +615,7 @@ const parseStyleGroup = (styleGroup: readonly(Style & { __p?: true })[], expPars
                 } else {
                     // check if value is a "StyleZoomRange"
                     if (value && typeof value == 'object' && !Array.isArray(value) &&
-                        // skip Gradients
+                        // Exclude gradient objects from zoom-map handling.
                         !value.type
                     ) {
                         if (name == 'stroke' || name == 'fill') {
@@ -592,7 +623,7 @@ const parseStyleGroup = (styleGroup: readonly(Style & { __p?: true })[], expPars
                             parseColorMap(value);
                         }
                         const parseSizeValue = !allowedFloatProperties[name];
-                        style[name] = createZoomRangeFunction(value, parseSizeValue);
+                        style[name] = createZoomRangeFunction(value, parseSizeValue, name === 'anchor');
                     }
                 }
             }
@@ -602,22 +633,23 @@ const parseStyleGroup = (styleGroup: readonly(Style & { __p?: true })[], expPars
     return styleGroup;
 };
 
-export const getPolygonCenter = (style: Style, feature: Feature, zoom: number) => {
+export const getPolygonAnchor = (style: Style, feature: Feature, zoom: number) => {
     const anchor = getValue('anchor', style, feature, zoom);
     const {geometry} = feature;
-    let center;
+
     if (anchor == 'Centroid') {
-        center = geometry._c ||= geometryUtils.centroid(<GeoJSONCoordinate[][]>(geometry.type == 'Polygon' ? geometry.coordinates : geometry.coordinates[0]));
-    } else {
-        center = geometry._pc;
-        if (!center) {
-            const {bbox} = feature;
-            const minY = webMercator.lat2y(bbox[1], 1);
-            const maxY = webMercator.lat2y(bbox[3], 1);
-            const centerLat = webMercator.y2lat((maxY + minY) * .5, 1);
-            center = geometry._pc = [(bbox[0] + bbox[2]) * 0.5, centerLat];
-            // center = [(bbox[0] + bbox[2]) * 0.5, (bbox[1] + bbox[3]) * 0.5];
-        }
+        return geometry._c ||= geometryUtils.centroid(<GeoJSONCoordinate[][]>(geometry.type == 'Polygon' ? geometry.coordinates : geometry.coordinates[0]));
+    } else if (Array.isArray(anchor) && anchor.length > 1) {
+        return anchor;
+    }
+    let center = geometry._pc;
+    if (!center) {
+        const {bbox} = feature;
+        const minY = webMercator.lat2y(bbox[1], 1);
+        const maxY = webMercator.lat2y(bbox[3], 1);
+        const centerLat = webMercator.y2lat((maxY + minY) * .5, 1);
+        center = geometry._pc = [(bbox[0] + bbox[2]) * 0.5, centerLat];
+        // center = [(bbox[0] + bbox[2]) * 0.5, (bbox[1] + bbox[3]) * 0.5];
     }
     return center;
 };

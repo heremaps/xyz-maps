@@ -24,7 +24,7 @@ import {
     StyleGroup,
     getValue,
     getSizeInPixel,
-    getPolygonCenter
+    getPolygonAnchor
 } from '../displays/styleTools';
 import {Map} from '../Map';
 import {Feature} from '@here/xyz-maps-core';
@@ -287,7 +287,7 @@ class Hit {
                 return pointStyle && this.geometry(
                     halfWidth,
                     halfHeight,
-                    getPolygonCenter(pointStyle, feature, zoomlevel),
+                    getPolygonAnchor(pointStyle, feature, zoomlevel),
                     'Point',
                     featureStyle,
                     layerIndex,

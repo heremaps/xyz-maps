@@ -374,6 +374,28 @@ export interface ModelStyle {
     type: 'Model';
 
     /**
+     * Places the model origin on a Polygon or MultiPolygon. Defaults to "Center"
+     * (the projected bounding-box center); "Centroid" uses the geometric centroid.
+     * A coordinate is a WGS84 [longitude, latitude] pair in degrees, not pixels.
+     *
+     * This placement is independent of model rotation, scale, transform and local
+     * {@link translate}. Point geometries keep their own coordinates.
+     * The feature footprint, tile coverage and terrain coverage are unchanged;
+     * moving the origin does not expand coverage beyond the feature bounds.
+     * Zoom-map stops are rounded to integers and prepared for integer zooms 1–20,
+     * like other style zoom maps. They select the last reached stop, using the first
+     * below the stop range and the last above it within those supported zooms.
+     * Values (including coordinates) are not interpolated.
+     *
+     * @example
+     * anchor: f => f.properties.anchorCoordinate ?? 'Center'
+     */
+    anchor?: 'Center' | 'Centroid' | [number, number]
+        | StyleZoomRange<'Center' | 'Centroid' | [number, number]>
+        | StyleValueFunction<'Center' | 'Centroid' | [number, number]>
+        | StyleExpression<'Center' | 'Centroid' | [number, number]>;
+
+    /**
      * Indicates the drawing order within a layer.
      * Styles with larger zIndex value are rendered above those with smaller values.
      * The zIndex is defined relative to the "zLayer" property.
