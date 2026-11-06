@@ -35,19 +35,10 @@ type ObjParserWorkerResult = {
     srcObj?: Uint8Array;
 };
 
-const isInlineModelTextureData = (value: unknown): value is ModelTextureData => !!value
-    && typeof value === 'object'
-    && 'width' in value
-    && 'height' in value
-    && 'data' in value;
-
 const worker = function() {
     const DEFAULT = 'default';
-    const isModelTextureData = (value: unknown): value is ModelTextureData => !!value
-        && typeof value == 'object'
-        && 'width' in value
-        && 'height' in value
-        && 'data' in value;
+    const isModelTextureData = (value: unknown): value is ModelTextureData =>
+        !!(value as ModelTextureData)?.data;
 
     const parseLine = (line: string) => {
         const regex = /^(\w+)\s+(.*?)\s*(?:#.*)?$/;
@@ -55,17 +46,8 @@ const worker = function() {
         return [key, rawValue];
     };
 
-    let timeTotal = 0;
-    let bytesTotal = 0;
 
-    const parseOBJData = (text: string | Uint8Array) => {
-        const bytes = (typeof text === 'string' ? (new Blob([text])).size : text.length);
-        bytesTotal += bytes;
-
-        // console.log('[OBJ Parser] type:',typeof text, (bytes / 1024).toFixed(2),
-        //     'kb, total:', (bytesTotal / 1024).toFixed(2), 'kb'
-        // );
-
+    const parseOBJ = (text: string | Uint8Array) => {
         const len = text.length;
         let cursor = 0;
         let codeAt: (index: number) => number;
@@ -381,7 +363,6 @@ const worker = function() {
                 skipToNextLine();
                 continue;
             }
-
             if (// firstCode === 118 &&
                 matchesKeyword('vn')) {
                 cursor += 2;
@@ -462,7 +443,6 @@ const worker = function() {
                     }
                     vertexCount++;
                 }
-
                 skipToNextLine();
                 continue;
             }
@@ -501,27 +481,13 @@ const worker = function() {
                 skipToNextLine();
                 continue;
             }
-
             skipToNextLine();
         }
-
-
         return {
             faces,
             geometries,
             mtlLibs
         };
-    };
-
-    const parseOBJ = (text: string | Uint8Array) => {
-        const startTime = performance.now();
-        try {
-            return parseOBJData(text);
-        } finally {
-            const duration = performance.now() - startTime;
-            timeTotal += duration;
-            console.log(`[OBJ Parser] parse: ${duration.toFixed(2)} ms; timeTotal: ${timeTotal.toFixed(2)} ms`);
-        }
     };
 
     const mtlToMaterial = {
@@ -611,10 +577,7 @@ const worker = function() {
                                 return textures[fileName];
                             }
                             if (isModelTextureData(texture)) {
-                                const pixelData = texture.data;
-                                if (!Number.isInteger(texture.width) || texture.width <= 0
-                                    || !Number.isInteger(texture.height) || texture.height <= 0
-                                    || !pixelData || pixelData.length != texture.width * texture.height * 4) {
+                                if (texture.data?.length != texture.width * texture.height * 4) {
                                     throw new Error(`Invalid RGBA pixel data for OBJ texture "${fileName}"`);
                                 }
                                 textures[fileName] = texture;
@@ -623,11 +586,7 @@ const worker = function() {
                             if (typeof texture != 'string') {
                                 throw new Error(`Unsupported OBJ texture source "${fileName}"`);
                             }
-                            const url = texture;
-                            if (!baseUrl && !/^[a-z][a-z\d+.-]*:/i.test(url)) {
-                                throw new Error(`Relative OBJ texture "${fileName}" requires baseUrl or an absolute textures entry`);
-                            }
-                            const response = await fetch(new URL(url, baseUrl).href);
+                            const response = await fetch(new URL(texture, baseUrl).href);
                             if (!response.ok) {
                                 throw new Error(`Failed to load OBJ texture "${fileName}": ${response.status}`);
                             }
