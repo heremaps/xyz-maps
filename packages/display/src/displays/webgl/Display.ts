@@ -95,6 +95,7 @@ const PROCESSED_LIGHTS_SYMBOL = Symbol();
 
 // max target groups encodable in the render sort key (11 bit).
 const TARGET_SORT_RANK_MAX = 0x7ff;
+const UNIFORM_ZOOM_STEPS = 40;
 
 class WebGlDisplay extends BasicDisplay {
     static zoomBehavior: 'fixed' | 'float' = 'float';
@@ -1287,15 +1288,8 @@ class WebGlDisplay extends BasicDisplay {
 
     protected setZoom(zoomLevel: number): boolean {
         if (super.setZoom(zoomLevel)) {
-            this.buckets.forEach((tile: GLTile) => {
-                for (let layerBuffers of tile.data) {
-                    if (layerBuffers) {
-                        for (let buffer of layerBuffers) {
-                            buffer.clearUniformCache();
-                        }
-                    }
-                }
-            });
+            // Update uniforms in 0.025 zoom steps to reduce evaluations while keeping transitions visually smooth.
+            this.render.uniformZoomBucket = Math.floor(zoomLevel * UNIFORM_ZOOM_STEPS);
             return true;
         }
     }

@@ -141,6 +141,9 @@ export interface ProgramContext {
 }
 
 export class GLRender implements BasicRender {
+    // Quantized zoom key for lazy dynamic uniform updates.
+    uniformZoomBucket: number = 0;
+
     static DEFAULT_COLOR_MASK: ColorMask = {
         r: true, g: true, b: true, a: true
     };
@@ -1090,7 +1093,7 @@ export class GLRender implements BasicRender {
             const usesOffscreen = renderTile.needsOffscreenPass();
             let mapScale = this.scale;
 
-            const compiledUniforms = buffer.compileUniforms();
+            const compiledUniforms = buffer.compileUniforms(this.uniformZoomBucket);
             if (!program.isBufferVisible(compiledUniforms.uniforms)) {
                 return;
             }

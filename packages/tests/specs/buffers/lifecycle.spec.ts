@@ -39,6 +39,127 @@ import {FeatureBufferBuildTask} from '../../../display/src/displays/webgl/buffer
 import type {BufferBatch} from '../../../display/src/displays/webgl/buffer/factory/BufferBatch';
 import {Layer, Layers} from '../../../display/src/displays/Layers';
 import {LocalProvider, Tile, TileLayer} from '@here/xyz-maps-core';
+import {Expression} from '@here/xyz-maps-common';
+import WebGlDisplay from '../../../display/src/displays/webgl/Display';
+
+describe('Lazy uniform compilation', () => {
+    const expression = (resolve: () => number) => Object.assign(Object.create(Expression.prototype), {
+        resolve: vi.fn(resolve)
+    });
+
+    it('initializes constants once and refreshes only scalar and unit-pair expressions on zoom', () => {
+        const buffer = new GeometryBuffer(false);
+        let zoom = 4;
+        const scalar = expression(() => zoom);
+        const pair = expression(() => zoom * 2);
+        const constant = vi.fn(() => [1, 2]);
+        Object.defineProperty(buffer.uniforms, 'constant', {enumerable: true, get: constant});
+        buffer.addUniform('scalar', scalar);
+        buffer.addUniform('pair', [pair, 1]);
+        const firstBucket = 0;
+        const initial = buffer.compileUniforms(firstBucket);
+        const initialPair = initial.uniforms.pair;
+        expect(initial.fromCache).toBe(false);
+        expect(initial.uniforms).toMatchObject({constant: [1, 2], scalar: 4, pair: [8, 0]});
+        expect(buffer.compileUniforms(firstBucket).fromCache).toBe(true);
+        expect(scalar.resolve).toHaveBeenCalledTimes(1);
+        zoom = 5;
+        expect(buffer.compileUniforms(1).uniforms).toMatchObject({scalar: 5, pair: [10, 0]});
+        expect(buffer.getUniformData().pair).toBe(initialPair);
+        expect(constant).toHaveBeenCalledTimes(1);
+        expect(scalar.resolve).toHaveBeenCalledTimes(2);
+        expect(pair.resolve).toHaveBeenCalledTimes(2);
+    });
+
+    it('retains cached constants on zoom but fully refreshes explicit invalidations', () => {
+        const buffer = new GeometryBuffer(false);
+        buffer.addUniform('value', 1);
+        buffer.compileUniforms(0);
+        buffer.uniforms.value = 2;
+        expect(buffer.compileUniforms(1).uniforms.value).toBe(1);
+        buffer.clearUniformCache();
+        expect(buffer.compileUniforms(1).uniforms.value).toBe(2);
+        expect(buffer.compileUniforms(1).fromCache).toBe(true);
+    });
+
+    it('invalidates added and replaced uniforms and rebuilds dynamic membership', () => {
+        const buffer = new GeometryBuffer(false);
+        const zoomBucket = 0;
+        const constant = [1, 2];
+        buffer.addUniform('value', constant);
+        buffer.compileUniforms(zoomBucket);
+        const dynamic = expression(() => 3);
+        buffer.addUniform('value', [dynamic, 1]);
+        expect(buffer.compileUniforms(zoomBucket).uniforms.value).toEqual([3, 0]);
+        expect(constant).toEqual([1, 2]);
+        buffer.addUniform('value', 7);
+        buffer.addUniform('added', dynamic);
+        expect(buffer.compileUniforms(zoomBucket).uniforms).toMatchObject({value: 7, added: 3});
+        buffer.compileUniforms(1);
+        expect(dynamic.resolve).toHaveBeenCalledTimes(3);
+        buffer.addUniform('added', 8);
+        buffer.compileUniforms(zoomBucket);
+        buffer.compileUniforms(1);
+        expect(dynamic.resolve).toHaveBeenCalledTimes(3);
+    });
+
+    it('refreshes for each changed zoom bucket', () => {
+        const buffer = new GeometryBuffer(false);
+        const dynamic = expression(() => 3);
+        buffer.addUniform('value', dynamic);
+        buffer.compileUniforms(0);
+        buffer.compileUniforms(1);
+        buffer.compileUniforms(2);
+        expect(dynamic.resolve).toHaveBeenCalledTimes(3);
+    });
+
+    it('quantizes zoom into buckets without visiting cached tiles', () => {
+        const display = Object.create(WebGlDisplay.prototype);
+        const readBuckets = vi.fn(() => {
+            throw new Error('Zoom must not visit cached tiles');
+        });
+        Object.defineProperty(display, 'buckets', {get: readBuckets});
+        display.zoom = 4;
+        display.render = {uniformZoomBucket: 160};
+        display.setZoom(4);
+        expect(display.render.uniformZoomBucket).toBe(160);
+        expect(display.setZoom(4.024)).toBe(true);
+        expect(display.render.uniformZoomBucket).toBe(160);
+        expect(display.setZoom(4.025)).toBe(true);
+        expect(display.render.uniformZoomBucket).toBe(161);
+        display.setZoom(4.025);
+        expect(display.render.uniformZoomBucket).toBe(161);
+        display.setZoom(4.024);
+        expect(display.render.uniformZoomBucket).toBe(160);
+        expect(readBuckets).not.toHaveBeenCalled();
+    });
+
+    it('keeps the skip diagnostic without skipping initialization or explicit invalidation', () => {
+        const diagnosticWindow = window as Window & {_skipUniformCompile?: boolean};
+        const previous = diagnosticWindow._skipUniformCompile;
+        try {
+            diagnosticWindow._skipUniformCompile = true;
+            const buffer = new GeometryBuffer(false);
+            const dynamic = expression(() => 3);
+            buffer.addUniform('value', dynamic);
+            buffer.compileUniforms(0);
+            const zoomBucket = 1;
+            expect(buffer.compileUniforms(zoomBucket).fromCache).toBe(true);
+            expect(dynamic.resolve).toHaveBeenCalledTimes(1);
+            diagnosticWindow._skipUniformCompile = false;
+            buffer.compileUniforms(zoomBucket);
+            expect(dynamic.resolve).toHaveBeenCalledTimes(2);
+            diagnosticWindow._skipUniformCompile = true;
+            buffer.addUniform('constant', 5);
+            expect(buffer.compileUniforms(zoomBucket).uniforms.constant).toBe(5);
+            buffer.clearUniformCache();
+            buffer.compileUniforms(zoomBucket);
+            expect(dynamic.resolve).toHaveBeenCalledTimes(4);
+        } finally {
+            diagnosticWindow._skipUniformCompile = previous;
+        }
+    });
+});
 
 const geometry = () => ({
     position: [0, 0, 0, 2, 0, 0, 0, 3, 4], normal: [0, 1, 0, 0, 1, 0, 0, 1, 0],
@@ -81,8 +202,8 @@ describe('Render-only handoff', () => {
         expect(rendered.groups).toBe(source.groups);
         expect(rendered.uniforms).not.toBe(source.uniforms);
         expect(rendered.getUniformData()).not.toBe(compiledUniforms);
-        expect(rendered.compileUniforms().uniforms.u_opacity).toBe(0.5);
-        expect(rendered.compileUniforms().fromCache).toBe(true);
+        expect(rendered.compileUniforms(0).uniforms.u_opacity).toBe(0.5);
+        expect(rendered.compileUniforms(0).fromCache).toBe(true);
         expect(rendered.idOffsets).toBe(source.idOffsets);
         expect(rendered.rayIntersects).toBe(source.rayIntersects);
         for (const field of ['pass', 'depth', 'blend', 'renderUsage', 'terrainOcclusion', 'zRange',
@@ -416,8 +537,8 @@ describe('Unified buffer lifecycle', () => {
                 expect(Object.keys(rendered.uniforms).slice(0, uniformKeys.length)).toStrictEqual(uniformKeys);
                 for (const key of uniformKeys) expect(rendered.uniforms[key]).toBe(uniforms[key]);
                 expect(rendered.getUniformData()).not.toBe(compiledUniforms);
-                expect(rendered.compileUniforms().uniforms.u_handoff).toBe(uniformValue);
-                expect(rendered.compileUniforms().fromCache).toBe(true);
+                expect(rendered.compileUniforms(0).uniforms.u_handoff).toBe(uniformValue);
+                expect(rendered.compileUniforms(0).fromCache).toBe(true);
                 expect(rendered.rayIntersects).toBe(source.rayIntersects);
                 results.push(...result.buffers);
             }

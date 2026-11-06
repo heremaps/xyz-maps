@@ -147,12 +147,19 @@ const GL_UNSIGNED_INT = 0x1405;
 let UNDEF;
 
 type CompiledUniformCache = {
-    clear: boolean,
+    // Requires a full uniform refresh.
+    clear: boolean;
+    // Whether the last compile reused cached values.
     fromCache: boolean;
-    uniforms: Uniforms
+    // Last compiled uniform values.
+    uniforms: Uniforms;
+    // Uniform names requiring zoom updates.
+    dynamicUniforms: string[];
+    // Last applied renderer zoom bucket.
+    zoomBucket?: number;
 }
 
-export type CompiledUniformData = Omit<CompiledUniformCache, 'clear'>;
+export type CompiledUniformData = Pick<CompiledUniformCache, 'fromCache' | 'uniforms'>;
 
 const _nextBufferUid = new Uint32Array(1);
 
@@ -704,6 +711,7 @@ class GeometryBuffer {
     addUniform(name: string, uniform: Uniform | DynamicUniform) {
         this.uniforms[name] = uniform;
         this.macroMask = undefined;
+        this.clearUniformCache();
     }
 
     getUniform<Name extends keyof this['uniforms'] & string>(name: Name): this['uniforms'][Name];
@@ -810,7 +818,8 @@ class GeometryBuffer {
     private _uniformCache: CompiledUniformCache = {
         clear: true,
         uniforms: {},
-        fromCache: false
+        fromCache: false,
+        dynamicUniforms: []
     };
 
     clearUniformCache() {
@@ -825,30 +834,43 @@ class GeometryBuffer {
      * @internal
      * @hidden
      *
-     * Compiles uniforms for the current context if they are not already cached.
-     *
-     * This method checks if the uniforms need to be compiled. If the uniforms have not been cached,
-     * it compiles them and updates the uniform data. If they are already cached, it marks the data
-     * as being from the cache.
+     * Initializes all uniforms after explicit invalidation. A changed renderer-owned zoom bucket
+     * refreshes only expressions (including expression/unit pairs).
      *
      * @returns - An object representing the compiled uniforms, indicating whether the data was retrieved from the cache or freshly compiled.
      */
-    compileUniforms(): CompiledUniformData {
+    compileUniforms(zoomBucket: number): CompiledUniformData {
         const uniformData = this._uniformCache;
-        if (uniformData.clear) {
-            uniformData.clear = false;
-            uniformData.fromCache = false;
-            const {uniforms} = this;
+        const fullUpdate = uniformData.clear;
+        const zoomChanged = zoomBucket !== uniformData.zoomBucket;
 
-            for (let name in uniforms) {
+        if (fullUpdate || zoomChanged) {
+            uniformData.clear = false;
+            uniformData.zoomBucket = zoomBucket;
+            const {uniforms} = this;
+            const names = fullUpdate ? Object.keys(uniforms) : uniformData.dynamicUniforms;
+
+            if (fullUpdate) {
+                uniformData.dynamicUniforms = [];
+            }
+            uniformData.fromCache = !fullUpdate && names.length === 0;
+
+            for (const name of names) {
                 let u = uniforms[name];
                 if (u instanceof Expression) {
+                    if (fullUpdate) {
+                        uniformData.dynamicUniforms.push(name);
+                    }
                     u = u.resolve();
                 } else if (Array.isArray(u)) {
                     let v0 = u[0];
                     if (v0 instanceof Expression) {
+                        if (fullUpdate) {
+                            uniformData.dynamicUniforms.push(name);
+                        }
                         v0 = v0.resolve();
-                        u = uniformData.uniforms[name] || [0, 0];
+                        // allocate a separate result array, the cached constant may be shared.
+                        u = fullUpdate ? [0, 0] : uniformData.uniforms[name];
                         u[0] = v0;
                         u[1] = 0;
                     }
