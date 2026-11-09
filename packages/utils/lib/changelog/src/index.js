@@ -22,7 +22,8 @@ const {readFileSync, writeFileSync} = require('fs');
 const NO_SCOPE = 'NONE';
 const DEFAULT_DOCS_BASE_URL = 'https://heremaps.github.io/xyz-maps/';
 const CHANGELOG_TYPE_ALIASES = {
-    added: 'add',
+    added: 'feat',
+    add: 'feat',
     fixed: 'fix',
     improved: 'improve'
 };
@@ -83,7 +84,7 @@ const getLastReleaseTag = async (projectRoot) => {
 const CHANGELOG_SCOPE_ORDER = ['editor', 'display', 'core', 'common', 'general'];
 
 const orderByType = (scopes) => {
-    const typeOrder = ['improved', 'improve', 'added', 'add', 'fixed', 'fix'];
+    const typeOrder = ['perf', 'feat', 'improve', 'fix'];
 
     for (let scope in scopes) {
         scopes[scope].sort((a, b) => typeOrder.indexOf(a.type) - typeOrder.indexOf(b.type));

@@ -61,6 +61,11 @@ fix(display): preserve the visible map
 
 The entries above the marker are excluded, and parsing continues below it. Each marker excludes the entries since the previous marker (or since the beginning of the commit), so a marker at the end excludes all entries in the commit. This also works when `Signed-off-by` or other commit footers follow the marker.
 
+## Changelog type normalization and order
+
+Legacy commit types are normalized: `added` and `add` become `feat`, `fixed` becomes `fix`, and `improved` becomes `improve`.
+Known types are rendered in this order: `perf`, `feat`, `improve`, `fix`.
+
 ## Changelog section order
 
 Known scopes are rendered in this order:
