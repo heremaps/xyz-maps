@@ -134,30 +134,20 @@ describe('Lazy uniform compilation', () => {
         expect(readBuckets).not.toHaveBeenCalled();
     });
 
-    it('keeps the skip diagnostic without skipping initialization or explicit invalidation', () => {
-        const diagnosticWindow = window as Window & {_skipUniformCompile?: boolean};
-        const previous = diagnosticWindow._skipUniformCompile;
-        try {
-            diagnosticWindow._skipUniformCompile = true;
-            const buffer = new GeometryBuffer(false);
-            const dynamic = expression(() => 3);
-            buffer.addUniform('value', dynamic);
-            buffer.compileUniforms(0);
-            const zoomBucket = 1;
-            expect(buffer.compileUniforms(zoomBucket).fromCache).toBe(true);
-            expect(dynamic.resolve).toHaveBeenCalledTimes(1);
-            diagnosticWindow._skipUniformCompile = false;
-            buffer.compileUniforms(zoomBucket);
-            expect(dynamic.resolve).toHaveBeenCalledTimes(2);
-            diagnosticWindow._skipUniformCompile = true;
-            buffer.addUniform('constant', 5);
-            expect(buffer.compileUniforms(zoomBucket).uniforms.constant).toBe(5);
-            buffer.clearUniformCache();
-            buffer.compileUniforms(zoomBucket);
-            expect(dynamic.resolve).toHaveBeenCalledTimes(4);
-        } finally {
-            diagnosticWindow._skipUniformCompile = previous;
-        }
+    it('refreshes uniforms after explicit invalidation within the same zoom bucket', () => {
+        const buffer = new GeometryBuffer(false);
+        const dynamic = expression(() => 3);
+        buffer.addUniform('value', dynamic);
+        const zoomBucket = 1;
+        buffer.compileUniforms(zoomBucket);
+        expect(buffer.compileUniforms(zoomBucket).fromCache).toBe(true);
+        expect(dynamic.resolve).toHaveBeenCalledTimes(1);
+        buffer.addUniform('constant', 5);
+        expect(buffer.compileUniforms(zoomBucket).uniforms.constant).toBe(5);
+        expect(dynamic.resolve).toHaveBeenCalledTimes(2);
+        buffer.clearUniformCache();
+        expect(buffer.compileUniforms(zoomBucket).fromCache).toBe(false);
+        expect(dynamic.resolve).toHaveBeenCalledTimes(3);
     });
 });
 
