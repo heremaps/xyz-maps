@@ -19,10 +19,13 @@
 
 import {JSUtils} from '@here/xyz-maps-common';
 import {Feature} from './feature/Feature';
+import {GeoJSONFeature} from '@here/xyz-maps-core';
 
 const EDITOR_NS = '@ns:com:here:editor';
 
-type Snapshot = { [layerId: string]: { [id: string]: Feature } };
+type EditorGeoJSONFeature = GeoJSONFeature & { class: string };
+
+type Snapshot = { [layerId: string]: { [id: string]: EditorGeoJSONFeature } };
 
 class SnapshotStorage {
     private steps: { [index: number]: Snapshot };
@@ -32,10 +35,10 @@ class SnapshotStorage {
     }
 
     private clone(json) {
-        return json ? JSON.parse(JSON.stringify(json)) : json;
+        return json ? JSUtils.clone(json, 'shared-non-json') : json;
     }
 
-    add(step: number, layerId: string, feature: Feature) {
+    add(step: number, layerId: string, feature: EditorGeoJSONFeature) {
         // var layerId   = feature.properties.layerId;
         const data = this.steps[step] || {};
         const layerData = data[layerId] = data[layerId] || {};
@@ -85,18 +88,16 @@ const getEditStates = (geojson) => {
     return geojson.properties[EDITOR_NS];
 };
 
-const createGeoJSON = (feature) => {
-    const cpy = feature.toJSON();
-    const editStates = getEditStates(cpy);
-
+const createGeoJSON = (feature: Feature): EditorGeoJSONFeature => {
+    const cpy = feature.toJSON('shared-non-json') as EditorGeoJSONFeature;
     cpy.class = feature.class;
 
+    const editStates = getEditStates(cpy);
     if (editStates) {
         // do not copy over editStates
         delete editStates.hovered;
         delete editStates.selected;
     }
-
     return cpy;
 };
 //* *****************************************************************************************
@@ -192,7 +193,7 @@ class History {
     };
 
 
-    remove(feature) {
+    remove(feature: Feature) {
         const providerId = feature.getProvider().id;
         if (this.storage.remove(this.current, providerId, feature)) {
             delete this.changes[providerId][feature.id];
@@ -267,14 +268,14 @@ class History {
         return history && history[layerId][feature.id];
     };
 
-    getChanges() {
+    getChanges(): Snapshot {
         if (!this.cached) {
             const storage = this.storage;
             const current = this.current;
             const modified = {};
 
-            for (let s = 1, step; s <= current; s++) {
-                step = storage.get(s);
+            for (let s = 1; s <= current; s++) {
+                const step = storage.get(s);
 
                 // filter out origins..
                 for (const layerId in step) {
@@ -331,10 +332,7 @@ class History {
         }
 
         history.total = ++history.current;
-
         storage.set(history.current, data);
-
-
         history.recoverViewport(0);
     };
 
@@ -342,7 +340,6 @@ class History {
         const t = +new Date;
         const stepToRecover = this.current + stepOffset;
         const snapshot = this.storage.get(stepToRecover);
-        const layers = [];
         const HERE_WIKI = this.iEdit;
 
         this.cached = null;
@@ -356,8 +353,6 @@ class History {
             if (HERE_WIKI.objects.selection.getCurSelObj()) {
                 HERE_WIKI.listeners.trigger('featureUnselected', {'featureUnselected': true});
             }
-
-
             HERE_WIKI.objects.selection.clearSelected();
 
             // sort snapshot. Links need to be handled first to make sure all other features having dependencies to
@@ -419,6 +414,5 @@ class History {
         this.active(a);
     };
 }
-
 
 export default History;

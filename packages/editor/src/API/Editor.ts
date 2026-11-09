@@ -1219,11 +1219,11 @@ export default class Editor {
     info(): Feature[] {
         const iEditor = this._i();
         const pool = [];
-        const lc = iEditor.objects.history.getChanges();
+        const snapShot = iEditor.objects.history.getChanges();
 
-        for (const layerId in lc) {
-            for (const id in lc[layerId]) {
-                pool[pool.length] = JSUtils.clone(lc[layerId][id]);
+        for (const layerId in snapShot) {
+            for (const id in snapShot[layerId]) {
+                pool[pool.length] = JSUtils.clone(snapShot[layerId][id], 'shared-non-json');
             }
         }
         return pool;

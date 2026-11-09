@@ -37,6 +37,7 @@ import {ExpressionParser, Def} from './Expressions/ExpressionParser';
 import {JSONExpression, Expression, ExpressionMode, IExpression, Context} from './Expressions/Expression';
 import {Colors as Color} from './Color';
 import {Pool} from './Pool';
+import PerfTimer from './PerfTimer';
 // make sure global ns is also available for webpack users.
 let scp: any = global;
 'here.xyz.maps'.split('.').forEach((ns) => scp = (scp[ns] = scp[ns] || {}));
@@ -66,7 +67,8 @@ const common = {
     Map,
     vec3,
     geometry,
-    Pool
+    Pool,
+    PerfTimer
 };
 scp.common = common;
 export {
@@ -90,9 +92,12 @@ export {
     Map,
     vec3,
     geometry,
-    Pool
+    Pool,
+    PerfTimer
 };
 export type {AStarNode, Context, Def, IExpression, JSONExpression, TaskOptions};
+export type {CloneMode} from './JSUtils';
+export type {MeasureHandle, MeasureLogMode, MeasureOptions, MeasureStats} from './PerfTimer';
 /**
  * @hidden
  */

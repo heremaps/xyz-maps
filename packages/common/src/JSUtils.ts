@@ -19,6 +19,8 @@
 
 let UNDEF;
 
+export type CloneMode = 'json' | 'structured-clone' | 'shared-non-json';
+
 const extend = (deep: boolean, to, from) => {
     if (from == null || typeof from != 'object') {
         return from;
@@ -59,25 +61,33 @@ const mixin = (to, from) => {
     return to;
 };
 
-const clone = (obj) => {
+const clone = (obj, mode: CloneMode) => {
     // return this.extend(true,o);
     if (typeof obj !== 'object' || !obj) {
         return obj;
     }
-    if (Array.isArray(obj)) {
-        const clonedObj = [];
-        for (let i = 0; i < obj.length; i += 1) {
-            clonedObj[i] = clone(obj[i]);
-        }
-        return clonedObj;
+
+    if (mode !== 'json' && (
+        obj instanceof Blob || obj instanceof ArrayBuffer || ArrayBuffer.isView(obj) ||
+        obj instanceof Map || obj instanceof Set || obj instanceof Date
+    )) {
+        return mode === 'shared-non-json' ? obj : structuredClone(obj);
     }
-    const clonedObj = {};
+
+    if (Array.isArray(obj)) {
+        const cloneArray = [];
+        for (let i = 0; i < obj.length; i += 1) {
+            cloneArray[i] = clone(obj[i], mode);
+        }
+        return cloneArray;
+    }
+    const cloneObj = {};
     for (let i in obj) {
         if (obj.hasOwnProperty(i)) {
-            clonedObj[i] = clone(obj[i]);
+            cloneObj[i] = clone(obj[i], mode);
         }
     }
-    return clonedObj;
+    return cloneObj;
 };
 
 const JSUtils = {
@@ -117,7 +127,9 @@ const JSUtils = {
         return extend(deep, to, from);
     },
 
-    clone: clone,
+    clone: (o, mode: CloneMode = 'json') => {
+        return clone(o, mode);
+    },
 
 
     createObject: Object['create'] || ((o) => {

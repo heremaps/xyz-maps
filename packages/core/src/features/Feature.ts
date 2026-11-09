@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {JSUtils} from '@here/xyz-maps-common';
+import {JSUtils, type CloneMode} from '@here/xyz-maps-common';
 import {FeatureProvider} from '../providers/FeatureProvider';
 import {GeoJSONFeature, GeoJSONBBox, GeoJSONCoordinate} from './GeoJSON';
 import {TileLayer} from '../layers/TileLayer';
@@ -134,7 +134,9 @@ export class Feature<GeometryType = string> implements GeoJSONFeature<GeometryTy
     /**
      * Get the Feature as a JSON Object.
      */
-    toJSON(): GeoJSONFeature {
+    toJSON(): GeoJSONFeature;
+    toJSON(mode: CloneMode): GeoJSONFeature;
+    toJSON(mode: CloneMode = 'json'): GeoJSONFeature {
         return JSUtils.clone({
             id: this.id,
             type: this.type,
@@ -144,7 +146,7 @@ export class Feature<GeometryType = string> implements GeoJSONFeature<GeometryTy
                 type: this.geometry.type,
                 coordinates: this.geometry.coordinates
             }
-        });
+        }, mode);
     };
 
     /**
