@@ -17,7 +17,7 @@
  * License-Filename: LICENSE
  */
 
-import {Tile, Layer as BasicLayer, TileLayer, TerrainTileLayer, LayerStyle} from '@here/xyz-maps-core';
+import {Tile, Layer as BasicLayer, TileLayer, TerrainTileLayer, LayerStyle, type Style} from '@here/xyz-maps-core';
 import {Color, Expression, ExpressionParser} from '@here/xyz-maps-common';
 import {parseColor, parseRGBA, parseStyleGroup} from './styleTools';
 import {defaultLight, ProcessedLights} from './webgl/lights';
@@ -144,7 +144,7 @@ class Layer {
     _z3d: number = Infinity;
     z3d: number;
 
-    processStyleGroup(feature, tileGridZoom: number) {
+    processStyleGroup(feature, tileGridZoom: number): readonly Style[] | undefined {
         const styleGroup = (this.layer as TileLayer).getStyleGroup?.(feature, tileGridZoom);
         if (styleGroup) {
             parseStyleGroup(styleGroup, this.expParser);

@@ -329,7 +329,7 @@ class CrossingTester {
         }
     };
 
-    getStyle() {
+    getStyle(): {[name: string]: Style[]} {
         return this.cStyles;
     }
 }

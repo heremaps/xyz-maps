@@ -599,7 +599,10 @@ export const parseRGBA = (color, zoom: number): Color.RGBA => {
     return color instanceof Function ? toRGB(color(zoom ^ 0)) : color;
 };
 
-const parseStyleGroup = (styleGroup: readonly(Style & { __p?: true })[], expParser: StyleExpressionParser) => {
+const parseStyleGroup = (
+    styleGroup: readonly(Style & { __p?: true })[],
+    expParser: StyleExpressionParser
+): readonly(Style & { __p?: true })[] => {
     for (let style of styleGroup) {
         // process style only once
         if (style.__p) continue;
