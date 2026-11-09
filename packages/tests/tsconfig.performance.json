@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "ES2017",
     "module": "ESNext",
-    "lib": ["ES2017", "dom"],
+    "lib": ["ES2019", "dom"],
     "types": ["node"],
     "paths": {
       "@here/xyz-maps-*": ["packages/*/src"],

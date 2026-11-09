@@ -32,6 +32,7 @@ import {Crossing} from '../API/MCrossing';
 import {Range} from './ERangeSelector';
 import type {RangeSelector} from './ERangeSelector';
 import type {DrawingBoard} from './DrawingBoard';
+import type {DrawingShape} from '../tools/drawingBoards/DrawingShape';
 
 
 const NULL = null;
@@ -100,7 +101,7 @@ export class EditorEvent {
      * e.g. User clicks/taps on a specific Feature on the map.
      * If the event does not refer to any feature, the property is null.
      */
-    readonly target?: Place | Address | Marker | Area | AreaShape | Line | LineShape | Navlink | NavlinkShape | Crossing | Feature | null;
+    readonly target?: Place | Address | Marker | Area | AreaShape | Line | LineShape | Navlink | NavlinkShape | Crossing | DrawingShape | Feature | null;
 
     /**
      * optional event detail data depending on the type of the event.

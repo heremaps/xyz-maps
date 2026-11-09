@@ -22,7 +22,6 @@ import dataset from './worker-preprocessor.json';
 import {describe, it, expect} from 'vitest';
 
 describe('GeoJSON worker preprocessor', function() {
-
     const createTileUrl = () => URL.createObjectURL(new Blob([
         JSON.stringify(dataset)
     ], {type: 'application/geo+json'}));
@@ -182,11 +181,13 @@ describe('GeoJSON worker preprocessor', function() {
             level: 1, url,
             preProcessor: {
                 worker: [
-                    {processor: ({data}, {options}) => {
-                        data[0].properties.bytes = new Uint8Array([1, 2, 3]);
-                        data[0].properties.order = options.value;
-                        return data;
-                    }, options: {value: 'first'}},
+                    {
+                        processor: ({data}, {options}) => {
+                            data[0].properties.bytes = new Uint8Array([1, 2, 3]);
+                            data[0].properties.order = options.value;
+                            return data;
+                        }, options: {value: 'first'}
+                    },
                     {processor: new URL(moduleUrl), options: {value: '-module'}},
                     ({data}) => {
                         data[0].properties.order += '-last';
@@ -244,14 +245,18 @@ describe('GeoJSON worker preprocessor', function() {
         const loader = {load: (_tile, done) => done(JSON.parse(JSON.stringify(dataset)).features)};
         const provider = new GeoJSONProvider({
             level: 1, loader,
-            preProcessor: {main: [
-                ({data, ready}) => {
-                    ready(data); return data;
-                },
-                async ({data}) => {
-                    data[0].properties.chained = true; return data;
-                }
-            ]}
+            preProcessor: {
+                main: [
+                    ({data, ready}) => {
+                        ready(data);
+                        return data;
+                    },
+                    async ({data}) => {
+                        data[0].properties.chained = true;
+                        return data;
+                    }
+                ]
+            }
         });
         try {
             expect((await loadFeature(provider)).properties.chained).toBe(true);
@@ -273,10 +278,12 @@ describe('GeoJSON worker preprocessor', function() {
         const provider = new GeoJSONProvider({
             level: 1,
             loader: {load: (_tile, done) => done(JSON.parse(JSON.stringify(dataset)).features)},
-            preProcessor: {main: ({data, ready}) => {
-                release = () => ready(data);
-                started();
-            }}
+            preProcessor: {
+                main: ({data, ready}) => {
+                    release = () => ready(data);
+                    started();
+                }
+            }
         });
         provider.getTile('0', () => {
             completions++;
@@ -295,21 +302,23 @@ describe('GeoJSON worker preprocessor', function() {
             level: 1,
             url,
             preProcessor: {
-                worker: [{processor: ({data, tile}, {options, utils}) => {
-                    const previous = (globalThis as any).previousTgaTexture;
-                    const texture = utils.decodeTga(new Uint8Array([
-                        0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 24, 0,
-                        128, 3, 2, 1
-                    ]));
-                    (globalThis as any).previousTgaTexture = texture;
-                    data[0].id = 'texture-' + tile.quadkey;
-                    data[0].properties = {
-                        texture,
-                        emptyOptions: Object.keys(options).length == 0,
-                        previousDetached: previous?.data.buffer.byteLength == 0
-                    };
-                    return data;
-                }}, ({data}) => {
+                worker: [{
+                    processor: ({data, tile}, {options, utils}) => {
+                        const previous = (globalThis as any).previousTgaTexture;
+                        const texture = utils.decodeTga(new Uint8Array([
+                            0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 24, 0,
+                            128, 3, 2, 1
+                        ]));
+                        (globalThis as any).previousTgaTexture = texture;
+                        data[0].id = 'texture-' + tile.quadkey;
+                        data[0].properties = {
+                            texture,
+                            emptyOptions: Object.keys(options).length == 0,
+                            previousDetached: previous?.data.buffer.byteLength == 0
+                        };
+                        return data;
+                    }
+                }, ({data}) => {
                     if (data[0].properties.texture.data.buffer.byteLength !== 4) {
                         throw new Error('Buffer detached before the final worker stage');
                     }

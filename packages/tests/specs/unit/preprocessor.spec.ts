@@ -161,6 +161,7 @@ describe('preprocessor phases', () => {
     it('ignores extra keys and accepts structurally valid class instances', () => {
         const processor = ({data}) => data;
         class Options {
+            [key: string]: unknown;
             enabled = true;
         }
         class Pipeline {
