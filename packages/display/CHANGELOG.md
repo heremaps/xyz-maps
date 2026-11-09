@@ -1,3 +1,40 @@
+## 0.47.0 (2026-11-09)
+### editor
+* fix: make Transformer utility resizing accurate and consistent regardless of mouse movement frequency
+* fix: correctly detect the default layer when no layer is passed, see [detectFeatureClass](https://heremaps.github.io/xyz-maps/docs/classes/core.editablefeatureprovider.html#detectFeatureClass)
+
+### display
+* perf: improve rendering performance, especially for very complex maps
+* feat: support raw RGBA model textures via [ModelTextureData](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modeltexturedata.html) in [ModelData.textures](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modeldata.html#textures) and [OBJModelSource.textures](https://heremaps.github.io/xyz-maps/docs/interfaces/core.objmodelsource.html#textures)
+* feat: load [Blob-backed inline OBJ, MTL, and texture assets](https://heremaps.github.io/xyz-maps/docs/interfaces/core.objmodelsource.html) for rendering worker-prepared models
+* feat: allow [Model styles](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modelstyle.html#model) to use inline [OBJModelSource](https://heremaps.github.io/xyz-maps/docs/interfaces/core.objmodelsource.html) data with multiple material libraries and texture sources, enabling models to be supplied from in-memory data without external OBJ or MTL files
+* feat: add [alphaMode](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modelstyle.html#alphamode) and [alphaCutoff](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modelstyle.html#alphacutoff) to control model transparency and texture cutouts, with optional [materialOverrides](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modelstyle.html#materialoverrides) for per-material settings
+* feat: support [specularMap](https://heremaps.github.io/xyz-maps/docs/interfaces/core.material.html#specularmap) and [shininessMap](https://heremaps.github.io/xyz-maps/docs/interfaces/core.material.html#shininessmap) in OBJ materials and respect material-defined [illumination](https://heremaps.github.io/xyz-maps/docs/interfaces/core.material.html#illumination) modes
+* feat: introduce Model style anchors and support WGS84 coordinate [anchors](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modelstyle.html#anchor) on Polygon/MultiPolygon geometries
+* feat: accept UTF-8 byte data via Uint8Array in [OBJModelSource.obj](https://heremaps.github.io/xyz-maps/docs/interfaces/core.objmodelsource.html#obj), with a new byte parser that significantly improves OBJ loading speed and reduces memory usage
+* fix: support [StyleExpression](https://heremaps.github.io/xyz-maps/docs/types/core.StyleExpression.html) and [StyleZoomRange](https://heremaps.github.io/xyz-maps/docs/types/core.StyleZoomRange.html) for anchor values without interpolating zoom-map stops
+* fix: keep 3D models visible and selectable across tile boundaries using the feature bounding box as their footprint, including Polygon and MultiPolygon features
+* fix: prevent overlapping model rendering and transparency artifacts at tile boundaries and during zoom previews
+* fix: improve 3D model picking reliability and ray-intersection performance
+* fix: correctly apply emissive material and style colors in 3D model rendering
+* fix: ensure different models selected through a shared [Model style](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modelstyle.html#model) render with their own geometry
+* fix: prevent shader compilation errors when rendering [models](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modelstyle.html) with altitude set to terrain
+* fix: refresh pending scene changes before picking without redundant redraws
+* fix: stop zoom and flight animations on map destruction and prevent errors related to kinetic panning, repeated compass clicks, and hover detection during or after destruction
+* fix: prevent intermittent duplicate mapview start events when movement resumes
+
+### core
+* feat: add [PreProcessorPipelineOptions](https://heremaps.github.io/xyz-maps/docs/interfaces/core.preprocessorpipelineoptions.html) to run sequential worker preprocessing followed by main-thread processing, while preserving existing single [preProcessor](https://heremaps.github.io/xyz-maps/docs/interfaces/core.remotetileprovideroptions.html#preprocessor) configurations
+* feat: introduce [WorkerPreProcessorContext](https://heremaps.github.io/xyz-maps/docs/interfaces/core.workerpreprocessorcontext.html) with configurable options and utilities for [Base64 decoding](https://heremaps.github.io/xyz-maps/docs/interfaces/core.workerpreprocessorutils.html#decodebase64), [decompression](https://heremaps.github.io/xyz-maps/docs/interfaces/core.workerpreprocessorutils.html#decompress), and [TGA decoding](https://heremaps.github.io/xyz-maps/docs/interfaces/core.workerpreprocessorutils.html#decodetga) into [ModelTextureData](https://heremaps.github.io/xyz-maps/docs/interfaces/core.modeltexturedata.html)
+* feat: run [GeoJSON preprocessing](https://heremaps.github.io/xyz-maps/docs/interfaces/core.preprocessoroptions.html) in a worker for HTTP-backed providers using `preProcessor: {execution: 'worker', processor, options}`, supporting self-contained functions and module URLs while preserving existing main-thread preprocessors
+* feat: support [Blob-backed inline OBJ, MTL, and texture assets](https://heremaps.github.io/xyz-maps/docs/interfaces/core.objmodelsource.html), so worker preprocessors can prepare embedded model data without returning large decoded text strings
+* fix: load UMD bundles correctly via module imports
+
+### general
+* feat: add Core ESM build with inline worker support
+* feat: improve TypeScript support for UMD builds with browser-global declarations and align editor exports with the module API
+* test: replace Karma with Vitest browser mode and stabilize test isolation and synchronization
+
 ## 0.46.1 (2026-10-27)
 ### editor
 * fix: prevent possible TypeError when disabling editing of a hovered Place/Address

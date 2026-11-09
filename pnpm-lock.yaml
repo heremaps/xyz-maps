@@ -239,7 +239,7 @@ importers:
   packages/core:
     dependencies:
       '@here/xyz-maps-common':
-        specifier: ^0.46.1
+        specifier: ^0.47.0
         version: link:../common
     devDependencies:
       '@mapbox/vector-tile':
@@ -282,10 +282,10 @@ importers:
   packages/display:
     dependencies:
       '@here/xyz-maps-common':
-        specifier: ^0.46.1
+        specifier: ^0.47.0
         version: link:../common
       '@here/xyz-maps-core':
-        specifier: ^0.46.1
+        specifier: ^0.47.0
         version: link:../core
     devDependencies:
       '@rollup/plugin-virtual':
@@ -310,13 +310,13 @@ importers:
   packages/editor:
     dependencies:
       '@here/xyz-maps-common':
-        specifier: ^0.46.1
+        specifier: ^0.47.0
         version: link:../common
       '@here/xyz-maps-core':
-        specifier: ^0.46.1
+        specifier: ^0.47.0
         version: link:../core
       '@here/xyz-maps-display':
-        specifier: ^0.46.1
+        specifier: ^0.47.0
         version: link:../display
     devDependencies:
       rolldown:
@@ -335,16 +335,16 @@ importers:
   packages/playground:
     dependencies:
       '@here/xyz-maps-common':
-        specifier: ^0.46.1
+        specifier: ^0.47.0
         version: link:../common
       '@here/xyz-maps-core':
-        specifier: ^0.46.1
+        specifier: ^0.47.0
         version: link:../core
       '@here/xyz-maps-display':
-        specifier: ^0.46.1
+        specifier: ^0.47.0
         version: link:../display
       '@here/xyz-maps-editor':
-        specifier: ^0.46.1
+        specifier: ^0.47.0
         version: link:../editor
       '@monaco-editor/react':
         specifier: ^4.4.5
