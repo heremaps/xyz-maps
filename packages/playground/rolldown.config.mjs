@@ -33,6 +33,8 @@ const pkg = require('./package.json');
 const tsServicePath = require.resolve('typescript/lib/typescript.js');
 
 const env = process.env;
+const apiPath = env.API_PATH || env['api-path'];
+const tokenPath = env.TOKEN_PATH || env['token-path'];
 const DEST = env.destination || settings.path.destination;
 const SRC = env.resource || settings.path.resource;
 const examplesdir = 'examples';
@@ -47,17 +49,17 @@ for (let module in pathCfg) {
     }
 
     let path = env[module + '-path'];
-    if (!path && env['api-path']) {
-        path = join(env['api-path'], pathCfg[module].split('/').pop());
+    if (!path && apiPath) {
+        path = join(apiPath, pathCfg[module].split('/').pop());
     }
     if (path) {
         pathCfg[module] = path;
     }
 }
 
-settings.path.doc = env['doc-path'] || settings.path.doc;
+settings.path.doc = env.DOC_PATH || env['doc-path'] || settings.path.doc;
 settings.monaco.theme = env.theme || settings.monaco.theme;
-settings.path.token = env['token-path'] || settings.path.token;
+settings.path.token = tokenPath || settings.path.token;
 
 if (exclude !== undefined) {
     let value = exclude.split('=');
@@ -214,7 +216,7 @@ const rolldownConfig = [{
 }];
 
 // do not create token.js if custom(remote) path is used
-if (!env['token-path']) {
+if (!tokenPath) {
     const credentialsPath = join(SRC, 'credentials.json');
     let credentials;
 

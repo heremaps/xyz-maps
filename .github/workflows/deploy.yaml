@@ -36,8 +36,18 @@ jobs:
                 run: pnpm run build-doc
             -   name: Build release
                 run: pnpm run build-release
-            -   name: Build playgorund
-                run: pnpm run build-playground -- -- --environment BUILD:production --environment doc-path:../docs/ --environment api-path:../ --environment token-path:${{ secrets.TOKEN_PATH }}
+            -   name: Build playground
+                env:
+                    BUILD: production
+                    DOC_PATH: ../docs/
+                    API_PATH: ../
+                    TOKEN_PATH: ${{ secrets.TOKEN_PATH }}
+                run: |
+                    if [ -z "$TOKEN_PATH" ]; then
+                        echo "TOKEN_PATH secret must be configured for playground deployment." >&2
+                        exit 1
+                    fi
+                    pnpm run build-playground
             -   name: Preapre deployment
                 run: node scripts/prepare-pages.js
             -   name: Deploy to gh-pages

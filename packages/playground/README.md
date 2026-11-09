@@ -22,6 +22,15 @@ pnpm run build
 
 ### Build Playground with custom options
 
+For CI builds, use shell-compatible environment variables:
+
+```sh
+BUILD=production DOC_PATH=../docs/ API_PATH=../ TOKEN_PATH=./token.js pnpm run build
+```
+
+`TOKEN_PATH` specifies an external token script and skips local `credentials.json` loading.
+The legacy `doc-path`, `api-path`, and `token-path` environment names remain supported.
+
 Usage: `pnpm run build [OPTIONS]`
 
 Options:
