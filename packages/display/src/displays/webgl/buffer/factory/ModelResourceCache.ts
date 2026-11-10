@@ -262,7 +262,7 @@ export class ModelResourceCache {
                     alphaCutoff: 0.5,
                     illumination: 2,
                     ambient: [1, 1, 1],
-                    specular: [1, 1, 1],
+                    specular: [0, 0, 0],
                     emissive: [0, 0, 0],
                     specularMap: 'unusedTexture',
                     shininess: 0,

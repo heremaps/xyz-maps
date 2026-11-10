@@ -25,7 +25,7 @@ import toRGB = Color.toRGB;
 import {CompiledUniformMap, UniformMap} from './program/Program';
 
 
-export type ProcessedLights = ((AmbientLight|DirectionalLight) & { color: Color.Color; })[];
+export type ProcessedLights = ((AmbientLight | DirectionalLight) & { color: Color.Color; })[];
 
 export const defaultLight: ProcessedLights = [{
     type: 'ambient',
@@ -35,7 +35,7 @@ export const defaultLight: ProcessedLights = [{
     type: 'directional',
     color: '#fff',
     direction: [0, 0, 1],
-    intensity: 1.0
+    intensity: 0.7
 }, {
     type: 'directional',
     color: '#fff',

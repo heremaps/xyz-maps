@@ -130,8 +130,9 @@ export interface Material {
 
     /**
      * Specular defines the specular highlight color of the material.
+     * Materials without an explicit specular color have no specular highlights unless the style adds one.
      *
-     * @defaultValue [1, 1, 1] (white)
+     * @defaultValue [0, 0, 0] (black)
      */
     specular?: number[];
 

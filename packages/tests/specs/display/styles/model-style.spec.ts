@@ -512,7 +512,7 @@ describe('3D model styles', function() {
             'specular': [1, 1, 1], 'shininess': 32
         }]);
         let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}]);
-        expect(colors[0]).toBe('#ffffff');
+        expect(colors[0]).toBe('#ffb3b3');
     });
 });
 
