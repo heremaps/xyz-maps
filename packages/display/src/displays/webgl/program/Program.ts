@@ -853,7 +853,7 @@ class Program<Buffer extends GeometryBuffer = GeometryBuffer> {
         const {groups, instances} = geoBuffer;
 
         // if (this.name == 'Line' || this.name == 'Image'){
-        // if (this.name === 'Extrude') {
+        // if (this.name === 'Model') {
         //     this.dbgGLState(geoBuffer);
         // }
 

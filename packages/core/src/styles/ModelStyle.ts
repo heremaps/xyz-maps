@@ -453,9 +453,9 @@ export interface ModelStyle {
     };
 
     /**
-     * Configure Face culling.
-     * To enable culling set cullFace to "Front" or "Back", to disable set to false.
-     * The used winding order is counter-clock-wise.
+     * Selects which faces are discarded: "Front" discards front faces, "Back" discards back faces.
+     * Front faces use counter-clockwise vertex winding in model coordinates.
+     * Set to false to render both sides.
      * Face culling is disabled by default.
      *
      * @defaultValue: false

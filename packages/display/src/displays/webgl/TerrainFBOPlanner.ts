@@ -460,18 +460,18 @@ export class TerrainFBOPlanner {
 
                 if ((x + y) & 1) {
                     index[i++] = i00;
-                    index[i++] = i10;
                     index[i++] = i01;
                     index[i++] = i10;
+                    index[i++] = i10;
+                    index[i++] = i01;
                     index[i++] = i11;
-                    index[i++] = i01;
                 } else {
                     index[i++] = i00;
+                    index[i++] = i11;
                     index[i++] = i10;
-                    index[i++] = i11;
                     index[i++] = i00;
-                    index[i++] = i11;
                     index[i++] = i01;
+                    index[i++] = i11;
                 }
             }
         }
@@ -517,11 +517,11 @@ export class TerrainFBOPlanner {
                 const skirtB = mainToSkirt.get(mainB);
 
                 index[i++] = mainB;
-                index[i++] = mainA;
                 index[i++] = skirtB;
                 index[i++] = mainA;
+                index[i++] = mainA;
+                index[i++] = skirtB;
                 index[i++] = skirtA;
-                index[i++] = skirtB;
             }
         }
 
@@ -634,6 +634,7 @@ export class TerrainFBOPlanner {
         synthetic.blend = sourceBuffer.blend;
         synthetic.clip = sourceBuffer.clip;
         synthetic.light = sourceBuffer.light;
+        synthetic.cullFace(sourceBuffer.cullFace());
         synthetic.idOffsets = sourceBuffer.idOffsets;
         synthetic.pointerEvents = sourceBuffer.pointerEvents;
 

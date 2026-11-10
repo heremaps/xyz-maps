@@ -429,11 +429,13 @@ describe('Unified buffer lifecycle', () => {
             source.addInstance(0, 0, 0);
             source.finalize('Terrain');
             planner['configureSyntheticBuffer'](first, '1220', '122', source);
+            expect(first.cullFace()).toBe(source.cullFace());
             const ref = first.attributes.a_position;
             release(first);
             pool.release(first);
             const reused = pool.acquire();
             expect(reused).toBe(first);
+            source.cullFace(0);
             planner['configureSyntheticBuffer'](reused, '1230', '123', source);
             expect(first.finalize('Terrain')).toBe(first);
             expect(first.groups).toHaveLength(1);

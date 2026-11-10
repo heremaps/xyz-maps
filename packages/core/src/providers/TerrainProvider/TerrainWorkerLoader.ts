@@ -45,7 +45,7 @@ export interface TerrainTileLoaderOptions extends HTTPLoaderOptions {
 const QUANTIZED_RANGE = 32767;
 
 const FLAT_TERRAIN_DATA = {
-    indices: new Uint16Array([0, 1, 3, 1, 2, 3]),
+    indices: new Uint16Array([0, 3, 1, 1, 3, 2]),
     vertices: new Uint16Array([
         0, 0, 0,
         QUANTIZED_RANGE, 0, 0,

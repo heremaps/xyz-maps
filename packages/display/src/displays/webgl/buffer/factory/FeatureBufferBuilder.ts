@@ -269,8 +269,7 @@ export class FeatureBufferBuilder {
                     let faceCulling: number;
 
                     if (cullFace) {
-                        // because default winding order is ccw and cullface set to front, we need to flip.
-                        faceCulling = cullFace == 'Front' ? CullFace.BACK : CullFace.FRONT;
+                        faceCulling = cullFace == 'Front' ? CullFace.FRONT : CullFace.BACK;
                     }
 
                     const {resolvedStyle} = batch;

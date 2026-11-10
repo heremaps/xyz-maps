@@ -239,9 +239,10 @@ export class RTINMeshBuilder {
             const meshIndex1 = this.curMeshIndex++;
             const meshIndex2 = this.curMeshIndex++;
             const meshIndex3 = this.curMeshIndex++;
+            // Keep skirt faces aligned with the terrain surface for back-face culling.
             this.meshIndices[meshIndex1] = i1;
-            this.meshIndices[meshIndex2] = i2;
-            this.meshIndices[meshIndex3] = i3;
+            this.meshIndices[meshIndex2] = i3;
+            this.meshIndices[meshIndex3] = i2;
             // this.skirtIndices.push(meshIndex1, meshIndex2, meshIndex3);
         };
         const s1 = addSkirtVertex(i1);
@@ -283,8 +284,11 @@ export class RTINMeshBuilder {
                 processTriangle(bx, by, cx, cy, mx, my);
             } else {
                 const ia = meshIndices[this.curMeshIndex++] = this.addMeshVertex(ax, ay, terrain);
-                const ib = meshIndices[this.curMeshIndex++] = this.addMeshVertex(bx, by, terrain);
-                const ic = meshIndices[this.curMeshIndex++] = this.addMeshVertex(cx, cy, terrain);
+                const ib = this.addMeshVertex(bx, by, terrain);
+                const ic = this.addMeshVertex(cx, cy, terrain);
+                // RTIN's root triangles are clockwise; emit the terrain's front-face winding.
+                meshIndices[this.curMeshIndex++] = ic;
+                meshIndices[this.curMeshIndex++] = ib;
 
                 if (enableSkirts) {
                     if (this.isBorderEdge(ax, ay, bx, by)) this.addSkirtForEdge(ia, ib);

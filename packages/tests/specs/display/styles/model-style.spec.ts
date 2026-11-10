@@ -21,7 +21,9 @@ import {waitForViewportReady} from 'displayUtils';
 import {getCanvasPixelColor, expectCanvasPixelColor, prepare} from 'utils';
 import {Map} from '@here/xyz-maps-display';
 import dataset from './model-style.json';
-import {CircleStyle, LocalProvider, ModelData, ModelStyle, OBJModelSource, TileLayer} from '@here/xyz-maps-core';
+import {
+    CircleStyle, LocalProvider, ModelData, ModelStyle, OBJModelSource, RTINMeshBuilder, TileLayer
+} from '@here/xyz-maps-core';
 import {describe, beforeAll, afterAll, beforeEach, afterEach, it, expect} from 'vitest';
 
 
@@ -513,6 +515,55 @@ describe('3D model styles', function() {
         }]);
         let colors = await getCanvasPixelColor(mapContainer, [{x: 400, y: 300}]);
         expect(colors[0]).toBe('#ffb3b3');
+    });
+
+    it('renders the RTIN heightmap surface when back faces are culled', async () => {
+        const mesh = new RTINMeshBuilder(3, 3).triangulate(new Float32Array(9), {
+            maxError: 0,
+            enableSkirts: true
+        });
+        const position = mesh.vertices.slice();
+        for (let i = 0; i < position.length; i += 3) {
+            position[i] -= 1;
+            position[i + 1] -= 1;
+        }
+        const model: ModelData = {
+            geometries: [{
+                position,
+                index: mesh.indices
+            }],
+            materials: {terrain: {diffuse: [0, 0, 0], emissive: [1, 0, 0], illumination: 0}},
+            textures: {},
+            faces: [{geometryIndex: 0, material: 'terrain'}]
+        };
+        const style: ModelStyle = {
+            ...baseModelStyle,
+            model,
+            scale: [20, 20, 20],
+            rotate: [Math.PI / 2, 0, 0],
+            cullFace: 'Back'
+        };
+        try {
+            modelLayer.setStyleGroup(feature, [style]);
+            const backColor = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+                expect: (colors) => colors[0] === '#ff0000'
+            });
+            expect(backColor).toBe('#ff0000');
+
+            modelLayer.setStyleGroup(feature, [{...style, cullFace: 'Front'}]);
+            const frontColor = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+                expect: (colors) => colors[0] !== '#ff0000'
+            });
+            expect(frontColor).not.toBe('#ff0000');
+
+            modelLayer.setStyleGroup(feature, [{...style, cullFace: false}]);
+            const uncullColor = await getCanvasPixelColor(mapContainer, {x: 400, y: 300}, {
+                expect: (colors) => colors[0] === '#ff0000'
+            });
+            expect(uncullColor).toBe('#ff0000');
+        } finally {
+            modelLayer.setStyleGroup(feature, [baseModelStyle]);
+        }
     });
 });
 
